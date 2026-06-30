@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { quizQuestions } from '../../content/quiz';
 import { computeResult } from './quizLogic';
 import { trackEvent } from '../../lib/trackEvent';
@@ -60,7 +60,71 @@ export default function QuizFlow() {
     );
   }
 
+  if (step === 'conversion') {
+    return (
+      <ConversionForm
+        onSubmit={(name, phone) => {
+          trackEvent('form_submit', { name, phone });
+          setStep('done');
+        }}
+      />
+    );
+  }
+
+  if (step === 'done') {
+    return (
+      <div className="bg-white rounded-soft p-5 shadow-lg shadow-cta/10 text-center">
+        <div className="font-extrabold text-lg text-cta mb-2">Cảm ơn bạn!</div>
+        <p className="text-sm text-cta/80">Đội ngũ tư vấn sẽ liên hệ với bạn sớm nhất.</p>
+      </div>
+    );
+  }
+
   return null;
+}
+
+function ConversionForm({ onSubmit }: { onSubmit: (name: string, phone: string) => void }) {
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+
+  function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    if (!name.trim() || !phone.trim()) {
+      return;
+    }
+    onSubmit(name.trim(), phone.trim());
+  }
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="bg-white rounded-soft p-5 shadow-lg shadow-cta/10 flex flex-col gap-3"
+    >
+      <div className="font-extrabold text-lg text-cta mb-1">Để lại thông tin để nhận tư vấn</div>
+      <input
+        type="text"
+        placeholder="Tên của bạn"
+        value={name}
+        onChange={(event) => setName(event.target.value)}
+        required
+        className="border-2 border-border-lavender rounded-2xl py-3 px-4 text-sm text-cta"
+      />
+      <input
+        type="tel"
+        placeholder="Số điện thoại"
+        value={phone}
+        onChange={(event) => setPhone(event.target.value)}
+        required
+        className="border-2 border-border-lavender rounded-2xl py-3 px-4 text-sm text-cta"
+      />
+      <button
+        type="submit"
+        className="bg-cta text-white font-bold text-sm py-3.5 rounded-soft mt-2"
+      >
+        Gửi thông tin
+      </button>
+    </form>
+  );
 }
 
 function PayoffView({
