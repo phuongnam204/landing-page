@@ -4,6 +4,7 @@ dist/
 .env
 .env.production
 .superpowers/
+.claude/
 
 # logs
 npm-debug.log*
