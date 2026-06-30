@@ -4,9 +4,12 @@ import Hook from '../components/Hook/Hook.astro';
 import Trust from '../components/Trust/Trust.astro';
 import QuizFlow from '../components/InteractiveCore/QuizFlow';
 ---
-<BaseLayout title="Tìm giải pháp cho làn da của bạn">
+<BaseLayout
+  title="Tìm giải pháp cho làn da của bạn"
+  description="Làm quiz ngắn để tìm ra giải pháp chăm sóc da phù hợp với bạn."
+>
   <Hook />
-  <section class="bg-gradient-to-br from-pastel-lavender to-pastel-mint px-5 py-8">
+  <section class="bg-pastel-mint px-5 py-8">
     <QuizFlow client:load />
   </section>
   <Trust />
