@@ -46,5 +46,41 @@ export default function QuizFlow() {
     );
   }
 
+  if (step === 'payoff') {
+    const result = computeResult(answers);
+
+    return (
+      <PayoffView
+        result={result}
+        onContinue={() => {
+          trackEvent('payoff_view', { resultId: result.id });
+          setStep('conversion');
+        }}
+      />
+    );
+  }
+
   return null;
+}
+
+function PayoffView({
+  result,
+  onContinue,
+}: {
+  result: ReturnType<typeof computeResult>;
+  onContinue: () => void;
+}) {
+  return (
+    <div className="bg-white rounded-soft p-5 shadow-lg shadow-cta/10 text-center">
+      <div className="text-xs font-bold text-label-purple uppercase mb-2">Kết quả của bạn</div>
+      <div className="font-extrabold text-xl text-cta mb-2">{result.title}</div>
+      <p className="text-sm text-cta/80 mb-5">{result.description}</p>
+      <button
+        onClick={onContinue}
+        className="inline-block bg-cta text-white font-bold text-sm py-3.5 px-9 rounded-soft"
+      >
+        Nhận tư vấn miễn phí →
+      </button>
+    </div>
+  );
 }
