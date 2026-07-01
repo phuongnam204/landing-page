@@ -21,3 +21,11 @@ html {
 
 html { scrollbar-width: none; }
 html::-webkit-scrollbar { display: none; }
+
+@keyframes quizSlideIn {
+  from { transform: translateX(60px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+.quiz-slide-in {
+  animation: quizSlideIn 220ms ease forwards;
+}
