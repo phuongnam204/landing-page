@@ -243,7 +243,7 @@ function ProgramsScreen({ onContinue }: { onContinue: () => void }) {
               key={program.name}
               className="bg-white rounded-soft p-5 shadow-md shadow-cta/10 flex flex-col gap-2"
             >
-              <div className="font-extrabold text-base text-cta">{program.name}</div>
+              <div className="font-bold text-base text-cta">{program.name}</div>
               <div className="text-xs font-bold text-label-purple">{program.duration}</div>
               <p className="text-sm text-cta/70 leading-relaxed">{program.description}</p>
             </div>
