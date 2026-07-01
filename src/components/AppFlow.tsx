@@ -3,7 +3,7 @@ import { quizQuestions } from '../content/quiz';
 import { computeResult } from './InteractiveCore/quizLogic';
 import { trackEvent } from '../lib/trackEvent';
 
-type Step = 'hero' | 'quiz' | 'payoff' | 'conversion' | 'done';
+type Step = 'hero' | 'quiz' | 'payoff' | 'programs' | 'conversion' | 'done';
 
 export default function AppFlow() {
   const [step, setStep] = useState<Step>('hero');
@@ -53,9 +53,13 @@ export default function AppFlow() {
           result={computeResult(answers)}
           onContinue={() => {
             trackEvent('payoff_view', { resultId: computeResult(answers).id });
-            transitionTo('conversion');
+            transitionTo('programs');
           }}
         />
+      )}
+
+      {step === 'programs' && (
+        <ProgramsScreen onContinue={() => transitionTo('conversion')} />
       )}
 
       {step === 'conversion' && (
@@ -78,15 +82,17 @@ function HeroScreen({ onStart }: { onStart: () => void }) {
   return (
     <div className="h-screen w-full bg-gradient-to-br from-pastel-pink via-pastel-lavender to-pastel-mint flex items-center overflow-hidden">
       <div className="max-w-4xl mx-auto w-full px-5 md:grid md:grid-cols-2 md:gap-12 md:items-center">
-        {/* Placeholder image */}
+        {/* Hero image */}
         <div className="flex justify-center mb-6 md:mb-0">
-          <div className="w-52 h-72 md:w-72 md:h-[400px] bg-white/40 rounded-3xl shadow-lg flex items-center justify-center">
-            <span className="text-cta/30 text-sm text-center px-4">[ Ảnh sản phẩm ]</span>
-          </div>
+          <img
+            src="https://images.unsplash.com/photo-1728727217834-b190862837a3?w=600&q=85&fit=crop&crop=face"
+            alt="Cô gái chăm sóc da"
+            className="w-52 h-72 md:w-72 md:h-[400px] rounded-3xl object-cover object-top shadow-lg"
+          />
         </div>
         {/* Text + CTA */}
         <div className="text-center md:text-left animate-fade-in-up">
-          <h1 className="font-extrabold text-3xl md:text-5xl text-cta leading-tight">
+          <h1 className="font-extrabold text-3xl md:text-4xl text-cta leading-tight">
             Da bạn đang nói gì với bạn?
           </h1>
           <p className="text-sm md:text-base text-cta/70 mt-3">
@@ -117,10 +123,10 @@ function QuizScreen({
   return (
     <div className="h-screen w-full bg-pastel-mint flex items-center justify-center px-5 overflow-hidden">
       <div className="max-w-lg w-full bg-white rounded-soft p-5 md:p-8 shadow-lg shadow-cta/10 animate-fade-in-up">
-        <div className="text-xs md:text-sm font-bold text-label-purple uppercase mb-2">
+        <div className="text-xs font-bold text-label-purple uppercase mb-2">
           Câu {questionIndex + 1}/{quizQuestions.length}
         </div>
-        <div className="font-bold text-lg md:text-xl text-cta mb-4">{question.question}</div>
+        <div className="font-bold text-lg text-cta mb-4">{question.question}</div>
         <div className="flex gap-2.5">
           {question.options.map((option) => (
             <button
@@ -148,13 +154,13 @@ function PayoffView({
     <div className="h-screen w-full bg-pastel-mint flex items-center justify-center px-5 overflow-hidden">
       <div className="max-w-lg w-full bg-white rounded-soft p-5 md:p-8 shadow-lg shadow-cta/10 text-center animate-fade-in-up">
         <div className="text-xs md:text-sm font-bold text-label-purple uppercase mb-2">Kết quả của bạn</div>
-        <div className="font-extrabold text-xl md:text-2xl text-cta mb-2">{result.title}</div>
+        <div className="font-extrabold text-xl text-cta mb-2">{result.title}</div>
         <p className="text-sm md:text-base text-cta/80 mb-5">{result.description}</p>
         <button
           onClick={onContinue}
           className="inline-block bg-cta text-white font-bold text-sm md:text-base py-3.5 px-9 rounded-soft"
         >
-          Nhận tư vấn miễn phí →
+          Xem chương trình phù hợp →
         </button>
       </div>
     </div>
@@ -177,7 +183,7 @@ function ConversionForm({ onSubmit }: { onSubmit: (name: string, phone: string) 
         onSubmit={handleSubmit}
         className="max-w-lg w-full bg-white rounded-soft p-5 md:p-8 shadow-lg shadow-cta/10 flex flex-col gap-3 animate-fade-in-up"
       >
-        <div className="font-extrabold text-lg md:text-xl text-cta mb-1">Để lại thông tin để nhận tư vấn</div>
+        <div className="font-extrabold text-lg text-cta mb-1">Để lại thông tin để nhận tư vấn</div>
         <input
           type="text"
           placeholder="Tên của bạn"
@@ -201,6 +207,57 @@ function ConversionForm({ onSubmit }: { onSubmit: (name: string, phone: string) 
           Gửi thông tin
         </button>
       </form>
+    </div>
+  );
+}
+
+const PROGRAMS = [
+  {
+    name: 'Khởi đầu',
+    duration: '4 tuần',
+    description: 'Phù hợp với mụn nhẹ, lần đầu điều trị. Liệu trình cơ bản giúp làm sạch da và kiểm soát dầu.',
+  },
+  {
+    name: 'Chuyên sâu',
+    duration: '8 tuần',
+    description: 'Kết hợp nhiều bước điều trị, phù hợp mụn từ trung bình. Tập trung vào nguyên nhân gốc rễ.',
+  },
+  {
+    name: 'Toàn diện',
+    duration: '12 tuần',
+    description: 'Dành cho mụn nặng và tái phát. Kết hợp chăm sóc da và tư vấn dinh dưỡng, nội tiết.',
+  },
+];
+
+function ProgramsScreen({ onContinue }: { onContinue: () => void }) {
+  return (
+    <div className="h-screen w-full bg-pastel-lavender flex items-center justify-center px-5 overflow-hidden">
+      <div className="max-w-2xl w-full animate-fade-in-up">
+        <div className="text-center mb-6">
+          <div className="text-xs font-bold text-label-purple uppercase mb-1">Chương trình của chúng tôi</div>
+          <div className="font-extrabold text-xl text-cta">Chương trình trị mụn phù hợp với bạn</div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+          {PROGRAMS.map((program) => (
+            <div
+              key={program.name}
+              className="bg-white rounded-soft p-5 shadow-md shadow-cta/10 flex flex-col gap-2"
+            >
+              <div className="font-extrabold text-base text-cta">{program.name}</div>
+              <div className="text-xs font-bold text-label-purple">{program.duration}</div>
+              <p className="text-sm text-cta/70 leading-relaxed">{program.description}</p>
+            </div>
+          ))}
+        </div>
+        <div className="text-center">
+          <button
+            onClick={onContinue}
+            className="bg-cta text-white font-bold text-sm py-3.5 px-9 rounded-soft hover:opacity-90 transition-opacity"
+          >
+            Nhận tư vấn miễn phí →
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
