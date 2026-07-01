@@ -1,18 +1,10 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Hook from '../components/Hook/Hook.astro';
-import Trust from '../components/Trust/Trust.astro';
-import QuizFlow from '../components/InteractiveCore/QuizFlow';
+import AppFlow from '../components/AppFlow';
 ---
 <BaseLayout
   title="Tìm giải pháp cho làn da của bạn"
   description="Làm quiz ngắn để tìm ra giải pháp chăm sóc da phù hợp với bạn."
 >
-  <Hook />
-  <section id="quiz-section" class="bg-pastel-mint px-5 py-8 md:py-12">
-    <div class="max-w-lg mx-auto">
-      <QuizFlow client:load />
-    </div>
-  </section>
-  <Trust />
+  <AppFlow client:load />
 </BaseLayout>

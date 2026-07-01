@@ -4,6 +4,7 @@
 
 body {
   font-family: 'Poppins', 'Inter', sans-serif;
+  overflow: hidden;
 }
 
 html {
