@@ -122,31 +122,39 @@ export default function AppFlow() {
 
 function HeroScreen({ onStart }: { onStart: () => void }) {
   return (
-    <div className="h-screen w-full bg-gradient-to-br from-pastel-pink via-pastel-lavender to-pastel-mint flex items-center overflow-hidden">
-      <div className="max-w-4xl mx-auto w-full px-5 md:grid md:grid-cols-2 md:gap-12 md:items-center">
+    <div className="h-screen w-full bg-gradient-to-br from-pastel-pink via-pastel-lavender to-pastel-mint dark:from-[#0f0c1a] dark:via-[#1a1030] dark:to-[#0f0c1a] relative flex items-center overflow-hidden transition-colors duration-500">
+      {/* Skin texture overlay — light: subtle multiply; dark: glowing screen */}
+      <div
+        className="absolute inset-0 pointer-events-none bg-cover bg-center hero-texture"
+        style={{
+          backgroundImage:
+            'url(https://images.unsplash.com/photo-1710580889701-9fa8f2cd5927?w=1920&q=40&fit=crop&fm=jpg)',
+        }}
+      />
+      <div className="max-w-4xl mx-auto w-full px-5 md:grid md:grid-cols-2 md:gap-12 md:items-center relative z-10">
         {/* Hero image */}
         <div className="flex justify-center mb-6 md:mb-0">
           <img
             src="https://images.unsplash.com/photo-1728727217834-b190862837a3?w=600&q=85&fit=crop&crop=face"
             alt="Cô gái chăm sóc da"
-            className="w-52 h-72 md:w-72 md:h-[400px] rounded-3xl object-cover object-top shadow-lg"
+            className="w-52 h-72 md:w-72 md:h-[400px] rounded-3xl object-cover object-top shadow-lg dark:brightness-90 dark:ring-2 dark:ring-white/10"
           />
         </div>
         {/* Text + CTA */}
         <div className="text-center md:text-left animate-fade-in-up">
-          <h1 className="font-extrabold text-3xl md:text-4xl text-cta leading-tight">
+          <h1 className="font-extrabold text-3xl md:text-4xl text-cta dark:text-white leading-tight">
             Da bạn đang nói gì với bạn?
           </h1>
-          <p className="text-sm md:text-base text-cta/70 mt-3">
+          <p className="text-sm md:text-base text-cta/70 dark:text-white/70 mt-3">
             Làm quiz 30 giây để tìm ra giải pháp phù hợp với làn da của bạn.
           </p>
           <button
             onClick={onStart}
-            className="mt-6 bg-cta text-white font-bold rounded-soft px-8 py-3.5 hover:opacity-90 transition-opacity"
+            className="mt-6 bg-cta text-white dark:bg-white dark:text-cta font-bold rounded-soft px-8 py-3.5 hover:opacity-90 transition-colors duration-300"
           >
             Khám phá ngay ✨
           </button>
-          <p className="text-xs text-cta/40 mt-3">Hàng nghìn bạn trẻ đã tìm ra giải pháp phù hợp</p>
+          <p className="text-xs text-cta/40 dark:text-white/40 mt-3">Hàng nghìn bạn trẻ đã tìm ra giải pháp phù hợp</p>
         </div>
       </div>
     </div>

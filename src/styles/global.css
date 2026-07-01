@@ -30,6 +30,18 @@ html::-webkit-scrollbar { display: none; }
   animation: quizSlideIn 220ms ease forwards;
 }
 
+/* Hero skin texture — light: subtle multiply, dark: glowing screen */
+.hero-texture {
+  opacity: 0.09;
+  mix-blend-mode: multiply;
+}
+@media (prefers-color-scheme: dark) {
+  .hero-texture {
+    opacity: 0.28;
+    mix-blend-mode: screen;
+  }
+}
+
 @keyframes payoffShake {
   0%,100% { transform: translateX(0); }
   18%      { transform: translateX(-6px); }
