@@ -9,8 +9,10 @@ import QuizFlow from '../components/InteractiveCore/QuizFlow';
   description="Làm quiz ngắn để tìm ra giải pháp chăm sóc da phù hợp với bạn."
 >
   <Hook />
-  <section class="bg-pastel-mint px-5 py-8">
-    <QuizFlow client:load />
+  <section id="quiz-section" class="bg-pastel-mint px-5 py-8 md:py-12">
+    <div class="max-w-lg mx-auto">
+      <QuizFlow client:load />
+    </div>
   </section>
   <Trust />
 </BaseLayout>
