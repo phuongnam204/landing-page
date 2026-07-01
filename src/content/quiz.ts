@@ -9,12 +9,14 @@ export interface QuizQuestion {
   options: QuizOption[];
 }
 
+export type ProgramId = 'khoi-dau' | 'toan-dien' | 'chuyen-sau';
+
 export interface QuizResult {
   id: string;
   title: string;
   skinCondition: string;
   solution: string;
-  suggestedProgram: string;
+  suggestedProgram: ProgramId;
 }
 
 export const quizQuestions: QuizQuestion[] = [
@@ -62,7 +64,7 @@ export const quizQuestions: QuizQuestion[] = [
   {
     id: 'q6',
     question: 'Mụn hay nổi nhiều hơn vào lúc nào?',
-    options: [], // replaced at render time based on q1 answer
+    options: [], // provided at render time via q6Options[answers.q1]
   },
 ];
 

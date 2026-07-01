@@ -15,16 +15,16 @@ describe('computeResult — priority waterfall', () => {
     expect(computeResult({ ...base, q1: 'nu', q2: 'co', q6: 'ky-kinh' }).id).toBe('mun-noi-tiet');
   });
 
-  it('P1: does not trigger for nam even with ky-kinh', () => {
+  it('P1: does not trigger for nam — falls through to da-nhon-mun-viem', () => {
     const result = computeResult({ ...base, q1: 'nam', q2: 'co', q6: 'ky-kinh' });
-    expect(result.id).not.toBe('mun-noi-tiet');
+    expect(result.id).toBe('da-nhon-mun-viem');
   });
 
   it('P2: returns da-nhay-cam for mun do + da-dung + cang-rat', () => {
-    expect(computeResult({ ...base, q2: 'co', q4: 'da-dung', q5: 'cang-rat', q6: 'stress' }).id).toBe('da-nhay-cam');
+    expect(computeResult({ ...base, q2: 'co', q4: 'da-dung', q5: 'cang-rat' }).id).toBe('da-nhay-cam');
   });
 
-  it('P2: does not trigger when q5 is missing (q4=chua-bao-gio)', () => {
+  it('P2: does not trigger when q4 is chua-bao-gio (skipped product use)', () => {
     const result = computeResult({ ...base, q2: 'co', q4: 'chua-bao-gio', q5: undefined as any, q6: 'stress' });
     expect(result.id).not.toBe('da-nhay-cam');
   });
