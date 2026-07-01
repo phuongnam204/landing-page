@@ -161,3 +161,7 @@ Transition: `border-color 160ms ease, background 160ms ease`
 - Thay đổi ConversionForm (chỉ nhận thêm `selectedProgram` prop để pre-fill)
 - Thêm ảnh minh hoạ cho từng profile
 - Backend/analytics tracking
+
+## 9. Mở rộng sau
+
+- **PROGRAMS linh hoạt hơn:** Hiện tại có 3 chương trình cứng (Khởi đầu / Chuyên sâu / Toàn diện). Nếu sau này thêm profile mới không map được vào 3 chương trình hiện có, cần mở rộng danh sách PROGRAMS hoặc tách `suggestedProgram` khỏi card selection (cho phép profile gợi ý một chương trình chưa có trong UI).
