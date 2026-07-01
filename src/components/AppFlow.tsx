@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { quizQuestions } from '../content/quiz';
+import { quizQuestions, q6Options } from '../content/quiz';
 import type { QuizResult } from '../content/quiz';
 import { computeResult } from './InteractiveCore/quizLogic';
 import { trackEvent } from '../lib/trackEvent';
@@ -12,6 +12,8 @@ export default function AppFlow() {
   const [questionIndex, setQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [quizResult, setQuizResult] = useState<QuizResult | null>(null);
+  const [pendingAnswer, setPendingAnswer] = useState<string | null>(null);
+  const [selectedProgram, setSelectedProgram] = useState<string | null>(null);
 
   function transitionTo(nextStep: Step) {
     setIsTransitioning(true);
@@ -21,19 +23,34 @@ export default function AppFlow() {
     }, 300);
   }
 
+  function getNextQuestionIndex(currentIndex: number, currentAnswers: Record<string, string>): number {
+    if (currentIndex === 3 && currentAnswers['q4'] === 'chua-bao-gio') {
+      return 5; // skip Q5, jump to Q6
+    }
+    return currentIndex + 1;
+  }
+
   function handleAnswer(optionId: string) {
+    if (pendingAnswer) return;
+    setPendingAnswer(optionId);
+
     const currentQuestion = quizQuestions[questionIndex];
     const nextAnswers = { ...answers, [currentQuestion.id]: optionId };
-    setAnswers(nextAnswers);
 
-    if (questionIndex < quizQuestions.length - 1) {
-      setQuestionIndex(questionIndex + 1);
-    } else {
-      const result = computeResult(nextAnswers);
-      setQuizResult(result);
-      trackEvent('quiz_complete', { answers: nextAnswers });
-      transitionTo('payoff');
-    }
+    setTimeout(() => {
+      setAnswers(nextAnswers);
+      setPendingAnswer(null);
+
+      if (questionIndex === quizQuestions.length - 1) {
+        const result = computeResult(nextAnswers);
+        setQuizResult(result);
+        setSelectedProgram(result.suggestedProgram);
+        trackEvent('quiz_complete', { answers: nextAnswers });
+        transitionTo('payoff');
+      } else {
+        setQuestionIndex(getNextQuestionIndex(questionIndex, nextAnswers));
+      }
+    }, 150);
   }
 
   const containerClass = `transition-opacity duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`;
@@ -47,7 +64,12 @@ export default function AppFlow() {
       {step === 'quiz' && (
         <QuizScreen
           questionIndex={questionIndex}
-          question={quizQuestions[questionIndex]}
+          question={
+            questionIndex === 5
+              ? { ...quizQuestions[5], options: q6Options[(answers['q1'] as 'nu' | 'nam') ?? 'nu'] }
+              : quizQuestions[questionIndex]
+          }
+          pendingAnswer={pendingAnswer}
           onAnswer={handleAnswer}
         />
       )}
@@ -63,13 +85,20 @@ export default function AppFlow() {
       )}
 
       {step === 'programs' && (
-        <ProgramsScreen onContinue={() => transitionTo('conversion')} />
+        <ProgramsScreen
+          initialSelected={selectedProgram ?? 'khoi-dau'}
+          onContinue={(programId) => {
+            setSelectedProgram(programId);
+            transitionTo('conversion');
+          }}
+        />
       )}
 
       {step === 'conversion' && (
         <ConversionForm
+          selectedProgram={selectedProgram}
           onSubmit={(name, phone) => {
-            trackEvent('form_submit', { name, phone });
+            trackEvent('form_submit', { name, phone, program: selectedProgram });
             transitionTo('done');
           }}
         />
@@ -118,29 +147,55 @@ function HeroScreen({ onStart }: { onStart: () => void }) {
 function QuizScreen({
   questionIndex,
   question,
+  pendingAnswer,
   onAnswer,
 }: {
   questionIndex: number;
   question: { id: string; question: string; options: { id: string; label: string }[] };
+  pendingAnswer: string | null;
   onAnswer: (optionId: string) => void;
 }) {
+  const isVertical = question.options.length > 2;
+  const progress = ((questionIndex + 1) / quizQuestions.length) * 100;
+
   return (
     <div className="h-screen w-full bg-pastel-mint flex items-center justify-center px-5 overflow-hidden">
       <div className="max-w-lg w-full bg-white rounded-soft p-5 md:p-8 shadow-lg shadow-cta/10 animate-fade-in-up">
-        <div className="text-xs font-bold text-label-purple uppercase mb-2">
-          Câu {questionIndex + 1}/{quizQuestions.length}
+        <div className="text-xs font-bold text-label-purple uppercase mb-1">
+          Câu {questionIndex + 1} / {quizQuestions.length}
         </div>
-        <div className="font-bold text-lg text-cta mb-4">{question.question}</div>
-        <div className="flex gap-2.5">
-          {question.options.map((option) => (
-            <button
-              key={option.id}
-              onClick={() => onAnswer(option.id)}
-              className="flex-1 bg-white border-2 border-border-pink rounded-2xl py-4 md:py-5 px-2 text-center font-bold text-sm md:text-base text-cta"
-            >
-              {option.label}
-            </button>
-          ))}
+        <div className="h-[5px] bg-violet-100 rounded-full mb-4 overflow-hidden">
+          <div
+            className="h-full bg-violet-600 rounded-full"
+            style={{ width: `${progress}%`, transition: 'width 400ms ease' }}
+          />
+        </div>
+        <div key={questionIndex} className="quiz-slide-in">
+          <div className="font-bold text-lg text-cta mb-4">{question.question}</div>
+          <div className={isVertical ? 'flex flex-col gap-2.5' : 'flex gap-2.5'}>
+            {question.options.map((option) => (
+              <button
+                key={option.id}
+                onClick={() => onAnswer(option.id)}
+                disabled={!!pendingAnswer}
+                className={[
+                  isVertical ? 'w-full text-left px-4' : 'flex-1 text-center px-2',
+                  'relative border-2 rounded-2xl py-4 font-bold text-sm text-cta',
+                  'transition-colors duration-[160ms]',
+                  pendingAnswer === option.id
+                    ? 'border-violet-600 bg-violet-100'
+                    : 'border-border-pink hover:border-violet-400 hover:bg-violet-50',
+                ].join(' ')}
+              >
+                {option.label}
+                {pendingAnswer === option.id && (
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-violet-600 font-bold text-base">
+                    ✓
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </div>
@@ -172,9 +227,19 @@ function PayoffView({
   );
 }
 
-function ConversionForm({ onSubmit }: { onSubmit: (name: string, phone: string) => void }) {
+function ConversionForm({
+  selectedProgram,
+  onSubmit,
+}: {
+  selectedProgram: string | null;
+  onSubmit: (name: string, phone: string) => void;
+}) {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+
+  const programName = selectedProgram
+    ? PROGRAMS.find((p) => p.id === selectedProgram)?.name
+    : null;
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -188,14 +253,21 @@ function ConversionForm({ onSubmit }: { onSubmit: (name: string, phone: string) 
         onSubmit={handleSubmit}
         className="max-w-lg w-full bg-white rounded-soft p-5 md:p-8 shadow-lg shadow-cta/10 flex flex-col gap-3 animate-fade-in-up"
       >
-        <div className="font-extrabold text-lg text-cta mb-1">Để lại thông tin để nhận tư vấn</div>
+        <div className="font-extrabold text-lg text-cta mb-1">
+          {programName ? `Đăng ký chương trình ${programName}` : 'Để lại thông tin để nhận tư vấn'}
+        </div>
+        {programName && (
+          <p className="text-sm text-cta/70 -mt-2 mb-1">
+            Chuyên viên sẽ liên hệ và tư vấn chi tiết về chương trình này.
+          </p>
+        )}
         <input
           type="text"
           placeholder="Tên của bạn"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          className="border-2 border-border-lavender rounded-2xl py-3 px-4 text-sm md:text-base text-cta"
+          className="border-2 border-border-lavender rounded-2xl py-3 px-4 text-sm text-cta"
         />
         <input
           type="tel"
@@ -203,11 +275,11 @@ function ConversionForm({ onSubmit }: { onSubmit: (name: string, phone: string) 
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           required
-          className="border-2 border-border-lavender rounded-2xl py-3 px-4 text-sm md:text-base text-cta"
+          className="border-2 border-border-lavender rounded-2xl py-3 px-4 text-sm text-cta"
         />
         <button
           type="submit"
-          className="bg-cta text-white font-bold text-sm md:text-base py-3.5 rounded-soft mt-2"
+          className="bg-cta text-white font-bold text-sm py-3.5 rounded-soft mt-2"
         >
           Gửi thông tin
         </button>
@@ -218,23 +290,34 @@ function ConversionForm({ onSubmit }: { onSubmit: (name: string, phone: string) 
 
 const PROGRAMS = [
   {
+    id: 'khoi-dau',
     name: 'Khởi đầu',
     duration: '4 tuần',
     description: 'Phù hợp với mụn nhẹ, lần đầu điều trị. Liệu trình cơ bản giúp làm sạch da và kiểm soát dầu.',
   },
   {
+    id: 'chuyen-sau',
     name: 'Chuyên sâu',
     duration: '8 tuần',
     description: 'Kết hợp nhiều bước điều trị, phù hợp mụn từ trung bình. Tập trung vào nguyên nhân gốc rễ.',
   },
   {
+    id: 'toan-dien',
     name: 'Toàn diện',
     duration: '12 tuần',
     description: 'Dành cho mụn nặng và tái phát. Kết hợp chăm sóc da và tư vấn dinh dưỡng, nội tiết.',
   },
 ];
 
-function ProgramsScreen({ onContinue }: { onContinue: () => void }) {
+function ProgramsScreen({
+  initialSelected,
+  onContinue,
+}: {
+  initialSelected: string;
+  onContinue: (programId: string) => void;
+}) {
+  const [selected, setSelected] = useState(initialSelected);
+
   return (
     <div className="h-screen w-full bg-pastel-lavender flex items-center justify-center px-5 overflow-hidden">
       <div className="max-w-2xl w-full animate-fade-in-up">
@@ -244,22 +327,34 @@ function ProgramsScreen({ onContinue }: { onContinue: () => void }) {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
           {PROGRAMS.map((program) => (
-            <div
-              key={program.name}
-              className="bg-white rounded-soft p-5 shadow-md shadow-cta/10 flex flex-col gap-2"
+            <button
+              key={program.id}
+              onClick={() => setSelected(program.id)}
+              className={[
+                'text-left rounded-soft p-5 shadow-md shadow-cta/10 flex flex-col gap-2',
+                'border-2 transition-colors duration-[160ms]',
+                selected === program.id
+                  ? 'bg-violet-50 border-violet-600'
+                  : 'bg-white border-transparent hover:border-violet-400',
+              ].join(' ')}
             >
-              <div className="font-bold text-base text-cta">{program.name}</div>
+              <div className="flex items-center justify-between">
+                <div className="font-bold text-base text-cta">{program.name}</div>
+                {selected === program.id && (
+                  <span className="text-violet-600 font-bold text-sm">✓</span>
+                )}
+              </div>
               <div className="text-xs font-bold text-label-purple">{program.duration}</div>
               <p className="text-sm text-cta/70 leading-relaxed">{program.description}</p>
-            </div>
+            </button>
           ))}
         </div>
         <div className="text-center">
           <button
-            onClick={onContinue}
-            className="bg-cta text-white font-bold text-sm py-3.5 px-9 rounded-soft hover:opacity-90 transition-opacity"
+            onClick={() => onContinue(selected)}
+            className="bg-violet-600 text-white font-bold text-sm py-3.5 px-9 rounded-soft hover:bg-violet-700 transition-colors duration-200"
           >
-            Nhận tư vấn miễn phí →
+            {`Đăng ký chương trình ${PROGRAMS.find((p) => p.id === selected)?.name} →`}
           </button>
         </div>
       </div>
