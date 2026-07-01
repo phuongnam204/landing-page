@@ -13,5 +13,8 @@ export function computeResult(answers: Record<string, string>): QuizResult {
   if (answers.q2 === 'khong' && answers.q3 === 'co') {
     return quizResults['lo-chan-long'];
   }
+  if (answers.q2 === 'khong' && answers.q3 === 'khong') {
+    return quizResults['clean-skin'];
+  }
   return quizResults['da-moi-bat-dau'];
 }

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { computeResult } from './quizLogic';
+import { quizResults } from '../../content/quiz';
 
 const base = {
   q1: 'nu',
@@ -41,15 +42,21 @@ describe('computeResult — priority waterfall', () => {
     expect(computeResult({ ...base, q2: 'khong', q3: 'co' }).id).toBe('lo-chan-long');
   });
 
-  it('P5: returns da-moi-bat-dau as fallback', () => {
-    expect(computeResult({ ...base, q2: 'khong', q3: 'khong' }).id).toBe('da-moi-bat-dau');
+  it('P5: returns clean-skin for no acne and no blackheads', () => {
+    expect(computeResult({ ...base, q2: 'khong', q3: 'khong' }).id).toBe('clean-skin');
+  });
+
+  it('P6: da-moi-bat-dau is unreachable fallback — still present in quizResults', () => {
+    // P3/P4/P5 are exhaustive for all q2 values in normal flow.
+    // The fallback exists as a safety net; verify it is still defined.
+    expect(quizResults['da-moi-bat-dau'].id).toBe('da-moi-bat-dau');
   });
 
   it('result always has all required fields', () => {
     const result = computeResult(base);
     expect(result.id).toBeTruthy();
-    expect(result.title).toBeTruthy();
-    expect(result.skinCondition).toBeTruthy();
+    expect(result.tone).toMatch(/^(positive|concern)$/);
+    expect(result.body).toBeTruthy();
     expect(result.solution).toBeTruthy();
     expect(result.suggestedProgram).toBeTruthy();
   });
