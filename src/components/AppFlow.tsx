@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { quizQuestions } from '../content/quiz';
+import type { QuizResult } from '../content/quiz';
 import { computeResult } from './InteractiveCore/quizLogic';
 import { trackEvent } from '../lib/trackEvent';
 
@@ -10,6 +11,7 @@ export default function AppFlow() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [questionIndex, setQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [quizResult, setQuizResult] = useState<QuizResult | null>(null);
 
   function transitionTo(nextStep: Step) {
     setIsTransitioning(true);
@@ -27,6 +29,8 @@ export default function AppFlow() {
     if (questionIndex < quizQuestions.length - 1) {
       setQuestionIndex(questionIndex + 1);
     } else {
+      const result = computeResult(nextAnswers);
+      setQuizResult(result);
       trackEvent('quiz_complete', { answers: nextAnswers });
       transitionTo('payoff');
     }
@@ -48,11 +52,11 @@ export default function AppFlow() {
         />
       )}
 
-      {step === 'payoff' && (
+      {step === 'payoff' && quizResult && (
         <PayoffView
-          result={computeResult(answers)}
+          result={quizResult}
           onContinue={() => {
-            trackEvent('payoff_view', { resultId: computeResult(answers).id });
+            trackEvent('payoff_view', { resultId: quizResult.id });
             transitionTo('programs');
           }}
         />
@@ -147,18 +151,19 @@ function PayoffView({
   result,
   onContinue,
 }: {
-  result: ReturnType<typeof computeResult>;
+  result: QuizResult;
   onContinue: () => void;
 }) {
   return (
     <div className="h-screen w-full bg-pastel-mint flex items-center justify-center px-5 overflow-hidden">
       <div className="max-w-lg w-full bg-white rounded-soft p-5 md:p-8 shadow-lg shadow-cta/10 text-center animate-fade-in-up">
-        <div className="text-xs md:text-sm font-bold text-label-purple uppercase mb-2">Kết quả của bạn</div>
-        <div className="font-extrabold text-xl text-cta mb-2">{result.title}</div>
-        <p className="text-sm md:text-base text-cta/80 mb-5">{result.description}</p>
+        <div className="text-xs font-bold text-label-purple uppercase mb-2">Kết quả của bạn</div>
+        <div className="font-extrabold text-xl text-cta mb-3">{result.title}</div>
+        <p className="text-sm text-cta/80 mb-2 text-left">{result.skinCondition}</p>
+        <p className="text-sm font-semibold text-cta/90 mb-5 text-left">💡 {result.solution}</p>
         <button
           onClick={onContinue}
-          className="inline-block bg-cta text-white font-bold text-sm md:text-base py-3.5 px-9 rounded-soft"
+          className="inline-block bg-cta text-white font-bold text-sm py-3.5 px-9 rounded-soft"
         >
           Xem chương trình phù hợp →
         </button>
