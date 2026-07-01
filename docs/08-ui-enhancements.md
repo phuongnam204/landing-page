@@ -34,6 +34,18 @@ Khi người dùng bấm button CTA trong Hook, trang smooth-scroll xuống quiz
 - Không dùng JavaScript `scrollIntoView` — dùng CSS anchor scroll là đủ và không cần JS bundle.
 - Không thay đổi bất kỳ logic nào trong `QuizFlow.tsx`.
 
+### Acceptance Criteria
+
+**AC-A1: CTA button thay thế subtitle**
+- Given: user mở landing page
+- When: hero section render xong
+- Then: thấy button "Khám phá ngay ✨", không thấy text "Vuốt lên để khám phá"
+
+**AC-A2: Scroll mượt đến quiz**
+- Given: user đang ở hero section, quiz section nằm ngoài viewport
+- When: user bấm button "Khám phá ngay ✨"
+- Then: trang cuộn xuống quiz section mà không reload, hiệu ứng cuộn là smooth (không tức thời)
+
 ---
 
 ## B. Animations
@@ -75,6 +87,18 @@ Kỹ thuật: trong `QuizFlow.tsx`, thêm prop `key` vào outer `div` của mỗ
 
 - Không cài Framer Motion hay bất kỳ animation library nào.
 - Không animate scrollbar hay background gradient — giữ static để tránh distraction.
+
+### Acceptance Criteria
+
+**AC-B1: Hero fade-in khi tải trang**
+- Given: user truy cập trang lần đầu
+- When: trang load xong
+- Then: heading và CTA button xuất hiện với hiệu ứng trượt từ dưới lên + fade trong khoảng 0.5s, không bật ra đột ngột
+
+**AC-B2: Quiz card fade-in khi chuyển câu hỏi**
+- Given: user đang ở câu 1
+- When: user bấm chọn một đáp án
+- Then: nội dung câu 2 xuất hiện với hiệu ứng fade-in, không thay thế đột ngột
 
 ---
 
@@ -136,3 +160,15 @@ html::-webkit-scrollbar { display: none; }
 - Không dùng ảnh bác sĩ, bệnh viện, thuốc, hay imagery y tế.
 - Không thêm navigation bar / header.
 - Không thêm animation mới — đã được xử lý ở Task B.
+
+### Acceptance Criteria
+
+**AC-C1: Layout 2 cột trên desktop**
+- Given: user truy cập trên màn hình ≥768px
+- When: hero section render
+- Then: image placeholder hiển thị bên trái, heading + subtitle + CTA ở bên phải song song nhau — không xếp chồng dọc
+
+**AC-C2: Layout stacked trên mobile và đủ vừa viewport**
+- Given: user truy cập trên màn hình <768px
+- When: hero section render
+- Then: image placeholder ở trên, heading + subtitle + CTA ở dưới; toàn bộ nội dung hiển thị đủ trong một màn hình, không cần scroll để thấy CTA button
