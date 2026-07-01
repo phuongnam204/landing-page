@@ -1,10 +1,17 @@
 import { quizResults, type QuizResult } from '../../content/quiz';
 
 export function computeResult(answers: Record<string, string>): QuizResult {
-  const primaryAnswerId = answers['q1'];
-  const result = quizResults[primaryAnswerId];
-  if (!result) {
-    throw new Error(`No quiz result mapped for q1 answer: "${primaryAnswerId}"`);
+  if (answers.q1 === 'nu' && answers.q2 === 'co' && answers.q6 === 'ky-kinh') {
+    return quizResults['mun-noi-tiet'];
   }
-  return result;
+  if (answers.q2 === 'co' && answers.q4 === 'da-dung' && answers.q5 === 'cang-rat') {
+    return quizResults['da-nhay-cam'];
+  }
+  if (answers.q2 === 'co') {
+    return quizResults['da-nhon-mun-viem'];
+  }
+  if (answers.q2 === 'khong' && answers.q3 === 'co') {
+    return quizResults['lo-chan-long'];
+  }
+  return quizResults['da-moi-bat-dau'];
 }
