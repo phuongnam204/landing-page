@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { quizQuestions, q6Options } from '../content/quiz';
-import type { QuizResult } from '../content/quiz';
+import type { QuizResult, ProgramId } from '../content/quiz';
 import { computeResult } from './InteractiveCore/quizLogic';
 import { trackEvent } from '../lib/trackEvent';
 
@@ -13,7 +13,7 @@ export default function AppFlow() {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [quizResult, setQuizResult] = useState<QuizResult | null>(null);
   const [pendingAnswer, setPendingAnswer] = useState<string | null>(null);
-  const [selectedProgram, setSelectedProgram] = useState<string | null>(null);
+  const [selectedProgram, setSelectedProgram] = useState<ProgramId | null>(null);
 
   function transitionTo(nextStep: Step) {
     setIsTransitioning(true);
@@ -231,7 +231,7 @@ function ConversionForm({
   selectedProgram,
   onSubmit,
 }: {
-  selectedProgram: string | null;
+  selectedProgram: ProgramId | null;
   onSubmit: (name: string, phone: string) => void;
 }) {
   const [name, setName] = useState('');
@@ -288,7 +288,7 @@ function ConversionForm({
   );
 }
 
-const PROGRAMS = [
+const PROGRAMS: { id: ProgramId; name: string; duration: string; description: string }[] = [
   {
     id: 'khoi-dau',
     name: 'Khởi đầu',
@@ -313,10 +313,10 @@ function ProgramsScreen({
   initialSelected,
   onContinue,
 }: {
-  initialSelected: string;
-  onContinue: (programId: string) => void;
+  initialSelected: ProgramId;
+  onContinue: (programId: ProgramId) => void;
 }) {
-  const [selected, setSelected] = useState(initialSelected);
+  const [selected, setSelected] = useState<ProgramId>(initialSelected);
 
   return (
     <div className="h-screen w-full bg-pastel-lavender flex items-center justify-center px-5 overflow-hidden">
