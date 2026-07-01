@@ -131,26 +131,37 @@ function HeroScreen({ onStart }: { onStart: () => void }) {
             'url(https://images.unsplash.com/photo-1710580889701-9fa8f2cd5927?w=1920&q=40&fit=crop&fm=jpg)',
         }}
       />
-      <div className="max-w-4xl mx-auto w-full px-5 md:grid md:grid-cols-2 md:gap-12 md:items-center relative z-10">
-        {/* Hero image */}
-        <div className="flex justify-center mb-6 md:mb-0">
+      <div className="max-w-4xl mx-auto w-full px-5 md:grid md:grid-cols-2 md:gap-10 md:items-center relative z-10">
+        {/* Images column — two overlapping portraits (Google Ads style) */}
+        <div className="relative h-64 md:h-[340px] mb-6 md:mb-0">
+          {/* Woman — behind, top-left */}
           <img
-            src="https://images.unsplash.com/photo-1728727217834-b190862837a3?w=600&q=85&fit=crop&crop=face"
+            src="https://images.unsplash.com/photo-1728727217834-b190862837a3?w=400&q=85&fit=crop&crop=face"
             alt="Cô gái chăm sóc da"
-            className="w-52 h-72 md:w-72 md:h-[400px] rounded-3xl object-cover object-top shadow-lg dark:brightness-90 dark:ring-2 dark:ring-white/10"
+            className="absolute left-0 top-0 w-40 h-56 md:w-56 md:h-[300px] rounded-3xl object-cover object-top shadow-xl z-10 dark:brightness-90 dark:ring-2 dark:ring-white/10"
+          />
+          {/* Man — in front, bottom-right, slight rotation */}
+          <img
+            src="https://images.unsplash.com/photo-1643990083813-b7fbcbc60993?w=400&q=85&fit=crop&crop=face"
+            alt="Chàng trai chăm sóc da"
+            className="absolute right-0 bottom-0 w-40 h-56 md:w-56 md:h-[300px] rounded-3xl object-cover object-top shadow-2xl z-20 rotate-2 dark:brightness-90 dark:ring-2 dark:ring-white/10"
           />
         </div>
         {/* Text + CTA */}
         <div className="text-center md:text-left animate-fade-in-up">
-          <h1 className="font-extrabold text-3xl md:text-4xl text-cta dark:text-white leading-tight">
-            Da bạn đang nói gì với bạn?
+          <h1 className="font-extrabold text-4xl md:text-5xl text-cta dark:text-white leading-tight">
+            Da bạn đang{' '}
+            <span className="bg-gradient-to-r from-violet-500 to-pink-500 bg-clip-text text-transparent">
+              nói gì
+            </span>{' '}
+            với bạn?
           </h1>
-          <p className="text-sm md:text-base text-cta/70 dark:text-white/70 mt-3">
+          <p className="text-sm md:text-base text-cta/70 dark:text-white/70 mt-4">
             Làm quiz 30 giây để tìm ra giải pháp phù hợp với làn da của bạn.
           </p>
           <button
             onClick={onStart}
-            className="mt-6 bg-cta text-white dark:bg-white dark:text-cta font-bold rounded-soft px-8 py-3.5 hover:opacity-90 transition-colors duration-300"
+            className="mt-6 bg-cta text-white dark:bg-white dark:text-cta font-bold rounded-soft px-10 py-4 text-base hover:opacity-90 transition-colors duration-300"
           >
             Khám phá ngay ✨
           </button>
