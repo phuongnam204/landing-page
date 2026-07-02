@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ['./src/**/*.{astro,html,js,jsx,ts,tsx}'],
+  content: ['./src/**/*.{js,jsx,ts,tsx}'],
   darkMode: 'media',
   theme: {
     extend: {
@@ -15,7 +15,7 @@ export default {
         'label-purple': '#9b8fc4',
       },
       fontFamily: {
-        sans: ['Poppins', 'Inter', 'sans-serif'],
+        sans: ['var(--font-be-vietnam-pro)', 'Inter', 'sans-serif'],
       },
       borderRadius: {
         soft: '20px',
