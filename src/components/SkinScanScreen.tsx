@@ -102,6 +102,8 @@ function FindGame({ onAllFound }: { onAllFound: (count: number) => void }) {
       else setHintLevel(0);
     }, 500);
     return () => clearInterval(timer);
+    // Deps intentionally empty: the effect reads only refs (spotsRef/lastFindRef/doneRef)
+    // and stable setState setters, so it never needs to re-subscribe or re-close over state.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

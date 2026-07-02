@@ -87,3 +87,10 @@ html::-webkit-scrollbar { display: none; }
   animation: acneRingPulse 1.1s ease-in-out infinite;
   pointer-events: none;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .acne-hint-glow,
+  .acne-hint-ring {
+    animation: none;
+  }
+}
