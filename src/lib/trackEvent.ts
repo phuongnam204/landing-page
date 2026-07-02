@@ -1,6 +1,6 @@
 export type TrackEventName =
   | 'interactive_core_view'
-  | 'quiz_complete'
+  | 'minigame_complete'
   | 'payoff_view'
   | 'form_submit';
 
