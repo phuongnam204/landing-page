@@ -1,36 +1,41 @@
 import { quizResults, type QuizResult } from '../../content/quiz';
 
-export type CharacterKind = 'mun-viem' | 'dau-den' | 'man-do' | 'da-sang-khoe';
-
-export interface BoardCharacter {
+/** Một nốt mụn overlay trên ảnh mặt (toạ độ tính theo % khung ảnh). */
+export interface AcneSpot {
   id: string;
-  kind: CharacterKind;
   x: number;
   y: number;
   found: boolean;
 }
 
-const ALL_KINDS: CharacterKind[] = ['mun-viem', 'dau-den', 'man-do', 'da-sang-khoe'];
+/** Bốn vùng da người dùng có thể tự khai ở bước report. */
+export type SkinZone = 'cam-quai-ham' | 'chu-t' | 'hai-ma' | 'khong-bi';
 
-const DOMINANT_WEIGHTS: Record<CharacterKind, number> = {
-  'mun-viem': 0.275,
-  'dau-den': 0.275,
-  'man-do': 0.275,
-  'da-sang-khoe': 0.175,
-};
-
-const TIE_ROUND_CHANCE = 0.1;
-
-const BOARD_SLOTS: { x: number; y: number }[] = [
-  { x: 15, y: 22 },
-  { x: 38, y: 15 },
-  { x: 62, y: 20 },
-  { x: 85, y: 25 },
-  { x: 20, y: 68 },
-  { x: 42, y: 78 },
-  { x: 65, y: 65 },
-  { x: 83, y: 72 },
+/**
+ * Toạ độ ứng viên cho nốt mụn (theo % khung ảnh chân dung).
+ * Được đặt trên trán / má / cằm / quai hàm, tránh vùng mắt (y≈33–42)
+ * và môi (y≈60–66 giữa mặt).
+ */
+export const SPOT_POOL: { x: number; y: number }[] = [
+  { x: 30, y: 24 },
+  { x: 55, y: 20 },
+  { x: 41, y: 30 },
+  { x: 28, y: 50 },
+  { x: 70, y: 52 },
+  { x: 33, y: 58 },
+  { x: 66, y: 60 },
+  { x: 50, y: 78 },
+  { x: 38, y: 74 },
+  { x: 62, y: 74 },
 ];
+
+/** Nhãn hiển thị + profile ánh xạ + màu chip cho mỗi vùng da (face mapping). */
+export const ZONE_META: Record<SkinZone, { label: string; profileId: string; color: string }> = {
+  'cam-quai-ham': { label: 'cằm & quai hàm', profileId: 'mun-noi-tiet', color: '#FF5C9E' },
+  'chu-t': { label: 'vùng chữ T', profileId: 'da-nhon-mun-viem', color: '#FFCD78' },
+  'hai-ma': { label: 'hai má', profileId: 'da-nhay-cam', color: '#7DD9C0' },
+  'khong-bi': { label: 'gần như không bị', profileId: 'clean-skin', color: '#B39DFF' },
+};
 
 function shuffle<T>(items: T[]): T[] {
   const result = [...items];
@@ -41,72 +46,40 @@ function shuffle<T>(items: T[]): T[] {
   return result;
 }
 
-function pickDominantKind(): CharacterKind {
-  const roll = Math.random();
-  let cumulative = 0;
-  for (const kind of ALL_KINDS) {
-    cumulative += DOMINANT_WEIGHTS[kind];
-    if (roll <= cumulative) return kind;
-  }
-  return ALL_KINDS[ALL_KINDS.length - 1];
-}
-
-function generateCounts(): Record<CharacterKind, number> {
-  const counts = { 'mun-viem': 0, 'dau-den': 0, 'man-do': 0, 'da-sang-khoe': 0 } as Record<CharacterKind, number>;
-  if (Math.random() < TIE_ROUND_CHANCE) {
-    for (const kind of ALL_KINDS) counts[kind] = 2;
-    return counts;
-  }
-  const dominant = pickDominantKind();
-  const others = shuffle(ALL_KINDS.filter((kind) => kind !== dominant));
-  counts[dominant] = 3;
-  counts[others[0]] = 2;
-  counts[others[1]] = 2;
-  counts[others[2]] = 1;
-  return counts;
-}
-
-export function generateBoard(): BoardCharacter[] {
-  const counts = generateCounts();
-  const kinds: CharacterKind[] = [];
-  for (const kind of ALL_KINDS) {
-    for (let i = 0; i < counts[kind]; i++) kinds.push(kind);
-  }
-  const shuffledKinds = shuffle(kinds);
-  const positions = shuffle(BOARD_SLOTS);
-  return shuffledKinds.map((kind, index) => ({
-    id: `${kind}-${index}`,
-    kind,
-    x: positions[index].x,
-    y: positions[index].y,
+/** Sinh `count` nốt mụn ở các vị trí khác nhau lấy từ SPOT_POOL. */
+export function generateSpots(count: number): AcneSpot[] {
+  const picked = shuffle(SPOT_POOL).slice(0, count);
+  return picked.map((p, index) => ({
+    id: `spot-${index}`,
+    x: p.x,
+    y: p.y,
     found: false,
   }));
 }
 
-const KIND_TO_PROFILE_ID: Record<CharacterKind, string> = {
-  'mun-viem': 'da-nhon-mun-viem',
-  'dau-den': 'lo-chan-long',
-  'man-do': 'da-nhay-cam',
-  'da-sang-khoe': 'clean-skin',
-};
-
-export type KindCounts = Record<CharacterKind, number>;
-
-/** Tallies how many characters of each kind are on the board (all found at game end). */
-export function countByKind(board: BoardCharacter[]): KindCounts {
-  const counts = { 'mun-viem': 0, 'dau-den': 0, 'man-do': 0, 'da-sang-khoe': 0 } as KindCounts;
-  for (const character of board) {
-    counts[character.kind] += 1;
+/** Trả về nốt chưa tìm gần nhất trong bán kính `radius` (theo %), hoặc null. */
+export function findNearestUnfoundSpot(
+  spots: AcneSpot[],
+  x: number,
+  y: number,
+  radius: number
+): AcneSpot | null {
+  let nearest: AcneSpot | null = null;
+  let nearestDist = Infinity;
+  for (const spot of spots) {
+    if (spot.found) continue;
+    const dist = Math.hypot(spot.x - x, spot.y - y);
+    if (dist <= radius && dist < nearestDist) {
+      nearest = spot;
+      nearestDist = dist;
+    }
   }
-  return counts;
+  return nearest;
 }
 
-export function computeResultFromBoard(board: BoardCharacter[]): QuizResult {
-  const counts = countByKind(board);
-  const maxCount = Math.max(...ALL_KINDS.map((kind) => counts[kind]));
-  const leaders = ALL_KINDS.filter((kind) => counts[kind] === maxCount);
-  if (leaders.length !== 1) {
-    return quizResults['da-moi-bat-dau'];
-  }
-  return quizResults[KIND_TO_PROFILE_ID[leaders[0]]];
+/** Ánh xạ vùng da tự khai sang một profile trong quizResults. */
+export function resolveProfileByZone(zone: SkinZone): QuizResult {
+  const meta = ZONE_META[zone];
+  if (!meta) return quizResults['da-moi-bat-dau'];
+  return quizResults[meta.profileId] ?? quizResults['da-moi-bat-dau'];
 }
