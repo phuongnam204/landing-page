@@ -18,3 +18,5 @@ pnpm-debug.log*
 .idea/
 
 .early.coverage
+# TypeScript incremental build cache
+tsconfig.tsbuildinfo
