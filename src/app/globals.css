@@ -57,3 +57,33 @@ html::-webkit-scrollbar { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .payoff-stat-chip { animation: fadeInUp 0.3s ease-out both; }
 }
+
+@keyframes acneZoneGlow {
+  0%   { transform: translate(-50%,-50%) scale(0.75); opacity: 0.15; }
+  50%  { transform: translate(-50%,-50%) scale(1.05); opacity: 0.55; }
+  100% { transform: translate(-50%,-50%) scale(0.75); opacity: 0.15; }
+}
+@keyframes acneRingPulse {
+  0%   { transform: translate(-50%,-50%) scale(0.85); opacity: 0.9; }
+  50%  { transform: translate(-50%,-50%) scale(1.15); opacity: 0.4; }
+  100% { transform: translate(-50%,-50%) scale(0.85); opacity: 0.9; }
+}
+.acne-hint-glow {
+  position: absolute;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,205,120,.85) 0%, rgba(255,180,80,.35) 45%, rgba(255,180,80,0) 70%);
+  animation: acneZoneGlow 1.6s ease-in-out infinite;
+  pointer-events: none;
+}
+.acne-hint-ring {
+  position: absolute;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 3px dashed #FFCD78;
+  box-shadow: 0 0 14px rgba(255,205,120,.7);
+  animation: acneRingPulse 1.1s ease-in-out infinite;
+  pointer-events: none;
+}

@@ -1,118 +1,138 @@
 'use client';
 
-import { useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import {
-  generateBoard,
-  computeResultFromBoard,
-  countByKind,
-  type BoardCharacter,
-  type CharacterKind,
-  type KindCounts,
+  generateSpots,
+  findNearestUnfoundSpot,
+  resolveProfileByZone,
+  ZONE_META,
+  type AcneSpot,
+  type SkinZone,
 } from './MinigameCore/skinScanLogic';
 import type { QuizResult } from '../content/quiz';
 
-const TOTAL_CHARACTERS = 8;
-const CATCH_RADIUS = 9;
+// TODO(go-live): thay bằng ảnh chân dung da sạch có license thương mại.
+const FACE_IMAGE_URL =
+  'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=500&h=560&fit=crop&crop=faces';
 
-type EarShape = 'flame' | 'straight' | 'petal';
-
-const CHARACTER_VISUALS: Record<
-  CharacterKind,
-  { top: string; bottom: string; ear: string; gem: string; earShape: EarShape; glow?: boolean }
-> = {
-  'mun-viem': { top: '#FF8177', bottom: '#E5544A', ear: '#E53935', gem: '#FFC94D', earShape: 'flame' },
-  'dau-den': { top: '#B0A99F', bottom: '#8D8378', ear: '#8D8378', gem: '#6D4C41', earShape: 'straight' },
-  'man-do': { top: '#FFD3E0', bottom: '#FFB6C9', ear: '#FFB6C9', gem: '#FFC94D', earShape: 'petal' },
-  'da-sang-khoe': { top: '#C2F0DC', bottom: '#8FE3BC', ear: '#8FE3BC', gem: '#FFC94D', earShape: 'petal', glow: true },
-};
-
-function earStyle(shape: EarShape, color: string, side: 'left' | 'right'): CSSProperties {
-  const rotate = side === 'left' ? -30 : 30;
-  const base: CSSProperties = {
-    position: 'absolute',
-    [side]: '2px',
-    top: '-2px',
-    background: color,
-    transform: `rotate(${rotate}deg)`,
-  };
-  if (shape === 'flame') {
-    return { ...base, width: '14px', height: '20px', clipPath: 'polygon(50% 0%, 100% 100%, 0% 100%)' };
-  }
-  if (shape === 'straight') {
-    return { ...base, width: '6px', height: '18px', borderRadius: '3px' };
-  }
-  return {
-    ...base,
-    width: '10px',
-    height: '20px',
-    borderRadius: side === 'left' ? '100% 0 100% 30%' : '0 100% 30% 100%',
-  };
-}
-
-function findNearestUnfound(board: BoardCharacter[], x: number, y: number): BoardCharacter | null {
-  let nearest: BoardCharacter | null = null;
-  let nearestDist = Infinity;
-  for (const character of board) {
-    if (character.found) continue;
-    const dist = Math.hypot(character.x - x, character.y - y);
-    if (dist <= CATCH_RADIUS && dist < nearestDist) {
-      nearest = character;
-      nearestDist = dist;
-    }
-  }
-  return nearest;
-}
+const SPOT_COUNT = 6;
+const CATCH_RADIUS = 9; // theo % khung ảnh
+const HINT_L1_MS = 5000; // sáng vùng sau ~5s không tiến triển
+const HINT_L2_MS = 9000; // khoanh sát sau ~9s
+const SAFETY_MS = 22000; // lưới an toàn: tự mở hết sau ~22s
 
 export function SkinScanScreen({
   onComplete,
 }: {
-  onComplete: (result: QuizResult, counts: KindCounts) => void;
+  onComplete: (result: QuizResult, stats: { foundCount: number; zoneLabel: string }) => void;
 }) {
-  const [board, setBoard] = useState<BoardCharacter[]>(() => generateBoard());
-  const [lensPos, setLensPos] = useState({ x: 50, y: 50 });
-  const boardRef = useRef<HTMLDivElement>(null);
-  const boardStateRef = useRef(board);
-  boardStateRef.current = board;
+  const [phase, setPhase] = useState<'find' | 'report'>('find');
+  const foundCountRef = useRef(SPOT_COUNT);
 
-  const foundCount = board.filter((c) => c.found).length;
+  if (phase === 'find') {
+    return (
+      <FindGame
+        onAllFound={(count) => {
+          foundCountRef.current = count;
+          setPhase('report');
+        }}
+      />
+    );
+  }
+
+  return (
+    <ReportStep
+      onPick={(zone) => {
+        const result = resolveProfileByZone(zone);
+        onComplete(result, {
+          foundCount: foundCountRef.current,
+          zoneLabel: ZONE_META[zone].label,
+        });
+      }}
+    />
+  );
+}
+
+function FindGame({ onAllFound }: { onAllFound: (count: number) => void }) {
+  const [spots, setSpots] = useState<AcneSpot[]>(() => generateSpots(SPOT_COUNT));
+  const [hintLevel, setHintLevel] = useState<0 | 1 | 2>(0);
+  const spotsRef = useRef(spots);
+  spotsRef.current = spots;
+  const lastFindRef = useRef(Date.now());
+  const boardRef = useRef<HTMLDivElement>(null);
+  const doneRef = useRef(false);
+
+  const foundCount = spots.filter((s) => s.found).length;
+  const firstUnfound = spots.find((s) => !s.found) ?? null;
+
+  function commit(next: AcneSpot[]) {
+    spotsRef.current = next;
+    setSpots(next);
+    if (next.every((s) => s.found) && !doneRef.current) {
+      doneRef.current = true;
+      onAllFound(next.length);
+    }
+  }
 
   function handlePointer(clientX: number, clientY: number) {
     const rect = boardRef.current?.getBoundingClientRect();
     if (!rect) return;
     const x = ((clientX - rect.left) / rect.width) * 100;
     const y = ((clientY - rect.top) / rect.height) * 100;
-
-    const nearest = findNearestUnfound(boardStateRef.current, x, y);
-    if (!nearest) {
-      setLensPos({ x, y });
-      return;
-    }
-    setLensPos({ x: nearest.x, y: nearest.y });
-    const nextBoard = boardStateRef.current.map((c) =>
-      c.id === nearest.id ? { ...c, found: true } : c
-    );
-    boardStateRef.current = nextBoard;
-    setBoard(nextBoard);
-    if (nextBoard.every((c) => c.found)) {
-      onComplete(computeResultFromBoard(nextBoard), countByKind(nextBoard));
-    }
+    const hit = findNearestUnfoundSpot(spotsRef.current, x, y, CATCH_RADIUS);
+    if (!hit) return;
+    lastFindRef.current = Date.now();
+    setHintLevel(0);
+    commit(spotsRef.current.map((s) => (s.id === hit.id ? { ...s, found: true } : s)));
   }
 
+  // Gợi ý tăng dần + lưới an toàn, tính theo thời gian kể từ lần khoanh trúng gần nhất.
+  useEffect(() => {
+    const timer = setInterval(() => {
+      if (doneRef.current) return;
+      const hasUnfound = spotsRef.current.some((s) => !s.found);
+      if (!hasUnfound) return;
+      const elapsed = Date.now() - lastFindRef.current;
+      if (elapsed >= SAFETY_MS) {
+        commit(spotsRef.current.map((s) => ({ ...s, found: true })));
+        return;
+      }
+      if (elapsed >= HINT_L2_MS) setHintLevel(2);
+      else if (elapsed >= HINT_L1_MS) setHintLevel(1);
+      else setHintLevel(0);
+    }, 500);
+    return () => clearInterval(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
-    <div className="h-screen w-full bg-pastel-mint flex flex-col items-center justify-center px-4 sm:px-5 overflow-hidden">
-      <div className="w-full max-w-2xl md:max-w-[80%]">
-        <div className="text-xs font-bold text-label-purple uppercase mb-1">
-          Đã tìm {foundCount} / {TOTAL_CHARACTERS}
+    <div className="h-screen w-full bg-pastel-mint flex items-center justify-center px-4 overflow-hidden">
+      <div style={frameStyle}>
+        <div style={{ padding: '16px 18px 12px', color: '#fff' }}>
+          <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: '.3px', opacity: 0.85 }}>
+            SOI THỬ LÀN DA
+          </div>
+          <div style={{ fontSize: 17, fontWeight: 800, lineHeight: 1.35, marginTop: 4 }}>
+            Chạm để khoanh hết các nốt mụn bạn thấy 👀
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12 }}>
+            <div style={{ flex: 1, height: 8, background: 'rgba(255,255,255,.18)', borderRadius: 99, overflow: 'hidden' }}>
+              <div
+                style={{
+                  width: `${(foundCount / SPOT_COUNT) * 100}%`,
+                  height: '100%',
+                  background: 'linear-gradient(90deg,#FF5C9E,#B39DFF)',
+                  borderRadius: 99,
+                  transition: 'width 300ms ease',
+                }}
+              />
+            </div>
+            <div style={{ fontSize: 13, fontWeight: 800, color: '#FFB8D4', whiteSpace: 'nowrap' }}>
+              {foundCount} / {SPOT_COUNT} nốt
+            </div>
+          </div>
         </div>
-        <div className="h-[5px] bg-violet-100 rounded-full mb-4 overflow-hidden">
-          <div
-            className="h-full bg-violet-600 rounded-full"
-            style={{ width: `${(foundCount / TOTAL_CHARACTERS) * 100}%`, transition: 'width 300ms ease' }}
-          />
-        </div>
-        <p className="text-base md:text-lg font-bold text-cta text-center leading-snug mb-3 px-2">
-          👆 Chạm vào màn hình để kéo kính lúp khắp vùng da
-        </p>
+
         <div
           ref={boardRef}
           onPointerDown={(e) => handlePointer(e.clientX, e.clientY)}
@@ -120,89 +140,145 @@ export function SkinScanScreen({
             if (e.buttons !== 1) return;
             handlePointer(e.clientX, e.clientY);
           }}
-          className="relative w-full h-[60vh] max-h-[620px] rounded-soft overflow-hidden touch-none select-none"
-          style={{ background: 'radial-gradient(circle at 30% 30%, #FFE3D0 0%, #FBCFA0 40%, #F5B98A 100%)' }}
+          style={{ position: 'relative', width: '100%', height: 360, background: '#111', touchAction: 'none', userSelect: 'none' }}
         >
-          {board.map((character) => (
-            <MascotCharacter key={character.id} character={character} />
-          ))}
-          <div
-            className="absolute rounded-full border-4 border-cta pointer-events-none"
-            style={{
-              left: `${lensPos.x}%`,
-              top: `${lensPos.y}%`,
-              width: '84px',
-              height: '84px',
-              transform: 'translate(-50%, -50%)',
-              background: 'rgba(255,255,255,0.25)',
-              boxShadow: '0 8px 20px rgba(0,0,0,0.15)',
-            }}
+          <img
+            src={FACE_IMAGE_URL}
+            alt="Khuôn mặt để soi da"
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
           />
+
+          {spots.map((s) =>
+            s.found ? (
+              <div
+                key={s.id}
+                style={{
+                  position: 'absolute',
+                  left: `${s.x}%`,
+                  top: `${s.y}%`,
+                  transform: 'translate(-50%,-50%)',
+                  width: 36,
+                  height: 36,
+                  border: '3px solid #FF5C9E',
+                  borderRadius: '50%',
+                  boxShadow: '0 0 0 4px rgba(255,92,158,.25)',
+                }}
+              >
+                <div style={tickStyle}>✓</div>
+              </div>
+            ) : (
+              <div
+                key={s.id}
+                style={{
+                  position: 'absolute',
+                  left: `${s.x}%`,
+                  top: `${s.y}%`,
+                  transform: 'translate(-50%,-50%)',
+                  width: 12,
+                  height: 12,
+                  borderRadius: '50%',
+                  background: 'radial-gradient(circle at 40% 35%, #E8806F, #C64B3C)',
+                  boxShadow: '0 1px 3px rgba(0,0,0,.3)',
+                }}
+              />
+            )
+          )}
+
+          {/* Gợi ý cấp 1: sáng vùng */}
+          {hintLevel >= 1 && firstUnfound && (
+            <div
+              className="acne-hint-glow"
+              style={{ left: `${firstUnfound.x}%`, top: `${firstUnfound.y}%` }}
+            />
+          )}
+          {/* Gợi ý cấp 2: khoanh sát */}
+          {hintLevel >= 2 && firstUnfound && (
+            <div
+              className="acne-hint-ring"
+              style={{ left: `${firstUnfound.x}%`, top: `${firstUnfound.y}%` }}
+            />
+          )}
+        </div>
+
+        <div style={{ padding: '12px 18px 16px', color: 'rgba(255,255,255,.7)', fontSize: 12, textAlign: 'center' }}>
+          Đừng lo — nếu bí, tụi mình sẽ hé lộ giúp bạn 💡
         </div>
       </div>
     </div>
   );
 }
 
-function MascotCharacter({ character }: { character: BoardCharacter }) {
-  const visual = CHARACTER_VISUALS[character.kind];
+function ReportStep({ onPick }: { onPick: (zone: SkinZone) => void }) {
+  const zones: SkinZone[] = ['cam-quai-ham', 'chu-t', 'hai-ma', 'khong-bi'];
   return (
-    <div
-      className="absolute"
-      style={{
-        left: `${character.x}%`,
-        top: `${character.y}%`,
-        transform: 'translate(-50%, -50%)',
-        width: '46px',
-        height: '58px',
-        opacity: character.found ? 1 : 0.12,
-        transition: 'opacity 200ms ease',
-      }}
-    >
-      <div style={earStyle(visual.earShape, visual.ear, 'left')} />
-      <div style={earStyle(visual.earShape, visual.ear, 'right')} />
-      {visual.glow && (
-        <span style={{ position: 'absolute', left: '-2px', top: '-10px', fontSize: '10px' }}>✨</span>
-      )}
-      <div
-        style={{
-          position: 'absolute',
-          left: '7px',
-          top: '10px',
-          width: '32px',
-          height: '24px',
-          background: visual.top,
-          clipPath: 'polygon(50% 0%, 100% 34%, 80% 100%, 20% 100%, 0% 34%)',
-        }}
-      >
-        <div style={{ position: 'absolute', left: '9px', top: '10px', width: '4px', height: '5px', background: '#2D2640', borderRadius: '50%' }} />
-        <div style={{ position: 'absolute', right: '9px', top: '10px', width: '4px', height: '5px', background: '#2D2640', borderRadius: '50%' }} />
-      </div>
-      <div
-        style={{
-          position: 'absolute',
-          left: '11px',
-          top: '32px',
-          width: '24px',
-          height: '26px',
-          background: `linear-gradient(to bottom, ${visual.top} 55%, ${visual.bottom} 100%)`,
-          borderRadius: '14px 14px 12px 12px',
-          boxShadow: visual.glow ? `0 0 10px 2px ${visual.bottom}` : undefined,
-        }}
-      >
-        <div
-          style={{
-            position: 'absolute',
-            left: '8px',
-            top: '9px',
-            width: '8px',
-            height: '8px',
-            background: visual.gem,
-            borderRadius: '50% 50% 50% 0',
-            transform: 'rotate(-45deg)',
-          }}
-        />
+    <div className="h-screen w-full bg-pastel-mint flex items-center justify-center px-4 overflow-hidden">
+      <div style={{ ...frameStyle, padding: '20px 18px 22px' }}>
+        <div style={{ textAlign: 'center', color: '#fff', marginBottom: 16 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: '.3px', color: '#FFB8D4' }}>
+            SOI XONG RỒI 🎉
+          </div>
+          <div style={{ fontSize: 19, fontWeight: 800, lineHeight: 1.35, marginTop: 6 }}>
+            Còn da của <u>bạn</u> thì hay “nổi loạn” nhất ở đâu?
+          </div>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {zones.map((zone) => (
+            <button
+              key={zone}
+              onClick={() => onPick(zone)}
+              style={zoneChipStyle}
+            >
+              <span style={{ width: 12, height: 12, borderRadius: '50%', flex: 'none', background: ZONE_META[zone].color }} />
+              <span style={{ fontWeight: 700, fontSize: 15 }}>{ZONE_LABELS[zone]}</span>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
 }
+
+// Nhãn hiển thị đầy đủ cho nút chọn vùng (khác với ZONE_META.label ngắn dùng ở chip payoff).
+const ZONE_LABELS: Record<SkinZone, string> = {
+  'cam-quai-ham': 'Cằm & quai hàm',
+  'chu-t': 'Vùng chữ T (trán, mũi)',
+  'hai-ma': 'Hai má',
+  'khong-bi': 'Gần như không bị',
+};
+
+const frameStyle: CSSProperties = {
+  width: 330,
+  borderRadius: 28,
+  overflow: 'hidden',
+  background: '#2D2640',
+  boxShadow: '0 18px 50px rgba(45,38,64,0.35)',
+};
+
+const tickStyle: CSSProperties = {
+  position: 'absolute',
+  right: -6,
+  top: -6,
+  width: 18,
+  height: 18,
+  background: '#FF5C9E',
+  borderRadius: '50%',
+  color: '#fff',
+  fontSize: 11,
+  fontWeight: 900,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+};
+
+const zoneChipStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 10,
+  padding: '14px 16px',
+  borderRadius: 16,
+  background: 'rgba(255,255,255,.08)',
+  border: '2px solid rgba(255,255,255,.14)',
+  color: '#fff',
+  cursor: 'pointer',
+  textAlign: 'left',
+};
