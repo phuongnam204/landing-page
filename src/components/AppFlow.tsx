@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect, useRef } from 'react';
 import { quizQuestions, q6Options } from '../content/quiz';
 import type { QuizResult, ProgramId } from '../content/quiz';
