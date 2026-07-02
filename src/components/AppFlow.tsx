@@ -142,7 +142,7 @@ function HeroScreen({ onStart }: { onStart: () => void }) {
           />
           {/* Man — in front, bottom-right, slight rotation */}
           <img
-            src="https://images.unsplash.com/photo-1643990083813-b7fbcbc60993?w=400&q=85&fit=crop&crop=face"
+            src="https://blog.farmacianovadamaia.pt/wp-content/uploads/2023/02/134_skin-care-homem.jpg"
             alt="Chàng trai chăm sóc da"
             className="absolute right-0 bottom-0 w-40 h-56 md:w-56 md:h-[300px] rounded-3xl object-cover object-top shadow-2xl z-20 rotate-2 dark:brightness-90 dark:ring-2 dark:ring-white/10"
           />
