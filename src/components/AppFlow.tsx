@@ -3,8 +3,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { QuizResult, ProgramId } from '../content/quiz';
 import { SkinScanScreen } from './SkinScanScreen';
-import type { CharacterKind, KindCounts } from './MinigameCore/skinScanLogic';
+// (đã bỏ import kind-based; stats mới dùng type nội bộ PayoffStatsData bên dưới)
 import { trackEvent } from '../lib/trackEvent';
+
+type PayoffStatsData = { foundCount: number; zoneLabel: string };
 
 type Step = 'hero' | 'minigame' | 'payoff' | 'programs' | 'conversion' | 'done';
 
@@ -12,7 +14,7 @@ export default function AppFlow() {
   const [step, setStep] = useState<Step>('hero');
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [quizResult, setQuizResult] = useState<QuizResult | null>(null);
-  const [foundCounts, setFoundCounts] = useState<KindCounts | null>(null);
+  const [payoffStats, setPayoffStats] = useState<PayoffStatsData | null>(null);
   const [selectedProgram, setSelectedProgram] = useState<ProgramId | null>(null);
 
   function transitionTo(nextStep: Step) {
@@ -31,9 +33,9 @@ export default function AppFlow() {
 
       {step === 'minigame' && (
         <SkinScanScreen
-          onComplete={(result, counts) => {
+          onComplete={(result, stats) => {
             setQuizResult(result);
-            setFoundCounts(counts);
+            setPayoffStats(stats);
             setSelectedProgram(result.suggestedProgram);
             trackEvent('minigame_complete', { resultId: result.id });
             transitionTo('payoff');
@@ -44,7 +46,7 @@ export default function AppFlow() {
       {step === 'payoff' && quizResult && (
         <PayoffView
           result={quizResult}
-          counts={foundCounts}
+          stats={payoffStats}
           onContinue={() => {
             trackEvent('payoff_view', { resultId: quizResult.id });
             transitionTo('programs');
@@ -225,23 +227,13 @@ const PAYOFF_BRIDGE: Record<'positive' | 'concern', string> = {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Display label + accent color for each character kind, shown as a stat chip.
-// Edit the `label` strings here to reword the post-game statistics.
-const STAT_ORDER: CharacterKind[] = ['dau-den', 'mun-viem', 'man-do', 'da-sang-khoe'];
-const KIND_STAT_META: Record<CharacterKind, { label: string; color: string }> = {
-  'mun-viem': { label: 'nốt mụn viêm', color: '#E5544A' },
-  'dau-den': { label: 'mụn đầu đen', color: '#8D8378' },
-  'man-do': { label: 'vết ửng đỏ', color: '#FFB6C9' },
-  'da-sang-khoe': { label: 'vùng da sáng khỏe', color: '#8FE3BC' },
-};
-
 function PayoffView({
   result,
-  counts,
+  stats,
   onContinue,
 }: {
   result: QuizResult;
-  counts: KindCounts | null;
+  stats: { foundCount: number; zoneLabel: string } | null;
   onContinue: () => void;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -275,7 +267,7 @@ function PayoffView({
         >
           {header}
         </p>
-        {counts && <PayoffStats counts={counts} />}
+        {stats && <PayoffStats stats={stats} />}
         <p
           className="text-sm md:text-base text-cta/80 leading-relaxed mb-3"
           dangerouslySetInnerHTML={{ __html: result.body }}
@@ -296,30 +288,44 @@ function PayoffView({
 
 // Short "achievement" statistics shown between the header and the result body.
 // Each chip pops in one-by-one, left to right, to reward finishing the minigame.
-function PayoffStats({ counts }: { counts: KindCounts }) {
-  const visible = STAT_ORDER.filter((kind) => counts[kind] > 0);
+function PayoffStats({ stats }: { stats: { foundCount: number; zoneLabel: string } }) {
+  const chips: { key: string; color: string; content: React.ReactNode }[] = [
+    {
+      key: 'found',
+      color: '#FF5C9E',
+      content: (
+        <span>
+          đã soi <b>{stats.foundCount}</b> nốt mụn
+        </span>
+      ),
+    },
+    {
+      key: 'zone',
+      color: '#B39DFF',
+      content: (
+        <span>
+          da bạn hay bị ở <b>{stats.zoneLabel}</b>
+        </span>
+      ),
+    },
+  ];
   return (
     <div className="mb-4">
-      <p className="text-sm md:text-base text-cta/60 mb-2">Kính lúp đã soi thấy trên da bạn:</p>
+      <p className="text-sm md:text-base text-cta/60 mb-2">Sau khi soi da của bạn:</p>
       <div className="flex flex-wrap gap-2">
-        {visible.map((kind, index) => {
-          const meta = KIND_STAT_META[kind];
-          return (
+        {chips.map((chip, index) => (
+          <span
+            key={chip.key}
+            className="payoff-stat-chip inline-flex items-center gap-1.5 rounded-full bg-cta/5 px-3 py-1.5 text-sm md:text-base font-semibold text-cta"
+            style={{ animationDelay: `${0.5 + index * 0.18}s` }}
+          >
             <span
-              key={kind}
-              className="payoff-stat-chip inline-flex items-center gap-1.5 rounded-full bg-cta/5 px-3 py-1.5 text-sm md:text-base font-semibold text-cta"
-              style={{ animationDelay: `${0.5 + index * 0.18}s` }}
-            >
-              <span
-                className="inline-block w-2.5 h-2.5 rounded-full shrink-0"
-                style={{ background: meta.color }}
-              />
-              <span>
-                <b>{counts[kind]}</b> {meta.label}
-              </span>
-            </span>
-          );
-        })}
+              className="inline-block w-2.5 h-2.5 rounded-full shrink-0"
+              style={{ background: chip.color }}
+            />
+            {chip.content}
+          </span>
+        ))}
       </div>
     </div>
   );
