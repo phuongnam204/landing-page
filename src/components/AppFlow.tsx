@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { QuizResult, ProgramId } from '../content/quiz';
 import { SkinScanScreen } from './SkinScanScreen';
+import type { CharacterKind, KindCounts } from './MinigameCore/skinScanLogic';
 import { trackEvent } from '../lib/trackEvent';
 
 type Step = 'hero' | 'minigame' | 'payoff' | 'programs' | 'conversion' | 'done';
@@ -11,6 +12,7 @@ export default function AppFlow() {
   const [step, setStep] = useState<Step>('hero');
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [quizResult, setQuizResult] = useState<QuizResult | null>(null);
+  const [foundCounts, setFoundCounts] = useState<KindCounts | null>(null);
   const [selectedProgram, setSelectedProgram] = useState<ProgramId | null>(null);
 
   function transitionTo(nextStep: Step) {
@@ -29,8 +31,9 @@ export default function AppFlow() {
 
       {step === 'minigame' && (
         <SkinScanScreen
-          onComplete={(result) => {
+          onComplete={(result, counts) => {
             setQuizResult(result);
+            setFoundCounts(counts);
             setSelectedProgram(result.suggestedProgram);
             trackEvent('minigame_complete', { resultId: result.id });
             transitionTo('payoff');
@@ -41,6 +44,7 @@ export default function AppFlow() {
       {step === 'payoff' && quizResult && (
         <PayoffView
           result={quizResult}
+          counts={foundCounts}
           onContinue={() => {
             trackEvent('payoff_view', { resultId: quizResult.id });
             transitionTo('programs');
@@ -86,20 +90,20 @@ function HeroScreen({ onStart }: { onStart: () => void }) {
             'url(https://images.unsplash.com/photo-1710580889701-9fa8f2cd5927?w=1920&q=40&fit=crop&fm=jpg)',
         }}
       />
-      <div className="max-w-4xl mx-auto w-full px-5 md:grid md:grid-cols-2 md:gap-10 md:items-center relative z-10">
+      <div className="max-w-6xl mx-auto w-full px-5 md:grid md:grid-cols-2 md:gap-12 md:items-center relative z-10">
         {/* Images column — two overlapping portraits (Google Ads style) */}
-        <div className="relative h-64 md:h-[340px] mb-6 md:mb-0">
+        <div className="relative h-64 md:h-[440px] mb-6 md:mb-0">
           {/* Woman — behind, top-left */}
           <img
             src="https://images.unsplash.com/photo-1728727217834-b190862837a3?w=400&q=85&fit=crop&crop=face"
             alt="Cô gái chăm sóc da"
-            className="absolute left-0 top-0 w-40 h-56 md:w-56 md:h-[300px] rounded-3xl object-cover object-top shadow-xl z-10 dark:brightness-90 dark:ring-2 dark:ring-white/10"
+            className="absolute left-0 top-0 w-40 h-56 md:w-72 md:h-[400px] rounded-3xl object-cover object-top shadow-xl z-10 dark:brightness-90 dark:ring-2 dark:ring-white/10"
           />
           {/* Man — in front, bottom-right, slight rotation */}
           <img
             src="https://blog.farmacianovadamaia.pt/wp-content/uploads/2023/02/134_skin-care-homem.jpg"
             alt="Chàng trai chăm sóc da"
-            className="absolute right-0 bottom-0 w-40 h-56 md:w-56 md:h-[300px] rounded-3xl object-cover object-top shadow-2xl z-20 rotate-2 dark:brightness-90 dark:ring-2 dark:ring-white/10"
+            className="absolute right-0 bottom-0 w-40 h-56 md:w-72 md:h-[400px] rounded-3xl object-cover object-top shadow-2xl z-20 rotate-2 dark:brightness-90 dark:ring-2 dark:ring-white/10"
           />
         </div>
         {/* Text + CTA */}
@@ -107,20 +111,20 @@ function HeroScreen({ onStart }: { onStart: () => void }) {
           <h1 className="font-extrabold text-4xl md:text-5xl text-cta dark:text-white leading-tight">
             Da bạn đang{' '}
             <span className="bg-gradient-to-r from-violet-500 to-pink-500 bg-clip-text text-transparent">
-              nói gì
+              giấu
             </span>{' '}
-            với bạn?
+            điều gì?
           </h1>
           <p className="text-sm md:text-base text-cta/70 dark:text-white/70 mt-4">
-            Làm quiz 30 giây để tìm ra giải pháp phù hợp với làn da của bạn.
+            Có những "bạn nhỏ" đang ẩn náu trên làn da của bạn. Tìm chúng — và khám phá điều da bạn thực sự cần.
           </p>
           <button
             onClick={onStart}
             className="mt-6 bg-cta text-white dark:bg-white dark:text-cta font-bold rounded-soft px-10 py-4 text-base hover:opacity-90 transition-colors duration-300"
           >
-            Khám phá ngay ✨
+            Soi da ngay ✨
           </button>
-          <p className="text-xs text-cta/40 dark:text-white/40 mt-3">Hàng nghìn bạn trẻ đã tìm ra giải pháp phù hợp</p>
+          <p className="text-xs text-cta/40 dark:text-white/40 mt-3">Cùng thực hiện một cuộc khám phá làn da nhé!</p>
         </div>
       </div>
     </div>
@@ -221,11 +225,23 @@ const PAYOFF_BRIDGE: Record<'positive' | 'concern', string> = {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Display label + accent color for each character kind, shown as a stat chip.
+// Edit the `label` strings here to reword the post-game statistics.
+const STAT_ORDER: CharacterKind[] = ['dau-den', 'mun-viem', 'man-do', 'da-sang-khoe'];
+const KIND_STAT_META: Record<CharacterKind, { label: string; color: string }> = {
+  'mun-viem': { label: 'nốt mụn viêm', color: '#E5544A' },
+  'dau-den': { label: 'mụn đầu đen', color: '#8D8378' },
+  'man-do': { label: 'vết ửng đỏ', color: '#FFB6C9' },
+  'da-sang-khoe': { label: 'vùng da sáng khỏe', color: '#8FE3BC' },
+};
+
 function PayoffView({
   result,
+  counts,
   onContinue,
 }: {
   result: QuizResult;
+  counts: KindCounts | null;
   onContinue: () => void;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -246,7 +262,7 @@ function PayoffView({
       <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none" style={{ zIndex: 0 }} />
       <div
         className={[
-          'max-w-lg w-full bg-white rounded-soft p-5 md:p-8 shadow-lg shadow-cta/10 relative',
+          'max-w-lg md:max-w-3xl w-full bg-white rounded-soft p-5 md:p-10 shadow-lg shadow-cta/10 relative',
           isPositive ? 'animate-fade-in-up' : 'payoff-concern-enter',
         ].join(' ')}
         style={{ zIndex: 10 }}
@@ -259,22 +275,51 @@ function PayoffView({
         >
           {header}
         </p>
+        {counts && <PayoffStats counts={counts} />}
         <p
-          className="text-sm text-cta/80 leading-relaxed mb-3"
+          className="text-sm md:text-base text-cta/80 leading-relaxed mb-3"
           dangerouslySetInnerHTML={{ __html: result.body }}
         />
-        <p className="text-sm text-cta/70 leading-snug px-3 py-2.5 bg-violet-50 border-l-2 border-violet-500 rounded-r-lg mb-3">
+        <p className="text-sm md:text-base text-cta/70 leading-snug px-3 py-2.5 bg-violet-50 border-l-2 border-violet-500 rounded-r-lg mb-5">
           {bridge}
-        </p>
-        <p className="text-sm font-semibold text-cta/90 mb-5 leading-relaxed">
-          💡 {result.solution}
         </p>
         <button
           onClick={onContinue}
-          className="bg-cta text-white font-bold text-sm py-3.5 px-9 rounded-soft w-full"
+          className="bg-cta text-white font-bold text-sm md:text-base py-3.5 px-9 rounded-soft w-full"
         >
-          Xem chương trình phù hợp →
+          Kham khảo chương trình của chúng tôi →
         </button>
+      </div>
+    </div>
+  );
+}
+
+// Short "achievement" statistics shown between the header and the result body.
+// Each chip pops in one-by-one, left to right, to reward finishing the minigame.
+function PayoffStats({ counts }: { counts: KindCounts }) {
+  const visible = STAT_ORDER.filter((kind) => counts[kind] > 0);
+  return (
+    <div className="mb-4">
+      <p className="text-sm md:text-base text-cta/60 mb-2">Kính lúp đã soi thấy trên da bạn:</p>
+      <div className="flex flex-wrap gap-2">
+        {visible.map((kind, index) => {
+          const meta = KIND_STAT_META[kind];
+          return (
+            <span
+              key={kind}
+              className="payoff-stat-chip inline-flex items-center gap-1.5 rounded-full bg-cta/5 px-3 py-1.5 text-sm md:text-base font-semibold text-cta"
+              style={{ animationDelay: `${0.5 + index * 0.18}s` }}
+            >
+              <span
+                className="inline-block w-2.5 h-2.5 rounded-full shrink-0"
+                style={{ background: meta.color }}
+              />
+              <span>
+                <b>{counts[kind]}</b> {meta.label}
+              </span>
+            </span>
+          );
+        })}
       </div>
     </div>
   );
@@ -372,11 +417,10 @@ function ProgramsScreen({
   const [selected, setSelected] = useState<ProgramId>(initialSelected);
 
   return (
-    <div className="h-screen w-full bg-pastel-lavender flex items-center justify-center px-5 overflow-hidden">
+    <div className="min-h-screen w-full bg-pastel-lavender flex items-center justify-center px-5 overflow-y-auto py-6">
       <div className="max-w-2xl w-full animate-fade-in-up">
         <div className="text-center mb-6">
-          <div className="text-xs font-bold text-label-purple uppercase mb-1">Chương trình của chúng tôi</div>
-          <div className="font-extrabold text-xl text-cta">Chương trình trị mụn phù hợp với bạn</div>
+          <div className="font-extrabold text-xl md:text-2xl text-cta">Tại đây chúng tôi có các chương trình trị mụn phù hợp với bạn !</div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
           {PROGRAMS.map((program) => (

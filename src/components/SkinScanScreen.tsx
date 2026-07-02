@@ -4,8 +4,10 @@ import { useRef, useState, type CSSProperties } from 'react';
 import {
   generateBoard,
   computeResultFromBoard,
+  countByKind,
   type BoardCharacter,
   type CharacterKind,
+  type KindCounts,
 } from './MinigameCore/skinScanLogic';
 import type { QuizResult } from '../content/quiz';
 
@@ -61,7 +63,11 @@ function findNearestUnfound(board: BoardCharacter[], x: number, y: number): Boar
   return nearest;
 }
 
-export function SkinScanScreen({ onComplete }: { onComplete: (result: QuizResult) => void }) {
+export function SkinScanScreen({
+  onComplete,
+}: {
+  onComplete: (result: QuizResult, counts: KindCounts) => void;
+}) {
   const [board, setBoard] = useState<BoardCharacter[]>(() => generateBoard());
   const [lensPos, setLensPos] = useState({ x: 50, y: 50 });
   const boardRef = useRef<HTMLDivElement>(null);
@@ -88,13 +94,13 @@ export function SkinScanScreen({ onComplete }: { onComplete: (result: QuizResult
     boardStateRef.current = nextBoard;
     setBoard(nextBoard);
     if (nextBoard.every((c) => c.found)) {
-      onComplete(computeResultFromBoard(nextBoard));
+      onComplete(computeResultFromBoard(nextBoard), countByKind(nextBoard));
     }
   }
 
   return (
-    <div className="h-screen w-full bg-pastel-mint flex flex-col items-center justify-center px-5 overflow-hidden">
-      <div className="max-w-lg w-full">
+    <div className="h-screen w-full bg-pastel-mint flex flex-col items-center justify-center px-4 sm:px-5 overflow-hidden">
+      <div className="w-full max-w-2xl md:max-w-[80%]">
         <div className="text-xs font-bold text-label-purple uppercase mb-1">
           Đã tìm {foundCount} / {TOTAL_CHARACTERS}
         </div>
@@ -104,6 +110,9 @@ export function SkinScanScreen({ onComplete }: { onComplete: (result: QuizResult
             style={{ width: `${(foundCount / TOTAL_CHARACTERS) * 100}%`, transition: 'width 300ms ease' }}
           />
         </div>
+        <p className="text-base md:text-lg font-bold text-cta text-center leading-snug mb-3 px-2">
+          👆 Chạm vào màn hình để kéo kính lúp khắp vùng da
+        </p>
         <div
           ref={boardRef}
           onPointerDown={(e) => handlePointer(e.clientX, e.clientY)}
@@ -111,7 +120,7 @@ export function SkinScanScreen({ onComplete }: { onComplete: (result: QuizResult
             if (e.buttons !== 1) return;
             handlePointer(e.clientX, e.clientY);
           }}
-          className="relative w-full aspect-[4/3] rounded-soft overflow-hidden touch-none select-none"
+          className="relative w-full h-[60vh] max-h-[620px] rounded-soft overflow-hidden touch-none select-none"
           style={{ background: 'radial-gradient(circle at 30% 30%, #FFE3D0 0%, #FBCFA0 40%, #F5B98A 100%)' }}
         >
           {board.map((character) => (
@@ -130,7 +139,6 @@ export function SkinScanScreen({ onComplete }: { onComplete: (result: QuizResult
             }}
           />
         </div>
-        <p className="text-xs text-cta/50 text-center mt-3">👆 Chạm và kéo kính lúp khắp vùng da</p>
       </div>
     </div>
   );

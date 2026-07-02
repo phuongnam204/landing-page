@@ -90,11 +90,19 @@ const KIND_TO_PROFILE_ID: Record<CharacterKind, string> = {
   'da-sang-khoe': 'clean-skin',
 };
 
-export function computeResultFromBoard(board: BoardCharacter[]): QuizResult {
-  const counts = { 'mun-viem': 0, 'dau-den': 0, 'man-do': 0, 'da-sang-khoe': 0 } as Record<CharacterKind, number>;
+export type KindCounts = Record<CharacterKind, number>;
+
+/** Tallies how many characters of each kind are on the board (all found at game end). */
+export function countByKind(board: BoardCharacter[]): KindCounts {
+  const counts = { 'mun-viem': 0, 'dau-den': 0, 'man-do': 0, 'da-sang-khoe': 0 } as KindCounts;
   for (const character of board) {
     counts[character.kind] += 1;
   }
+  return counts;
+}
+
+export function computeResultFromBoard(board: BoardCharacter[]): QuizResult {
+  const counts = countByKind(board);
   const maxCount = Math.max(...ALL_KINDS.map((kind) => counts[kind]));
   const leaders = ALL_KINDS.filter((kind) => counts[kind] === maxCount);
   if (leaders.length !== 1) {
