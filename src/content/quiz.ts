@@ -18,6 +18,14 @@ export const quizResults: Record<string, QuizResult> = {
       'Xây dựng routine đơn giản: cleanser nhẹ, moisturizer phù hợp da, SPF hàng ngày. Phòng ngừa tốt hơn điều trị.',
     suggestedProgram: 'khoi-dau',
   },
+  'mun-noi-tiet': {
+    id: 'mun-noi-tiet',
+    tone: 'concern',
+    body: 'Da bạn có dấu hiệu <b>mụn nội tiết</b> — mụn tập trung ở vùng cằm và quai hàm, thường nặng hơn theo chu kỳ. Đây là kiểu mụn liên quan đến thay đổi nội tiết bên trong.',
+    solution:
+      'Điều trị mụn nội tiết cần kết hợp chăm sóc da đúng cách và đánh giá yếu tố bên trong. Nên được tư vấn 1:1 để có phác đồ phù hợp.',
+    suggestedProgram: 'chuyen-sau',
+  },
   'da-nhay-cam': {
     id: 'da-nhay-cam',
     tone: 'concern',
