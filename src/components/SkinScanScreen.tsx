@@ -294,7 +294,7 @@ function FaceMap({ className = '' }: { className?: string }) {
         <circle cx="118" cy="104" r="3" fill="#2D2640" />
         <path d="M88 150 Q100 158 112 150" stroke="#2D2640" strokeWidth="2" strokeLinecap="round" fill="none" />
       </svg>
-      <div className="flex flex-col gap-1.5 text-sm text-cta/80">
+      <div className="flex flex-col gap-1.5 text-sm text-cta/80 dark:text-white/80">
         {zones.map((z) => (
           <div key={z} className="flex items-center gap-2">
             <span className="w-3 h-3 rounded-full shrink-0" style={{ background: ZONE_META[z].color }} />
@@ -309,15 +309,15 @@ function FaceMap({ className = '' }: { className?: string }) {
 function ReportStep({ onPick }: { onPick: (zone: SkinZone) => void }) {
   const zones: SkinZone[] = ['cam-quai-ham', 'chu-t', 'hai-ma', 'khong-bi'];
   return (
-    <PlayfulBackdrop>
-      <div className="flex flex-col items-center md:flex-row md:items-center md:gap-10">
+    <GameStage>
+      <div className="h-full w-full flex flex-col items-center justify-center gap-8 px-6 md:flex-row md:gap-16">
         <FaceMap className="hidden md:flex" />
-        <div className="w-[330px] md:w-[440px] rounded-[28px] bg-[#2D2640] shadow-[0_18px_50px_rgba(45,38,64,0.35)] p-5 md:p-7">
-          <div className="text-center text-white mb-4">
-            <div className="text-[13px] font-bold tracking-wide" style={{ color: '#FFB8D4' }}>
+        <div className="w-full max-w-sm md:max-w-md">
+          <div className="text-center mb-5">
+            <div className="text-[13px] font-bold tracking-wide" style={{ color: '#FF5C9E' }}>
               SOI XONG RỒI 🎉
             </div>
-            <div className="text-lg md:text-xl font-extrabold leading-snug mt-1.5">
+            <div className="text-xl md:text-2xl font-extrabold leading-snug mt-1.5 text-cta dark:text-white">
               Còn da của <u>bạn</u> thì hay “nổi loạn” nhất ở đâu?
             </div>
           </div>
@@ -326,16 +326,16 @@ function ReportStep({ onPick }: { onPick: (zone: SkinZone) => void }) {
               <button
                 key={zone}
                 onClick={() => onPick(zone)}
-                style={zoneChipStyle}
+                className="flex items-center gap-2.5 rounded-2xl px-4 py-3.5 text-left border-2 transition-colors bg-cta/5 hover:bg-cta/10 border-cta/10 text-cta dark:bg-white/8 dark:hover:bg-white/12 dark:border-white/15 dark:text-white"
               >
-                <span style={{ width: 12, height: 12, borderRadius: '50%', flex: 'none', background: ZONE_META[zone].color }} />
-                <span style={{ fontWeight: 700, fontSize: 15 }}>{ZONE_LABELS[zone]}</span>
+                <span className="w-3 h-3 rounded-full shrink-0" style={{ background: ZONE_META[zone].color }} />
+                <span className="font-bold text-[15px]">{ZONE_LABELS[zone]}</span>
               </button>
             ))}
           </div>
         </div>
       </div>
-    </PlayfulBackdrop>
+    </GameStage>
   );
 }
 
@@ -369,17 +369,4 @@ const tickStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-};
-
-const zoneChipStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: 10,
-  padding: '14px 16px',
-  borderRadius: 16,
-  background: 'rgba(255,255,255,.08)',
-  border: '2px solid rgba(255,255,255,.14)',
-  color: '#fff',
-  cursor: 'pointer',
-  textAlign: 'left',
 };
