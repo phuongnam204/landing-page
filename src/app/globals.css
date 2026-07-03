@@ -110,3 +110,49 @@ html::-webkit-scrollbar { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .mg-blob { animation: none; }
 }
+
+/* ── ProgramsScreen entrance animations (prefix ps-) ── */
+
+@keyframes psFadeDown {
+  from { opacity: 0; transform: translateY(-14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.ps-fadeDown {
+  animation: psFadeDown 0.45s ease-out both;
+}
+
+@keyframes psPopCheer {
+  0%   { opacity: 0; transform: scale(0.15); }
+  60%  { opacity: 1; transform: scale(1.12); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.ps-popCheer {
+  animation: psPopCheer 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes psFloaty {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+.ps-floaty {
+  animation: psFloaty 3.5s ease-in-out infinite;
+}
+
+@keyframes psCardUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.ps-cardUp {
+  animation: psCardUp 0.4s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ps-fadeDown,
+  .ps-popCheer,
+  .ps-cardUp {
+    animation: none;
+  }
+  .ps-floaty {
+    animation: none;
+  }
+}

@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import type { QuizResult, ProgramId } from '../content/quiz';
+import type { SkinCondition, ConditionId } from '../content/quiz';
+import type { Program, ProgramId } from '../content/programs';
+import { getPrograms, getSuggestedProgram, getConditionById } from '../content/catalog';
 import { SkinScanScreen } from './SkinScanScreen';
-// (đã bỏ import kind-based; stats mới dùng type nội bộ PayoffStatsData bên dưới)
 import { trackEvent } from '../lib/trackEvent';
 
 type PayoffStatsData = { foundCount: number; zoneLabel: string };
@@ -13,7 +14,7 @@ type Step = 'hero' | 'minigame' | 'payoff' | 'programs' | 'conversion' | 'done';
 export default function AppFlow() {
   const [step, setStep] = useState<Step>('hero');
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [quizResult, setQuizResult] = useState<QuizResult | null>(null);
+  const [quizResult, setQuizResult] = useState<SkinCondition | null>(null);
   const [payoffStats, setPayoffStats] = useState<PayoffStatsData | null>(null);
   const [selectedProgram, setSelectedProgram] = useState<ProgramId | null>(null);
 
@@ -36,7 +37,7 @@ export default function AppFlow() {
           onComplete={(result, stats) => {
             setQuizResult(result);
             setPayoffStats(stats);
-            setSelectedProgram(result.suggestedProgram);
+            setSelectedProgram(getSuggestedProgram(result.id)?.id ?? null);
             trackEvent('minigame_complete', { resultId: result.id });
             transitionTo('payoff');
           }}
@@ -244,7 +245,7 @@ function PayoffView({
   stats,
   onContinue,
 }: {
-  result: QuizResult;
+  result: SkinCondition;
   stats: { foundCount: number; zoneLabel: string } | null;
   onContinue: () => void;
 }) {
@@ -354,7 +355,7 @@ function ConversionForm({
   const [phone, setPhone] = useState('');
 
   const programName = selectedProgram
-    ? PROGRAMS.find((p) => p.id === selectedProgram)?.name
+    ? getPrograms().find((p) => p.id === selectedProgram)?.name
     : null;
 
   function handleSubmit(event: React.FormEvent) {
@@ -404,27 +405,6 @@ function ConversionForm({
   );
 }
 
-const PROGRAMS: { id: ProgramId; name: string; duration: string; description: string }[] = [
-  {
-    id: 'khoi-dau',
-    name: 'Khởi đầu',
-    duration: '4 tuần',
-    description: 'Phù hợp với mụn nhẹ, lần đầu điều trị. Liệu trình cơ bản giúp làm sạch da và kiểm soát dầu.',
-  },
-  {
-    id: 'chuyen-sau',
-    name: 'Chuyên sâu',
-    duration: '8 tuần',
-    description: 'Kết hợp nhiều bước điều trị, phù hợp mụn từ trung bình. Tập trung vào nguyên nhân gốc rễ.',
-  },
-  {
-    id: 'toan-dien',
-    name: 'Toàn diện',
-    duration: '12 tuần',
-    description: 'Dành cho mụn nặng và tái phát. Kết hợp chăm sóc da và tư vấn dinh dưỡng, nội tiết.',
-  },
-];
-
 function ProgramsScreen({
   initialSelected,
   onContinue,
@@ -433,65 +413,127 @@ function ProgramsScreen({
   onContinue: (programId: ProgramId) => void;
 }) {
   const [selected, setSelected] = useState<ProgramId>(initialSelected);
+  const allPrograms = getPrograms();
+  const suggestedId = allPrograms.length > 0 ? allPrograms[0].id : '';
 
   return (
-    <div className="h-[100dvh] w-full bg-pastel-lavender overflow-y-auto">
-      <div className="min-h-full flex items-center justify-center px-5 py-6">
-        <div className="max-w-2xl w-full animate-fade-in-up">
-          <div className="text-center mb-6">
-            <div className="font-extrabold text-xl md:text-2xl text-cta">Tại đây chúng tôi có các chương trình trị mụn phù hợp với bạn !</div>
+    <div className="ps-fadeDown h-[100dvh] w-full bg-pastel-lavender overflow-y-auto py-6">
+      <div className="min-h-full flex flex-col items-center justify-center px-4">
+        {/* Header với 2 nurse chibi */}
+        <div className="relative w-full max-w-5xl mb-5">
+          <div className="flex items-center justify-center gap-3 md:gap-5">
+            <img
+              src="/mascots/nurse-cheer.png"
+              alt=""
+              className="ps-popCheer ps-floaty w-16 md:w-24 h-auto object-contain"
+              style={{ zIndex: 20 }}
+            />
+            <h2 className="ps-fadeDown text-xl md:text-2xl font-extrabold text-cta text-center [animation-delay:0.1s]">
+              Các gói dịch vụ tại O2Skin
+            </h2>
+            <img
+              src="/mascots/nurse-review.png"
+              alt=""
+              className="ps-popCheer ps-floaty hidden sm:block w-16 md:w-24 h-auto object-contain"
+              style={{ animationDelay: '0.2s', zIndex: 20 }}
+            />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
-            {PROGRAMS.map((program) => (
-              <ProgramCard
-                key={program.id}
-                program={program}
-                selected={selected === program.id}
-                onSelect={() => setSelected(program.id)}
-              />
-            ))}
-          </div>
-          <div className="text-center">
-            <button
-              onClick={() => onContinue(selected)}
-              className="bg-violet-600 text-white font-bold text-sm py-3.5 px-9 rounded-soft hover:bg-violet-700 transition-colors duration-200"
-            >
-              {`Đăng ký chương trình ${PROGRAMS.find((p) => p.id === selected)?.name} →`}
-            </button>
-          </div>
+        </div>
+
+        {/* Lưới card auto-fill */}
+        <div
+          className="w-full max-w-5xl grid gap-4 mb-6"
+          style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))' }}
+        >
+          {allPrograms.map((program, idx) => (
+            <ProgramCardB
+              key={program.id}
+              program={program}
+              selected={selected === program.id}
+              isSuggested={program.id === suggestedId}
+              onSelect={() => setSelected(program.id)}
+              style={{ animationDelay: `${0.15 + idx * 0.08}s` }}
+            />
+          ))}
+        </div>
+
+        <div className="text-center">
+          <button
+            onClick={() => onContinue(selected)}
+            className="bg-violet-600 text-white font-bold text-sm py-3.5 px-9 rounded-soft hover:bg-violet-700 transition-colors duration-200"
+          >
+            {`Đăng ký chương trình ${allPrograms.find((p) => p.id === selected)?.name ?? ''} →`}
+          </button>
         </div>
       </div>
     </div>
   );
 }
 
-// Một thẻ chương trình trong ProgramsScreen — lặp qua PROGRAMS.map().
-function ProgramCard({
+// Card hướng B — dải header tint màu + badge VIP + badge loại bệnh
+function ProgramCardB({
   program,
   selected,
+  isSuggested,
   onSelect,
+  style,
 }: {
-  program: (typeof PROGRAMS)[number];
+  program: Program;
   selected: boolean;
+  isSuggested: boolean;
   onSelect: () => void;
+  style?: React.CSSProperties;
 }) {
+  const mainCondition = getConditionById(program.treatsConditions[0]);
+  const tintColor = mainCondition?.color ?? '#A0AEC0';
+
   return (
     <button
       onClick={onSelect}
       className={[
-        'text-left rounded-soft p-5 shadow-md shadow-cta/10 flex flex-col gap-2',
+        'ps-cardUp text-left rounded-soft shadow-md shadow-cta/10 flex flex-col overflow-hidden',
         'border-2 transition-colors duration-[160ms]',
-        selected
-          ? 'bg-violet-50 border-violet-600'
-          : 'bg-white border-transparent hover:border-violet-400',
+        selected ? 'border-[#7C3AED]' : 'border-transparent',
       ].join(' ')}
+      style={style}
     >
-      <div className="flex items-center justify-between">
+      {/* Dải header tint màu */}
+      <div className="px-4 py-3 flex items-center justify-between" style={{ background: `${tintColor}22` }}>
         <div className="font-bold text-base text-cta">{program.name}</div>
         {selected && <span className="text-violet-600 font-bold text-sm">✓</span>}
       </div>
-      <div className="text-xs font-bold text-label-purple">{program.duration}</div>
-      <p className="text-sm text-cta/70 leading-relaxed">{program.description}</p>
+
+      {/* Thân card */}
+      <div className="px-4 py-3 flex flex-col gap-2 bg-white flex-1">
+        {program.isVip && (
+          <span className="self-start inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-bold text-amber-800">
+            VIP
+          </span>
+        )}
+        <p className="text-sm text-cta/70 leading-relaxed">{program.description}</p>
+        {/* Badge loại bệnh */}
+        <div className="flex flex-wrap gap-1.5 mt-auto pt-2">
+          {program.treatsConditions.map((cid) => {
+            const cond = getConditionById(cid);
+            return (
+              <span
+                key={cid}
+                className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold"
+                style={{
+                  background: cond ? `${cond.color}18` : '#f0f0f0',
+                  color: cond ? cond.color : '#666',
+                }}
+              >
+                <span
+                  className="w-2 h-2 rounded-full shrink-0"
+                  style={{ background: cond?.color ?? '#999' }}
+                />
+                {cond?.label ?? cid}
+              </span>
+            );
+          })}
+        </div>
+      </div>
     </button>
   );
 }
