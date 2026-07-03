@@ -1,4 +1,4 @@
-import { quizResults, type QuizResult } from '../../content/quiz';
+import { skinConditions, type ConditionId, type SkinCondition } from '../../content/quiz';
 
 /** Một nốt mụn overlay trên ảnh mặt (toạ độ tính theo % khung ảnh). */
 export interface AcneSpot {
@@ -29,12 +29,12 @@ export const SPOT_POOL: { x: number; y: number }[] = [
   { x: 62, y: 74 },
 ];
 
-/** Nhãn hiển thị + profile ánh xạ + màu chip cho mỗi vùng da (face mapping). */
-export const ZONE_META: Record<SkinZone, { label: string; profileId: string; color: string }> = {
-  'cam-quai-ham': { label: 'cằm & quai hàm', profileId: 'mun-noi-tiet', color: '#FF5C9E' },
-  'chu-t': { label: 'vùng chữ T', profileId: 'da-nhon-mun-viem', color: '#FFCD78' },
-  'hai-ma': { label: 'hai má', profileId: 'da-nhay-cam', color: '#7DD9C0' },
-  'khong-bi': { label: 'gần như không bị', profileId: 'clean-skin', color: '#B39DFF' },
+/** Nhãn hiển thị + tình trạng ánh xạ + màu chip cho mỗi vùng da (face mapping). */
+export const ZONE_META: Record<SkinZone, { label: string; conditionId: ConditionId; color: string; o2skinLocationRef?: string }> = {
+  'cam-quai-ham': { label: 'cằm & quai hàm', conditionId: 'mun-noi-tiet', color: '#FF5C9E', o2skinLocationRef: 'o2skin AcneLocation (đối chiếu)' },
+  'chu-t': { label: 'vùng chữ T', conditionId: 'da-nhon-mun-viem', color: '#FFCD78', o2skinLocationRef: 'o2skin AcneLocation (đối chiếu)' },
+  'hai-ma': { label: 'hai má', conditionId: 'da-nhay-cam', color: '#7DD9C0', o2skinLocationRef: 'o2skin AcneLocation (đối chiếu)' },
+  'khong-bi': { label: 'gần như không bị', conditionId: 'clean-skin', color: '#B39DFF', o2skinLocationRef: 'o2skin AcneLocation (đối chiếu)' },
 };
 
 function shuffle<T>(items: T[]): T[] {
@@ -77,9 +77,9 @@ export function findNearestUnfoundSpot(
   return nearest;
 }
 
-/** Ánh xạ vùng da tự khai sang một profile trong quizResults. */
-export function resolveProfileByZone(zone: SkinZone): QuizResult {
+/** Ánh xạ vùng da tự khai sang một tình trạng trong skinConditions. */
+export function resolveConditionByZone(zone: SkinZone): SkinCondition {
   const meta = ZONE_META[zone];
-  if (!meta) return quizResults['da-moi-bat-dau'];
-  return quizResults[meta.profileId] ?? quizResults['da-moi-bat-dau'];
+  if (!meta) return skinConditions['da-moi-bat-dau'];
+  return skinConditions[meta.conditionId] ?? skinConditions['da-moi-bat-dau'];
 }

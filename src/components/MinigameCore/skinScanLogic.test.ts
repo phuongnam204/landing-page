@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   generateSpots,
   findNearestUnfoundSpot,
-  resolveProfileByZone,
+  resolveConditionByZone,
   ZONE_META,
   SPOT_POOL,
   type AcneSpot,
@@ -53,7 +53,7 @@ describe('findNearestUnfoundSpot', () => {
   });
 });
 
-describe('resolveProfileByZone', () => {
+describe('resolveConditionByZone', () => {
   const cases: [SkinZone, string][] = [
     ['cam-quai-ham', 'mun-noi-tiet'],
     ['chu-t', 'da-nhon-mun-viem'],
@@ -61,11 +61,11 @@ describe('resolveProfileByZone', () => {
     ['khong-bi', 'clean-skin'],
   ];
   it.each(cases)('maps zone %s to profile %s', (zone, profileId) => {
-    expect(resolveProfileByZone(zone).id).toBe(profileId);
+    expect(resolveConditionByZone(zone).id).toBe(profileId);
   });
 
   it('falls back to da-moi-bat-dau for an unknown zone', () => {
-    expect(resolveProfileByZone('nonsense' as SkinZone).id).toBe('da-moi-bat-dau');
+    expect(resolveConditionByZone('nonsense' as SkinZone).id).toBe('da-moi-bat-dau');
   });
 });
 
@@ -74,7 +74,7 @@ describe('ZONE_META', () => {
     const zones: SkinZone[] = ['cam-quai-ham', 'chu-t', 'hai-ma', 'khong-bi'];
     for (const z of zones) {
       expect(ZONE_META[z].label.length).toBeGreaterThan(0);
-      expect(ZONE_META[z].profileId.length).toBeGreaterThan(0);
+      expect(ZONE_META[z].conditionId.length).toBeGreaterThan(0);
     }
   });
 });
