@@ -1,5 +1,7 @@
-import { skinConditions, type ConditionId, type SkinCondition } from './quiz';
-import { programs, type Program } from './programs';
+import type { ConditionId, SkinCondition } from './quiz';
+import { skinConditions } from './quiz';
+import type { Program } from './programs';
+import { programs } from './programs';
 
 export function getConditionById(id: ConditionId): SkinCondition | undefined {
   return skinConditions[id];
@@ -14,5 +16,7 @@ export function getProgramsTreating(conditionId: ConditionId): Program[] {
 }
 
 export function getSuggestedProgram(conditionId: ConditionId): Program | undefined {
-  return getProgramsTreating(conditionId)[0] ?? programs[0];
+  const matching = getProgramsTreating(conditionId);
+  if (matching.length > 0) return matching[0];
+  return programs[0];
 }

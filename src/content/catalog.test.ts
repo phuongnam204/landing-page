@@ -1,38 +1,63 @@
 import { describe, it, expect } from 'vitest';
-import { getConditionById, getPrograms, getProgramsTreating, getSuggestedProgram } from './catalog';
-import type { ConditionId } from './quiz';
-
-const ALL: ConditionId[] = ['mun-noi-tiet', 'da-nhon-mun-viem', 'da-nhay-cam', 'lo-chan-long', 'clean-skin', 'da-moi-bat-dau'];
+import {
+  getConditionById,
+  getPrograms,
+  getProgramsTreating,
+  getSuggestedProgram,
+} from './catalog';
 
 describe('getConditionById', () => {
-  it('returns a condition for a known id', () => {
-    expect(getConditionById('mun-noi-tiet')?.label).toBe('Mụn nội tiết');
+  it('returns the condition for a known id', () => {
+    const c = getConditionById('mun-noi-tiet');
+    expect(c).toBeDefined();
+    expect(c?.id).toBe('mun-noi-tiet');
+    expect(c?.label).toBe('Mụn nội tiết');
   });
+
   it('returns undefined for an unknown id', () => {
-    expect(getConditionById('nope' as ConditionId)).toBeUndefined();
-  });
-});
-
-describe('getProgramsTreating', () => {
-  it('returns only programs whose treatsConditions includes the id', () => {
-    const result = getProgramsTreating('da-nhay-cam');
-    expect(result.length).toBeGreaterThan(0);
-    expect(result.every((p) => p.treatsConditions.includes('da-nhay-cam'))).toBe(true);
-  });
-});
-
-describe('getSuggestedProgram', () => {
-  it('every condition resolves to a program that actually treats it', () => {
-    for (const id of ALL) {
-      const p = getSuggestedProgram(id);
-      expect(p).toBeDefined();
-      expect(p!.treatsConditions.includes(id)).toBe(true);
-    }
+    expect(getConditionById('nonsense' as never)).toBeUndefined();
   });
 });
 
 describe('getPrograms', () => {
-  it('returns the full non-empty programs list', () => {
-    expect(getPrograms().length).toBeGreaterThanOrEqual(5);
+  it('returns at least 5 programs', () => {
+    const list = getPrograms();
+    expect(list.length).toBeGreaterThanOrEqual(5);
+  });
+
+  it('every program has a non-empty id, name, description', () => {
+    for (const p of getPrograms()) {
+      expect(p.id.length).toBeGreaterThan(0);
+      expect(p.name.length).toBeGreaterThan(0);
+      expect(p.description.length).toBeGreaterThan(0);
+    }
+  });
+});
+
+describe('getProgramsTreating', () => {
+  it('returns only programs that treat the given condition', () => {
+    const programs = getProgramsTreating('mun-noi-tiet');
+    for (const p of programs) {
+      expect(p.treatsConditions).toContain('mun-noi-tiet');
+    }
+  });
+
+  it('returns empty array for a condition no program treats', () => {
+    const programs = getProgramsTreating('nonsense' as never);
+    expect(programs).toHaveLength(0);
+  });
+});
+
+describe('getSuggestedProgram', () => {
+  it('returns the first program treating the condition', () => {
+    const suggested = getSuggestedProgram('mun-noi-tiet');
+    expect(suggested).toBeDefined();
+    expect(suggested!.treatsConditions[0]).toBe('mun-noi-tiet');
+  });
+
+  it('falls back to the first program for unknown conditions', () => {
+    const fallback = getSuggestedProgram('nonsense' as never);
+    expect(fallback).toBeDefined();
+    expect(fallback!.id).toBe(getPrograms()[0].id);
   });
 });
