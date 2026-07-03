@@ -215,9 +215,49 @@ function ScanBoard({
   );
 }
 
-// TODO(Task 2): replace with the real HUD overlay.
+// HUD nổi trên ảnh — dải trên (label+headline+tiến độ, mọi kích thước) và dải dưới (chip đếm+mascot, chỉ desktop).
 function FindGameHud({ foundCount }: { foundCount: number }) {
-  return null;
+  const remaining = SPOT_COUNT - foundCount;
+  return (
+    <>
+      <div className="absolute top-0 inset-x-0 pointer-events-none bg-gradient-to-b from-black/70 via-black/30 to-transparent px-5 pt-5 pb-10 md:px-10 md:pt-8">
+        <div className="text-[13px] font-bold tracking-wide text-white/85">
+          SOI THỬ LÀN DA
+        </div>
+        <div className="text-lg md:text-2xl font-extrabold leading-snug mt-1 text-white max-w-md">
+          Chạm để khoanh hết các nốt mụn bạn thấy 👀
+        </div>
+        <div className="flex items-center gap-2 mt-3 max-w-xs md:max-w-sm">
+          <div className="flex-1 h-2 rounded-full bg-white/20 overflow-hidden">
+            <div
+              className="h-full rounded-full transition-[width] duration-300"
+              style={{
+                width: `${(foundCount / SPOT_COUNT) * 100}%`,
+                background: 'linear-gradient(90deg,#FF5C9E,#B39DFF)',
+              }}
+            />
+          </div>
+          <div className="text-[13px] font-extrabold whitespace-nowrap" style={{ color: '#FFB8D4' }}>
+            {foundCount} / {SPOT_COUNT} nốt
+          </div>
+        </div>
+      </div>
+
+      <div className="hidden md:flex absolute bottom-0 inset-x-0 pointer-events-none bg-gradient-to-t from-black/60 to-transparent px-10 pb-8 pt-14 items-end justify-between">
+        <div className="flex flex-wrap gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-sm font-bold text-cta shadow-sm">
+            <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#FF5C9E' }} />
+            {foundCount} đã soi
+          </span>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/60 px-3 py-1.5 text-sm font-bold text-cta/70 shadow-sm">
+            <span className="w-2.5 h-2.5 rounded-full bg-cta/30" />
+            còn {remaining}
+          </span>
+        </div>
+        <Mascot />
+      </div>
+    </>
+  );
 }
 
 // Mascot "bạn nhỏ" SVG vẽ tay, dùng ở panel phải của FindGame trên desktop.
@@ -235,32 +275,6 @@ function Mascot() {
       <circle cx="80" cy="74" r="5" fill="#FF9BC0" opacity="0.6" />
       <path d="M60 16 l3.2 7.6 7.6 3.2 -7.6 3.2 -3.2 7.6 -3.2 -7.6 -7.6 -3.2 7.6 -3.2 z" fill="#FFCD78" />
     </svg>
-  );
-}
-
-// Panel phải của FindGame — chỉ hiện từ breakpoint md trở lên.
-function PlayfulPanel({ foundCount }: { foundCount: number }) {
-  const remaining = SPOT_COUNT - foundCount;
-  return (
-    <div className="hidden md:flex flex-col gap-4 max-w-xs">
-      <h2 className="text-3xl font-black text-cta leading-tight">
-        Tìm hết các “bạn nhỏ” đang trốn nhé! 👀
-      </h2>
-      <p className="text-base text-cta/70">
-        Chạm vào từng nốt trên mặt để khoanh chúng lại. Rê tay khắp vùng da nhé!
-      </p>
-      <div className="flex flex-wrap gap-2">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-sm font-bold text-cta shadow-sm">
-          <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#FF5C9E' }} />
-          {foundCount} đã soi
-        </span>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-white/60 px-3 py-1.5 text-sm font-bold text-cta/70 shadow-sm">
-          <span className="w-2.5 h-2.5 rounded-full bg-cta/30" />
-          còn {remaining}
-        </span>
-      </div>
-      <div className="mt-1"><Mascot /></div>
-    </div>
   );
 }
 
