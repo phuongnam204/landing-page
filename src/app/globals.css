@@ -94,3 +94,19 @@ html::-webkit-scrollbar { display: none; }
     animation: none;
   }
 }
+
+@keyframes mgBlobFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(0, -16px) scale(1.06); }
+}
+.mg-blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(30px);
+  opacity: 0.5;
+  pointer-events: none;
+  animation: mgBlobFloat 9s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .mg-blob { animation: none; }
+}
