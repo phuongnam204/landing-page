@@ -30,7 +30,7 @@ Bố cục hai cột trong một khung nền chung:
 
 - **Nền:** full-screen, gradient pastel (`#FDE7F1 → #EDE9FF → #E4FBF1`) thay cho `bg-pastel-mint` phẳng; 2–3 blob tròn mờ (`filter: blur`, opacity ~0.5) đặt tuyệt đối ở góc để tạo chiều sâu.
 - **Cột trái — board (giữ nguyên bản chất):** khung navy `#2D2640` chứa header (`SOI THỬ LÀN DA` + thanh tiến độ hồng–tím + bộ đếm `N/6`), ảnh mặt thật với các nốt (found = vòng hồng + tick, chưa found = chấm đỏ), và overlay gợi ý (glow/ring) — tất cả **không đổi**, chỉ bọc trong layout mới.
-- **Cột phải — panel vui nhộn (`hidden md:flex`):** tiêu đề lớn playful ("Tìm hết các 'bạn nhỏ' đang trốn nhé! 👀"), một dòng hướng dẫn ngắn, hàng **chip đếm** ("N đã soi" + "còn M") dùng chính `foundCount`, và một mascot trang trí (emoji/hình đơn giản) neo ở dưới.
+- **Cột phải — panel vui nhộn (`hidden md:flex`):** tiêu đề lớn playful ("Tìm hết các 'bạn nhỏ' đang trốn nhé! 👀"), một dòng hướng dẫn ngắn, hàng **chip đếm** ("N đã soi" + "còn M") dùng chính `foundCount`, và một **mascot SVG vẽ tay** neo ở dưới (thử nghiệm SVG thay cho emoji).
 
 **Responsive:** container dùng grid, mobile 1 cột (chỉ board), desktop `md:` chuyển 2 cột (board + panel). Cột phải `hidden md:flex`. Tiêu đề playful chỉ ở cột phải; trên mobile thông điệp tương đương vẫn nằm ở header board nên không mất gì.
 
@@ -47,14 +47,14 @@ Bố cục hai cột đồng bộ với FindGame:
 ## 5. Trang trí dùng chung & accessibility
 
 - Một helper trình bày nền (ví dụ `PlayfulBackdrop`) chứa gradient + các blob, dùng lại ở cả hai màn để DRY.
-- Mọi chuyển động trang trí (nếu có, ví dụ blob trôi nhẹ) phải có nhánh `@media (prefers-reduced-motion: reduce)` tắt animation — nhất quán với pattern đã có trong `globals.css` (`.payoff-stat-chip`, `.acne-hint-*`).
+- **Blob trôi nhẹ (đã chốt):** các blob có animation trôi/scale chậm, biên độ nhỏ; **bắt buộc** có nhánh `@media (prefers-reduced-motion: reduce)` tắt animation — nhất quán với pattern đã có trong `globals.css` (`.payoff-stat-chip`, `.acne-hint-*`).
 - Bảng màu: navy `#2D2640` (board/card), hồng `#FF5C9E` (nốt đã soi), vàng ấm `#FFCD78` (gợi ý), gradient hồng–tím (tiến độ), pastel gradient (nền).
 
 ## 6. Component & file bị ảnh hưởng
 
 - `src/components/SkinScanScreen.tsx` — viết lại **phần trình bày** của `FindGame` và `ReportStep`: outer container → nền + grid responsive; thêm cột phải cho FindGame; thêm cột face-map cho ReportStep; đổi 4 nút vùng sang lưới 2×2 ở desktop. Thêm helper `PlayfulBackdrop` và `FaceMap` (SVG) trong cùng file. **Giữ nguyên toàn bộ hooks/handlers/logic** (`generateSpots`, timer gợi ý, `commit`, `handlePointer`, `resolveProfileByZone`, `onComplete`, `ZONE_META`, `ZONE_LABELS`).
   - Lưu ý kỹ thuật: layout hiện dùng inline style cố định (`frameStyle` width 330). Chuyển phần **bố cục ngoài** sang Tailwind responsive (arbitrary values như `bg-[#2D2640]` cho màu navy) để có breakpoint; giữ chi tiết bên trong board gần như cũ.
-- `src/app/globals.css` — (tùy chọn) thêm keyframe blob trôi nhẹ + nhánh reduced-motion, nếu quyết định cho blob chuyển động.
+- `src/app/globals.css` — thêm keyframe blob trôi nhẹ + class blob + nhánh `prefers-reduced-motion` tắt animation.
 - Không file nào khác.
 
 ## 7. Kiểm thử
@@ -63,8 +63,8 @@ Bố cục hai cột đồng bộ với FindGame:
 - **tsc:** `npx tsc --noEmit` sạch.
 - **Thủ công qua preview:** kiểm ở cả desktop (`preview_resize` desktop) và mobile (`preview_resize` mobile) rằng — desktop FindGame hiện 2 cột (board + panel), desktop ReportStep hiện 2 cột (face-map + card), mobile cả hai về dạng gọn 1 cột như cũ; nốt/gợi ý/an toàn/tự khai vẫn chạy đúng; kiểm dark mode nếu áp dụng.
 
-## 8. Quyết định còn mở
+## 8. Quyết định đã chốt
 
-1. **Blob có chuyển động không** (mục 5) — đề xuất: tĩnh hoặc trôi rất nhẹ; nếu động thì bắt buộc có reduced-motion.
-2. **Trên mobile, ReportStep có hiện face-map thu nhỏ ở trên không, hay ẩn hẳn** — đề xuất: ẩn hẳn cho gọn, giữ đúng trải nghiệm mobile hiện tại.
-3. **Mascot cột phải FindGame** dùng emoji hay SVG vẽ tay — đề xuất: emoji trước cho nhanh, có thể thay SVG sau.
+1. **Blob chuyển động nhẹ** — có animation trôi/scale chậm biên độ nhỏ, kèm nhánh `prefers-reduced-motion` tắt.
+2. **ReportStep trên mobile ẩn hẳn face-map** — giữ đúng trải nghiệm mobile hiện tại cho gọn.
+3. **Mascot cột phải FindGame dùng SVG vẽ tay** — thử nghiệm SVG thay cho emoji.
