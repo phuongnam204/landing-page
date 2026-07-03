@@ -4,12 +4,12 @@ import { useEffect, useRef, useState, type CSSProperties, type ReactNode, type R
 import {
   generateSpots,
   findNearestUnfoundSpot,
-  resolveProfileByZone,
+  resolveConditionByZone,
   ZONE_META,
   type AcneSpot,
   type SkinZone,
 } from './MinigameCore/skinScanLogic';
-import type { QuizResult } from '../content/quiz';
+import type { SkinCondition } from '../content/quiz';
 
 // TODO(go-live): thay bằng ảnh chân dung da sạch có license thương mại.
 const FACE_IMAGE_URL =
@@ -24,7 +24,7 @@ const SAFETY_MS = 22000; // lưới an toàn: tự mở hết sau ~22s
 export function SkinScanScreen({
   onComplete,
 }: {
-  onComplete: (result: QuizResult, stats: { foundCount: number; zoneLabel: string }) => void;
+  onComplete: (result: SkinCondition, stats: { foundCount: number; zoneLabel: string }) => void;
 }) {
   const [phase, setPhase] = useState<'find' | 'report'>('find');
   const foundCountRef = useRef(SPOT_COUNT);
@@ -43,7 +43,7 @@ export function SkinScanScreen({
   return (
     <ReportStep
       onPick={(zone) => {
-        const result = resolveProfileByZone(zone);
+        const result = resolveConditionByZone(zone);
         onComplete(result, {
           foundCount: foundCountRef.current,
           zoneLabel: ZONE_META[zone].label,
