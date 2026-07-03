@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type RefObject } from 'react';
 import {
   generateSpots,
   findNearestUnfoundSpot,
@@ -135,77 +135,102 @@ function FindGame({ onAllFound }: { onAllFound: (count: number) => void }) {
           </div>
         </div>
 
-        <div
-          ref={boardRef}
-          onPointerDown={(e) => handlePointer(e.clientX, e.clientY)}
-          onPointerMove={(e) => {
-            if (e.buttons !== 1) return;
-            handlePointer(e.clientX, e.clientY);
-          }}
-          style={{ position: 'relative', width: '100%', height: 360, background: '#111', touchAction: 'none', userSelect: 'none' }}
-        >
-          <img
-            src={FACE_IMAGE_URL}
-            alt="Khuôn mặt để soi da"
-            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
-          />
-
-          {spots.map((s) =>
-            s.found ? (
-              <div
-                key={s.id}
-                style={{
-                  position: 'absolute',
-                  left: `${s.x}%`,
-                  top: `${s.y}%`,
-                  transform: 'translate(-50%,-50%)',
-                  width: 36,
-                  height: 36,
-                  border: '3px solid #FF5C9E',
-                  borderRadius: '50%',
-                  boxShadow: '0 0 0 4px rgba(255,92,158,.25)',
-                }}
-              >
-                <div style={tickStyle}>✓</div>
-              </div>
-            ) : (
-              <div
-                key={s.id}
-                style={{
-                  position: 'absolute',
-                  left: `${s.x}%`,
-                  top: `${s.y}%`,
-                  transform: 'translate(-50%,-50%)',
-                  width: 12,
-                  height: 12,
-                  borderRadius: '50%',
-                  background: 'radial-gradient(circle at 40% 35%, #E8806F, #C64B3C)',
-                  boxShadow: '0 1px 3px rgba(0,0,0,.3)',
-                }}
-              />
-            )
-          )}
-
-          {/* Gợi ý cấp 1: sáng vùng */}
-          {hintLevel >= 1 && firstUnfound && (
-            <div
-              className="acne-hint-glow"
-              style={{ left: `${firstUnfound.x}%`, top: `${firstUnfound.y}%` }}
-            />
-          )}
-          {/* Gợi ý cấp 2: khoanh sát */}
-          {hintLevel >= 2 && firstUnfound && (
-            <div
-              className="acne-hint-ring"
-              style={{ left: `${firstUnfound.x}%`, top: `${firstUnfound.y}%` }}
-            />
-          )}
-        </div>
+        <ScanBoard
+          boardRef={boardRef}
+          spots={spots}
+          hintLevel={hintLevel}
+          firstUnfound={firstUnfound}
+          onPointer={handlePointer}
+        />
 
         <div style={{ padding: '12px 18px 16px', color: 'rgba(255,255,255,.7)', fontSize: 12, textAlign: 'center' }}>
           Đừng lo — nếu bí, tụi mình sẽ hé lộ giúp bạn 💡
         </div>
       </div>
+    </div>
+  );
+}
+
+// Khung ảnh tương tác — chứa ảnh khuôn mặt, các nốt mụn và lớp gợi ý.
+function ScanBoard({
+  boardRef,
+  spots,
+  hintLevel,
+  firstUnfound,
+  onPointer,
+}: {
+  boardRef: RefObject<HTMLDivElement | null>;
+  spots: AcneSpot[];
+  hintLevel: 0 | 1 | 2;
+  firstUnfound: AcneSpot | null;
+  onPointer: (clientX: number, clientY: number) => void;
+}) {
+  return (
+    <div
+      ref={boardRef}
+      onPointerDown={(e) => onPointer(e.clientX, e.clientY)}
+      onPointerMove={(e) => {
+        if (e.buttons !== 1) return;
+        onPointer(e.clientX, e.clientY);
+      }}
+      style={{ position: 'relative', width: '100%', height: 360, background: '#111', touchAction: 'none', userSelect: 'none' }}
+    >
+      <img
+        src={FACE_IMAGE_URL}
+        alt="Khuôn mặt để soi da"
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+      />
+
+      {spots.map((s) =>
+        s.found ? (
+          <div
+            key={s.id}
+            style={{
+              position: 'absolute',
+              left: `${s.x}%`,
+              top: `${s.y}%`,
+              transform: 'translate(-50%,-50%)',
+              width: 36,
+              height: 36,
+              border: '3px solid #FF5C9E',
+              borderRadius: '50%',
+              boxShadow: '0 0 0 4px rgba(255,92,158,.25)',
+            }}
+          >
+            <div style={tickStyle}>✓</div>
+          </div>
+        ) : (
+          <div
+            key={s.id}
+            style={{
+              position: 'absolute',
+              left: `${s.x}%`,
+              top: `${s.y}%`,
+              transform: 'translate(-50%,-50%)',
+              width: 12,
+              height: 12,
+              borderRadius: '50%',
+              background: 'radial-gradient(circle at 40% 35%, #E8806F, #C64B3C)',
+              boxShadow: '0 1px 3px rgba(0,0,0,.3)',
+            }}
+          />
+        )
+      )}
+
+      {/* Gợi ý cấp 1: sáng vùng */}
+      {hintLevel >= 1 && firstUnfound && (
+        <div
+          className="acne-hint-glow"
+          style={{ left: `${firstUnfound.x}%`, top: `${firstUnfound.y}%` }}
+        />
+      )}
+      {/* Gợi ý cấp 2: khoanh sát */}
+      {hintLevel >= 2 && firstUnfound && (
+        <div
+          className="acne-hint-ring"
+          style={{ left: `${firstUnfound.x}%`, top: `${firstUnfound.y}%` }}
+        />
+      )}
     </div>
   );
 }
