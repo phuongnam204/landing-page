@@ -93,42 +93,54 @@ function HeroScreen({ onStart }: { onStart: () => void }) {
         }}
       />
       <div className="max-w-6xl mx-auto w-full px-5 md:grid md:grid-cols-2 md:gap-12 md:items-center relative z-10">
-        {/* Images column — two overlapping portraits (Google Ads style) */}
-        <div className="relative h-64 md:h-[440px] mb-6 md:mb-0">
-          {/* Woman — behind, top-left */}
-          <img
-            src="https://images.unsplash.com/photo-1728727217834-b190862837a3?w=400&q=85&fit=crop&crop=face"
-            alt="Cô gái chăm sóc da"
-            className="absolute left-0 top-0 w-40 h-56 md:w-72 md:h-[400px] rounded-3xl object-cover object-top shadow-xl z-10 dark:brightness-90 dark:ring-2 dark:ring-white/10"
-          />
-          {/* Man — in front, bottom-right, slight rotation */}
-          <img
-            src="https://blog.farmacianovadamaia.pt/wp-content/uploads/2023/02/134_skin-care-homem.jpg"
-            alt="Chàng trai chăm sóc da"
-            className="absolute right-0 bottom-0 w-40 h-56 md:w-72 md:h-[400px] rounded-3xl object-cover object-top shadow-2xl z-20 rotate-2 dark:brightness-90 dark:ring-2 dark:ring-white/10"
-          />
-        </div>
-        {/* Text + CTA */}
-        <div className="text-center md:text-left animate-fade-in-up">
-          <h1 className="font-extrabold text-4xl md:text-5xl text-cta dark:text-white leading-tight">
-            Da bạn đang{' '}
-            <span className="bg-gradient-to-r from-violet-500 to-pink-500 bg-clip-text text-transparent">
-              giấu
-            </span>{' '}
-            điều gì?
-          </h1>
-          <p className="text-sm md:text-base text-cta/70 dark:text-white/70 mt-4">
-            Có những "bạn nhỏ" đang ẩn náu trên làn da của bạn. Tìm chúng — và khám phá điều da bạn thực sự cần.
-          </p>
-          <button
-            onClick={onStart}
-            className="mt-6 bg-cta text-white dark:bg-white dark:text-cta font-bold rounded-soft px-10 py-4 text-base hover:opacity-90 transition-colors duration-300"
-          >
-            Soi da ngay ✨
-          </button>
-          <p className="text-xs text-cta/40 dark:text-white/40 mt-3">Cùng thực hiện một cuộc khám phá làn da nhé!</p>
-        </div>
+        <HeroImageColumn />
+        <HeroTextColumn onStart={onStart} />
       </div>
+    </div>
+  );
+}
+
+// Cột ảnh của hero — hai chân dung xếp chồng theo phong cách Google Ads.
+function HeroImageColumn() {
+  return (
+    <div className="relative h-72 md:h-[500px] mb-6 md:mb-0">
+      {/* Woman — behind, top-left */}
+      <img
+        src="https://images.unsplash.com/photo-1728727217834-b190862837a3?w=400&q=85&fit=crop&crop=face"
+        alt="Cô gái chăm sóc da"
+        className="absolute left-0 top-0 w-48 h-64 md:w-80 md:h-[460px] rounded-3xl object-cover object-top shadow-xl z-10 dark:brightness-90 dark:ring-2 dark:ring-white/10"
+      />
+      {/* Man — in front, bottom-right, slight rotation */}
+      <img
+        src="https://blog.farmacianovadamaia.pt/wp-content/uploads/2023/02/134_skin-care-homem.jpg"
+        alt="Chàng trai chăm sóc da"
+        className="absolute right-0 bottom-0 w-48 h-64 md:w-80 md:h-[460px] rounded-3xl object-cover object-top shadow-2xl z-20 rotate-2 dark:brightness-90 dark:ring-2 dark:ring-white/10"
+      />
+    </div>
+  );
+}
+
+// Cột chữ + CTA của hero.
+function HeroTextColumn({ onStart }: { onStart: () => void }) {
+  return (
+    <div className="text-center md:text-left animate-fade-in-up">
+      <h1 className="font-extrabold text-5xl md:text-6xl text-cta dark:text-white leading-tight">
+        Da bạn đang{' '}
+        <span className="bg-gradient-to-r from-violet-500 to-pink-500 bg-clip-text text-transparent">
+          giấu
+        </span>{' '}
+        điều gì?
+      </h1>
+      <p className="text-base md:text-lg text-cta/70 dark:text-white/70 mt-5">
+        Có những "bạn nhỏ" đang ẩn náu trên làn da của bạn. Tìm chúng — và khám phá điều da bạn thực sự cần.
+      </p>
+      <button
+        onClick={onStart}
+        className="mt-7 bg-cta text-white dark:bg-white dark:text-cta font-bold rounded-soft px-12 py-4 text-base md:text-lg hover:opacity-90 transition-colors duration-300"
+      >
+        Soi da ngay ✨
+      </button>
+      <p className="text-sm md:text-base text-cta/50 dark:text-white/50 mt-4">Cùng thực hiện một cuộc khám phá làn da nhé!</p>
     </div>
   );
 }
@@ -423,45 +435,64 @@ function ProgramsScreen({
   const [selected, setSelected] = useState<ProgramId>(initialSelected);
 
   return (
-    <div className="min-h-screen w-full bg-pastel-lavender flex items-center justify-center px-5 overflow-y-auto py-6">
-      <div className="max-w-2xl w-full animate-fade-in-up">
-        <div className="text-center mb-6">
-          <div className="font-extrabold text-xl md:text-2xl text-cta">Tại đây chúng tôi có các chương trình trị mụn phù hợp với bạn !</div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
-          {PROGRAMS.map((program) => (
+    <div className="h-[100dvh] w-full bg-pastel-lavender overflow-y-auto">
+      <div className="min-h-full flex items-center justify-center px-5 py-6">
+        <div className="max-w-2xl w-full animate-fade-in-up">
+          <div className="text-center mb-6">
+            <div className="font-extrabold text-xl md:text-2xl text-cta">Tại đây chúng tôi có các chương trình trị mụn phù hợp với bạn !</div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+            {PROGRAMS.map((program) => (
+              <ProgramCard
+                key={program.id}
+                program={program}
+                selected={selected === program.id}
+                onSelect={() => setSelected(program.id)}
+              />
+            ))}
+          </div>
+          <div className="text-center">
             <button
-              key={program.id}
-              onClick={() => setSelected(program.id)}
-              className={[
-                'text-left rounded-soft p-5 shadow-md shadow-cta/10 flex flex-col gap-2',
-                'border-2 transition-colors duration-[160ms]',
-                selected === program.id
-                  ? 'bg-violet-50 border-violet-600'
-                  : 'bg-white border-transparent hover:border-violet-400',
-              ].join(' ')}
+              onClick={() => onContinue(selected)}
+              className="bg-violet-600 text-white font-bold text-sm py-3.5 px-9 rounded-soft hover:bg-violet-700 transition-colors duration-200"
             >
-              <div className="flex items-center justify-between">
-                <div className="font-bold text-base text-cta">{program.name}</div>
-                {selected === program.id && (
-                  <span className="text-violet-600 font-bold text-sm">✓</span>
-                )}
-              </div>
-              <div className="text-xs font-bold text-label-purple">{program.duration}</div>
-              <p className="text-sm text-cta/70 leading-relaxed">{program.description}</p>
+              {`Đăng ký chương trình ${PROGRAMS.find((p) => p.id === selected)?.name} →`}
             </button>
-          ))}
-        </div>
-        <div className="text-center">
-          <button
-            onClick={() => onContinue(selected)}
-            className="bg-violet-600 text-white font-bold text-sm py-3.5 px-9 rounded-soft hover:bg-violet-700 transition-colors duration-200"
-          >
-            {`Đăng ký chương trình ${PROGRAMS.find((p) => p.id === selected)?.name} →`}
-          </button>
+          </div>
         </div>
       </div>
     </div>
+  );
+}
+
+// Một thẻ chương trình trong ProgramsScreen — lặp qua PROGRAMS.map().
+function ProgramCard({
+  program,
+  selected,
+  onSelect,
+}: {
+  program: (typeof PROGRAMS)[number];
+  selected: boolean;
+  onSelect: () => void;
+}) {
+  return (
+    <button
+      onClick={onSelect}
+      className={[
+        'text-left rounded-soft p-5 shadow-md shadow-cta/10 flex flex-col gap-2',
+        'border-2 transition-colors duration-[160ms]',
+        selected
+          ? 'bg-violet-50 border-violet-600'
+          : 'bg-white border-transparent hover:border-violet-400',
+      ].join(' ')}
+    >
+      <div className="flex items-center justify-between">
+        <div className="font-bold text-base text-cta">{program.name}</div>
+        {selected && <span className="text-violet-600 font-bold text-sm">✓</span>}
+      </div>
+      <div className="text-xs font-bold text-label-purple">{program.duration}</div>
+      <p className="text-sm text-cta/70 leading-relaxed">{program.description}</p>
+    </button>
   );
 }
 
