@@ -347,14 +347,6 @@ const ZONE_LABELS: Record<SkinZone, string> = {
   'khong-bi': 'Gần như không bị',
 };
 
-const frameStyle: CSSProperties = {
-  width: 330,
-  borderRadius: 28,
-  overflow: 'hidden',
-  background: '#2D2640',
-  boxShadow: '0 18px 50px rgba(45,38,64,0.35)',
-};
-
 const tickStyle: CSSProperties = {
   position: 'absolute',
   right: -6,
