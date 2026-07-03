@@ -53,6 +53,15 @@ export function SkinScanScreen({
   );
 }
 
+// Sân khấu full-bleed dùng chung cho cả 2 phase — nền theo theme, không bo góc, không hé lộ nền pastel.
+function GameStage({ children }: { children: ReactNode }) {
+  return (
+    <div className="h-screen w-full relative overflow-hidden bg-[#FFF8F3] dark:bg-[#2D2640]">
+      {children}
+    </div>
+  );
+}
+
 function FindGame({ onAllFound }: { onAllFound: (count: number) => void }) {
   const [spots, setSpots] = useState<AcneSpot[]>(() => generateSpots(SPOT_COUNT));
   const [hintLevel, setHintLevel] = useState<0 | 1 | 2>(0);
@@ -108,53 +117,20 @@ function FindGame({ onAllFound }: { onAllFound: (count: number) => void }) {
   }, []);
 
   return (
-    <PlayfulBackdrop>
-      <div className="flex flex-col items-center md:flex-row md:items-center md:gap-10">
-        <div style={frameStyle}>
-        <div style={{ padding: '16px 18px 12px', color: '#fff' }}>
-          <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: '.3px', opacity: 0.85 }}>
-            SOI THỬ LÀN DA
-          </div>
-          <div style={{ fontSize: 17, fontWeight: 800, lineHeight: 1.35, marginTop: 4 }}>
-            Chạm để khoanh hết các nốt mụn bạn thấy 👀
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12 }}>
-            <div style={{ flex: 1, height: 8, background: 'rgba(255,255,255,.18)', borderRadius: 99, overflow: 'hidden' }}>
-              <div
-                style={{
-                  width: `${(foundCount / SPOT_COUNT) * 100}%`,
-                  height: '100%',
-                  background: 'linear-gradient(90deg,#FF5C9E,#B39DFF)',
-                  borderRadius: 99,
-                  transition: 'width 300ms ease',
-                }}
-              />
-            </div>
-            <div style={{ fontSize: 13, fontWeight: 800, color: '#FFB8D4', whiteSpace: 'nowrap' }}>
-              {foundCount} / {SPOT_COUNT} nốt
-            </div>
-          </div>
-        </div>
-
-        <ScanBoard
-          boardRef={boardRef}
-          spots={spots}
-          hintLevel={hintLevel}
-          firstUnfound={firstUnfound}
-          onPointer={handlePointer}
-        />
-
-        <div style={{ padding: '12px 18px 16px', color: 'rgba(255,255,255,.7)', fontSize: 12, textAlign: 'center' }}>
-          Đừng lo — nếu bí, tụi mình sẽ hé lộ giúp bạn 💡
-        </div>
-        </div>
-        <PlayfulPanel foundCount={foundCount} />
-      </div>
-    </PlayfulBackdrop>
+    <GameStage>
+      <ScanBoard
+        boardRef={boardRef}
+        spots={spots}
+        hintLevel={hintLevel}
+        firstUnfound={firstUnfound}
+        onPointer={handlePointer}
+      />
+      <FindGameHud foundCount={foundCount} />
+    </GameStage>
   );
 }
 
-// Khung ảnh tương tác — chứa ảnh khuôn mặt, các nốt mụn và lớp gợi ý.
+// Khung ảnh tương tác — chứa ảnh khuôn mặt, các nốt mụn và lớp gợi ý. Full-bleed: phủ kín GameStage.
 function ScanBoard({
   boardRef,
   spots,
@@ -176,12 +152,13 @@ function ScanBoard({
         if (e.buttons !== 1) return;
         onPointer(e.clientX, e.clientY);
       }}
-      style={{ position: 'relative', width: '100%', height: 360, background: '#111', touchAction: 'none', userSelect: 'none' }}
+      className="absolute inset-0"
+      style={{ touchAction: 'none', userSelect: 'none' }}
     >
       <img
         src={FACE_IMAGE_URL}
         alt="Khuôn mặt để soi da"
-        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+        className="absolute inset-0 w-full h-full object-cover"
       />
 
       {spots.map((s) =>
@@ -238,19 +215,9 @@ function ScanBoard({
   );
 }
 
-// Nền pastel dùng chung cho cả hai màn: gradient + blob trôi nhẹ (reduced-motion tắt animation).
-function PlayfulBackdrop({ children }: { children: ReactNode }) {
-  return (
-    <div
-      className="h-screen w-full relative flex items-center justify-center overflow-hidden px-4"
-      style={{ background: 'linear-gradient(135deg,#FDE7F1 0%,#EDE9FF 55%,#E4FBF1 100%)' }}
-    >
-      <span className="mg-blob" style={{ width: 220, height: 220, background: '#FFB8D4', left: -40, top: -30 }} />
-      <span className="mg-blob" style={{ width: 180, height: 180, background: '#B39DFF', right: -30, bottom: '10%', animationDelay: '2s' }} />
-      <span className="mg-blob" style={{ width: 140, height: 140, background: '#8FE3BC', left: '12%', bottom: -30, animationDelay: '4s' }} />
-      <div className="relative z-10 w-full flex items-center justify-center">{children}</div>
-    </div>
-  );
+// TODO(Task 2): replace with the real HUD overlay.
+function FindGameHud({ foundCount }: { foundCount: number }) {
+  return null;
 }
 
 // Mascot "bạn nhỏ" SVG vẽ tay, dùng ở panel phải của FindGame trên desktop.
