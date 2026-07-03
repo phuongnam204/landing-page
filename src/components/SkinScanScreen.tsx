@@ -297,33 +297,64 @@ function PlayfulPanel({ foundCount }: { foundCount: number }) {
   );
 }
 
+// Bản đồ khuôn mặt với 4 vùng tô màu theo ZONE_META — cột trái của ReportStep trên desktop.
+function FaceMap({ className = '' }: { className?: string }) {
+  const zones: SkinZone[] = ['cam-quai-ham', 'chu-t', 'hai-ma', 'khong-bi'];
+  return (
+    <div className={`${className} flex-col items-center gap-3`}>
+      <svg width="200" height="230" viewBox="0 0 200 230" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bản đồ vùng da trên khuôn mặt">
+        <path d="M46 100 Q46 46 100 46 Q154 46 154 100 Q154 172 100 196 Q46 172 46 100 Z" fill="#FBFDFF" stroke="#2D2640" strokeWidth="2.2" />
+        <rect x="64" y="66" width="72" height="22" rx="11" fill="#FFCD78" opacity="0.5" />
+        <rect x="92" y="88" width="16" height="40" rx="8" fill="#FFCD78" opacity="0.5" />
+        <ellipse cx="70" cy="120" rx="15" ry="19" fill="#7DD9C0" opacity="0.5" />
+        <ellipse cx="130" cy="120" rx="15" ry="19" fill="#7DD9C0" opacity="0.5" />
+        <path d="M78 158 Q100 176 122 158 Q118 190 100 194 Q82 190 78 158 Z" fill="#FF5C9E" opacity="0.5" />
+        <circle cx="82" cy="104" r="3" fill="#2D2640" />
+        <circle cx="118" cy="104" r="3" fill="#2D2640" />
+        <path d="M88 150 Q100 158 112 150" stroke="#2D2640" strokeWidth="2" strokeLinecap="round" fill="none" />
+      </svg>
+      <div className="flex flex-col gap-1.5 text-sm text-cta/80">
+        {zones.map((z) => (
+          <div key={z} className="flex items-center gap-2">
+            <span className="w-3 h-3 rounded-full shrink-0" style={{ background: ZONE_META[z].color }} />
+            <span>{ZONE_LABELS[z]}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function ReportStep({ onPick }: { onPick: (zone: SkinZone) => void }) {
   const zones: SkinZone[] = ['cam-quai-ham', 'chu-t', 'hai-ma', 'khong-bi'];
   return (
-    <div className="h-screen w-full bg-pastel-mint flex items-center justify-center px-4 overflow-hidden">
-      <div style={{ ...frameStyle, padding: '20px 18px 22px' }}>
-        <div style={{ textAlign: 'center', color: '#fff', marginBottom: 16 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: '.3px', color: '#FFB8D4' }}>
-            SOI XONG RỒI 🎉
+    <PlayfulBackdrop>
+      <div className="flex flex-col items-center md:flex-row md:items-center md:gap-10">
+        <FaceMap className="hidden md:flex" />
+        <div className="w-[330px] md:w-[440px] rounded-[28px] bg-[#2D2640] shadow-[0_18px_50px_rgba(45,38,64,0.35)] p-5 md:p-7">
+          <div className="text-center text-white mb-4">
+            <div className="text-[13px] font-bold tracking-wide" style={{ color: '#FFB8D4' }}>
+              SOI XONG RỒI 🎉
+            </div>
+            <div className="text-lg md:text-xl font-extrabold leading-snug mt-1.5">
+              Còn da của <u>bạn</u> thì hay “nổi loạn” nhất ở đâu?
+            </div>
           </div>
-          <div style={{ fontSize: 19, fontWeight: 800, lineHeight: 1.35, marginTop: 6 }}>
-            Còn da của <u>bạn</u> thì hay “nổi loạn” nhất ở đâu?
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+            {zones.map((zone) => (
+              <button
+                key={zone}
+                onClick={() => onPick(zone)}
+                style={zoneChipStyle}
+              >
+                <span style={{ width: 12, height: 12, borderRadius: '50%', flex: 'none', background: ZONE_META[zone].color }} />
+                <span style={{ fontWeight: 700, fontSize: 15 }}>{ZONE_LABELS[zone]}</span>
+              </button>
+            ))}
           </div>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {zones.map((zone) => (
-            <button
-              key={zone}
-              onClick={() => onPick(zone)}
-              style={zoneChipStyle}
-            >
-              <span style={{ width: 12, height: 12, borderRadius: '50%', flex: 'none', background: ZONE_META[zone].color }} />
-              <span style={{ fontWeight: 700, fontSize: 15 }}>{ZONE_LABELS[zone]}</span>
-            </button>
-          ))}
         </div>
       </div>
-    </div>
+    </PlayfulBackdrop>
   );
 }
 
