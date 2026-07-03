@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, type CSSProperties, type RefObject } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from 'react';
 import {
   generateSpots,
   findNearestUnfoundSpot,
@@ -108,8 +108,9 @@ function FindGame({ onAllFound }: { onAllFound: (count: number) => void }) {
   }, []);
 
   return (
-    <div className="h-screen w-full bg-pastel-mint flex items-center justify-center px-4 overflow-hidden">
-      <div style={frameStyle}>
+    <PlayfulBackdrop>
+      <div className="flex flex-col items-center md:flex-row md:items-center md:gap-10">
+        <div style={frameStyle}>
         <div style={{ padding: '16px 18px 12px', color: '#fff' }}>
           <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: '.3px', opacity: 0.85 }}>
             SOI THỬ LÀN DA
@@ -146,8 +147,10 @@ function FindGame({ onAllFound }: { onAllFound: (count: number) => void }) {
         <div style={{ padding: '12px 18px 16px', color: 'rgba(255,255,255,.7)', fontSize: 12, textAlign: 'center' }}>
           Đừng lo — nếu bí, tụi mình sẽ hé lộ giúp bạn 💡
         </div>
+        </div>
+        <PlayfulPanel foundCount={foundCount} />
       </div>
-    </div>
+    </PlayfulBackdrop>
   );
 }
 
@@ -231,6 +234,65 @@ function ScanBoard({
           style={{ left: `${firstUnfound.x}%`, top: `${firstUnfound.y}%` }}
         />
       )}
+    </div>
+  );
+}
+
+// Nền pastel dùng chung cho cả hai màn: gradient + blob trôi nhẹ (reduced-motion tắt animation).
+function PlayfulBackdrop({ children }: { children: ReactNode }) {
+  return (
+    <div
+      className="h-screen w-full relative flex items-center justify-center overflow-hidden px-4"
+      style={{ background: 'linear-gradient(135deg,#FDE7F1 0%,#EDE9FF 55%,#E4FBF1 100%)' }}
+    >
+      <span className="mg-blob" style={{ width: 220, height: 220, background: '#FFB8D4', left: -40, top: -30 }} />
+      <span className="mg-blob" style={{ width: 180, height: 180, background: '#B39DFF', right: -30, bottom: '10%', animationDelay: '2s' }} />
+      <span className="mg-blob" style={{ width: 140, height: 140, background: '#8FE3BC', left: '12%', bottom: -30, animationDelay: '4s' }} />
+      <div className="relative z-10 w-full flex items-center justify-center">{children}</div>
+    </div>
+  );
+}
+
+// Mascot "bạn nhỏ" SVG vẽ tay, dùng ở panel phải của FindGame trên desktop.
+function Mascot() {
+  return (
+    <svg width="116" height="116" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <ellipse cx="60" cy="108" rx="30" ry="6" fill="#2D2640" opacity="0.06" />
+      <path d="M32 60 Q32 26 60 26 Q88 26 88 60 L88 82 Q88 100 60 100 Q32 100 32 82 Z" fill="#B39DFF" />
+      <circle cx="50" cy="62" r="6" fill="#2D2640" />
+      <circle cx="72" cy="62" r="6" fill="#2D2640" />
+      <circle cx="52" cy="60" r="2" fill="#fff" />
+      <circle cx="74" cy="60" r="2" fill="#fff" />
+      <path d="M52 76 Q60 84 68 76" stroke="#2D2640" strokeWidth="3" strokeLinecap="round" fill="none" />
+      <circle cx="40" cy="74" r="5" fill="#FF9BC0" opacity="0.6" />
+      <circle cx="80" cy="74" r="5" fill="#FF9BC0" opacity="0.6" />
+      <path d="M60 16 l3.2 7.6 7.6 3.2 -7.6 3.2 -3.2 7.6 -3.2 -7.6 -7.6 -3.2 7.6 -3.2 z" fill="#FFCD78" />
+    </svg>
+  );
+}
+
+// Panel phải của FindGame — chỉ hiện từ breakpoint md trở lên.
+function PlayfulPanel({ foundCount }: { foundCount: number }) {
+  const remaining = SPOT_COUNT - foundCount;
+  return (
+    <div className="hidden md:flex flex-col gap-4 max-w-xs">
+      <h2 className="text-3xl font-black text-cta leading-tight">
+        Tìm hết các “bạn nhỏ” đang trốn nhé! 👀
+      </h2>
+      <p className="text-base text-cta/70">
+        Chạm vào từng nốt trên mặt để khoanh chúng lại. Rê tay khắp vùng da nhé!
+      </p>
+      <div className="flex flex-wrap gap-2">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-sm font-bold text-cta shadow-sm">
+          <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#FF5C9E' }} />
+          {foundCount} đã soi
+        </span>
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-white/60 px-3 py-1.5 text-sm font-bold text-cta/70 shadow-sm">
+          <span className="w-2.5 h-2.5 rounded-full bg-cta/30" />
+          còn {remaining}
+        </span>
+      </div>
+      <div className="mt-1"><Mascot /></div>
     </div>
   );
 }
