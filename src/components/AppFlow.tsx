@@ -84,7 +84,7 @@ export default function AppFlow() {
 
 function HeroScreen({ onStart }: { onStart: () => void }) {
   return (
-    <div className="h-screen w-full bg-gradient-to-br from-pastel-pink via-pastel-lavender to-pastel-mint dark:from-[#0f0c1a] dark:via-[#1a1030] dark:to-[#0f0c1a] relative flex items-center overflow-hidden transition-colors duration-500">
+    <div className="h-screen w-full bg-gradient-to-br from-[#FFEFF4] via-[#EEF0FA] to-[#E7F8F1] dark:from-[#0f0c1a] dark:via-[#1a1030] dark:to-[#0f0c1a] relative flex items-center overflow-hidden transition-colors duration-500">
       {/* Skin texture overlay — light: subtle multiply; dark: glowing screen */}
       <div
         className="absolute inset-0 pointer-events-none bg-cover bg-center hero-texture"
@@ -125,7 +125,7 @@ function HeroImageColumn() {
 function HeroTextColumn({ onStart }: { onStart: () => void }) {
   return (
     <div className="text-center md:text-left animate-fade-in-up">
-      <h1 className="font-extrabold text-5xl md:text-6xl text-cta dark:text-white leading-tight">
+      <h1 className="font-extrabold text-5xl md:text-6xl text-cta dark:text-black leading-tight">
         Da bạn đang{' '}
         <span className="bg-gradient-to-r from-violet-500 to-pink-500 bg-clip-text text-transparent">
           giấu

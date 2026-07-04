@@ -23,7 +23,7 @@ html::-webkit-scrollbar { display: none; }
 
 /* Hero skin texture — light: subtle multiply, dark: glowing screen */
 .hero-texture {
-  opacity: 0.09;
+  opacity: 0.24;
   mix-blend-mode: multiply;
 }
 @media (prefers-color-scheme: dark) {
