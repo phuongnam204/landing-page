@@ -78,7 +78,7 @@ export function SwipePhase({ onComplete }: { onComplete: () => void }) {
   function onDown(e: React.PointerEvent) {
     markInteracted();
     draggingRef.current = true;
-    (e.target as Element).setPointerCapture?.(e.pointerId);
+    (e.currentTarget as Element).setPointerCapture(e.pointerId);
     const p = pctFromEvent(e); if (p) { setMachine(p); burn(p); }
   }
   function onMove(e: React.PointerEvent) {
