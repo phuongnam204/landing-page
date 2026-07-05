@@ -168,7 +168,15 @@ html::-webkit-scrollbar { display: none; }
   to { opacity: 1; transform: scale(1); }
 }
 .mg-phase-in { animation: mgPhaseIn 380ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+@keyframes mgAcneInflate {
+  0% { scale: 1; }
+  40% { scale: 1.38; }
+  70% { scale: 1.26; }
+  100% { scale: 1.32; }
+}
+.mg-acne-pressed { animation: mgAcneInflate 0.7s ease-out forwards; }
 @media (prefers-reduced-motion: reduce) {
   .mg-blob, .mg-hint-arrow, .mg-target-glow { animation: none; }
   .mg-phase-in { animation: mgPhaseIn 150ms linear both; transform: none; }
+  .mg-acne-pressed { animation: none; }
 }

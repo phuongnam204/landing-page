@@ -23,6 +23,9 @@ const SRC = {
   popped: '/acne_press/Pop.svg',
 };
 
+// -webkit-touch-callout:none ngăn Android/iOS hiện context menu ảnh khi nhấn giữ.
+const NO_CALLOUT: React.CSSProperties = { WebkitTouchCallout: 'none' as never, userSelect: 'none' };
+
 export function PressPhase({ onComplete }: { onComplete: () => void }) {
   const [spots, setSpots] = useState<Spot[]>(INITIAL);
   const sceneRef = useRef<HTMLDivElement>(null);
@@ -80,26 +83,50 @@ export function PressPhase({ onComplete }: { onComplete: () => void }) {
           onPointerDown={(e) => { e.preventDefault(); startPress(s.id); }}
           onPointerUp={() => cancelPress(s.id)}
           onPointerLeave={() => cancelPress(s.id)}
-          className={escalate && firstUnpopped?.id === s.id ? 'mg-target-glow' : undefined}
+          onContextMenu={(e) => e.preventDefault()}
+          className={[
+            escalate && firstUnpopped?.id === s.id ? 'mg-target-glow' : '',
+            s.state === 'pressed' ? 'mg-acne-pressed' : '',
+          ].filter(Boolean).join(' ') || undefined}
           style={{
             position: 'absolute', left: `${s.x}%`, top: `${s.y}%`,
             width: 72, transform: 'translate(-50%, -50%)', transformOrigin: 'center bottom',
             cursor: s.state === 'popped' ? 'default' : 'pointer',
+            ...NO_CALLOUT,
           }}
         />
       ))}
 
       {showInitialHint && firstUnpopped && (
         <>
-          <div className="absolute left-1/2 z-10 text-sm font-extrabold text-white text-center whitespace-nowrap" style={{ top: '15%', transform: 'translateX(-50%)', textShadow: '0 1px 6px rgba(0,0,0,0.5)' }}>
+          {/* Hint text positioned above the first unpopped spot (in sky zone) */}
+          <div
+            className="absolute z-10 text-sm font-extrabold text-white text-center whitespace-nowrap"
+            style={{
+              left: `${firstUnpopped.x}%`,
+              top: '40%',
+              transform: 'translateX(-50%)',
+              textShadow: '0 1px 6px rgba(0,0,0,0.5)',
+            }}
+          >
             Nhấn giữ để nặn mụn
           </div>
-          <div className="mg-hint-arrow absolute left-1/2 z-10" style={{ top: '24%' }}>
+          <div
+            className="mg-hint-arrow absolute z-10"
+            style={{ left: `${firstUnpopped.x}%`, top: '50%', transform: 'translateX(-50%)' }}
+          >
             <svg width="16" height="20" viewBox="0 0 16 20" fill="none" style={{ filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.4))' }}>
               <path d="M8 0 L8 13 M2 10 L8 17 L14 10" stroke="white" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
-          <GhostHand style={{ left: `${firstUnpopped.x}%`, top: `calc(${firstUnpopped.y}% + 18px)`, transform: 'translateX(-50%)', animation: 'mgHintArrow 2.4s ease-in-out infinite' }} />
+          <GhostHand
+            style={{
+              left: `${firstUnpopped.x}%`,
+              top: `calc(${firstUnpopped.y}% + 16px)`,
+              transform: 'translateX(-50%)',
+              animation: 'mgHintArrow 2.4s ease-in-out infinite',
+            }}
+          />
         </>
       )}
     </GameScene>

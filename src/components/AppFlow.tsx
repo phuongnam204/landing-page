@@ -125,7 +125,7 @@ function HeroImageColumn() {
 function HeroTextColumn({ onStart }: { onStart: () => void }) {
   return (
     <div className="text-center md:text-left animate-fade-in-up">
-      <h1 className="font-extrabold text-5xl md:text-6xl text-cta dark:text-black leading-tight">
+      <h1 className="font-extrabold text-5xl md:text-6xl text-cta dark:text-white leading-tight">
         Da bạn đang{' '}
         <span className="bg-gradient-to-r from-violet-500 to-pink-500 bg-clip-text text-transparent">
           giấu
