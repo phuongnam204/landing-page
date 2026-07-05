@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import type { SkinCondition, ConditionId } from '../content/quiz';
 import type { Program, ProgramId } from '../content/programs';
 import { getPrograms, getSuggestedProgram, getConditionById } from '../content/catalog';
-import { SkinScanScreen } from './SkinScanScreen';
+import { SkinGame } from './minigame/SkinGame';
 import { trackEvent } from '../lib/trackEvent';
 
 type PayoffStatsData = { foundCount: number; zoneLabel: string };
@@ -33,7 +33,7 @@ export default function AppFlow() {
       {step === 'hero' && <HeroScreen onStart={() => transitionTo('minigame')} />}
 
       {step === 'minigame' && (
-        <SkinScanScreen
+        <SkinGame
           onComplete={(result, stats) => {
             setQuizResult(result);
             setPayoffStats(stats);
