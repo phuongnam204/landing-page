@@ -1,0 +1,35 @@
+.theme-blossom {
+  --lp-bg-hero: #FFEFF4; --lp-bg-minigame: #EDE9FF; --lp-bg-payoff: #A8E6CF;
+  --lp-bg-programs: #C7CEEA; --lp-bg-card: #ffffff; --lp-primary: #2D2640;
+  --lp-accent: #7C3AED; --lp-border: #B6BCEE;
+  --lp-blob-1: #FFB8D4; --lp-blob-2: #B39DFF; --lp-blob-3: #8FE3BC;
+  --lp-radius-card: 20px; --lp-radius-btn: 20px;
+}
+.theme-ocean {
+  --lp-bg-hero: #EFF8FF; --lp-bg-minigame: #E0F2FE; --lp-bg-payoff: #BAE6FD;
+  --lp-bg-programs: #E0F2FE; --lp-bg-card: #ffffff; --lp-primary: #0c4a6e;
+  --lp-accent: #0284c7; --lp-border: #7DD3FC;
+  --lp-blob-1: #7DD3FC; --lp-blob-2: #38BDF8; --lp-blob-3: #BAE6FD;
+  --lp-radius-card: 14px; --lp-radius-btn: 14px;
+}
+.theme-sage {
+  --lp-bg-hero: #F0FDF4; --lp-bg-minigame: #DCFCE7; --lp-bg-payoff: #BBF7D0;
+  --lp-bg-programs: #DCFCE7; --lp-bg-card: #ffffff; --lp-primary: #14532d;
+  --lp-accent: #16a34a; --lp-border: #86EFAC;
+  --lp-blob-1: #86EFAC; --lp-blob-2: #4ADE80; --lp-blob-3: #BBF7D0;
+  --lp-radius-card: 24px; --lp-radius-btn: 24px;
+}
+.theme-golden {
+  --lp-bg-hero: #FFFBEB; --lp-bg-minigame: #FEF3C7; --lp-bg-payoff: #FDE68A;
+  --lp-bg-programs: #FEF3C7; --lp-bg-card: #ffffff; --lp-primary: #78350f;
+  --lp-accent: #d97706; --lp-border: #FCD34D;
+  --lp-blob-1: #FCD34D; --lp-blob-2: #FBBF24; --lp-blob-3: #FDE68A;
+  --lp-radius-card: 20px; --lp-radius-btn: 20px;
+}
+.theme-midnight {
+  --lp-bg-hero: #0f0c1a; --lp-bg-minigame: #1a1030; --lp-bg-payoff: #130f23;
+  --lp-bg-programs: #1a1030; --lp-bg-card: #1e1a2e; --lp-primary: #e2e8f0;
+  --lp-accent: #a78bfa; --lp-border: #4c1d95;
+  --lp-blob-1: #4c1d95; --lp-blob-2: #1e40af; --lp-blob-3: #312e81;
+  --lp-radius-card: 20px; --lp-radius-btn: 20px;
+}

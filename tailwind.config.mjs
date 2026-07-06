@@ -5,21 +5,13 @@ export default {
   theme: {
     extend: {
       colors: {
-        cta: '#2D2640',
-        'pastel-pink': '#FFD3E0',
-        'pastel-lavender': '#C7CEEA',
-        'pastel-mint': '#A8E6CF',
-        'border-pink': '#FFB8CE',
-        'border-mint': '#9FE6BD',
-        'border-lavender': '#B6BCEE',
+        cta: 'var(--lp-primary, #2D2640)',
+        'pastel-pink': '#FFD3E0', 'pastel-lavender': '#C7CEEA', 'pastel-mint': '#A8E6CF',
+        'border-pink': '#FFB8CE', 'border-mint': '#9FE6BD', 'border-lavender': '#B6BCEE',
         'label-purple': '#9b8fc4',
       },
-      fontFamily: {
-        sans: ['var(--font-be-vietnam-pro)', 'Inter', 'sans-serif'],
-      },
-      borderRadius: {
-        soft: '20px',
-      },
+      fontFamily: { sans: ['var(--font-be-vietnam-pro)', 'Inter', 'sans-serif'] },
+      borderRadius: { soft: '20px' },
     },
   },
   plugins: [],
