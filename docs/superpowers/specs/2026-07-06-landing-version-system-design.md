@@ -277,8 +277,66 @@ Từ `docs/00-overview.md` và `docs/01-product-ux-spec.md`: mobile-portrait ưu
 không bắt đọc text dài trước tương tác đầu tiên; luồng một chiều; không backend ở giai đoạn
 này; minigame là interactive core bắt buộc.
 
+## Theme layer (lightweight)
+
+Leader xem các version như "đi mua áo" — họ compare theo tổng thể cảm giác thị giác, không
+phân tích bố cục kỹ thuật. Vì vậy cùng một tổ hợp slot nhưng khác màu sắc/tone vẫn là một
+"version" khác biệt có giá trị so sánh. Không có theme layer, mỗi biến thể màu phải là một
+variant riêng với màu cứng bên trong — đó là địa ngục bảo trì.
+
+### Cơ chế: CSS class ở root + CSS variables
+
+Không cần một "theme system" phức tạp. Theme chỉ là một CSS class đặt ở root của
+`LandingFlow`, nơi định nghĩa một bộ CSS variables. Các variant không biết theme là gì —
+chúng chỉ dùng variables đó. Việc chuyển một variant từ màu cứng sang variable chỉ là thay
+`bg-[#FFEFF4]` thành `bg-[var(--lp-bg)]`.
+
+```css
+/* src/landing/themes.css */
+.theme-pastel {
+  --lp-bg: #FFEFF4;
+  --lp-primary: #1e1b4b;     /* cta navy */
+  --lp-accent: #7C3AED;
+  --lp-radius: 1.25rem;
+}
+
+.theme-ocean {
+  --lp-bg: #EFF6FF;
+  --lp-primary: #0c4a6e;
+  --lp-accent: #0284c7;
+  --lp-radius: 0.75rem;
+}
+
+.theme-sage {
+  --lp-bg: #F0FDF4;
+  --lp-primary: #14532d;
+  --lp-accent: #16a34a;
+  --lp-radius: 1.5rem;
+}
+```
+
+Recipe khai báo theme bằng một field:
+
+```ts
+export const v04 = {
+  id: 'v04-ocean-skincare',
+  label: 'Skincare minigame — tone xanh ocean',
+  theme: 'ocean',   // LandingFlow đặt class "theme-ocean" lên root div
+  slots: { ... },
+};
+```
+
+Cùng một tổ hợp slot, khác theme = một "chiếc áo" hoàn toàn khác với leader.
+
+### Những gì cần làm trong đợt migrate
+
+- Định nghĩa bộ CSS variables (`--lp-bg`, `--lp-primary`, `--lp-accent`, `--lp-radius`, ...).
+- Khi di chuyển từng screen ra variant (bước 3 trong migrate), đồng thời thay màu cứng bằng
+  variables — không tốn thêm nhiều vì tay đang đụng vào file đó rồi.
+- Dựng ít nhất 3 theme ban đầu: `pastel` (giữ visual hiện tại), `ocean`, `sage`.
+- `theme` field trong recipe là tùy chọn — nếu không khai báo, dùng `pastel` làm mặc định.
+
 ## Ngoài phạm vi (giai đoạn này)
 
 - Chưa xây công cụ A/B testing đo lường tự động (chỉ dựng hạ tầng version để chọn thủ công).
-- Chưa làm lớp theme (màu/font/animation) tách rời — để dành cho đợt sau nếu cần.
 - Chưa tích hợp backend/CRM để gửi lead.
