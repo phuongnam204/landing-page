@@ -5,21 +5,11 @@ export function BrandCanvas({ children }: { children: ReactNode }) {
   return (
     <div
       className="h-screen w-full relative overflow-hidden flex items-center justify-center"
-      style={{ background: 'linear-gradient(135deg,#FDE7F1 0%,#EDE9FF 55%,#E4FBF1 100%)' }}
+      style={{ background: 'linear-gradient(135deg, var(--lp-bg-hero) 0%, var(--lp-bg-minigame) 55%, var(--lp-bg-payoff) 100%)' }}
     >
-      {/* Light blobs */}
-      <span className="mg-blob dark:hidden" style={{ width: 220, height: 220, background: '#FFB8D4', left: -40, top: -30 }} />
-      <span className="mg-blob dark:hidden" style={{ width: 180, height: 180, background: '#B39DFF', right: -30, bottom: '10%', animationDelay: '2s' }} />
-      <span className="mg-blob dark:hidden" style={{ width: 140, height: 140, background: '#8FE3BC', left: '12%', bottom: -30, animationDelay: '4s' }} />
-      {/* Dark blobs */}
-      <span className="mg-blob hidden dark:block" style={{ width: 220, height: 220, background: '#4c1d95', left: -40, top: -30 }} />
-      <span className="mg-blob hidden dark:block" style={{ width: 180, height: 180, background: '#1e40af', right: -30, bottom: '10%', animationDelay: '2s' }} />
-      <span className="mg-blob hidden dark:block" style={{ width: 140, height: 140, background: '#312e81', left: '12%', bottom: -30, animationDelay: '4s' }} />
-      {/* Dark gradient overlay */}
-      <div
-        className="absolute inset-0 pointer-events-none hidden dark:block"
-        style={{ background: 'linear-gradient(135deg,#0f0c1a 0%,#1a1030 55%,#0f0c1a 100%)' }}
-      />
+      <span className="mg-blob" style={{ width: 220, height: 220, background: 'var(--lp-blob-1)', left: -40, top: -30 }} />
+      <span className="mg-blob" style={{ width: 180, height: 180, background: 'var(--lp-blob-2)', right: -30, bottom: '10%', animationDelay: '2s' }} />
+      <span className="mg-blob" style={{ width: 140, height: 140, background: 'var(--lp-blob-3)', left: '12%', bottom: -30, animationDelay: '4s' }} />
       <div className="relative z-10 w-full flex items-center justify-center px-4">{children}</div>
     </div>
   );
