@@ -5,16 +5,15 @@ Ngày: 2026-07-06
 ## Bối cảnh và vấn đề
 
 Cách làm cũ trên repo là làm từng tính năng trên một branch, xin leader review, rồi sửa
-đi sửa lại cùng một UI để hợp gu thẩm mỹ. Vì đây là **UI product** (không phải web app có
+đi sửa lại cùng một UI để hợp gu thẩm mỹ.  Vì đây là **UI product** (không phải web app có
 BE + FE rõ ràng), phần lớn công sức đổ vào việc chỉnh sửa lặp lại một version duy nhất.
-
-Nỗi đau gốc không phải kỹ thuật mà là **thiếu đơn vị so sánh song song**: khi chỉ có một
-version và ta ghi đè liên tục, leader không bao giờ thấy hai phương án cạnh nhau để chọn —
-họ chỉ phản ứng với "cái mới nhất".
+Cách này có hai vấn đề kép: (1) lãng phí điểm mạnh của AI — thay vì tạo ra nhiều bản song song ngay từ đầu, ta chỉ dùng AI để chỉnh một bản duy nhất; (2) leader luôn chỉ thấy "cái mới nhất" và phản ứng theo cảm giác, không bao giờ có hai phương án cạnh nhau để so sánh và chọn lựa có căn cứ. 
 
 Giải pháp đề xuất: thay vì một version chỉnh tới lui, dựng **20-30 version cùng tồn tại**
 trong một repo để chọn ra bản tốt nhất. Thách thức là làm điều đó mà **không** rơi vào địa
 ngục bảo trì (sửa 1 chỗ phải sửa ở 30 nơi).
+
+Cách triển khai: dùng Next.js routing để mỗi route là một version landing độc lập — AI tạo ra 20-30 version từ đầu, leader mở từng URL để so sánh, chốt bản ưng, không sửa qua lại nữa.
 
 ## Bằng chứng từ repo: hai branch = hai version
 
@@ -42,12 +41,16 @@ Bộ xương giảm-friction trong `docs/01-product-ux-spec.md` (Hook → Intera
 Conversion → Trust) chính là các nhịp đó được "gói" lại cho hành vi Gen Z/TikTok: thay text
 dài bằng tương tác. Ánh xạ:
 
-- Hook/Hero = Tổng quan + chạm nhẹ Đặt vấn đề.
-- Interactive core (Minigame) = Đặt vấn đề + Giới thiệu giải pháp dạng trải nghiệm.
-- Payoff = Mô tả lợi ích, cá nhân hóa.
-- Programs = Giới thiệu giải pháp/dịch vụ cụ thể.
-- Conversion = CTA + form.
-- Bằng chứng xã hội = **repo đang thiếu** (Done chỉ có contact, không có review/UGC).
+- Hook/Hero **thực hiện vai trò** Tổng quan + chạm nhẹ Đặt vấn đề.
+- Interactive core (Minigame) **thực hiện vai trò** Đặt vấn đề + Giới thiệu giải pháp — nhưng
+  bằng trải nghiệm thay vì text: người dùng tự "sờ thấy" vấn đề da mình khi chơi, thay vì đọc
+  một section mô tả điểm đau. (Minigame là cơ chế — HOW; Đặt vấn đề + Giải pháp là mục đích
+  nội dung — WHAT. Đây là hai phạm trù khác nhau; ánh xạ này nói "slot này gánh vai trò gì",
+  không nói "slot này bằng nhịp đó".)
+- Payoff **thực hiện vai trò** Mô tả lợi ích, cá nhân hóa theo kết quả minigame.
+- Programs **thực hiện vai trò** Giới thiệu giải pháp/dịch vụ cụ thể.
+- Conversion **thực hiện vai trò** CTA + form.
+- Bằng chứng xã hội — **repo đang thiếu slot này** (Done chỉ có contact, không có review/UGC).
 
 ## Định nghĩa một variant
 
@@ -78,6 +81,109 @@ cùng trả `(result, stats)`.
   doc 00 coi interactive core là lý do tồn tại của cả trang.
 - **Tùy chọn** (Programs, Social proof, Done): recipe có thể bật/tắt để làm thí nghiệm A/B
   (ví dụ tắt Programs, đi thẳng Payoff → form).
+
+## Hợp đồng dữ liệu của từng slot
+
+Đây là phần quan trọng nhất của hệ thống: nó là "hợp đồng" giữ cho các variant trong cùng
+slot có thể thay thế nhau. Mọi variant của một slot phải tôn trọng đúng interface của slot đó,
+không thêm không bớt props.
+
+Dữ liệu chạy qua bộ xương theo một chiều: Minigame tạo ra `quizResult` và `payoffStats`, rồi
+hai giá trị đó được truyền xuống các slot phía sau cần dùng. Slot phía trên không biết slot
+phía dưới làm gì với chúng.
+
+```ts
+// src/landing/slots.ts
+
+import type { SkinCondition } from '../content/quiz';
+import type { ProgramId } from '../content/programs';
+
+// Dữ liệu do Minigame tạo ra, chạy xuyên suốt các slot phía sau
+export type MinigameResult = {
+  condition: SkinCondition;     // loại da / tình trạng da phát hiện được
+  foundCount: number;           // số nốt mụn đã tìm thấy
+  zoneLabel: string;            // vùng da hay bị nhất ("vùng T", "má trái"...)
+  triggerNote: string;          // ghi chú nguyên nhân ("thường do...")
+};
+
+// ─── Props của từng slot ────────────────────────────────────────────────────
+
+export type HookSlotProps = {
+  onStart: () => void;          // người dùng bấm CTA → bắt đầu minigame
+};
+
+export type MinigameSlotProps = {
+  onComplete: (result: MinigameResult) => void;  // chơi xong → trả kết quả
+};
+
+export type PayoffSlotProps = {
+  result: MinigameResult;
+  onContinue: () => void;       // người dùng đọc xong kết quả → đi tiếp
+};
+
+export type ProgramsSlotProps = {
+  suggestedProgramId: ProgramId;           // gợi ý từ quiz result
+  onContinue: (programId: ProgramId) => void;
+};
+
+export type ConversionSlotProps = {
+  selectedProgramId: ProgramId | null;
+  onSubmit: (name: string, phone: string) => void;
+};
+
+export type SocialProofSlotProps = {
+  // không nhận data động — nội dung hard-code hoặc lấy từ content/
+  onContinue: () => void;
+};
+
+export type DoneSlotProps = {
+  selectedProgramId: ProgramId | null;
+};
+```
+
+Ghi chú quan trọng:
+
+- `SocialProofSlotProps` không nhận `quizResult` vì social proof là nội dung chung (review,
+  số liệu), không cá nhân hóa theo kết quả minigame.
+- `DoneSlotProps` không có `onContinue` — đây là điểm cuối của luồng.
+- Các slot tùy chọn (Programs, SocialProof, Done) vắng mặt trong recipe thì `LandingFlow` tự
+  bỏ qua bước đó, nhảy thẳng sang bước bắt buộc tiếp theo.
+
+## Chiến lược migrate code cũ
+
+Repo hiện có hai nhánh code cần được đưa vào cấu trúc mới mà không làm gãy trạng thái đang
+hoạt động.
+
+### Nguyên tắc: không xóa, chỉ di chuyển và bọc lại
+
+Code cũ không bị xóa trong bước đầu — nó được "bọc" thành variant tương ứng trong cấu trúc
+mới. Khi hệ thống mới đã chạy ổn và hai version baseline đều hoạt động, mới xóa file cũ.
+
+### Ánh xạ code cũ → vị trí mới
+
+| File cũ | Vai trò hiện tại | Trở thành |
+|---------|-----------------|-----------|
+| `src/components/AppFlow.tsx` | Bộ xương + tất cả screens | Được tách ra: bộ xương → `LandingFlow.tsx`, từng screen → variant tương ứng |
+| `src/components/MinigameCore/` + `SkinScanScreen.tsx` | Minigame Findgame (từ master) | `src/landing/variants/minigame/findgame.tsx` |
+| `src/components/minigame/` (cụm nhiều pha) | Minigame Skincare (từ feat branch) | `src/landing/variants/minigame/skincare.tsx` |
+| `HeroScreen` trong AppFlow | Hook hiện tại | `src/landing/variants/hook/two-column.tsx` |
+| `PayoffView` trong AppFlow | Payoff hiện tại | `src/landing/variants/payoff/confetti-card.tsx` |
+| `ProgramsScreen` trong AppFlow | Programs hiện tại | `src/landing/variants/programs/grid.tsx` |
+| `ConversionForm` trong AppFlow | Conversion hiện tại | `src/landing/variants/conversion/short-form.tsx` |
+| `DoneScreen` trong AppFlow | Done hiện tại | `src/landing/variants/done/contact-info.tsx` |
+| `src/content/` | Dữ liệu quiz/programs | **Giữ nguyên** — dùng chung mọi version |
+
+### Thứ tự thực hiện (để luôn có bản chạy được)
+
+1. Tạo `src/landing/slots.ts` với toàn bộ interface — không đụng code chạy.
+2. Tạo `src/landing/registry.ts` và `src/landing/LandingFlow.tsx` skeleton.
+3. Di chuyển từng screen ra variant tương ứng, **một screen một lần**, test sau mỗi bước.
+4. Tạo hai recipe baseline (`v01-baseline`, `v02-skincare`) và route `v/[version]`.
+5. Khi hai recipe chạy đúng: xóa `AppFlow.tsx` cũ, trỏ `app/page.tsx` vào hệ thống mới.
+6. Tạo trang `versions/page.tsx`.
+
+Không được nhảy từ bước 1 thẳng lên bước 5 — mỗi bước phải có bản chạy được trên
+`localhost` để kiểm tra trước khi đi tiếp.
 
 ## Kiến trúc
 
