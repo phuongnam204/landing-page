@@ -292,7 +292,7 @@ function PayoffView({
           onClick={onContinue}
           className="bg-cta text-white font-bold text-sm md:text-base py-3.5 px-9 rounded-soft w-full"
         >
-          Kham khảo chương trình của chúng tôi →
+          Khám phá chương trình dành cho bạn →
         </button>
       </div>
     </div>
