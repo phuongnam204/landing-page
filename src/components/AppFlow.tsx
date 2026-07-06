@@ -7,7 +7,7 @@ import { getPrograms, getSuggestedProgram, getConditionById } from '../content/c
 import { SkinGame } from './minigame/SkinGame';
 import { trackEvent } from '../lib/trackEvent';
 
-type PayoffStatsData = { foundCount: number; zoneLabel: string };
+type PayoffStatsData = { foundCount: number; zoneLabel: string; triggerNote: string };
 
 type Step = 'hero' | 'minigame' | 'payoff' | 'programs' | 'conversion' | 'done';
 
@@ -246,7 +246,7 @@ function PayoffView({
   onContinue,
 }: {
   result: SkinCondition;
-  stats: { foundCount: number; zoneLabel: string } | null;
+  stats: PayoffStatsData | null;
   onContinue: () => void;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -299,33 +299,23 @@ function PayoffView({
   );
 }
 
-// Short "achievement" statistics shown between the header and the result body.
-// Each chip pops in one-by-one, left to right, to reward finishing the minigame.
-function PayoffStats({ stats }: { stats: { foundCount: number; zoneLabel: string } }) {
+function PayoffStats({ stats }: { stats: PayoffStatsData }) {
   const chips: { key: string; color: string; content: React.ReactNode }[] = [
     {
       key: 'found',
       color: '#FF5C9E',
-      content: (
-        <span>
-          đã soi <b>{stats.foundCount}</b> nốt mụn
-        </span>
-      ),
+      content: <span>đã soi <b>{stats.foundCount}</b> nốt mụn</span>,
     },
     {
       key: 'zone',
       color: '#B39DFF',
-      content: (
-        <span>
-          da bạn hay bị ở <b>{stats.zoneLabel}</b>
-        </span>
-      ),
+      content: <span>da bạn hay bị ở <b>{stats.zoneLabel}</b></span>,
     },
   ];
   return (
     <div className="mb-4">
       <p className="text-sm md:text-base text-cta/60 mb-2">Sau khi soi da của bạn:</p>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2 mb-2.5">
         {chips.map((chip, index) => (
           <span
             key={chip.key}
@@ -340,6 +330,14 @@ function PayoffStats({ stats }: { stats: { foundCount: number; zoneLabel: string
           </span>
         ))}
       </div>
+      {stats.triggerNote && (
+        <p
+          className="payoff-stat-chip text-xs md:text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 leading-relaxed"
+          style={{ animationDelay: '0.86s' }}
+        >
+          {stats.triggerNote}
+        </p>
+      )}
     </div>
   );
 }

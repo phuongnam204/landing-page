@@ -89,10 +89,17 @@ const ZONE_LABEL: Record<SelfReportAnswers['zone'], string> = {
   'khong-bi': 'gần như không bị',
 };
 
+const TRIGGER_NOTE: Record<SelfReportAnswers['trigger'], string> = {
+  'ky-kinh':    'Da hay nổi loạn trước kỳ kinh — nội tiết tố là nguyên nhân thường gặp.',
+  'nang':       'Nắng nóng kích thích tuyến nhờn hoạt động mạnh, dễ gây tắc lỗ chân lông.',
+  'stress':     'Stress làm tăng cortisol, khiến da dễ viêm và nổi mụn hơn.',
+  'thuc-khuya': 'Thức khuya làm mất thời gian da tự phục hồi trong giấc ngủ sâu.',
+};
+
 export function SkinGame({
   onComplete,
 }: {
-  onComplete: (result: SkinCondition, stats: { foundCount: number; zoneLabel: string }) => void;
+  onComplete: (result: SkinCondition, stats: { foundCount: number; zoneLabel: string; triggerNote: string }) => void;
 }) {
   const [stage, setStage] = useState<Stage>('disclaimer');
 
@@ -129,6 +136,7 @@ export function SkinGame({
               onComplete(result, {
                 foundCount: PRESS_SPOT_COUNT + DRAG_DOT_COUNT,
                 zoneLabel: ZONE_LABEL[answers.zone],
+                triggerNote: TRIGGER_NOTE[answers.trigger],
               });
             }}
           />
