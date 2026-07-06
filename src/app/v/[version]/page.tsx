@@ -2,12 +2,13 @@ import { notFound } from 'next/navigation';
 import LandingFlow from '../../../landing/LandingFlow';
 import { getRecipeById, allRecipes } from '../../../landing/recipes';
 
-type Props = { params: { version: string } };
+type Props = { params: Promise<{ version: string }> };
 
-export default function VersionPage({ params }: Props) {
-  const recipe = getRecipeById(params.version);
+export default async function VersionPage({ params }: Props) {
+  const { version } = await params;
+  const recipe = getRecipeById(version);
   if (!recipe) notFound();
-  return <LandingFlow recipe={recipe} />;
+  return <LandingFlow recipe={recipe!} />;
 }
 
 export function generateStaticParams() {
