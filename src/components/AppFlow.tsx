@@ -414,7 +414,7 @@ function ProgramsScreen({
 }) {
   const [selected, setSelected] = useState<ProgramId>(initialSelected);
   const allPrograms = getPrograms();
-  const suggestedId = allPrograms.length > 0 ? allPrograms[0].id : '';
+  const suggestedId = initialSelected;
 
   return (
     <div className="ps-fadeDown h-[100dvh] w-full bg-pastel-lavender overflow-y-auto py-6">
@@ -497,14 +497,14 @@ function ProgramCardB({
       ].join(' ')}
       style={style}
     >
-      {/* Dải header tint màu */}
-      <div className="px-4 py-3 flex items-center justify-between" style={{ background: `${tintColor}22` }}>
-        <div className="font-bold text-base text-cta">{program.name}</div>
-        {selected && <span className="text-violet-600 font-bold text-sm">✓</span>}
+      {/* Dải header — bg đủ đậm để white text readable */}
+      <div className="px-4 py-3 flex items-center justify-between" style={{ background: `${tintColor}CC` }}>
+        <div className="font-bold text-base text-white" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.18)' }}>{program.name}</div>
+        {selected && <span className="font-bold text-sm text-white">✓</span>}
       </div>
 
       {/* Thân card */}
-      <div className="px-4 py-3 flex flex-col gap-2 bg-white flex-1">
+      <div className="px-4 py-3 flex flex-col gap-2 flex-1" style={{ background: selected ? `${tintColor}0A` : '#fff' }}>
         {program.isVip && (
           <span className="self-start inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-bold text-amber-800">
             VIP
@@ -520,8 +520,9 @@ function ProgramCardB({
                 key={cid}
                 className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold"
                 style={{
-                  background: cond ? `${cond.color}18` : '#f0f0f0',
-                  color: cond ? cond.color : '#666',
+                  background: cond ? `${cond.color}30` : '#e8e8e8',
+                  color: cond ? cond.color : '#555',
+                  filter: cond ? 'brightness(0.82)' : 'none',
                 }}
               >
                 <span
