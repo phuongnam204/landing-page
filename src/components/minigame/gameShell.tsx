@@ -18,7 +18,7 @@ export function BrandCanvas({ children }: { children: ReactNode }) {
 // Khung game bo góc, canh giữa, KHÔNG edge-to-edge.
 export function GameFrame({ children }: { children: ReactNode }) {
   return (
-    <div className="w-[92vw] max-w-[880px] max-h-[90vh] rounded-[28px] shadow-2xl overflow-hidden bg-white dark:bg-[#2D2640]">
+    <div className="w-[92vw] max-w-[880px] max-h-[90vh] rounded-[28px] shadow-2xl overflow-hidden bg-[var(--lp-bg-card,#ffffff)]">
       {children}
     </div>
   );

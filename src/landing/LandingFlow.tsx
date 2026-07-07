@@ -6,7 +6,6 @@ import { trackEvent } from '../lib/trackEvent';
 import { registry } from './registry';
 import type { MinigameResult } from './slots';
 import type { Recipe } from './validateRecipe';
-import './themes.css';
 
 type Step = 'hook' | 'minigame' | 'payoff' | 'programs' | 'conversion' | 'socialProof' | 'done';
 
@@ -28,7 +27,7 @@ export default function LandingFlow({ recipe }: { recipe: Recipe }) {
 
   function nextAfterConversion() {
     if (recipe.slots.socialProof) return transitionTo('socialProof');
-    if (recipe.slots.done) return transitionTo('done');
+    transitionTo('done');
   }
 
   const themeClass = `theme-${recipe.theme ?? 'blossom'}`;
@@ -63,7 +62,7 @@ export default function LandingFlow({ recipe }: { recipe: Recipe }) {
       )}
 
       {step === 'programs' && Programs && (
-        <Programs suggestedProgramId={selectedProgram ?? 'khoi-dau'}
+        <Programs suggestedProgramId={selectedProgram!}
           onContinue={(programId) => { setSelectedProgram(programId); transitionTo('conversion'); }} />
       )}
 
@@ -79,7 +78,16 @@ export default function LandingFlow({ recipe }: { recipe: Recipe }) {
         <SocialProof onContinue={() => { if (recipe.slots.done) transitionTo('done'); }} />
       )}
 
-      {step === 'done' && Done && <Done selectedProgramId={selectedProgram} />}
+      {step === 'done' && (Done
+        ? <Done selectedProgramId={selectedProgram} />
+        : <div className="h-screen w-full bg-[var(--lp-bg-payoff)] flex items-center justify-center px-5">
+            <div className="bg-[var(--lp-bg-card)] rounded-soft p-8 shadow-lg text-center max-w-sm w-full">
+              <div className="text-4xl mb-3">🎉</div>
+              <p className="font-extrabold text-xl text-cta">Đã nhận thông tin của bạn!</p>
+              <p className="text-sm text-cta/60 mt-2">Chuyên viên sẽ liên hệ trong 24 giờ.</p>
+            </div>
+          </div>
+      )}
     </div>
   );
 }
