@@ -12,5 +12,6 @@ describe('registry', () => {
     expect(typeof registry.minigame['skincare']).toBe('function');
   });
   it('programs grid là component', () => expect(typeof registry.programs['grid']).toBe('function'));
+  it('socialProof video-proof là component', () => expect(typeof registry.socialProof['video-proof']).toBe('function'));
   it('done contact-info là component', () => expect(typeof registry.done['contact-info']).toBe('function'));
 });

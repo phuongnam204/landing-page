@@ -3,6 +3,7 @@ import React, { useState, useRef, useCallback } from 'react';
 import type { ProgramsSlotProps } from '../../slots';
 import type { Program } from '../../../content/programs';
 import { getPrograms, getConditionById } from '../../../content/catalog';
+import type { ConditionId } from '../../../content/quiz';
 
 const PROGRAM_TAGLINES: Record<string, string> = {
   'combo-peel-acne':         'Làm sạch sâu & kiểm soát nhờn',
@@ -11,6 +12,165 @@ const PROGRAM_TAGLINES: Record<string, string> = {
   'microneedling-repair':    'Phục hồi hàng rào bảo vệ tự nhiên',
   'hormonal-acne-plan':      'Phác đồ điều trị gốc rễ nội tiết',
   'maintenance-skin-health': 'Duy trì kết quả bền vững',
+};
+
+// ─── Program illustrations ────────────────────────────────────────────────────
+// Each SVG uses the card's tint color at varying opacities.
+
+function IllustComboPeel({ tint }: { tint: string }) {
+  return (
+    <svg viewBox="0 0 200 100" fill="none" className="w-full h-full" preserveAspectRatio="xMidYMid slice">
+      {/* Skin layers — three wavy curves */}
+      <path d="M0 72 Q50 58 100 68 Q150 78 200 65" stroke={tint} strokeWidth="2" opacity="0.55" />
+      <path d="M0 82 Q50 70 100 78 Q150 88 200 76" stroke={tint} strokeWidth="1.5" opacity="0.3" />
+      <path d="M0 92 Q50 82 100 88 Q150 96 200 87" stroke={tint} strokeWidth="1" opacity="0.18" />
+      {/* Particles lifting off top layer */}
+      {[30, 62, 95, 128, 158].map((x, i) => (
+        <circle key={x} cx={x} cy={52 - i % 2 * 8} r="3" fill={tint} opacity="0.5" />
+      ))}
+      {/* Upward motion trails */}
+      {[45, 82, 118, 152].map(x => (
+        <line key={x} x1={x} y1={60} x2={x - 4} y2={35} stroke={tint} strokeWidth="1" opacity="0.2" strokeDasharray="3 4" />
+      ))}
+      {/* Highlight arc at surface */}
+      <path d="M60 67 Q100 55 140 67" stroke={tint} strokeWidth="1" opacity="0.7" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function IllustIPL({ tint }: { tint: string }) {
+  return (
+    <svg viewBox="0 0 200 100" fill="none" className="w-full h-full" preserveAspectRatio="xMidYMid slice">
+      {/* Device head — rounded rect at top */}
+      <rect x="76" y="8" width="48" height="18" rx="9" fill={tint} opacity="0.18" />
+      <rect x="80" y="12" width="40" height="10" rx="5" fill={tint} opacity="0.35" />
+      {/* Light rays fanning downward */}
+      {[-52, -32, -14, 0, 14, 32, 52].map((offset, i) => {
+        const mid = 100;
+        const srcX = mid + offset * 0.3;
+        const dstX = mid + offset;
+        const opacity = i === 3 ? 0.55 : 0.22;
+        return (
+          <line key={i} x1={srcX} y1={26} x2={dstX} y2={80} stroke={tint} strokeWidth={i === 3 ? 1.5 : 1} opacity={opacity} />
+        );
+      })}
+      {/* Skin surface */}
+      <path d="M20 82 Q100 76 180 82" stroke={tint} strokeWidth="1.5" opacity="0.5" />
+      {/* Treatment dots on skin */}
+      {[60, 80, 100, 120, 140].map(x => (
+        <circle key={x} cx={x} cy={83} r="2.5" fill={tint} opacity="0.45" />
+      ))}
+      {/* Glow ring on center ray */}
+      <circle cx="100" cy="78" r="6" stroke={tint} strokeWidth="1" opacity="0.3" />
+    </svg>
+  );
+}
+
+function IllustLaser({ tint }: { tint: string }) {
+  return (
+    <svg viewBox="0 0 200 100" fill="none" className="w-full h-full" preserveAspectRatio="xMidYMid slice">
+      {/* Dot grid — skin texture map */}
+      {[50, 75, 100, 125, 150].map(x =>
+        [30, 52, 74].map(y => {
+          const isTarget = x === 100 && y === 52;
+          return (
+            <circle key={`${x}-${y}`} cx={x} cy={y} r={isTarget ? 4 : 2.5}
+              fill={tint} opacity={isTarget ? 0.85 : 0.25} />
+          );
+        })
+      )}
+      {/* Crosshair on target dot */}
+      <line x1="100" y1="42" x2="100" y2="62" stroke={tint} strokeWidth="1" opacity="0.6" />
+      <line x1="90" y1="52" x2="110" y2="52" stroke={tint} strokeWidth="1" opacity="0.6" />
+      <circle cx="100" cy="52" r="10" stroke={tint} strokeWidth="1" opacity="0.35" />
+      {/* Laser beam from top-right */}
+      <line x1="185" y1="15" x2="104" y2="50" stroke={tint} strokeWidth="1.5" opacity="0.5" strokeLinecap="round" />
+      {/* Beam source dot */}
+      <circle cx="185" cy="15" r="4" fill={tint} opacity="0.4" />
+      {/* Collagen rings radiating from target */}
+      <circle cx="100" cy="52" r="16" stroke={tint} strokeWidth="0.75" opacity="0.2" />
+      <circle cx="100" cy="52" r="22" stroke={tint} strokeWidth="0.5" opacity="0.12" />
+    </svg>
+  );
+}
+
+function IllustMicroneedling({ tint }: { tint: string }) {
+  return (
+    <svg viewBox="0 0 200 100" fill="none" className="w-full h-full" preserveAspectRatio="xMidYMid slice">
+      {/* Skin surface — gentle curve */}
+      <path d="M10 65 Q100 57 190 65" stroke={tint} strokeWidth="2" opacity="0.6" />
+      {/* Healed skin layer below */}
+      <path d="M10 78 Q100 72 190 78" stroke={tint} strokeWidth="1" opacity="0.2" />
+      {/* Microneedles — fine vertical lines above surface */}
+      {[35, 55, 75, 95, 115, 135, 155, 172].map((x, i) => {
+        const baseY = 63 + Math.sin(x / 28) * 3;
+        const height = 22 + (i % 3) * 4;
+        return (
+          <g key={x}>
+            <line x1={x} y1={baseY} x2={x} y2={baseY - height} stroke={tint} strokeWidth="1.5" opacity="0.55" strokeLinecap="round" />
+            <circle cx={x} cy={baseY - height} r="1.5" fill={tint} opacity="0.6" />
+          </g>
+        );
+      })}
+      {/* Penetration points below skin */}
+      {[55, 95, 135].map(x => (
+        <circle key={x} cx={x} cy={72} r="2" fill={tint} opacity="0.3" />
+      ))}
+      {/* Repair glow beneath */}
+      <ellipse cx="100" cy="76" rx="55" ry="8" fill={tint} opacity="0.06" />
+    </svg>
+  );
+}
+
+function IllustHormonal({ tint }: { tint: string }) {
+  return (
+    <svg viewBox="0 0 200 100" fill="none" className="w-full h-full" preserveAspectRatio="xMidYMid slice">
+      {/* Main cycle arc */}
+      <path d="M60 50 A42 38 0 1 1 140 50" stroke={tint} strokeWidth="2" opacity="0.45" strokeLinecap="round" />
+      <path d="M140 50 A42 38 0 0 1 60 50" stroke={tint} strokeWidth="1" opacity="0.2" strokeLinecap="round" strokeDasharray="4 5" />
+      {/* Arrow at end of arc */}
+      <path d="M137 42 L140 50 L133 52" stroke={tint} strokeWidth="1.5" opacity="0.55" strokeLinecap="round" strokeLinejoin="round" />
+      {/* Key cycle nodes */}
+      <circle cx="60" cy="50" r="5" fill={tint} opacity="0.5" />
+      <circle cx="140" cy="50" r="5" fill={tint} opacity="0.5" />
+      <circle cx="100" cy="12" r="4" fill={tint} opacity="0.3" />
+      {/* Center balance point */}
+      <circle cx="100" cy="50" r="3" fill={tint} opacity="0.7" />
+      <circle cx="100" cy="50" r="9" stroke={tint} strokeWidth="1" opacity="0.2" />
+      {/* Jaw/chin silhouette hint */}
+      <path d="M72 85 Q100 95 128 85" stroke={tint} strokeWidth="1.5" opacity="0.3" strokeLinecap="round" />
+      <path d="M60 75 Q65 88 72 85 M128 85 Q135 88 140 75" stroke={tint} strokeWidth="1" opacity="0.2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function IllustMaintenance({ tint }: { tint: string }) {
+  return (
+    <svg viewBox="0 0 200 100" fill="none" className="w-full h-full" preserveAspectRatio="xMidYMid slice">
+      {/* Shield body */}
+      <path d="M100 15 L132 28 L132 55 Q132 75 100 88 Q68 75 68 55 L68 28 Z" stroke={tint} strokeWidth="1.5" opacity="0.5" fill={tint} fillOpacity="0.07" />
+      {/* Inner shield line */}
+      <path d="M100 22 L124 33 L124 54 Q124 70 100 80 Q76 70 76 54 L76 33 Z" stroke={tint} strokeWidth="0.75" opacity="0.25" fill="none" />
+      {/* Center leaf/star motif */}
+      <circle cx="100" cy="52" r="8" fill={tint} opacity="0.2" />
+      <path d="M100 44 L102 50 L100 60 L98 50 Z" fill={tint} opacity="0.5" />
+      <path d="M92 52 L98 50 L108 52 L98 54 Z" fill={tint} opacity="0.5" />
+      {/* Radiate lines from shield */}
+      {[[-28, -18], [28, -18], [-34, 0], [34, 0], [-24, 20], [24, 20]].map(([dx, dy], i) => (
+        <line key={i} x1={100 + dx * 0.8} y1={52 + dy * 0.8} x2={100 + dx * 1.4} y2={52 + dy * 1.4}
+          stroke={tint} strokeWidth="1" opacity="0.25" strokeLinecap="round" />
+      ))}
+    </svg>
+  );
+}
+
+const PROGRAM_ILLUSTRATIONS: Record<string, React.FC<{ tint: string }>> = {
+  'combo-peel-acne':         IllustComboPeel,
+  'ipl-oil-control':         IllustIPL,
+  'laser-scar-treatment':    IllustLaser,
+  'microneedling-repair':    IllustMicroneedling,
+  'hormonal-acne-plan':      IllustHormonal,
+  'maintenance-skin-health': IllustMaintenance,
 };
 
 // ─── Sub-components of ProgramCard ───────────────────────────────────────────
@@ -37,33 +197,8 @@ function CardHeader({ name, tint, isSuggested, isVip }: {
   );
 }
 
-function SessionBand({ sessions, tagline, tint }: {
-  sessions?: number; tagline: string; tint: string;
-}) {
-  return (
-    <div
-      className="relative flex items-center justify-between px-5 shrink-0 overflow-hidden"
-      style={{ height: '80px', background: `linear-gradient(135deg, ${tint}35 0%, ${tint}10 100%)` }}
-    >
-      <div className="absolute -right-3 -top-3 w-20 h-20 rounded-full opacity-15" style={{ background: tint }} />
-      <div className="absolute right-2 -bottom-4 w-12 h-12 rounded-full opacity-10" style={{ background: tint }} />
-      {sessions ? (
-        <div className="flex items-baseline gap-1 z-10">
-          <span className="font-black leading-none" style={{ fontSize: '2.75rem', color: tint, filter: 'brightness(0.72)' }}>
-            {sessions}
-          </span>
-          <span className="text-xs font-bold" style={{ color: tint, filter: 'brightness(0.72)' }}>buổi</span>
-        </div>
-      ) : <div />}
-      <p className="text-xs font-semibold text-right leading-relaxed max-w-[55%] z-10" style={{ color: tint, filter: 'brightness(0.72)' }}>
-        {tagline}
-      </p>
-    </div>
-  );
-}
-
 function ConditionTag({ conditionId }: { conditionId: string }) {
-  const c = getConditionById(conditionId);
+  const c = getConditionById(conditionId as ConditionId);
   return (
     <span
       className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold"
@@ -72,6 +207,36 @@ function ConditionTag({ conditionId }: { conditionId: string }) {
       <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: c?.color ?? '#999' }} />
       {c?.label ?? conditionId}
     </span>
+  );
+}
+
+function VisualBand({ programId, sessions, tagline, tint }: {
+  programId: string; sessions?: number; tagline: string; tint: string;
+}) {
+  const Illustration = PROGRAM_ILLUSTRATIONS[programId];
+  return (
+    <div
+      className="relative shrink-0 overflow-hidden"
+      style={{ height: '110px', background: `linear-gradient(135deg, ${tint}28 0%, ${tint}0a 100%)` }}
+    >
+      {Illustration && (
+        <div className="absolute inset-0">
+          <Illustration tint={tint} />
+        </div>
+      )}
+      {sessions && (
+        <div className="absolute bottom-3 left-5 flex items-baseline gap-1 z-10">
+          <span className="font-black leading-none" style={{ fontSize: '2.25rem', color: tint, filter: 'brightness(0.7)' }}>
+            {sessions}
+          </span>
+          <span className="text-xs font-bold" style={{ color: tint, filter: 'brightness(0.7)' }}>buổi</span>
+        </div>
+      )}
+      <p className="absolute bottom-3 right-5 text-xs font-semibold text-right leading-snug max-w-[48%] z-10"
+        style={{ color: tint, filter: 'brightness(0.7)' }}>
+        {tagline}
+      </p>
+    </div>
   );
 }
 
@@ -89,13 +254,13 @@ function CardBody({ description, conditions }: {
 }
 
 function ProgramCard({ program, isSuggested }: { program: Program; isSuggested: boolean }) {
-  const cond = getConditionById(program.treatsConditions[0]);
+  const cond = getConditionById(program.treatsConditions[0] as ConditionId);
   const tint = cond?.color ?? '#A0AEC0';
   const tagline = PROGRAM_TAGLINES[program.id] ?? '';
   return (
     <div className="h-full flex flex-col overflow-hidden rounded-soft shadow-xl shadow-cta/15 bg-[var(--lp-bg-card)]">
       <CardHeader name={program.name} tint={tint} isSuggested={isSuggested} isVip={program.isVip} />
-      <SessionBand sessions={program.sessions} tagline={tagline} tint={tint} />
+      <VisualBand programId={program.id} sessions={program.sessions} tagline={tagline} tint={tint} />
       <CardBody description={program.description} conditions={program.treatsConditions} />
     </div>
   );

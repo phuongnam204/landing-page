@@ -10,6 +10,7 @@ import { GridPrograms } from './variants/programs/grid';
 import { CarouselPrograms } from './variants/programs/carousel';
 import { ShortFormConversion } from './variants/conversion/short-form';
 import { ContactInfoDone } from './variants/done/contact-info';
+import { VideoProofSocial } from './variants/socialProof/video-proof';
 
 export const registry = {
   hook:        { 'two-column': TwoColumnHook, 'bold-single': BoldSingleHook } as Record<string, ComponentType<HookSlotProps>>,
@@ -17,6 +18,6 @@ export const registry = {
   payoff:      { 'confetti-card': ConfettiCardPayoff } as Record<string, ComponentType<PayoffSlotProps>>,
   programs:    { grid: GridPrograms, carousel: CarouselPrograms } as Record<string, ComponentType<ProgramsSlotProps>>,
   conversion:  { 'short-form': ShortFormConversion } as Record<string, ComponentType<ConversionSlotProps>>,
-  socialProof: {} as Record<string, ComponentType<SocialProofSlotProps>>,
+  socialProof: { 'video-proof': VideoProofSocial } as Record<string, ComponentType<SocialProofSlotProps>>,
   done:        { 'contact-info': ContactInfoDone } as Record<string, ComponentType<DoneSlotProps>>,
 };

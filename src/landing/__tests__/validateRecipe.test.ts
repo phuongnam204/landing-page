@@ -4,7 +4,7 @@ import { validateRecipe } from '../validateRecipe';
 const reg = {
   hook: { 'two-column': {} }, minigame: { skincare: {}, findgame: {} },
   payoff: { 'confetti-card': {} }, conversion: { 'short-form': {} },
-  programs: { grid: {} }, socialProof: {}, done: { 'contact-info': {} },
+  programs: { grid: {} }, socialProof: { 'video-proof': {} }, done: { 'contact-info': {} },
 };
 const base = { id: 'v', label: 'T', slots: { hook: 'two-column', minigame: 'skincare', payoff: 'confetti-card', conversion: 'short-form' } };
 

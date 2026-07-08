@@ -10,6 +10,7 @@ export const v03Facemap: Recipe = {
     payoff: 'confetti-card',
     programs: 'carousel',
     conversion: 'short-form',
+    socialProof: 'video-proof',
     done: 'contact-info',
   },
 };
