@@ -213,12 +213,44 @@ export function FaceMapMinigame({ onComplete }: MinigameSlotProps) {
   }
 
   return (
-    <div className="h-screen w-full bg-[var(--lp-bg-minigame)] flex flex-col items-center justify-center px-5 overflow-hidden">
-      <StepProgress step={step} />
-      {step === 1
-        ? <Step1 selectedZones={selectedZones} onToggle={toggleZone} onNext={() => setStep(2)} />
-        : <Step2 acneType={acneType} onSelect={setAcneType} onBack={() => setStep(1)} onSubmit={handleSubmit} />
-      }
+    <div className="h-[100dvh] w-full bg-[var(--lp-bg-minigame)] flex items-center justify-center px-5 overflow-hidden">
+      {/* Mobile: sequential 2 bước */}
+      <div className="md:hidden w-full flex flex-col items-center gap-4">
+        <StepProgress step={step} />
+        {step === 1
+          ? <Step1 selectedZones={selectedZones} onToggle={toggleZone} onNext={() => setStep(2)} />
+          : <Step2 acneType={acneType} onSelect={setAcneType} onBack={() => setStep(1)} onSubmit={handleSubmit} />
+        }
+      </div>
+
+      {/* Desktop: 2 cột song song */}
+      <div className="hidden md:flex md:items-start md:gap-10 w-full max-w-4xl">
+        <div className="flex-1 flex flex-col items-center gap-4">
+          <div className="text-center">
+            <p className="font-extrabold text-2xl text-cta">Bạn hay bị mụn ở đâu?</p>
+            <p className="text-sm text-cta/50 mt-1">Chạm vào vùng da bạn hay có mụn nhất</p>
+          </div>
+          <FaceDiagram selectedZones={selectedZones} onToggle={toggleZone} />
+          <SelectedZoneTags selectedZones={selectedZones} />
+        </div>
+        <div className="w-px bg-cta/10 self-stretch" />
+        <div className="flex-1 flex flex-col gap-3">
+          <div className="text-center mb-1">
+            <p className="font-extrabold text-2xl text-cta">Mụn thường trông như thế nào?</p>
+            <p className="text-sm text-cta/50 mt-1">Chọn loại gần nhất với da bạn</p>
+          </div>
+          {ACNE_TYPES.map(t => (
+            <AcneTypeOption key={t.id} type={t} isSelected={acneType === t.id} onSelect={() => setAcneType(t.id)} />
+          ))}
+          <button
+            onClick={handleSubmit}
+            disabled={!acneType}
+            className="mt-1 w-full bg-cta text-white font-bold py-3.5 rounded-soft text-sm disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            Xem kết quả của tôi →
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
