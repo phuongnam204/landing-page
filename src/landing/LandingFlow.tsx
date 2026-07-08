@@ -42,7 +42,7 @@ export default function LandingFlow({ recipe }: { recipe: Recipe }) {
   const Done       = recipe.slots.done       ? registry.done[recipe.slots.done]              : null;
 
   return (
-    <div className={`${themeClass} ${containerClass}`}>
+    <div className={`overflow-hidden ${themeClass} ${containerClass}`}>
       {step === 'hook' && Hook && <Hook onStart={() => transitionTo('minigame')} />}
 
       {step === 'minigame' && Minigame && (
