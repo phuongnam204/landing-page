@@ -14,4 +14,6 @@ describe('registry', () => {
   it('programs grid là component', () => expect(typeof registry.programs['grid']).toBe('function'));
   it('socialProof video-proof là component', () => expect(typeof registry.socialProof['video-proof']).toBe('function'));
   it('done contact-info là component', () => expect(typeof registry.done['contact-info']).toBe('function'));
+  it('programs grid-with-faq là component', () => expect(typeof registry.programs['grid-with-faq']).toBe('function'));
+  it('conversion short-form-with-testimonials là component', () => expect(typeof registry.conversion['short-form-with-testimonials']).toBe('function'));
 });

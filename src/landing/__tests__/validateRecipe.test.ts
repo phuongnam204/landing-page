@@ -29,4 +29,22 @@ describe('validateRecipe', () => {
     const r = validateRecipe({ ...base, slots: { ...base.slots, programs: 'grid', done: 'contact-info' } }, reg);
     expect(r.valid).toBe(true);
   });
+  it('passes v04 recipe using compound variant ids', () => {
+    const reg4 = {
+      ...reg,
+      hook:       { ...reg.hook,       'bold-single': {} },
+      minigame:   { ...reg.minigame,   'face-map': {} },
+      programs:   { ...reg.programs,   'grid-with-faq': {} },
+      conversion: { ...reg.conversion, 'short-form-with-testimonials': {} },
+      done:       { 'contact-info': {} },
+    };
+    const v04 = {
+      id: 'v04-combined', label: 'v04', slots: {
+        hook: 'bold-single', minigame: 'face-map', payoff: 'confetti-card',
+        programs: 'grid-with-faq', conversion: 'short-form-with-testimonials',
+        done: 'contact-info',
+      },
+    };
+    expect(validateRecipe(v04 as any, reg4).valid).toBe(true);
+  });
 });
