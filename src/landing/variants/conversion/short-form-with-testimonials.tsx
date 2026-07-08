@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { ConversionSlotProps } from '../../slots';
 import { getPrograms } from '../../../content/catalog';
 import { branches } from '../../../content/branches';
@@ -38,7 +38,7 @@ function PendingSpinner() {
 function TestimonialCard({ quote, name, age, branch, letter, bg, fg }: typeof TESTIMONIALS[number]) {
   return (
     <div className="bg-[var(--lp-bg-card)] rounded-soft border border-[var(--lp-border)] p-4 shadow-sm">
-      <p className="text-amber-400 text-sm mb-2" aria-label="5 sao">{'\u2605'.repeat(5)}</p>
+      <p className="text-amber-400 text-sm mb-2" aria-label="5 sao">{'★'.repeat(5)}</p>
       <p className="text-sm text-cta/80 italic leading-relaxed mb-3">&ldquo;{quote}&rdquo;</p>
       <div className="flex items-center gap-3">
         <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true" className="flex-shrink-0">
@@ -54,7 +54,65 @@ function TestimonialCard({ quote, name, age, branch, letter, bg, fg }: typeof TE
   );
 }
 
-export function ShortFormWithTestimonialsConversion({ selectedProgramId, minigameResult, onSubmit }: ConversionSlotProps) {
+function BranchDropdown({ value, onChange }: { value: string; onChange: (code: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const selected = branches.find(b => b.code === value);
+
+  useEffect(() => {
+    if (!open) return;
+    function onMouseDown(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener('mousedown', onMouseDown);
+    return () => document.removeEventListener('mousedown', onMouseDown);
+  }, [open]);
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between border-2 border-[var(--lp-border)] rounded-2xl py-3 px-4 text-sm bg-white text-left"
+      >
+        <span className={selected ? 'text-cta' : 'text-cta/40'}>
+          {selected?.name ?? 'Chọn chi nhánh gần bạn'}
+        </span>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"
+          className="flex-shrink-0 transition-transform duration-200"
+          style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+          <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+      <div
+        className="absolute left-0 right-0 top-full mt-1 z-20 bg-white rounded-2xl border border-[var(--lp-border)] shadow-lg overflow-hidden transition-all duration-200"
+        style={{ maxHeight: open ? '280px' : '0px', opacity: open ? 1 : 0 }}
+      >
+        {branches.map(b => (
+          <button
+            key={b.code}
+            type="button"
+            onClick={() => { onChange(b.code); setOpen(false); }}
+            className="w-full text-left px-4 py-3 text-sm flex items-center justify-between hover:bg-[var(--lp-bg-hero)] transition-colors"
+          >
+            <span className={value === b.code ? 'font-semibold text-cta' : 'text-cta/70'}>{b.name}</span>
+            {value === b.code && (
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M3 7l3 3 5-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            )}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function BookingForm({ selectedProgramId, minigameResult, onSuccess }: {
+  selectedProgramId: string | null;
+  minigameResult: ConversionSlotProps['minigameResult'];
+  onSuccess: (name: string, phone: string) => void;
+}) {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [branch, setBranch] = useState('');
@@ -62,10 +120,8 @@ export function ShortFormWithTestimonialsConversion({ selectedProgramId, minigam
   const [uxState, setUxState] = useState<UXState>('idle');
   const [errorMessage, setErrorMessage] = useState('');
 
-  useEffect(() => { trackEvent('conversion_social_view'); }, []);
-
   const programName = selectedProgramId
-    ? getPrograms().find(p => p.id === selectedProgramId)?.name
+    ? getPrograms().find(p => p.id === selectedProgramId)?.name ?? null
     : null;
 
   function validatePhone(val: string): boolean {
@@ -81,13 +137,9 @@ export function ShortFormWithTestimonialsConversion({ selectedProgramId, minigam
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (uxState === 'pending') return;
-    if (!name.trim()) return;
-    if (!validatePhone(phone)) return;
-    if (!branch) return;
-
+    if (!name.trim() || !validatePhone(phone) || !branch) return;
     setUxState('pending');
     setErrorMessage('');
-
     try {
       const res = await fetch('/api/lead', {
         method: 'POST',
@@ -101,7 +153,7 @@ export function ShortFormWithTestimonialsConversion({ selectedProgramId, minigam
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || 'Không thể gửi thông tin, thử lại sau.');
-      onSubmit(name.trim(), phone.trim());
+      onSuccess(name.trim(), phone.trim());
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : 'Không thể gửi thông tin, thử lại sau.');
       setUxState('error');
@@ -109,77 +161,89 @@ export function ShortFormWithTestimonialsConversion({ selectedProgramId, minigam
   }
 
   return (
-    <div className="h-[100dvh] w-full bg-[var(--lp-bg-payoff)] overflow-y-auto">
-      <div className="max-w-lg mx-auto px-5 py-8 flex flex-col gap-4">
-        <p className="text-xs font-bold uppercase tracking-widest text-cta/50 text-center">
-          Đặt lịch tư vấn miễn phí
+    <div className="flex flex-col gap-4">
+      <p className="text-xs font-bold uppercase tracking-widest text-cta/50 text-center md:text-left">
+        Đặt lịch tư vấn miễn phí
+      </p>
+      {programName && (
+        <p className="text-sm text-cta/70 -mt-2 text-center md:text-left">
+          Chuyên viên sẽ liên hệ tư vấn chương trình{' '}
+          <span className="font-semibold text-cta">{programName}</span>.
         </p>
-        {programName && (
-          <p className="text-sm text-cta/70 text-center -mt-2">
-            Chuyên viên sẽ liên hệ tư vấn chương trình{' '}
-            <span className="font-semibold text-cta">{programName}</span>.
-          </p>
-        )}
-
-        <form onSubmit={handleSubmit} className="bg-[var(--lp-bg-card)] rounded-soft p-5 shadow-lg shadow-cta/10 flex flex-col gap-3">
+      )}
+      <form onSubmit={handleSubmit} className="bg-[var(--lp-bg-card)] rounded-soft p-5 shadow-lg shadow-cta/10 flex flex-col gap-3">
+        <input
+          type="text" placeholder="Tên của bạn" value={name}
+          onChange={e => setName(e.target.value)} required
+          className="border-2 border-[var(--lp-border)] rounded-2xl py-3 px-4 text-sm text-cta w-full"
+        />
+        <div>
           <input
-            type="text" placeholder="Tên của bạn" value={name}
-            onChange={e => setName(e.target.value)} required
+            type="tel" placeholder="Số điện thoại" value={phone}
+            onChange={e => { setPhone(e.target.value); setPhoneError(''); }}
+            onBlur={e => validatePhone(e.target.value)} required
             className="border-2 border-[var(--lp-border)] rounded-2xl py-3 px-4 text-sm text-cta w-full"
           />
-
-          <div>
-            <input
-              type="tel" placeholder="Số điện thoại" value={phone}
-              onChange={e => { setPhone(e.target.value); setPhoneError(''); }}
-              onBlur={e => validatePhone(e.target.value)}
-              required
-              className="border-2 border-[var(--lp-border)] rounded-2xl py-3 px-4 text-sm text-cta w-full"
-            />
-            {phoneError && <p className="text-[11px] text-red-500 mt-1 px-1">{phoneError}</p>}
-          </div>
-
-          <select
-            value={branch} onChange={e => setBranch(e.target.value)} required
-            className="border-2 border-[var(--lp-border)] rounded-2xl py-3 px-4 text-sm text-cta bg-white w-full"
-          >
-            <option value="" disabled>Chọn chi nhánh gần bạn</option>
-            {branches.map(b => <option key={b.code} value={b.code}>{b.name}</option>)}
-          </select>
-
-          {minigameResult && (
-            <div className="border-2 border-[var(--lp-border)] rounded-2xl py-3 px-4 text-sm text-cta/60 bg-[var(--lp-bg-hero)]">
-              <div className="font-semibold text-cta">{minigameResult.condition.label}</div>
-              <div className="text-[11px] mt-0.5">Dựa trên kết quả kiểm tra của bạn</div>
-            </div>
-          )}
-
-          <button
-            type="submit" disabled={uxState === 'pending'}
-            className="bg-cta text-white font-bold text-sm py-3.5 rounded-soft mt-1 disabled:opacity-60 hover:enabled:opacity-90 transition-opacity flex items-center justify-center gap-2"
-          >
-            {uxState === 'pending' ? <><PendingSpinner />Đang gửi...</> : 'Gửi thông tin'}
-          </button>
-
-          {uxState === 'error' && errorMessage && (
-            <p className="text-xs text-red-500 text-center">{errorMessage}</p>
-          )}
-
-          <p className="text-xs text-cta/50 text-center">
-            Bằng cách gửi thông tin, bạn đồng ý để o2skin liên hệ tư vấn.
-          </p>
-        </form>
-
-        <div className="flex items-center gap-3 mt-2">
-          <hr className="flex-1 border-[var(--lp-border)]" />
-          <span className="text-xs text-cta/40 font-semibold whitespace-nowrap">Khách hàng nói gì</span>
-          <hr className="flex-1 border-[var(--lp-border)]" />
+          {phoneError && <p className="text-[11px] text-red-500 mt-1 px-1">{phoneError}</p>}
         </div>
 
-        <p className="text-xs text-cta/40 text-center -mt-2">&#8595; Kéo xuống để xem review</p>
+        <BranchDropdown value={branch} onChange={setBranch} />
 
-        <div className="flex flex-col gap-3">
-          {TESTIMONIALS.map((t, i) => <TestimonialCard key={i} {...t} />)}
+        {minigameResult && (
+          <div className="border-2 border-[var(--lp-border)] rounded-2xl py-3 px-4 text-sm text-cta/60 bg-[var(--lp-bg-hero)]">
+            <div className="font-semibold text-cta">{minigameResult.condition.label}</div>
+            <div className="text-[11px] mt-0.5">Dựa trên kết quả kiểm tra của bạn</div>
+          </div>
+        )}
+
+        <button
+          type="submit" disabled={uxState === 'pending'}
+          className="bg-cta text-white font-bold text-sm py-3.5 rounded-soft mt-1 disabled:opacity-60 hover:enabled:opacity-90 transition-opacity flex items-center justify-center gap-2"
+        >
+          {uxState === 'pending' ? <><PendingSpinner />Đang gửi...</> : 'Gửi thông tin'}
+        </button>
+
+        {uxState === 'error' && errorMessage && (
+          <p className="text-xs text-red-500 text-center">{errorMessage}</p>
+        )}
+
+        <p className="text-xs text-cta/50 text-center">
+          Bằng cách gửi thông tin, bạn đồng ý để o2skin liên hệ tư vấn.
+        </p>
+      </form>
+    </div>
+  );
+}
+
+function TestimonialColumn() {
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex items-center gap-3">
+        <hr className="flex-1 border-[var(--lp-border)]" />
+        <span className="text-xs text-cta/40 font-semibold whitespace-nowrap">Khách hàng nói gì</span>
+        <hr className="flex-1 border-[var(--lp-border)]" />
+      </div>
+      <p className="text-xs text-cta/40 text-center md:hidden">&#8595; Kéo xuống để xem review</p>
+      <div className="flex flex-col gap-3">
+        {TESTIMONIALS.map((t, i) => <TestimonialCard key={i} {...t} />)}
+      </div>
+    </div>
+  );
+}
+
+export function ShortFormWithTestimonialsConversion({ selectedProgramId, minigameResult, onSubmit }: ConversionSlotProps) {
+  useEffect(() => { trackEvent('conversion_social_view'); }, []);
+
+  return (
+    <div className="h-[100dvh] w-full bg-[var(--lp-bg-payoff)] overflow-y-auto">
+      <div className="max-w-5xl mx-auto px-5 py-8">
+        <div className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-8 md:items-start">
+          <BookingForm
+            selectedProgramId={selectedProgramId}
+            minigameResult={minigameResult}
+            onSuccess={onSubmit}
+          />
+          <TestimonialColumn />
         </div>
         <div className="h-4" />
       </div>
