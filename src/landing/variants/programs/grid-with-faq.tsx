@@ -103,7 +103,7 @@ function ConditionTagSmall({ conditionId }: { conditionId: string }) {
 function ProgramHighlight({ program, tint, onContinue, suggestedProgramId }: {
   program: ReturnType<typeof getPrograms>[number];
   tint: string;
-  onContinue: (id: string | null) => void;
+  onContinue: (id: string) => void;
   suggestedProgramId: string | null;
 }) {
   return (
@@ -128,7 +128,7 @@ function ProgramHighlight({ program, tint, onContinue, suggestedProgramId }: {
         </div>
       </div>
       <button
-        onClick={() => onContinue(suggestedProgramId)}
+        onClick={() => onContinue(suggestedProgramId || program.id)}
         className="bg-cta text-white font-bold text-sm py-3.5 rounded-soft w-full hover:opacity-90 transition-opacity"
       >
         Đặt lịch với liệu trình này
