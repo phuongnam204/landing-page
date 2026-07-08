@@ -7,9 +7,9 @@ export const v04Combined: Recipe = {
   slots: {
     hook:       'bold-single',
     minigame:   'face-map',
-    payoff:     'confetti-card',
+    payoff:     'confetti-card-why',
     programs:   'grid-with-faq',
     conversion: 'short-form-with-testimonials',
-    done:       'contact-info',
+    done:       'contact-info-with-video',
   },
 };

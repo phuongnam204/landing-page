@@ -16,4 +16,6 @@ describe('registry', () => {
   it('done contact-info là component', () => expect(typeof registry.done['contact-info']).toBe('function'));
   it('programs grid-with-faq là component', () => expect(typeof registry.programs['grid-with-faq']).toBe('function'));
   it('conversion short-form-with-testimonials là component', () => expect(typeof registry.conversion['short-form-with-testimonials']).toBe('function'));
+  it('payoff confetti-card-why là component', () => expect(typeof registry.payoff['confetti-card-why']).toBe('function'));
+  it('done contact-info-with-video là component', () => expect(typeof registry.done['contact-info-with-video']).toBe('function'));
 });
