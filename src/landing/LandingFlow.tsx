@@ -82,7 +82,10 @@ export default function LandingFlow({ recipe }: { recipe: Recipe }) {
         ? <Done selectedProgramId={selectedProgram} />
         : <div className="h-screen w-full bg-[var(--lp-bg-payoff)] flex items-center justify-center px-5">
             <div className="bg-[var(--lp-bg-card)] rounded-soft p-8 shadow-lg text-center max-w-sm w-full">
-              <div className="text-4xl mb-3">🎉</div>
+              <svg viewBox="0 0 48 48" className="w-12 h-12 text-teal-500 mx-auto mb-3" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="24" cy="24" r="21" strokeOpacity="0.25" />
+                <path d="M14 25l7 7 13-14" />
+              </svg>
               <p className="font-extrabold text-xl text-cta">Đã nhận thông tin của bạn!</p>
               <p className="text-sm text-cta/60 mt-2">Chuyên viên sẽ liên hệ trong 24 giờ.</p>
             </div>
