@@ -1,7 +1,12 @@
 'use client';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { PayoffSlotProps } from '../../slots';
 import type { ConditionId } from '../../../content/quiz';
+import { getPrograms, getSuggestedProgram } from '../../../content/catalog';
+import { ProgramCard, DotsNav } from '../programs/carousel';
+import type { Program } from '../../../content/programs';
+
+// ─── Canvas animations (giữ nguyên từ file cũ) ──────────────────────────────
 
 const CONFETTI_COLORS = ['#ff6b9d','#ffd93d','#6bcb77','#4d96ff','#c77dff','#ff9f1c','#ff4d6d','#48cae4'];
 
@@ -61,6 +66,8 @@ function runWorryParticles(canvas: HTMLCanvasElement): () => void {
   return () => cancelAnimationFrame(rafId);
 }
 
+// ─── Result section text ─────────────────────────────────────────────────────
+
 const HEADERS: Record<'positive' | 'concern', string> = {
   positive: 'Tuyệt vời, da bạn đang rất khỏe!',
   concern:  'Hmm, có điều bạn cần biết về da mình...',
@@ -69,6 +76,8 @@ const BRIDGE: Record<'positive' | 'concern', string> = {
   positive: 'Da bạn đang ở điểm khởi đầu tốt — và chúng tôi có thể giúp bạn duy trì điều đó lâu dài.',
   concern:  'Tình trạng như của bạn không hiếm — và có cách xử lý đúng hướng từ gốc rễ.',
 };
+
+// ─── Condition education data (giữ nguyên từ file cũ) ───────────────────────
 
 type ConditionEducation = {
   whyTitle: string;
@@ -140,7 +149,98 @@ const CONDITION_EDUCATION: Record<ConditionId, ConditionEducation> = {
   },
 };
 
-function WhySection({ conditionId, onContinue }: { conditionId: ConditionId; onContinue: () => void }) {
+// ─── Section 3 & 4 data ──────────────────────────────────────────────────────
+
+const O2SKIN_FEATURES = [
+  {
+    title: 'BÁC SĨ TRỰC TIẾP KHÁM VÀ CÁ NHÂN HÓA PHÁC ĐỒ',
+    body: 'Không qua trung gian — bác sĩ da liễu trực tiếp thăm khám, đánh giá và thiết kế bước sóng, mức năng lượng riêng cho từng bệnh nhân.',
+  },
+  {
+    title: 'THIẾT BỊ IPL/LASER NHẬP KHẨU CHÍNH HÃNG',
+    body: 'Nhập khẩu chính ngạch với chứng nhận y tế, phát xung chính xác — kiểm soát an toàn và hiệu quả tối đa.',
+  },
+  {
+    title: 'THANH TOÁN LINH HOẠT THEO TỪNG BUỔI',
+    body: 'Không ràng buộc gói dài hạn — hỗ trợ tài chính tối đa cho học sinh, sinh viên và người đi làm.',
+  },
+];
+
+const O2SKIN_STATS = [
+  { value: '5+',    label: 'Chi nhánh tại TP.HCM & Cần Thơ' },
+  { value: '1000+', label: 'Khách hàng đã điều trị thành công' },
+  { value: '5 năm', label: 'Kinh nghiệm y khoa da liễu' },
+  { value: '100%',  label: 'Không ép mua liệu trình' },
+];
+
+// ─── Mini carousel (reuses ProgramCard + DotsNav từ carousel.tsx) ────────────
+
+function ProgramsMiniCarousel({ programs, highlightId }: { programs: Program[]; highlightId?: string }) {
+  const sorted = [
+    ...programs.filter(p => p.id === highlightId),
+    ...programs.filter(p => p.id !== highlightId),
+  ];
+
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [dragDelta, setDragDelta] = useState(0);
+  const isDraggingRef = useRef(false);
+  const pointerStartX = useRef(0);
+
+  const prev = () => setActiveIndex(i => Math.max(i - 1, 0));
+  const next = () => setActiveIndex(i => Math.min(i + 1, sorted.length - 1));
+
+  function startDrag(clientX: number) { pointerStartX.current = clientX; isDraggingRef.current = true; }
+  function moveDrag(clientX: number) { if (!isDraggingRef.current) return; setDragDelta(clientX - pointerStartX.current); }
+  function endDrag(clientX: number) {
+    if (!isDraggingRef.current) return;
+    isDraggingRef.current = false;
+    const delta = clientX - pointerStartX.current;
+    setDragDelta(0);
+    if (delta < -35) next(); else if (delta > 35) prev();
+  }
+
+  function getCardStyle(index: number): React.CSSProperties {
+    const diff = index - activeIndex;
+    const transition = isDraggingRef.current ? 'none' : 'transform 0.4s ease-out, opacity 0.4s ease-out';
+    if (diff === 0) return { transform: `translateX(calc(-50% + ${dragDelta}px)) scale(1)`, opacity: 1, zIndex: 10, pointerEvents: 'auto', transition };
+    if (Math.abs(diff) === 1) {
+      const sign = diff > 0 ? 1 : -1;
+      return { transform: `translateX(calc(-50% + ${sign * 72}% + ${dragDelta}px)) scale(0.83)`, opacity: 0.55, zIndex: 5, pointerEvents: 'none', transition };
+    }
+    const sign = diff > 0 ? 1 : -1;
+    return { transform: `translateX(calc(-50% + ${sign * 130}% + ${dragDelta}px)) scale(0.65)`, opacity: 0, zIndex: 1, pointerEvents: 'none', transition };
+  }
+
+  return (
+    <div className="flex flex-col" style={{ height: '320px' }}>
+      <div
+        className="flex-1 relative cursor-grab active:cursor-grabbing select-none overflow-hidden"
+        style={{ perspective: '800px', touchAction: 'none' }}
+        onPointerDown={e => { startDrag(e.clientX); (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId); }}
+        onPointerMove={e => moveDrag(e.clientX)}
+        onPointerUp={e => endDrag(e.clientX)}
+        onPointerCancel={() => { isDraggingRef.current = false; setDragDelta(0); }}
+      >
+        {activeIndex > 0 && (
+          <button onClick={prev} className="absolute left-1 top-1/2 -translate-y-1/2 z-20 w-7 h-7 rounded-full bg-[var(--lp-bg-card)] shadow-md flex items-center justify-center text-cta/60 text-xs">‹</button>
+        )}
+        {activeIndex < sorted.length - 1 && (
+          <button onClick={next} className="absolute right-1 top-1/2 -translate-y-1/2 z-20 w-7 h-7 rounded-full bg-[var(--lp-bg-card)] shadow-md flex items-center justify-center text-cta/60 text-xs">›</button>
+        )}
+        {sorted.map((program, idx) => (
+          <div key={program.id} className="absolute top-2 bottom-2 left-1/2" style={{ width: '76%', ...getCardStyle(idx) }}>
+            <ProgramCard program={program} isSuggested={program.id === highlightId} />
+          </div>
+        ))}
+      </div>
+      <DotsNav count={sorted.length} activeIndex={activeIndex} onChange={setActiveIndex} />
+    </div>
+  );
+}
+
+// ─── Section sub-components ──────────────────────────────────────────────────
+
+function WhySection({ conditionId, onScrollDown }: { conditionId: ConditionId; onScrollDown: () => void }) {
   const edu = CONDITION_EDUCATION[conditionId];
   return (
     <div className="max-w-lg md:max-w-3xl mx-auto px-5 py-10 flex flex-col gap-6">
@@ -165,19 +265,108 @@ function WhySection({ conditionId, onContinue }: { conditionId: ConditionId; onC
         <p className="text-xs text-cta/50 font-semibold mt-2">— {edu.expertName}</p>
       </blockquote>
       <button
-        onClick={onContinue}
+        onClick={onScrollDown}
         className="bg-cta text-white font-bold text-sm md:text-base py-3.5 px-9 rounded-soft w-full hover:opacity-90 transition-opacity"
       >
-        Xem chương trình phù hợp →
+        Tìm ngay giải pháp cho bạn! &#8595;
       </button>
       <div className="h-4" />
     </div>
   );
 }
 
+function FeatureSection({ suggestedProgramId }: { suggestedProgramId?: string }) {
+  const allPrograms = getPrograms();
+  return (
+    <div className="relative min-h-[100dvh] bg-[var(--lp-bg-hero)] flex items-center overflow-hidden">
+      <div className="max-w-5xl mx-auto px-5 py-12 md:py-16 w-full">
+        <p className="text-xs font-bold uppercase tracking-widest text-cta/40 mb-8 text-center">
+          Những gì O2skin có
+        </p>
+        <div className="flex flex-col gap-8 md:grid md:grid-cols-2 md:gap-12 md:items-center">
+          {/* Left: title + feature list */}
+          <div className="flex flex-col gap-6">
+            <h2 className="font-extrabold text-2xl md:text-3xl text-cta leading-tight">
+              O2skin có thể giúp bạn!
+            </h2>
+            <div className="flex flex-col gap-5">
+              {O2SKIN_FEATURES.map((f, i) => (
+                <div key={i} className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-full bg-cta text-white font-black text-sm flex items-center justify-center shrink-0">
+                    {String(i + 1).padStart(2, '0')}
+                  </div>
+                  <div>
+                    <p className="font-extrabold text-xs md:text-sm text-cta uppercase tracking-wider leading-snug">
+                      {f.title}
+                    </p>
+                    <p className="text-sm text-cta/65 leading-relaxed mt-1.5">{f.body}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right: mini carousel với dashed orbit */}
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden="true">
+              <div className="w-64 h-64 rounded-full border-2 border-dashed border-cta/10" />
+            </div>
+            <ProgramsMiniCarousel programs={allPrograms} highlightId={suggestedProgramId} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function BenefitSection({ onContinue }: { onContinue: () => void }) {
+  return (
+    <div
+      className="relative min-h-[100dvh] flex flex-col items-center justify-center overflow-hidden px-5 py-12"
+      style={{ background: 'linear-gradient(135deg, #1a1654 0%, #2d2982 50%, #5b21b6 100%)' }}
+    >
+      {/* Texture blobs */}
+      <div className="absolute inset-0 pointer-events-none" aria-hidden="true"
+        style={{ background: 'radial-gradient(circle at 15% 85%, rgba(255,255,255,0.07) 0%, transparent 55%), radial-gradient(circle at 85% 15%, rgba(167,139,250,0.12) 0%, transparent 50%)' }} />
+
+      <div className="relative z-10 max-w-4xl mx-auto w-full">
+        <div className="text-center mb-10 md:mb-14">
+          <p className="text-xs font-bold uppercase tracking-widest text-white/40 mb-2">Cam kết của chúng tôi</p>
+          <h2 className="font-extrabold text-2xl md:text-3xl text-white">
+            Lợi ích khi chọn trị mụn ở O2skin
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-5 md:gap-6 mb-12 md:mb-16">
+          {O2SKIN_STATS.map((stat, i) => (
+            <div key={i} className="flex justify-center">
+              <div className="w-32 h-32 md:w-36 md:h-36 rounded-full bg-white/90 shadow-xl flex flex-col items-center justify-center p-3 text-center">
+                <p className="font-black text-2xl md:text-3xl leading-none text-orange-500">{stat.value}</p>
+                <p className="text-[11px] md:text-xs font-semibold text-cta/70 mt-2 leading-snug">{stat.label}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="flex justify-center">
+          <button
+            onClick={onContinue}
+            className="bg-white text-cta font-extrabold text-sm md:text-base py-4 px-10 rounded-soft shadow-lg hover:opacity-90 transition-opacity"
+          >
+            Xem chương trình phù hợp &#8594;
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main export ─────────────────────────────────────────────────────────────
+
 export function ConfettiCardWhyPayoff({ result, onContinue }: PayoffSlotProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const whyRef = useRef<HTMLDivElement>(null);
+  const whyRef   = useRef<HTMLDivElement>(null);
+  const featureRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current; if (!canvas) return;
@@ -186,9 +375,11 @@ export function ConfettiCardWhyPayoff({ result, onContinue }: PayoffSlotProps) {
   }, [result.condition.tone]);
 
   const isPositive = result.condition.tone === 'positive';
+  const suggestedProgram = getSuggestedProgram(result.condition.id);
 
   return (
     <div className="h-[100dvh] w-full bg-[var(--lp-bg-payoff)] overflow-y-auto">
+
       {/* Section 1: Kết quả (above fold) */}
       <div className="relative min-h-[100dvh] flex items-center justify-center px-5 overflow-hidden">
         <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none" style={{ zIndex: 0 }} />
@@ -231,13 +422,21 @@ export function ConfettiCardWhyPayoff({ result, onContinue }: PayoffSlotProps) {
         </div>
       </div>
 
-      {/* Section 2: Why (below fold) */}
+      {/* Section 2: Why */}
       <div ref={whyRef} className="bg-[var(--lp-bg-payoff)]">
         <WhySection
           conditionId={result.condition.id as ConditionId}
-          onContinue={onContinue}
+          onScrollDown={() => featureRef.current?.scrollIntoView({ behavior: 'smooth' })}
         />
       </div>
+
+      {/* Section 3: Feature */}
+      <div ref={featureRef}>
+        <FeatureSection suggestedProgramId={suggestedProgram?.id} />
+      </div>
+
+      {/* Section 4: Benefit + final CTA */}
+      <BenefitSection onContinue={onContinue} />
     </div>
   );
 }
