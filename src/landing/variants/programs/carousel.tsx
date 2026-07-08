@@ -5,7 +5,7 @@ import type { Program } from '../../../content/programs';
 import { getPrograms, getConditionById } from '../../../content/catalog';
 import type { ConditionId } from '../../../content/quiz';
 
-const PROGRAM_TAGLINES: Record<string, string> = {
+export const PROGRAM_TAGLINES: Record<string, string> = {
   'combo-peel-acne':         'Làm sạch sâu & kiểm soát nhờn',
   'ipl-oil-control':         'Ánh sáng IPL chuyên sâu',
   'laser-scar-treatment':    'Tái tạo collagen & thu nhỏ lỗ chân lông',
@@ -164,7 +164,7 @@ function IllustMaintenance({ tint }: { tint: string }) {
   );
 }
 
-const PROGRAM_ILLUSTRATIONS: Record<string, React.FC<{ tint: string }>> = {
+export const PROGRAM_ILLUSTRATIONS: Record<string, React.FC<{ tint: string }>> = {
   'combo-peel-acne':         IllustComboPeel,
   'ipl-oil-control':         IllustIPL,
   'laser-scar-treatment':    IllustLaser,
@@ -253,7 +253,7 @@ function CardBody({ description, conditions }: {
   );
 }
 
-function ProgramCard({ program, isSuggested }: { program: Program; isSuggested: boolean }) {
+export function ProgramCard({ program, isSuggested }: { program: Program; isSuggested: boolean }) {
   const cond = getConditionById(program.treatsConditions[0] as ConditionId);
   const tint = cond?.color ?? '#A0AEC0';
   const tagline = PROGRAM_TAGLINES[program.id] ?? '';
@@ -268,7 +268,7 @@ function ProgramCard({ program, isSuggested }: { program: Program; isSuggested: 
 
 // ─── Sub-components of CarouselPrograms ──────────────────────────────────────
 
-function DotsNav({ count, activeIndex, onChange }: {
+export function DotsNav({ count, activeIndex, onChange }: {
   count: number; activeIndex: number; onChange: (i: number) => void;
 }) {
   return (
