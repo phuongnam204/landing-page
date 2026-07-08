@@ -89,6 +89,68 @@ function FaqAccordion({ items }: { items: FaqItem[] }) {
   );
 }
 
+function ConditionTagSmall({ conditionId }: { conditionId: string }) {
+  const c = getConditionById(conditionId as ConditionId);
+  return (
+    <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full"
+      style={{ background: c ? `${c.color}22` : '#e8e8e8', color: c ? c.color : '#555', filter: 'brightness(0.82)' }}>
+      <span className="w-2 h-2 rounded-full" style={{ background: c?.color ?? '#999' }} />
+      {c?.label ?? conditionId}
+    </span>
+  );
+}
+
+function ProgramHighlight({ program, tint, onContinue, suggestedProgramId }: {
+  program: ReturnType<typeof getPrograms>[number];
+  tint: string;
+  onContinue: (id: string | null) => void;
+  suggestedProgramId: string | null;
+}) {
+  return (
+    <div className="flex flex-col gap-4">
+      <p className="text-xs font-bold uppercase tracking-widest text-cta/50 text-center md:text-left">
+        Gợi ý liệu trình cho bạn
+      </p>
+      <div className="bg-[var(--lp-bg-card)] rounded-soft shadow-lg shadow-cta/10 overflow-hidden">
+        <div className="px-5 py-4" style={{ background: `${tint}CC` }}>
+          <span className="inline-block text-xs font-bold bg-white/30 text-white px-2.5 py-0.5 rounded-full mb-2">
+            Phù hợp nhất
+          </span>
+          <h2 className="text-lg font-extrabold text-white" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.18)' }}>
+            {program.name}
+          </h2>
+        </div>
+        <div className="px-5 py-4">
+          <p className="text-sm text-cta/70 leading-relaxed">{program.description}</p>
+          <div className="flex flex-wrap gap-2 mt-3">
+            {program.treatsConditions.map(cid => <ConditionTagSmall key={cid} conditionId={cid} />)}
+          </div>
+        </div>
+      </div>
+      <button
+        onClick={() => onContinue(suggestedProgramId)}
+        className="bg-cta text-white font-bold text-sm py-3.5 rounded-soft w-full hover:opacity-90 transition-opacity"
+      >
+        Đặt lịch với liệu trình này
+      </button>
+    </div>
+  );
+}
+
+function FaqSection({ items }: { items: FaqItem[] }) {
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex items-center gap-3">
+        <hr className="flex-1 border-[var(--lp-border)]" />
+        <span className="text-xs text-cta/40 font-semibold whitespace-nowrap">Câu hỏi thường gặp</span>
+        <hr className="flex-1 border-[var(--lp-border)]" />
+      </div>
+      <p className="text-xs text-cta/40 text-center md:hidden">&#8595; Kéo xuống để đọc</p>
+      <FaqAccordion items={items} />
+    </div>
+  );
+}
+
 export function GridWithFaqPrograms({ suggestedProgramId, onContinue }: ProgramsSlotProps) {
   useEffect(() => { trackEvent('programs_faq_view'); }, []);
 
@@ -98,57 +160,20 @@ export function GridWithFaqPrograms({ suggestedProgramId, onContinue }: Programs
   const tint = cond?.color ?? '#A0AEC0';
   const faqItems = FAQ_BY_CONDITION[primaryConditionId] ?? FAQ_BY_CONDITION['da-nhon-mun-viem'];
 
+  if (!program) return null;
+
   return (
     <div className="h-[100dvh] w-full bg-[var(--lp-bg-payoff)] overflow-y-auto">
-      <div className="max-w-lg mx-auto px-5 py-8 flex flex-col gap-5">
-        <p className="text-xs font-bold uppercase tracking-widest text-cta/50 text-center">
-          Gợi ý liệu trình cho bạn
-        </p>
-
-        {program && (
-          <div className="bg-[var(--lp-bg-card)] rounded-soft shadow-lg shadow-cta/10 overflow-hidden">
-            <div className="px-5 py-4" style={{ background: `${tint}CC` }}>
-              <span className="inline-block text-xs font-bold bg-white/30 text-white px-2.5 py-0.5 rounded-full mb-2">
-                Phù hợp nhất
-              </span>
-              <h2 className="text-lg font-extrabold text-white" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.18)' }}>
-                {program.name}
-              </h2>
-            </div>
-            <div className="px-5 py-4">
-              <p className="text-sm text-cta/70 leading-relaxed">{program.description}</p>
-              <div className="flex flex-wrap gap-2 mt-3">
-                {program.treatsConditions.map(cid => {
-                  const c = getConditionById(cid);
-                  return (
-                    <span key={cid}
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full"
-                      style={{ background: c ? `${c.color}22` : '#e8e8e8', color: c ? c.color : '#555', filter: 'brightness(0.82)' }}>
-                      <span className="w-2 h-2 rounded-full" style={{ background: c?.color ?? '#999' }} />
-                      {c?.label ?? cid}
-                    </span>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        )}
-
-        <button
-          onClick={() => onContinue(suggestedProgramId)}
-          className="bg-cta text-white font-bold text-sm py-3.5 rounded-soft w-full hover:opacity-90 transition-opacity"
-        >
-          Đặt lịch với liệu trình này
-        </button>
-
-        <div className="flex items-center gap-3 my-1">
-          <hr className="flex-1 border-[var(--lp-border)]" />
-          <span className="text-xs text-cta/40 font-semibold whitespace-nowrap">Câu hỏi thường gặp</span>
-          <hr className="flex-1 border-[var(--lp-border)]" />
+      <div className="max-w-5xl mx-auto px-5 py-8">
+        <div className="flex flex-col gap-5 md:grid md:grid-cols-2 md:gap-8 md:items-start">
+          <ProgramHighlight
+            program={program}
+            tint={tint}
+            onContinue={onContinue}
+            suggestedProgramId={suggestedProgramId}
+          />
+          <FaqSection items={faqItems} />
         </div>
-        <p className="text-xs text-cta/40 text-center -mt-2">&#8595; Kéo xuống để đọc</p>
-
-        <FaqAccordion items={faqItems} />
         <div className="h-4" />
       </div>
     </div>
