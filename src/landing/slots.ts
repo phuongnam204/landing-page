@@ -26,6 +26,7 @@ export type ProgramsSlotProps = {
 
 export type ConversionSlotProps = {
   selectedProgramId: ProgramId | null;
+  minigameResult: MinigameResult | null;
   onSubmit: (name: string, phone: string) => void;
 };
 

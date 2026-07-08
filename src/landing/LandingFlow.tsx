@@ -67,9 +67,9 @@ export default function LandingFlow({ recipe }: { recipe: Recipe }) {
       )}
 
       {step === 'conversion' && Conversion && (
-        <Conversion selectedProgramId={selectedProgram}
+        <Conversion selectedProgramId={selectedProgram} minigameResult={minigameResult}
           onSubmit={(name, phone) => {
-            trackEvent('form_submit', { name, phone, program: selectedProgram });
+            trackEvent('form_submit', { program: selectedProgram });
             nextAfterConversion();
           }} />
       )}
