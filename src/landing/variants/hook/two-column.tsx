@@ -26,7 +26,7 @@ export function TwoColumnHook({ onStart }: HookSlotProps) {
           </p>
           <button onClick={onStart}
             className="mt-7 bg-cta text-white font-bold rounded-soft px-12 py-4 text-base md:text-lg hover:opacity-90 transition-colors duration-300">
-            Soi da ngay ✨
+            Soi da ngay →
           </button>
           <p className="text-sm md:text-base text-cta/50 mt-4">Cùng thực hiện một cuộc khám phá làn da nhé!</p>
         </div>

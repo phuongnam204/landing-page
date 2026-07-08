@@ -61,8 +61,8 @@ function runWorryParticles(canvas: HTMLCanvasElement): () => void {
 }
 
 const HEADERS: Record<'positive'|'concern', string> = {
-  positive: 'Tuyệt vời, da bạn đang rất khỏe! 🌸',
-  concern: 'Hmm, có điều bạn cần biết về da mình... 😟',
+  positive: 'Tuyệt vời, da bạn đang rất khỏe!',
+  concern: 'Hmm, có điều bạn cần biết về da mình...',
 };
 const BRIDGE: Record<'positive'|'concern', string> = {
   positive: 'Da bạn đang ở điểm khởi đầu tốt — và chúng tôi có thể giúp bạn duy trì điều đó lâu dài. Hãy xem chương trình chúng tôi chuẩn bị cho bạn.',
