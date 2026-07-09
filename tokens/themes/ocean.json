@@ -1,0 +1,25 @@
+{
+  "$description": "Ocean theme — blue palette",
+  "theme": {
+    "bg-hero":        { "$type": "color", "$value": "#EFF8FF" },
+    "bg-minigame":    { "$type": "color", "$value": "#E0F2FE" },
+    "bg-payoff":      { "$type": "color", "$value": "#BAE6FD" },
+    "bg-programs":    { "$type": "color", "$value": "#E0F2FE" },
+    "bg-card":        { "$type": "color", "$value": "#ffffff" },
+    "primary":        { "$type": "color", "$value": "#0c4a6e" },
+    "accent":         { "$type": "color", "$value": "#0284c7" },
+    "border":         { "$type": "color", "$value": "#7DD3FC" },
+    "blob-1":         { "$type": "color", "$value": "#7DD3FC" },
+    "blob-2":         { "$type": "color", "$value": "#38BDF8" },
+    "blob-3":         { "$type": "color", "$value": "#BAE6FD" },
+    "radius-card":    { "$type": "dimension", "$value": "14px" },
+    "radius-btn":     { "$type": "dimension", "$value": "14px" },
+    "pastel-pink":    { "$type": "color", "$value": "#DBEAFE" },
+    "pastel-lavender":{ "$type": "color", "$value": "#E0F2FE" },
+    "pastel-mint":    { "$type": "color", "$value": "#BAE6FD" },
+    "border-pink":    { "$type": "color", "$value": "#93C5FD" },
+    "border-mint":    { "$type": "color", "$value": "#7DD3FC" },
+    "border-lavender":{ "$type": "color", "$value": "#60A5FA" },
+    "label-purple":   { "$type": "color", "$value": "#0284c7" }
+  }
+}

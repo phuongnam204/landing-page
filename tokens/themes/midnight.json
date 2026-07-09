@@ -1,0 +1,25 @@
+{
+  "$description": "Midnight theme — dark palette",
+  "theme": {
+    "bg-hero":        { "$type": "color", "$value": "#0f0c1a" },
+    "bg-minigame":    { "$type": "color", "$value": "#1a1030" },
+    "bg-payoff":      { "$type": "color", "$value": "#130f23" },
+    "bg-programs":    { "$type": "color", "$value": "#1a1030" },
+    "bg-card":        { "$type": "color", "$value": "#1e1a2e" },
+    "primary":        { "$type": "color", "$value": "#e2e8f0" },
+    "accent":         { "$type": "color", "$value": "#a78bfa" },
+    "border":         { "$type": "color", "$value": "#4c1d95" },
+    "blob-1":         { "$type": "color", "$value": "#4c1d95" },
+    "blob-2":         { "$type": "color", "$value": "#1e40af" },
+    "blob-3":         { "$type": "color", "$value": "#312e81" },
+    "radius-card":    { "$type": "dimension", "$value": "20px" },
+    "radius-btn":     { "$type": "dimension", "$value": "20px" },
+    "pastel-pink":    { "$type": "color", "$value": "#2d1b69" },
+    "pastel-lavender":{ "$type": "color", "$value": "#1a1030" },
+    "pastel-mint":    { "$type": "color", "$value": "#130f23" },
+    "border-pink":    { "$type": "color", "$value": "#6d28d9" },
+    "border-mint":    { "$type": "color", "$value": "#4c1d95" },
+    "border-lavender":{ "$type": "color", "$value": "#5b21b6" },
+    "label-purple":   { "$type": "color", "$value": "#a78bfa" }
+  }
+}

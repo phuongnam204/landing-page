@@ -1,0 +1,25 @@
+{
+  "$description": "o2skin brand theme — Playful Pastel",
+  "theme": {
+    "bg-hero":        { "$type": "color", "$value": "#FFEFF4" },
+    "bg-minigame":    { "$type": "color", "$value": "#EDE9FF" },
+    "bg-payoff":      { "$type": "color", "$value": "#A8E6CF" },
+    "bg-programs":    { "$type": "color", "$value": "#C7CEEA" },
+    "bg-card":        { "$type": "color", "$value": "#ffffff" },
+    "primary":        { "$type": "color", "$value": "#2D2640" },
+    "accent":         { "$type": "color", "$value": "#7C3AED" },
+    "border":         { "$type": "color", "$value": "#B6BCEE" },
+    "blob-1":         { "$type": "color", "$value": "#FFB8D4" },
+    "blob-2":         { "$type": "color", "$value": "#B39DFF" },
+    "blob-3":         { "$type": "color", "$value": "#8FE3BC" },
+    "radius-card":    { "$type": "dimension", "$value": "20px" },
+    "radius-btn":     { "$type": "dimension", "$value": "20px" },
+    "pastel-pink":    { "$type": "color", "$value": "#FFD3E0" },
+    "pastel-lavender":{ "$type": "color", "$value": "#C7CEEA" },
+    "pastel-mint":    { "$type": "color", "$value": "#A8E6CF" },
+    "border-pink":    { "$type": "color", "$value": "#FFB8CE" },
+    "border-mint":    { "$type": "color", "$value": "#9FE6BD" },
+    "border-lavender":{ "$type": "color", "$value": "#B6BCEE" },
+    "label-purple":   { "$type": "color", "$value": "#9b8fc4" }
+  }
+}

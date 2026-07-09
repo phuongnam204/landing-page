@@ -1,0 +1,25 @@
+{
+  "$description": "Golden theme — amber palette",
+  "theme": {
+    "bg-hero":        { "$type": "color", "$value": "#FFFBEB" },
+    "bg-minigame":    { "$type": "color", "$value": "#FEF3C7" },
+    "bg-payoff":      { "$type": "color", "$value": "#FDE68A" },
+    "bg-programs":    { "$type": "color", "$value": "#FEF3C7" },
+    "bg-card":        { "$type": "color", "$value": "#ffffff" },
+    "primary":        { "$type": "color", "$value": "#78350f" },
+    "accent":         { "$type": "color", "$value": "#d97706" },
+    "border":         { "$type": "color", "$value": "#FCD34D" },
+    "blob-1":         { "$type": "color", "$value": "#FCD34D" },
+    "blob-2":         { "$type": "color", "$value": "#FBBF24" },
+    "blob-3":         { "$type": "color", "$value": "#FDE68A" },
+    "radius-card":    { "$type": "dimension", "$value": "20px" },
+    "radius-btn":     { "$type": "dimension", "$value": "20px" },
+    "pastel-pink":    { "$type": "color", "$value": "#FEF9C3" },
+    "pastel-lavender":{ "$type": "color", "$value": "#FEF3C7" },
+    "pastel-mint":    { "$type": "color", "$value": "#FDE68A" },
+    "border-pink":    { "$type": "color", "$value": "#FDE047" },
+    "border-mint":    { "$type": "color", "$value": "#FCD34D" },
+    "border-lavender":{ "$type": "color", "$value": "#FBBF24" },
+    "label-purple":   { "$type": "color", "$value": "#d97706" }
+  }
+}
