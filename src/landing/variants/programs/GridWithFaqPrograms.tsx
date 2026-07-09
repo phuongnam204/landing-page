@@ -1,11 +1,9 @@
 'use client';
-import { useState, useEffect } from 'react';
 import type { ProgramsSlotProps } from '../../slots';
 import type { ConditionId } from '../../../content/quiz';
-import { getPrograms, getConditionById } from '../../../content/catalog';
-import { trackEvent } from '../../../lib/trackEvent';
-
-type FaqItem = { q: string; a: string };
+import { getPrograms } from '../../../content/catalog';
+import { ProgramsOrganism } from '../../organisms/ProgramsOrganism';
+import type { FaqItem } from '../../../components/molecules/FaqAccordion';
 
 const FAQ_BY_CONDITION: Record<ConditionId, FaqItem[]> = {
   'da-nhon-mun-viem': [
@@ -52,130 +50,17 @@ const FAQ_BY_CONDITION: Record<ConditionId, FaqItem[]> = {
   ],
 };
 
-function ChevronIcon({ open }: { open: boolean }) {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"
-      className="flex-shrink-0 transition-transform duration-200"
-      style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}>
-      <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function FaqAccordion({ items }: { items: FaqItem[] }) {
-  const [openIdx, setOpenIdx] = useState<number | null>(null);
-  return (
-    <div className="rounded-soft border border-[var(--lp-border)] overflow-hidden bg-[var(--lp-bg-card)]">
-      {items.map((item, i) => (
-        <div key={i} className={i < items.length - 1 ? 'border-b border-[var(--lp-border)]' : ''}>
-          <button
-            type="button"
-            onClick={() => {
-              const next = openIdx === i ? null : i;
-              setOpenIdx(next);
-              if (next !== null) trackEvent('faq_item_open', { index: next });
-            }}
-            className="w-full flex items-center justify-between gap-3 px-4 py-3.5 text-left text-sm font-semibold text-cta hover:bg-[var(--lp-bg-hero)] transition-colors"
-          >
-            <span>{item.q}</span>
-            <ChevronIcon open={openIdx === i} />
-          </button>
-          <div className="overflow-hidden transition-all duration-200" style={{ maxHeight: openIdx === i ? '200px' : '0px' }}>
-            <p className="px-4 pb-4 text-sm text-cta/70 leading-relaxed">{item.a}</p>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function ConditionTagSmall({ conditionId }: { conditionId: string }) {
-  const c = getConditionById(conditionId as ConditionId);
-  return (
-    <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full"
-      style={{ background: c ? `${c.color}22` : '#e8e8e8', color: c ? c.color : '#555', filter: 'brightness(0.82)' }}>
-      <span className="w-2 h-2 rounded-full" style={{ background: c?.color ?? '#999' }} />
-      {c?.label ?? conditionId}
-    </span>
-  );
-}
-
-function ProgramHighlight({ program, tint, onContinue, suggestedProgramId }: {
-  program: ReturnType<typeof getPrograms>[number];
-  tint: string;
-  onContinue: (id: string) => void;
-  suggestedProgramId: string | null;
-}) {
-  return (
-    <div className="flex flex-col gap-4">
-      <p className="text-xs font-bold uppercase tracking-widest text-cta/50 text-center md:text-left">
-        Gợi ý liệu trình cho bạn
-      </p>
-      <div className="bg-[var(--lp-bg-card)] rounded-soft shadow-lg shadow-cta/10 overflow-hidden">
-        <div className="px-5 py-4" style={{ background: `${tint}CC` }}>
-          <span className="inline-block text-xs font-bold bg-white/30 text-white px-2.5 py-0.5 rounded-full mb-2">
-            Phù hợp nhất
-          </span>
-          <h2 className="text-lg font-extrabold text-white" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.18)' }}>
-            {program.name}
-          </h2>
-        </div>
-        <div className="px-5 py-4">
-          <p className="text-sm text-cta/70 leading-relaxed">{program.description}</p>
-          <div className="flex flex-wrap gap-2 mt-3">
-            {program.treatsConditions.map(cid => <ConditionTagSmall key={cid} conditionId={cid} />)}
-          </div>
-        </div>
-      </div>
-      <button
-        onClick={() => onContinue(suggestedProgramId || program.id)}
-        className="bg-cta text-white font-bold text-sm py-3.5 rounded-soft w-full hover:opacity-90 transition-opacity"
-      >
-        Đặt lịch với liệu trình này
-      </button>
-    </div>
-  );
-}
-
-function FaqSection({ items }: { items: FaqItem[] }) {
-  return (
-    <div className="flex flex-col gap-3">
-      <div className="flex items-center gap-3">
-        <hr className="flex-1 border-[var(--lp-border)]" />
-        <span className="text-xs text-cta/40 font-semibold whitespace-nowrap">Câu hỏi thường gặp</span>
-        <hr className="flex-1 border-[var(--lp-border)]" />
-      </div>
-      <p className="text-xs text-cta/40 text-center md:hidden">&#8595; Kéo xuống để đọc</p>
-      <FaqAccordion items={items} />
-    </div>
-  );
-}
-
 export function GridWithFaqPrograms({ suggestedProgramId, onContinue }: ProgramsSlotProps) {
-  useEffect(() => { trackEvent('programs_faq_view'); }, []);
-
   const program = getPrograms().find(p => p.id === suggestedProgramId);
   const primaryConditionId = (program?.treatsConditions[0] ?? 'da-nhon-mun-viem') as ConditionId;
-  const cond = program ? getConditionById(program.treatsConditions[0]) : null;
-  const tint = cond?.color ?? '#A0AEC0';
   const faqItems = FAQ_BY_CONDITION[primaryConditionId] ?? FAQ_BY_CONDITION['da-nhon-mun-viem'];
 
-  if (!program) return null;
-
   return (
-    <div className="h-[100dvh] w-full bg-[var(--lp-bg-payoff)] overflow-y-auto">
-      <div className="max-w-5xl mx-auto px-5 py-8">
-        <div className="flex flex-col gap-5 md:grid md:grid-cols-2 md:gap-8 md:items-start">
-          <ProgramHighlight
-            program={program}
-            tint={tint}
-            onContinue={onContinue}
-            suggestedProgramId={suggestedProgramId}
-          />
-          <FaqSection items={faqItems} />
-        </div>
-        <div className="h-4" />
-      </div>
-    </div>
+    <ProgramsOrganism
+      suggestedProgramId={suggestedProgramId}
+      onContinue={onContinue}
+      layout="grid-faq"
+      faqItems={faqItems}
+    />
   );
 }
