@@ -1,6 +1,10 @@
 'use client';
 import React, { useEffect, useRef } from 'react';
-import type { PayoffSlotProps } from '../../slots';
+import type { PayoffSlotProps } from '../slots';
+import { SectionShell } from '../../components/atoms/SectionShell';
+import { CtaButton } from '../../components/atoms/CtaButton';
+import { StatChipGroup } from '../../components/molecules/StatChipGroup';
+import { BridgeBlock } from '../../components/molecules/BridgeBlock';
 
 const CONFETTI_COLORS = ['#ff6b9d','#ffd93d','#6bcb77','#4d96ff','#c77dff','#ff9f1c','#ff4d6d','#48cae4'];
 
@@ -60,57 +64,73 @@ function runWorryParticles(canvas: HTMLCanvasElement): () => void {
   return () => cancelAnimationFrame(rafId);
 }
 
-const HEADERS: Record<'positive'|'concern', string> = {
+const HEADERS: Record<'positive' | 'concern', string> = {
   positive: 'Tuyệt vời, da bạn đang rất khỏe!',
   concern: 'Hmm, có điều bạn cần biết về da mình...',
 };
-const BRIDGE: Record<'positive'|'concern', string> = {
+const BRIDGE: Record<'positive' | 'concern', string> = {
   positive: 'Da bạn đang ở điểm khởi đầu tốt — và chúng tôi có thể giúp bạn duy trì điều đó lâu dài. Hãy xem chương trình chúng tôi chuẩn bị cho bạn.',
   concern: 'Tình trạng như của bạn không hiếm — và có cách xử lý đúng hướng. Tại o2skin, chúng tôi đã thiết kế chương trình phù hợp ngay cho bạn.',
 };
 
-export function ConfettiCardPayoff({ result, onContinue }: PayoffSlotProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  useEffect(() => {
-    const canvas = canvasRef.current; if (!canvas) return;
-    if (result.condition.tone === 'positive') return runConfetti(canvas);
-    return runWorryParticles(canvas);
-  }, [result.condition.tone]);
+export type PayoffLayout = 'confetti' | 'confetti-why' | 'benefit' | 'feature';
 
+interface PayoffOrganismProps extends PayoffSlotProps {
+  layout: PayoffLayout;
+  headerSlot?: React.ReactNode;
+  bodySlot?: React.ReactNode;
+}
+
+export function PayoffOrganism({ result, onContinue, layout, headerSlot, bodySlot }: PayoffOrganismProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const isPositive = result.condition.tone === 'positive';
+  const showCanvas = layout === 'confetti' || layout === 'confetti-why';
+
+  useEffect(() => {
+    if (!showCanvas) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    if (isPositive) return runConfetti(canvas);
+    return runWorryParticles(canvas);
+  }, [isPositive, showCanvas]);
+
+  const cardAnimClass = isPositive ? 'animate-fade-in-up' : 'payoff-concern-enter';
+
   return (
-    <div className="h-screen w-full bg-[var(--lp-bg-payoff)] flex items-center justify-center px-5 overflow-hidden relative">
-      <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none" style={{ zIndex: 0 }} />
-      <div className={['max-w-lg md:max-w-3xl w-full bg-[var(--lp-bg-card)] rounded-soft p-5 md:p-10 shadow-lg shadow-cta/10 relative', isPositive ? 'animate-fade-in-up' : 'payoff-concern-enter'].join(' ')} style={{ zIndex: 10 }}>
-        <p className={['font-extrabold text-xl md:text-2xl mb-4', isPositive ? 'text-teal-800' : 'text-amber-900'].join(' ')}>
-          {HEADERS[result.condition.tone]}
-        </p>
-        <div className="mb-4">
-          <p className="text-sm md:text-base text-cta/60 mb-2">Sau khi soi da của bạn:</p>
-          <div className="flex flex-wrap gap-2 mb-2.5">
-            {[{ key:'found', color:'#FF5C9E', content:<span>đã soi <b>{result.foundCount}</b> nốt mụn</span> },
-              { key:'zone', color:'#B39DFF', content:<span>da bạn hay bị ở <b>{result.zoneLabel}</b></span> }]
-              .map((chip, i) => (
-                <span key={chip.key} className="payoff-stat-chip inline-flex items-center gap-1.5 rounded-full bg-cta/5 px-3 py-1.5 text-sm font-semibold text-cta" style={{ animationDelay: `${0.5+i*0.18}s` }}>
-                  <span className="inline-block w-2.5 h-2.5 rounded-full shrink-0" style={{ background: chip.color }} />
-                  {chip.content}
-                </span>
-            ))}
-          </div>
-          {result.triggerNote && (
-            <p className="payoff-stat-chip text-xs md:text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 leading-relaxed" style={{ animationDelay: '0.86s' }}>
-              {result.triggerNote}
-            </p>
-          )}
-        </div>
-        <p className="text-sm md:text-base text-cta/80 leading-relaxed mb-3" dangerouslySetInnerHTML={{ __html: result.condition.body }} />
-        <p className="text-sm md:text-base text-cta/70 leading-snug px-3 py-2.5 bg-violet-50 border-l-2 border-violet-500 rounded-r-lg mb-5">
-          {BRIDGE[result.condition.tone]}
-        </p>
-        <button onClick={onContinue} className="bg-cta text-white font-bold text-sm md:text-base py-3.5 px-9 rounded-soft w-full">
+    <SectionShell bgVar="--lp-bg-payoff" center overflow="hidden">
+      {showCanvas && (
+        <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none" style={{ zIndex: 0 }} />
+      )}
+      <div
+        className={`max-w-lg md:max-w-3xl w-full bg-[var(--lp-bg-card)] rounded-soft p-5 md:p-10 shadow-lg shadow-cta/10 relative ${cardAnimClass}`}
+        style={{ zIndex: 10 }}
+      >
+        {headerSlot}
+        {!headerSlot && (
+          <p className={`font-extrabold text-xl md:text-2xl mb-4 ${isPositive ? 'text-teal-800' : 'text-amber-900'}`}>
+            {HEADERS[result.condition.tone]}
+          </p>
+        )}
+
+        <StatChipGroup
+          foundCount={result.foundCount}
+          zoneLabel={result.zoneLabel}
+          triggerNote={result.triggerNote}
+        />
+
+        {bodySlot}
+        {!bodySlot && (
+          <>
+            <p className="text-sm md:text-base text-cta/80 leading-relaxed mb-3"
+              dangerouslySetInnerHTML={{ __html: result.condition.body }} />
+            <BridgeBlock>{BRIDGE[result.condition.tone]}</BridgeBlock>
+          </>
+        )}
+
+        <CtaButton onClick={onContinue} fullWidth className="mt-5">
           Khám phá chương trình dành cho bạn →
-        </button>
+        </CtaButton>
       </div>
-    </div>
+    </SectionShell>
   );
 }
