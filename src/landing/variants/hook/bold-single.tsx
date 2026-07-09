@@ -1,5 +1,6 @@
 'use client';
 import type { HookSlotProps } from '../../slots';
+import { CtaButton } from '../../../components/atoms/CtaButton';
 
 function PhoneMockup() {
   return (
@@ -47,12 +48,9 @@ export function BoldSingleHook({ onStart }: HookSlotProps) {
           <p className="text-sm md:text-base text-cta/55 max-w-xs leading-relaxed">
             Chỉ mất 60 giây để biết da bạn thực sự cần gì.
           </p>
-          <button
-            onClick={onStart}
-            className="bg-cta text-white font-bold rounded-soft px-10 py-4 text-base md:text-lg hover:opacity-90 transition-opacity duration-200"
-          >
+          <CtaButton onClick={onStart} size="lg">
             Khám phá ngay →
-          </button>
+          </CtaButton>
         </div>
 
         {/* Phone mockup — small on mobile, large on desktop */}

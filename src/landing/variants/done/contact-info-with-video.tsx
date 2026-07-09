@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { DoneSlotProps } from '../../slots';
 import { branches } from '../../../content/branches';
+import { SectionShell } from '../../../components/atoms/SectionShell';
 
 function VideoStage() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -44,10 +45,9 @@ function VideoStage() {
 
 export function ContactInfoWithVideoDone({ selectedProgramId: _ }: DoneSlotProps) {
   return (
-    <div className="min-h-[100dvh] w-full bg-[var(--lp-bg-payoff)] overflow-y-auto">
+    <SectionShell bgVar="--lp-bg-payoff" overflow="auto">
       <div className="max-w-5xl mx-auto px-5 py-8 md:py-12 animate-fade-in-up">
 
-        {/* Confirmation header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-3">
             <svg viewBox="0 0 48 48" className="w-12 h-12 text-teal-500" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -57,20 +57,16 @@ export function ContactInfoWithVideoDone({ selectedProgramId: _ }: DoneSlotProps
               <path d="M14 25l7 7 13-14" style={{ animation: 'fadeIn 0.3s ease-out 0.5s both' }} />
             </svg>
           </div>
-          <h1 className="font-extrabold text-2xl md:text-3xl text-cta mb-2">Đã nhận thông tin của bạn!</h1>
+          <h1 className="font-extrabold text-2xl md:text-3xl text-cta mb-2">Da nhan thong tin cua ban!</h1>
           <p className="text-sm md:text-base text-cta/70 max-w-sm mx-auto">
-            Chuyên viên o2skin sẽ liên hệ trong vòng <b className="text-cta">24 giờ</b> để tư vấn và đặt lịch phù hợp.
+            Chuyen vien o2skin se lien he trong vong <b className="text-cta">24 gio</b> de tu van va dat lich phu hop.
           </p>
         </div>
 
-        {/* 2 cột trên desktop, xếp dọc trên mobile */}
         <div className="flex flex-col md:grid md:grid-cols-2 md:gap-10 md:items-start gap-6">
-
-          {/* Contact info — mobile: trên, desktop: phải (order-2) */}
           <div className="md:order-2 bg-[var(--lp-bg-card)] rounded-soft p-5 md:p-6 shadow-sm shadow-cta/10">
-            <p className="text-xs font-bold text-cta/40 uppercase tracking-widest mb-4">Thông tin liên hệ</p>
+            <p className="text-xs font-bold text-cta/40 uppercase tracking-widest mb-4">Thong tin lien he</p>
 
-            {/* Hotline */}
             <div className="flex items-center gap-3 mb-5 pb-5 border-b border-[var(--lp-border)]">
               <div className="w-10 h-10 rounded-full bg-cta/10 flex items-center justify-center shrink-0">
                 <svg viewBox="0 0 24 24" className="w-5 h-5 text-cta" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -78,13 +74,12 @@ export function ContactInfoWithVideoDone({ selectedProgramId: _ }: DoneSlotProps
                 </svg>
               </div>
               <div>
-                <p className="text-xs text-cta/50 font-medium">Hotline miễn phí</p>
+                <p className="text-xs text-cta/50 font-medium">Hotline mien phi</p>
                 <p className="font-extrabold text-xl text-cta leading-tight">1800 9292</p>
               </div>
             </div>
 
-            {/* Branch list */}
-            <p className="text-xs font-bold text-cta/40 uppercase tracking-widest mb-3">Địa chỉ phòng khám</p>
+            <p className="text-xs font-bold text-cta/40 uppercase tracking-widest mb-3">Dia chi phong kham</p>
             <div className="flex flex-col gap-4">
               {branches.map(b => (
                 <div key={b.code} className="flex items-start gap-3">
@@ -98,20 +93,19 @@ export function ContactInfoWithVideoDone({ selectedProgramId: _ }: DoneSlotProps
             </div>
           </div>
 
-          {/* Video — mobile: dưới, desktop: trái (order-1) */}
           <div className="md:order-1 flex flex-col gap-3">
             <p className="font-bold text-base text-cta text-center md:text-left">
-              Trị mụn chuẩn y khoa cùng bác sĩ da liễu
+              Tri mun chuan y khoa cung bac si da lieu
             </p>
             <VideoStage />
             <p className="text-xs text-cta/50 text-center md:text-left leading-relaxed">
-              Quy trình thăm khám và điều trị tại o2skin — được thực hiện bởi bác sĩ da liễu được đào tạo chuyên sâu.
+              Quy trinh tham kham va dieu tri tai o2skin -- duoc thuc hien boi bac si da lieu duoc dao tao chuyen sau.
             </p>
           </div>
         </div>
 
         <div className="h-8" />
       </div>
-    </div>
+    </SectionShell>
   );
 }

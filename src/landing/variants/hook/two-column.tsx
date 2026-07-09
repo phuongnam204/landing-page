@@ -1,5 +1,6 @@
 'use client';
 import type { HookSlotProps } from '../../slots';
+import { CtaButton } from '../../../components/atoms/CtaButton';
 
 export function TwoColumnHook({ onStart }: HookSlotProps) {
   return (
@@ -24,10 +25,9 @@ export function TwoColumnHook({ onStart }: HookSlotProps) {
           <p className="text-base md:text-lg text-cta/70 mt-5">
             Có những "bạn nhỏ" đang ẩn náu trên làn da của bạn. Tìm chúng — và khám phá điều da bạn thực sự cần.
           </p>
-          <button onClick={onStart}
-            className="mt-7 bg-cta text-white font-bold rounded-soft px-12 py-4 text-base md:text-lg hover:opacity-90 transition-colors duration-300">
+          <CtaButton onClick={onStart} size="lg" className="mt-7">
             Soi da ngay →
-          </button>
+          </CtaButton>
           <p className="text-sm md:text-base text-cta/50 mt-4">Cùng thực hiện một cuộc khám phá làn da nhé!</p>
         </div>
       </div>

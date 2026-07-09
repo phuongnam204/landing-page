@@ -2,6 +2,8 @@
 import { useEffect, useRef, useState } from 'react';
 import type { SocialProofSlotProps } from '../../slots';
 import { trackEvent } from '../../../lib/trackEvent';
+import { SectionShell } from '../../../components/atoms/SectionShell';
+import { CtaButton } from '../../../components/atoms/CtaButton';
 
 function VideoStage() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -51,17 +53,16 @@ export function VideoProofSocial({ onContinue }: SocialProofSlotProps) {
   useEffect(() => { trackEvent('socialproof_view'); }, []);
 
   return (
-    <div className="h-screen w-full bg-[var(--lp-bg-payoff)] flex items-center justify-center px-5 overflow-hidden">
+    <SectionShell bgVar="--lp-bg-payoff" center>
       <div className="max-w-lg w-full bg-[var(--lp-bg-card)] rounded-soft p-5 md:p-8 shadow-lg shadow-cta/10 flex flex-col gap-4 animate-fade-in-up">
         <p className="font-extrabold text-lg text-cta text-center leading-snug">
-          Trị mụn chuẩn y khoa cùng bác sĩ da liễu
+          Tri mun chuan y khoa cung bac si da lieu
         </p>
         <VideoStage />
-        <button onClick={onContinue}
-          className="bg-cta text-white font-bold text-sm py-3.5 rounded-soft w-full hover:opacity-90 transition-opacity">
-          Hoàn tất
-        </button>
+        <CtaButton onClick={onContinue} fullWidth>
+          Hoan tat
+        </CtaButton>
       </div>
-    </div>
+    </SectionShell>
   );
 }
