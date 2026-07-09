@@ -35,7 +35,7 @@ export function ConversionOrganism({ selectedProgramId, minigameResult, onSubmit
 
   function validatePhone(val: string): boolean {
     if (!val.trim()) { setPhoneError(''); return false; }
-    if (!PHONE_RE.test(val.trim())) { setPhoneError('So dien thoai khong hop le (10 so, bat dau 0 hoac +84)'); return false; }
+    if (!PHONE_RE.test(val.trim())) { setPhoneError('Số điện thoại không hợp lệ (10 số, bắt đầu 0 hoặc +84)'); return false; }
     setPhoneError('');
     return true;
   }
@@ -58,10 +58,10 @@ export function ConversionOrganism({ selectedProgramId, minigameResult, onSubmit
         }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || 'Khong the gui thong tin, thu lai sau.');
+      if (!res.ok) throw new Error(data.error || 'Không thể gửi thông tin, thử lại sau.');
       onSubmit(name.trim(), phone.trim());
     } catch (err) {
-      setErrorMessage(err instanceof Error ? err.message : 'Khong the gui thong tin, thu lai sau.');
+      setErrorMessage(err instanceof Error ? err.message : 'Không thể gửi thông tin, thử lại sau.');
       setUxState('error');
     }
   }
@@ -73,19 +73,19 @@ export function ConversionOrganism({ selectedProgramId, minigameResult, onSubmit
         className="max-w-lg w-full bg-[var(--lp-bg-card)] rounded-soft p-5 md:p-8 shadow-lg shadow-cta/10 flex flex-col gap-3 animate-fade-in-up"
       >
         <div className="font-extrabold text-lg text-cta mb-1">
-          {programName ? `Dang ky chuong trinh ${programName}` : 'De lai thong tin de nhan tu van'}
+          {programName ? `Đăng ký chương trình ${programName}` : 'Để lại thông tin để nhận tư vấn'}
         </div>
         {programName && (
           <p className="text-sm text-cta/70 -mt-2 mb-1">
-            Chuyen vien se lien he va tu van chi tiet ve chuong trinh nay.
+            Chuyên viên sẽ liên hệ và tư vấn chi tiết về chương trình này.
           </p>
         )}
 
-        <input type="text" placeholder="Ten cua ban" value={name} onChange={e => setName(e.target.value)} required
+        <input type="text" placeholder="Tên của bạn" value={name} onChange={e => setName(e.target.value)} required
           className="border-2 border-[var(--lp-border)] rounded-2xl py-3 px-4 text-sm text-cta" />
 
         <div>
-          <input type="tel" placeholder="So dien thoai" value={phone}
+          <input type="tel" placeholder="Số điện thoại" value={phone}
             onChange={e => { setPhone(e.target.value); setPhoneError(''); }}
             onBlur={e => validatePhone(e.target.value)} required
             className="border-2 border-[var(--lp-border)] rounded-2xl py-3 px-4 text-sm text-cta w-full" />
@@ -94,26 +94,26 @@ export function ConversionOrganism({ selectedProgramId, minigameResult, onSubmit
 
         <select value={branch} onChange={e => setBranch(e.target.value)} required
           className="border-2 border-[var(--lp-border)] rounded-2xl py-3 px-4 text-sm text-cta bg-white">
-          <option value="" disabled>Chon chi nhanh gan ban</option>
+          <option value="" disabled>Chọn chi nhánh gần bạn</option>
           {branches.map(b => <option key={b.code} value={b.code}>{b.name}</option>)}
         </select>
 
         {minigameResult && (
           <div className="border-2 border-[var(--lp-border)] rounded-2xl py-3 px-4 text-sm text-cta/60 bg-[var(--lp-bg-hero)]">
             <div className="font-semibold text-cta">{minigameResult.condition.label}</div>
-            <div className="text-[11px] mt-0.5">Dua tren ket qua kiem tra cua ban</div>
+            <div className="text-[11px] mt-0.5">Dựa trên kết quả kiểm tra của bạn</div>
           </div>
         )}
 
         <CtaButton type="submit" fullWidth disabled={uxState === 'pending'} className="mt-2">
-          {uxState === 'pending' ? <><PendingSpinner />Dang gui...</> : 'Gui thong tin'}
+          {uxState === 'pending' ? <><PendingSpinner />Đang gửi...</> : 'Gửi thông tin'}
         </CtaButton>
 
         {uxState === 'error' && errorMessage && (
           <p className="text-xs text-red-500 text-center mt-1">{errorMessage}</p>
         )}
         <p className="text-xs text-cta/50 text-center mt-1">
-          Bang cach gui thong tin, ban dong y de o2skin lien he tu van.
+          Bằng cách gửi thông tin, bạn đồng ý để o2skin liên hệ tư vấn.
         </p>
       </form>
 

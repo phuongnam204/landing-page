@@ -73,7 +73,7 @@ export function ProgramsOrganism({ suggestedProgramId, onContinue, layout, faqIt
         )}
 
         <CtaButton onClick={() => onContinue(selected)} variant="accent" size="md">
-          {`Dang ky chuong trinh ${selectedProgram?.name ?? ''} ->`}
+          {`Đăng ký chương trình ${selectedProgram?.name ?? ''} →`}
         </CtaButton>
       </div>
     </SectionShell>
