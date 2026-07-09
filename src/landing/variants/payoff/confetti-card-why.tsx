@@ -275,7 +275,7 @@ function WhySection({ conditionId, onScrollDown }: { conditionId: ConditionId; o
   );
 }
 
-function FeatureSection({ suggestedProgramId }: { suggestedProgramId?: string }) {
+function FeatureSection({ suggestedProgramId, onContinue }: { suggestedProgramId?: string; onContinue: () => void }) {
   const allPrograms = getPrograms();
   return (
     <div className="relative min-h-[100dvh] bg-[var(--lp-bg-hero)] flex items-center overflow-hidden">
@@ -314,12 +314,20 @@ function FeatureSection({ suggestedProgramId }: { suggestedProgramId?: string })
             <ProgramsMiniCarousel programs={allPrograms} highlightId={suggestedProgramId} />
           </div>
         </div>
+        <div className="flex justify-center mt-10 md:mt-14">
+          <button
+            onClick={onContinue}
+            className="bg-cta text-white font-extrabold text-sm md:text-base py-4 px-10 rounded-soft shadow-lg hover:opacity-90 transition-opacity"
+          >
+            Xem chương trình phù hợp &#8594;
+          </button>
+        </div>
       </div>
     </div>
   );
 }
 
-function BenefitSection({ onContinue }: { onContinue: () => void }) {
+function BenefitSection({ onScrollDown }: { onScrollDown: () => void }) {
   return (
     <div
       className="relative min-h-[100dvh] flex flex-col items-center justify-center overflow-hidden px-5 py-12"
@@ -350,10 +358,10 @@ function BenefitSection({ onContinue }: { onContinue: () => void }) {
 
         <div className="flex justify-center">
           <button
-            onClick={onContinue}
+            onClick={onScrollDown}
             className="bg-white text-cta font-extrabold text-sm md:text-base py-4 px-10 rounded-soft shadow-lg hover:opacity-90 transition-opacity"
           >
-            Xem chương trình phù hợp &#8594;
+            Khám phá liệu trình phù hợp cho bạn &#8595;
           </button>
         </div>
       </div>
@@ -365,7 +373,8 @@ function BenefitSection({ onContinue }: { onContinue: () => void }) {
 
 export function ConfettiCardWhyPayoff({ result, onContinue }: PayoffSlotProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const whyRef   = useRef<HTMLDivElement>(null);
+  const whyRef    = useRef<HTMLDivElement>(null);
+  const statsRef  = useRef<HTMLDivElement>(null);
   const featureRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -426,17 +435,19 @@ export function ConfettiCardWhyPayoff({ result, onContinue }: PayoffSlotProps) {
       <div ref={whyRef} className="bg-[var(--lp-bg-payoff)]">
         <WhySection
           conditionId={result.condition.id as ConditionId}
-          onScrollDown={() => featureRef.current?.scrollIntoView({ behavior: 'smooth' })}
+          onScrollDown={() => statsRef.current?.scrollIntoView({ behavior: 'smooth' })}
         />
       </div>
 
-      {/* Section 3: Feature */}
-      <div ref={featureRef}>
-        <FeatureSection suggestedProgramId={suggestedProgram?.id} />
+      {/* Section 3: Benefit (circles) */}
+      <div ref={statsRef}>
+        <BenefitSection onScrollDown={() => featureRef.current?.scrollIntoView({ behavior: 'smooth' })} />
       </div>
 
-      {/* Section 4: Benefit + final CTA */}
-      <BenefitSection onContinue={onContinue} />
+      {/* Section 4: Feature (list + carousel) + final CTA */}
+      <div ref={featureRef}>
+        <FeatureSection suggestedProgramId={suggestedProgram?.id} onContinue={onContinue} />
+      </div>
     </div>
   );
 }
