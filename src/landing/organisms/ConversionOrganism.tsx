@@ -1,0 +1,123 @@
+'use client';
+import React, { useState } from 'react';
+import type { ConversionSlotProps } from '../slots';
+import { getPrograms } from '../../content/catalog';
+import { branches } from '../../content/branches';
+import { SectionShell } from '../../components/atoms/SectionShell';
+import { CtaButton } from '../../components/atoms/CtaButton';
+
+const PHONE_RE = /(^0[0-9]{9}$)|(^\+84[0-9]{9}$)/;
+type UXState = 'idle' | 'pending' | 'error';
+
+function PendingSpinner() {
+  return (
+    <svg className="inline-block animate-spin -ml-1 mr-2" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="2" strokeOpacity="0.25" />
+      <path d="M14 8A6 6 0 0 1 2 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+interface ConversionOrganismProps extends ConversionSlotProps {
+  showTestimonials?: boolean;
+  testimonialsSlot?: React.ReactNode;
+}
+
+export function ConversionOrganism({ selectedProgramId, minigameResult, onSubmit, showTestimonials, testimonialsSlot }: ConversionOrganismProps) {
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [branch, setBranch] = useState('');
+  const [phoneError, setPhoneError] = useState('');
+  const [uxState, setUxState] = useState<UXState>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const programName = selectedProgramId ? getPrograms().find(p => p.id === selectedProgramId)?.name : null;
+
+  function validatePhone(val: string): boolean {
+    if (!val.trim()) { setPhoneError(''); return false; }
+    if (!PHONE_RE.test(val.trim())) { setPhoneError('So dien thoai khong hop le (10 so, bat dau 0 hoac +84)'); return false; }
+    setPhoneError('');
+    return true;
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (uxState === 'pending') return;
+    if (!name.trim() || !validatePhone(phone) || !branch) return;
+    setUxState('pending');
+    setErrorMessage('');
+    try {
+      const res = await fetch('/api/lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: name.trim(), phone: phone.trim(), branch,
+          skinCondition: minigameResult?.condition.label ?? '',
+          programId: selectedProgramId ?? '',
+          recipeId: '',
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Khong the gui thong tin, thu lai sau.');
+      onSubmit(name.trim(), phone.trim());
+    } catch (err) {
+      setErrorMessage(err instanceof Error ? err.message : 'Khong the gui thong tin, thu lai sau.');
+      setUxState('error');
+    }
+  }
+
+  return (
+    <SectionShell bgVar="--lp-bg-payoff" center overflow="hidden">
+      <form
+        onSubmit={handleSubmit}
+        className="max-w-lg w-full bg-[var(--lp-bg-card)] rounded-soft p-5 md:p-8 shadow-lg shadow-cta/10 flex flex-col gap-3 animate-fade-in-up"
+      >
+        <div className="font-extrabold text-lg text-cta mb-1">
+          {programName ? `Dang ky chuong trinh ${programName}` : 'De lai thong tin de nhan tu van'}
+        </div>
+        {programName && (
+          <p className="text-sm text-cta/70 -mt-2 mb-1">
+            Chuyen vien se lien he va tu van chi tiet ve chuong trinh nay.
+          </p>
+        )}
+
+        <input type="text" placeholder="Ten cua ban" value={name} onChange={e => setName(e.target.value)} required
+          className="border-2 border-[var(--lp-border)] rounded-2xl py-3 px-4 text-sm text-cta" />
+
+        <div>
+          <input type="tel" placeholder="So dien thoai" value={phone}
+            onChange={e => { setPhone(e.target.value); setPhoneError(''); }}
+            onBlur={e => validatePhone(e.target.value)} required
+            className="border-2 border-[var(--lp-border)] rounded-2xl py-3 px-4 text-sm text-cta w-full" />
+          {phoneError && <p className="text-[11px] text-red-500 mt-1 px-1">{phoneError}</p>}
+        </div>
+
+        <select value={branch} onChange={e => setBranch(e.target.value)} required
+          className="border-2 border-[var(--lp-border)] rounded-2xl py-3 px-4 text-sm text-cta bg-white">
+          <option value="" disabled>Chon chi nhanh gan ban</option>
+          {branches.map(b => <option key={b.code} value={b.code}>{b.name}</option>)}
+        </select>
+
+        {minigameResult && (
+          <div className="border-2 border-[var(--lp-border)] rounded-2xl py-3 px-4 text-sm text-cta/60 bg-[var(--lp-bg-hero)]">
+            <div className="font-semibold text-cta">{minigameResult.condition.label}</div>
+            <div className="text-[11px] mt-0.5">Dua tren ket qua kiem tra cua ban</div>
+          </div>
+        )}
+
+        <CtaButton type="submit" fullWidth disabled={uxState === 'pending'} className="mt-2">
+          {uxState === 'pending' ? <><PendingSpinner />Dang gui...</> : 'Gui thong tin'}
+        </CtaButton>
+
+        {uxState === 'error' && errorMessage && (
+          <p className="text-xs text-red-500 text-center mt-1">{errorMessage}</p>
+        )}
+        <p className="text-xs text-cta/50 text-center mt-1">
+          Bang cach gui thong tin, ban dong y de o2skin lien he tu van.
+        </p>
+      </form>
+
+      {showTestimonials && testimonialsSlot}
+    </SectionShell>
+  );
+}
