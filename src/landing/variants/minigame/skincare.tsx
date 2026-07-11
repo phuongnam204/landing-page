@@ -6,8 +6,8 @@ export function SkincareMinigame({ onComplete }: MinigameSlotProps) {
   return (
     <SkinGame
       onComplete={(condition, stats) => onComplete({
+        conditions: [condition],
         condition,
-        foundCount: stats.foundCount,
         zoneLabel: stats.zoneLabel,
         triggerNote: stats.triggerNote ?? '',
       })}

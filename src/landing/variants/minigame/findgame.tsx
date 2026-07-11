@@ -6,8 +6,8 @@ export function FindgameMinigame({ onComplete }: MinigameSlotProps) {
   return (
     <SkinScanScreen
       onComplete={(condition, stats) => onComplete({
+        conditions: [condition],
         condition,
-        foundCount: stats.foundCount,
         zoneLabel: stats.zoneLabel,
         triggerNote: '',
       })}
