@@ -47,10 +47,13 @@ function TestimonialCard({ quote, name, age, branch, letter, bg, fg }: typeof TE
 
 function TestimonialsBlock() {
   return (
-    <div className="max-w-lg w-full mt-6 flex flex-col gap-3 animate-fade-in-up">
-      <div className="flex items-center gap-3">
+    <div className="w-full flex flex-col gap-3 md:mt-0 animate-fade-in-up">
+      <div className="hidden md:block mb-2">
+        <p className="text-sm font-bold text-cta/60 uppercase tracking-widest">Khách hàng nói gì</p>
+      </div>
+      <div className="flex items-center gap-3 md:hidden">
         <hr className="flex-1 border-[var(--lp-border)]" />
-        <span className="text-xs text-cta/40 font-semibold whitespace-nowrap">Khách hàng nói gì</span>
+        <span className="text-sm font-bold text-cta/60 whitespace-nowrap">Khách hàng nói gì</span>
         <hr className="flex-1 border-[var(--lp-border)]" />
       </div>
       <div className="flex flex-col gap-3">
