@@ -81,7 +81,7 @@ const BRIDGE: Record<'positive' | 'concern', string> = {
 // ─── WhySection ───────────────────────────────────────────────────────────────
 
 function WhySection({ conditionId, onScrollDown }: { conditionId: ConditionId; onScrollDown: () => void }) {
-  const edu = CONDITION_EDUCATION[conditionId];
+  const edu = CONDITION_EDUCATION[conditionId]!;
   return (
     <div className="max-w-lg md:max-w-3xl mx-auto px-5 py-10 flex flex-col gap-6">
       <h2 className="font-extrabold text-xl md:text-2xl text-cta">{edu.whyTitle}</h2>

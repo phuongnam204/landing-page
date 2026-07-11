@@ -8,7 +8,7 @@ export type ConditionEducation = {
 };
 
 
-export const CONDITION_EDUCATION: Record<ConditionId, ConditionEducation> = {
+export const CONDITION_EDUCATION: Partial<Record<ConditionId, ConditionEducation>> = {
   'da-nhon-mun-viem': {
     whyTitle: 'Điều gì xảy ra bên dưới làn da của bạn?',
     steps: [
