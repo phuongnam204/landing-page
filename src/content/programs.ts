@@ -7,12 +7,14 @@ export interface Program {
   name: string;
   summary?: string[];
   description: string;
-  benenif?: string;
+  benenif?: string[];
   isVip?: boolean;
   primaryConditionIds: ConditionId[];
   secondaryConditionIds?: ConditionId[];
   sessions?: number;
   o2skinComboRef?: string;
+  referenceLink?: string;
+  images?: string[];
 }
 
 export const getAllConditionIds = (p: Program): ConditionId[] =>
@@ -31,12 +33,18 @@ export const programs: Program[] = [
     description: 'Peel da trị mụn là phương pháp được nhiều người yêu thích bởi hiệu quả cao và \
     không tốn nhiều thời gian. Một số người vì muốn tiết kiệm chi phí mà tự peel da tại nhà, \
     thực hiện không đúng cách nên dẫn đến tổn thương da như kích ứng, bỏng rát, mụn nặng hơn,… \
-    Vì vậy, để đảm bảo an toàn bạn nên chọn cơ sở uy tín, chuẩn y khoa và có bác sĩ da liễu tư vấn nhé.',
+    Khi peel trị mụn với bác sĩ da liễu, bạn sẽ được tư vấn cẩn thận và cá nhân hóa liệu trình peel để đảm bảo an toàn và đạt hiệu quả điều trị mụn tối đa.',
     primaryConditionIds: ['mun-trung-ca', 'da-nhon-mun-viem', 'da-mun-tham-seo'],
     secondaryConditionIds: ['lo-chan-long'],
-    benenif: "Khi peel trị mụn với bác sĩ da liễu, bạn sẽ được tư vấn cẩn thận và cá nhân hóa liệu trình peel để đảm bảo an toàn và đạt hiệu quả điều trị mụn tối đa.",
+    benenif: [
+      'Liệu trình peel phù hợp với tình trạng mụn',
+      'Hỗ trợ điều trị mụn và giảm thâm sẹo hiệu quả',
+      'Tiết kiệm chi phí điều trị tối đa',
+      'Hướng dẫn chăm sóc da sau peel đúng chuẩn'
+    ],
     sessions: 4,
     o2skinComboRef: 'Combo 4: Sạch Mụn Và Điều Trị Mụn, Thâm Lấy Nhân Mụn & Peel Da',
+    referenceLink: '/programs/peel-da-tri-mun',
   },
   {
     id: 'ipl-oil-control',
@@ -45,7 +53,8 @@ export const programs: Program[] = [
     IPL trị mụn và kiểm soát nhờn chính là giải pháp dành riêng cho bạn. \
     Phương pháp không chỉ phù hợp với những tình trạng mụn mức độ nhẹ đến \
     trung bình mà còn đạt kết quả ấn tượng với trường hợp da mụn nặng và đổ \
-    nhờn nhiều. Liệu trình hỗ trợ da hết nhờn, mụn viêm giảm rõ sau 6 buổi — phù hợp mụn lan rộng ở da mặt (từ cổ trở lên).',
+    nhờn nhiều.\
+    Không chỉ có ưu điểm ít xâm lấn, ít gây tổn thương cho da, trị mụn bằng IPL còn sở hữu rất nhiều công dụng nổi bật với thời gian điều trị ngắn và hồi phục nhanh và không có tác dụng phụ.',
     isVip: true,
     summary: [
       "Hỗ trợ trị mụn mức độ nhẹ đến trung bình.",
@@ -55,9 +64,17 @@ export const programs: Program[] = [
     ],
     primaryConditionIds: ['da-nhon-mun-viem', 'da-tham-do'],
     secondaryConditionIds: ['da-nep-nhan', 'tan-nhang'],
-    benenif: "Không chỉ có ưu điểm ít xâm lấn, ít gây tổn thương cho da, trị mụn bằng IPL còn sở hữu rất nhiều công dụng nổi bật với thời gian điều trị ngắn và hồi phục nhanh và không có tác dụng phụ.",
+    benenif: [
+      'Điều trị mụn viêm, mụn ẩn từ nhẹ đến trung bình',
+      'Điều trị da dày sừng và da mụn tổn thương do ánh nắng',
+      'Điều trị thâm đỏ do mụn, giúp da đều màu hơn',
+      'Trẻ hóa da, giúp da mịn màng và căng đầy sức sống',
+      'Kiểm soát mụn trứng cá đỏ và ngăn ngừa mụn trứng cá',
+      'Điều trị tình trạng da giãn mạch do nhiễm Corticoid'
+    ],
     sessions: 6,
     o2skinComboRef: 'o2skin Combo IPL thật (đối chiếu)',
+    referenceLink: '/programs/ipl-kiem-soat-nhon-mun',
   },
   {
     id: 'laser-scar-treatment',
@@ -68,6 +85,7 @@ export const programs: Program[] = [
     secondaryConditionIds: ['da-nhay-cam'],
     sessions: 7,
     o2skinComboRef: 'o2skin Combo Laser thật (đối chiếu)',
+    referenceLink: '/programs/laser-tri-seo',
   },
   {
     id: 'microneedling-repair',
@@ -85,6 +103,7 @@ export const programs: Program[] = [
     secondaryConditionIds: ['lo-chan-long'],
     sessions: 5,
     o2skinComboRef: 'o2skin Combo Lăn kim thật (đối chiếu)',
+    referenceLink: '/programs/lan-kim-phuc-hoi',
   },
   {
     id: 'hormonal-acne-plan',
@@ -95,13 +114,31 @@ export const programs: Program[] = [
     secondaryConditionIds: ['da-nhon-mun-viem'],
     sessions: 8,
     o2skinComboRef: 'o2skin Combo thật (đối chiếu)',
+    referenceLink: '/programs/phac-do-mun-noi-tiet',
   },
   {
     id: 'maintenance-skin-health',
-    name: 'Duy trì & chống lão hóa',
-    description: 'Giữ da sạch và ổn định lâu dài sau điều trị — ngăn tái phát với chu trình 3 buổi nhẹ nhàng.',
+    name: 'Chăm Sóc Da Trắng Sáng Chuyên Sâu',
+    description: 'Chăm sóc da trắng sáng chuyên sâu là phương pháp giúp lấy lại làn da trắng mịn, \
+    căng bóng sau khi điều trị da thành công, chẳng hạn như sau khi điều trị hết mụn, nám, sạm, \
+    cháy nắng,… Đây là phương pháp an toàn, đã được ứng dụng trên các khách hàng có tình trạng da không đều màu, thâm, sạm,… và cho hiệu quả cải thiện rõ rệt..',
+    summary:[
+      'Xóa mờ các vết thâm sau mụn.',
+      'Giúp da đều màu, mịn màng, tươi sáng.',
+      'An toàn, không gây tổn thương cho da.',
+      'Thời gian thực hiện nhanh chóng.'
+    ],
+    benenif: [
+      'Tăng khả năng hấp thu dưỡng chất gấp nhiều lần',
+      'Làm sáng da, giảm thâm và cải thiện nám tàn nhang',
+      'Da săn chắc, căng mịn, ngừa lão hóa',
+      'Không xâm lấn và an toàn cho làn da',
+      'Thực hiện nhanh, không đau, không cần nghỉ dưỡng'
+    ],
     primaryConditionIds: ['clean-skin', 'da-moi-bat-dau'],
+    secondaryConditionIds: ['sau-dieu-tri'],
     sessions: 3,
     o2skinComboRef: 'o2skin Combo thật (đối chiếu)',
+    referenceLink: '/programs/cham-soc-da-trang-sang',
   },
 ];
