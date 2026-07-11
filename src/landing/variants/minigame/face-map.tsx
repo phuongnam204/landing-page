@@ -86,12 +86,16 @@ const SVG_KEYFRAMES = `
     100% { stroke-opacity: 0;    stroke-width: 10; }
   }
   @keyframes scan-sweep {
-    from { transform: translateY(0px); }
-    to   { transform: translateY(252px); }
+    0%   { transform: translateY(0);      opacity: 0; }
+    6%   { opacity: 0.85; }
+    92%  { opacity: 0.85; }
+    100% { transform: translateY(240px);  opacity: 0; }
   }
   @keyframes scan-glow {
-    from { transform: translateY(-20px); }
-    to   { transform: translateY(248px); }
+    0%   { transform: translateY(-18px);  opacity: 0; }
+    8%   { opacity: 1; }
+    90%  { opacity: 1; }
+    100% { transform: translateY(238px);  opacity: 0; }
   }
 `;
 
@@ -109,11 +113,10 @@ function FaceDiagram({
   const [hovered, setHovered] = useState<Zone | null>(null);
 
   return (
-    <div className="select-none" style={{ width: 176, height: 240 }}>
+    <div className="select-none w-full max-w-[320px]">
       <svg
         viewBox="0 0 176 240"
-        width="176"
-        height="240"
+        className="w-full h-auto"
         fill="none"
         aria-label="Sơ đồ khuôn mặt — chạm vào vùng có mụn"
         role="img"
@@ -183,6 +186,22 @@ function FaceDiagram({
               </g>
             );
           })}
+
+          {/* Scan line inside clip — sweeps along face silhouette */}
+          {isScanning && (
+            <>
+              <rect
+                x="0" y="0" width="176" height="18"
+                fill="var(--lp-accent)" opacity="0.09"
+                style={{ animation: 'scan-glow 1.2s ease-in-out forwards' }}
+              />
+              <rect
+                x="0" y="0" width="176" height="3" rx="1"
+                fill="var(--lp-accent)" opacity="0.85"
+                style={{ animation: 'scan-sweep 1.2s ease-in-out forwards' }}
+              />
+            </>
+          )}
         </g>
 
         {/* Face features — rendered above zone fills */}
@@ -193,21 +212,6 @@ function FaceDiagram({
         <path d="M82 116 Q88 126 94 116" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="text-cta/22" />
         <path d="M72 148 Q88 160 104 148" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="text-cta/25" />
 
-        {/* Scan line + glow */}
-        {isScanning && (
-          <>
-            <rect
-              x="0" y="-24" width="176" height="22"
-              fill="var(--lp-accent)" opacity="0.08"
-              style={{ animation: 'scan-glow 1.1s cubic-bezier(0.4,0,0.2,1) forwards' }}
-            />
-            <rect
-              x="0" y="-4" width="176" height="4" rx="1"
-              fill="var(--lp-accent)" opacity="0.75"
-              style={{ animation: 'scan-sweep 1.1s cubic-bezier(0.4,0,0.2,1) forwards' }}
-            />
-          </>
-        )}
       </svg>
     </div>
   );
