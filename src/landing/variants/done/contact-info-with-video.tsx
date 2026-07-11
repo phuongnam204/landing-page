@@ -57,15 +57,15 @@ export function ContactInfoWithVideoDone({ selectedProgramId: _ }: DoneSlotProps
               <path d="M14 25l7 7 13-14" style={{ animation: 'fadeIn 0.3s ease-out 0.5s both' }} />
             </svg>
           </div>
-          <h1 className="font-extrabold text-2xl md:text-3xl text-cta mb-2">Da nhan thong tin cua ban!</h1>
+          <h1 className="font-extrabold text-2xl md:text-3xl text-cta mb-2">Đã nhận thông tin của bạn!</h1>
           <p className="text-sm md:text-base text-cta/70 max-w-sm mx-auto">
-            Chuyen vien o2skin se lien he trong vong <b className="text-cta">24 gio</b> de tu van va dat lich phu hop.
+            Chuyên viên O2skin sẽ liên hệ trong vòng <b className="text-cta">24 giờ</b> để tư vấn và đặt lịch phù hợp.
           </p>
         </div>
 
         <div className="flex flex-col md:grid md:grid-cols-2 md:gap-10 md:items-start gap-6">
           <div className="md:order-2 bg-[var(--lp-bg-card)] rounded-soft p-5 md:p-6 shadow-sm shadow-cta/10">
-            <p className="text-xs font-bold text-cta/40 uppercase tracking-widest mb-4">Thong tin lien he</p>
+            <p className="text-xs font-bold text-cta/40 uppercase tracking-widest mb-4">Thông tin liên hệ</p>
 
             <div className="flex items-center gap-3 mb-5 pb-5 border-b border-[var(--lp-border)]">
               <div className="w-10 h-10 rounded-full bg-cta/10 flex items-center justify-center shrink-0">
@@ -74,19 +74,34 @@ export function ContactInfoWithVideoDone({ selectedProgramId: _ }: DoneSlotProps
                 </svg>
               </div>
               <div>
-                <p className="text-xs text-cta/50 font-medium">Hotline mien phi</p>
+                <p className="text-xs text-cta/50 font-medium">Hotline miễn phí!</p>
                 <p className="font-extrabold text-xl text-cta leading-tight">1800 9292</p>
               </div>
             </div>
 
-            <p className="text-xs font-bold text-cta/40 uppercase tracking-widest mb-3">Dia chi phong kham</p>
+            <p className="text-xs font-bold text-cta/40 uppercase tracking-widest mb-3">Dịa chỉ phòng khám</p>
             <div className="flex flex-col gap-4">
               {branches.map(b => (
                 <div key={b.code} className="flex items-start gap-3">
                   <div className="w-1.5 h-1.5 rounded-full bg-cta/40 mt-2 shrink-0" />
                   <div>
                     <p className="text-sm font-bold text-cta">{b.name}</p>
-                    <p className="text-xs text-cta/55 mt-0.5 leading-relaxed">{b.address}</p>
+                    {b.mapsUrl ? (
+                      <a
+                        href={b.mapsUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-cta/55 mt-0.5 leading-relaxed inline-flex items-center gap-1 hover:text-[var(--lp-accent,#2D2640)] transition-colors hover:underline underline-offset-2"
+                      >
+                        {b.address}
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                          <circle cx="12" cy="10" r="3" />
+                        </svg>
+                      </a>
+                    ) : (
+                      <p className="text-xs text-cta/55 mt-0.5 leading-relaxed">{b.address}</p>
+                    )}
                   </div>
                 </div>
               ))}
@@ -94,12 +109,12 @@ export function ContactInfoWithVideoDone({ selectedProgramId: _ }: DoneSlotProps
           </div>
 
           <div className="md:order-1 flex flex-col gap-3">
-            <p className="font-bold text-base text-cta text-center md:text-left">
-              Tri mun chuan y khoa cung bac si da lieu
-            </p>
+            <h2 className="text-xl font-bold text-base text-cta text-center md:text-left">
+              Trị mụn chuẩnn y khoa cùng bac sĩ da liễu
+            </h2>
             <VideoStage />
-            <p className="text-xs text-cta/50 text-center md:text-left leading-relaxed">
-              Quy trinh tham kham va dieu tri tai o2skin -- duoc thuc hien boi bac si da lieu duoc dao tao chuyen sau.
+            <p className="text-xl text-cta/50 text-center md:text-left leading-relaxed">
+              Quy trình khám và trị liệu tại o2skin được thực hiện bởi bác sĩ có chuyên môn sâu.
             </p>
           </div>
         </div>
