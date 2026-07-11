@@ -1,7 +1,8 @@
 import type { ConditionId, SkinCondition } from './quiz';
 import { skinConditions } from './quiz';
 import type { Program } from './programs';
-import { programs } from './programs';
+import { programs, getAllConditionIds } from './programs';
+import { recommendPrograms } from './recommend';
 
 export function getConditionById(id: ConditionId): SkinCondition | undefined {
   return skinConditions[id];
@@ -12,11 +13,11 @@ export function getPrograms(): Program[] {
 }
 
 export function getProgramsTreating(conditionId: ConditionId): Program[] {
-  return programs.filter((p) => p.treatsConditions.includes(conditionId));
+  return programs.filter(p => getAllConditionIds(p).includes(conditionId));
 }
 
 export function getSuggestedProgram(conditionId: ConditionId): Program | undefined {
-  const matching = getProgramsTreating(conditionId);
-  if (matching.length > 0) return matching[0];
-  return programs[0];
+  return recommendPrograms([conditionId], 1)[0]?.program ?? programs[0];
 }
+
+export { getAllConditionIds } from './programs';
