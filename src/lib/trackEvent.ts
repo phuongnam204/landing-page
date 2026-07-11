@@ -6,6 +6,7 @@ export type TrackEventName =
   | 'socialproof_view'
   | 'programs_faq_view'
   | 'faq_item_open'
+  | 'program_detail_open'
   | 'conversion_social_view';
 
 export function trackEvent(name: TrackEventName, payload: Record<string, unknown> = {}): void {

@@ -113,7 +113,6 @@ export function PayoffOrganism({ result, onContinue, layout, headerSlot, bodySlo
         )}
 
         <StatChipGroup
-          foundCount={result.foundCount}
           zoneLabel={result.zoneLabel}
           triggerNote={result.triggerNote}
         />
@@ -121,8 +120,10 @@ export function PayoffOrganism({ result, onContinue, layout, headerSlot, bodySlo
         {bodySlot}
         {!bodySlot && (
           <>
-            <p className="text-sm md:text-base text-cta/80 leading-relaxed mb-3"
-              dangerouslySetInnerHTML={{ __html: result.condition.body }} />
+            {result.condition.body && (
+              <p className="text-sm md:text-base text-cta/80 leading-relaxed mb-3"
+                dangerouslySetInnerHTML={{ __html: result.condition.body }} />
+            )}
             <BridgeBlock>{BRIDGE[result.condition.tone]}</BridgeBlock>
           </>
         )}

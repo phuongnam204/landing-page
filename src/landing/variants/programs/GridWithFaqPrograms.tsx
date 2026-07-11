@@ -270,7 +270,8 @@ export function GridWithFaqPrograms({ suggestedPrograms, onContinue }: ProgramsS
 
   return (
     <div className="h-[100dvh] w-full bg-[var(--lp-bg-payoff)] overflow-y-auto">
-      <div className="max-w-5xl mx-auto px-5 py-8">
+      <div className="min-h-full flex items-center justify-center">
+      <div className="max-w-5xl w-full mx-auto px-5 py-8">
         <div className="flex flex-col gap-5 md:grid md:grid-cols-2 md:gap-8 md:items-start">
           <ProgramHighlight
             program={program}
@@ -285,6 +286,7 @@ export function GridWithFaqPrograms({ suggestedPrograms, onContinue }: ProgramsS
           </CtaButton>
         </div>
         <div className="h-4" />
+      </div>
       </div>
       <ProgramDetailDrawer
         program={program}

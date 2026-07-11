@@ -2,17 +2,28 @@ export type Tone = 'positive' | 'concern';
 
 export type ConditionId =
   | 'mun-noi-tiet'
+  | 'mun-trung-ca'
+  | 'da-mun-tham-seo'
+  | 'da-tham-mun'
+  | 'lan-da-xin-mau'
   | 'da-nhon-mun-viem'
   | 'da-nhay-cam'
+  | 'tan-nhang'
+  | 'da-tham-do'
+  | 'da-tho-rap'
+  | 'da-san-sui'
+  | 'da-nep-nhan'
   | 'lo-chan-long'
   | 'clean-skin'
-  | 'da-moi-bat-dau';
+  | 'sau-dieu-tri'
+  | 'da-moi-bat-dau'
+  | 'da-seo-ro';
 
 export interface SkinCondition {
   id: ConditionId;
-  label: string;
+  label?: string;
   tone: Tone;
-  body: string;
+  body?: string;
   color: string;
   // Ghi chú đối chiếu sang category thật của o2skin (AcneType/SkinType/pathology). Placeholder.
   o2skinRef?: string;
@@ -65,6 +76,70 @@ export const skinConditions: Record<ConditionId, SkinCondition> = {
     tone: 'positive',
     color: '#A0AEC0',
     body: 'Da bạn <b>chưa có routine rõ ràng</b> — chưa có dấu hiệu cụ thể hoặc da tương đối ổn định. Chưa xác định được vấn đề cụ thể.',
+    o2skinRef: 'o2skin SkinType (đối chiếu tên thật)',
+  },
+  'mun-trung-ca': {
+    id: 'mun-trung-ca',
+    label: 'Mụn trứng cá',
+    tone: 'concern',
+    color: '#FF6B35',
+    body: 'Da bạn có <b>mụn trứng cá</b> — tình trạng phổ biến do tuyến bã nhờn hoạt động quá mức kết hợp vi khuẩn, gây ra mụn đầu đen, đầu trắng và mụn viêm trên mặt.',
+    o2skinRef: 'o2skin AcneType (đối chiếu tên thật)',
+  },
+  'da-mun-tham-seo': {
+    id: 'da-mun-tham-seo',
+    label: 'Da mụn thâm sẹo',
+    tone: 'concern',
+    color: '#C06050',
+    body: 'Da bạn có <b>mụn kèm thâm và sẹo</b> — hậu quả của mụn viêm để lại vết thâm nâu đỏ và sẹo rỗ, khiến da không đều màu và bề mặt sần sùi.',
+    o2skinRef: 'o2skin AcneType (đối chiếu tên thật)',
+  },
+  'da-tham-do': {
+    id: 'da-tham-do',
+    label: 'Da thâm đỏ',
+    tone: 'concern',
+    color: '#E85D5D',
+    body: 'Da bạn có <b>vùng thâm đỏ</b> — xuất hiện sau viêm nhiễm, tổn thương da hoặc do tăng sắc tố, khiến da không đều màu và thiếu sức sống.',
+    o2skinRef: 'o2skin SkinType (đối chiếu tên thật)',
+  },
+  'da-nep-nhan': {
+    id: 'da-nep-nhan',
+    label: 'Nếp nhăn',
+    tone: 'concern',
+    color: '#D4A544',
+    body: 'Da bạn có <b>nếp nhăn</b> — dấu hiệu lão hóa sớm do collagen suy giảm, khiến da mất độ đàn hồi và hình thành nếp ở vùng mắt, miệng và trán.',
+    o2skinRef: 'o2skin SkinType (đối chiếu tên thật)',
+  },
+  'tan-nhang': {
+    id: 'tan-nhang',
+    label: 'Tàn nhang',
+    tone: 'concern',
+    color: '#C4944A',
+    body: 'Da bạn có <b>tàn nhang</b> — đốm sắc tố do tổn thương UV tích lũy kích thích melanin, tạo ra các đốm nâu trên da, đặc biệt vùng gò má và mũi.',
+    o2skinRef: 'o2skin SkinType (đối chiếu tên thật)',
+  },
+  'da-tho-rap': {
+    id: 'da-tho-rap',
+    label: 'Da thô ráp',
+    tone: 'concern',
+    color: '#A08060',
+    body: 'Da bạn có <b>bề mặt thô ráp</b> — tế bào chết tích tụ và collagen suy giảm khiến da mất độ mịn màng, sờ vào cảm giác không đều.',
+    o2skinRef: 'o2skin SkinType (đối chiếu tên thật)',
+  },
+  'da-san-sui': {
+    id: 'da-san-sui',
+    label: 'Da sần sùi',
+    tone: 'concern',
+    color: '#9B7B5A',
+    body: 'Da bạn có <b>bề mặt sần sùi</b> — do tổn thương da, sẹo lõm hoặc cấu trúc da không đều, ảnh hưởng đến vẻ ngoài và độ mịn của làn da.',
+    o2skinRef: 'o2skin SkinType (đối chiếu tên thật)',
+  },
+  'sau-dieu-tri': {
+    id: 'sau-dieu-tri',
+    label: 'Sau điều trị',
+    tone: 'positive',
+    color: '#6BCB77',
+    body: 'Da bạn đang trong giai đoạn <b>phục hồi sau điều trị</b> — duy trì đúng lịch liệu trình giúp giữ kết quả bền lâu và ngăn tái phát.',
     o2skinRef: 'o2skin SkinType (đối chiếu tên thật)',
   },
 };

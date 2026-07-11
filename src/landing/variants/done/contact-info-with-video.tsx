@@ -109,11 +109,11 @@ export function ContactInfoWithVideoDone({ selectedProgramId: _ }: DoneSlotProps
           </div>
 
           <div className="md:order-1 flex flex-col gap-3">
-            <h2 className="text-xl font-bold text-base text-cta text-center md:text-left">
-              Trị mụn chuẩnn y khoa cùng bac sĩ da liễu
+            <h2 className="text-xl font-bold text-cta text-center md:text-left">
+              Trị mụn chuẩn y khoa cùng bác sĩ da liễu
             </h2>
             <VideoStage />
-            <p className="text-xl text-cta/50 text-center md:text-left leading-relaxed">
+            <p className="text-sm text-cta/50 text-center md:text-left leading-relaxed">
               Quy trình khám và trị liệu tại o2skin được thực hiện bởi bác sĩ có chuyên môn sâu.
             </p>
           </div>

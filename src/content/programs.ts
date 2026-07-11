@@ -79,12 +79,25 @@ export const programs: Program[] = [
   {
     id: 'laser-scar-treatment',
     name: 'Laser trị sẹo rỗ & tái tạo da',
-    description: 'Sẹo rỗ mờ dần, lỗ chân lông se khít sau 7 buổi — da đều màu và sáng hơn nhìn thấy rõ.',
+    description: '',
     isVip: true,
-    primaryConditionIds: ['lo-chan-long'],
-    secondaryConditionIds: ['da-nhay-cam'],
+    summary:[
+      'Lấp đầy sẹo rỗ, hiệu quả với nhiều loại sẹo, kể cả sẹo sâu, sẹo lâu năm.',
+      'Se khít lỗ chân lông và cải thiện kết cấu da, trẻ hóa da',
+      'Hiệu quả cao, lên đến 90%, giảm thiểu tối đa tình trạng tái phát sẹo.',
+      'Áp dụng với mọi loại da, kể cả da nhạy cảm.'
+    ],
+    benenif:[
+      'Bác sĩ da liễu giàu kinh nghiệm trực tiếp thăm khám và điều trị',
+      'Thiết bị laser, lăn kim nhập khẩu, riêng biệt cho mỗi khách hàng',
+      'Hiệu quả điều trị sẹo rỗ tối đa khi kết hợp Serum chính hãng',
+      'Quy trình giúp trẻ hóa và thu nhỏ lỗ chân lông đảm bảo an toàn',
+      'Chi phí điều trị tiết kiệm, phù hợp mọi đối tượng khách hàng'
+    ],
+    primaryConditionIds: ['da-seo-ro'],
+    // secondaryConditionIds: [''],
     sessions: 7,
-    o2skinComboRef: 'o2skin Combo Laser thật (đối chiếu)',
+    o2skinComboRef: '',
     referenceLink: '/programs/laser-tri-seo',
   },
   {
@@ -108,7 +121,7 @@ export const programs: Program[] = [
   {
     id: 'hormonal-acne-plan',
     name: 'Phác đồ mụn nội tiết',
-    description: 'Mụn cằm và quai hàm không tái phát sau 8 buổi — phác đồ tập trung vào nguyên nhân nội tiết gốc rễ.',
+    description: '',
     isVip: true,
     primaryConditionIds: ['mun-noi-tiet'],
     secondaryConditionIds: ['da-nhon-mun-viem'],
@@ -137,8 +150,40 @@ export const programs: Program[] = [
     ],
     primaryConditionIds: ['clean-skin', 'da-moi-bat-dau'],
     secondaryConditionIds: ['sau-dieu-tri'],
-    sessions: 3,
+    sessions: 9,
     o2skinComboRef: 'o2skin Combo thật (đối chiếu)',
     referenceLink: '/programs/cham-soc-da-trang-sang',
   },
+
+  {
+    id: 'treatment-tighten-pores',
+    name: 'Trẻ Hóa Da Mặt Và Hỗ Trợ Thu Nhỏ Lỗ Chân Lông',
+    description: 'Nhiều khách hàng băn khoăn về khuyết điểm lỗ chân lông to, bề mặt \
+     da sần sùi, có vết thâm mụn,… khiến gương mặt trở nên kém sắc, già nua. Do đó, O2 SKIN cung \
+     cấp gói dịch vụ trẻ hóa da và hỗ trợ thu nhỏ lỗ chân lông giúp khách hàng \
+     lấy lại vẻ đẹp mịn màng, trẻ trung cho làn da. Phương pháp trẻ hóa da và hỗ trợ thu nhỏ \
+     lỗ chân lông được tin chọn phổ biến nhờ quy trình điều trị chuẩn \
+     Y khoa, đảm bảo an toàn cho khách hàng. Đặc biệt, liệu pháp này mang \
+     đến những lợi ích cải thiện đáng kể cho làn da.',
+    summary:[
+      'Kết hợp serum trắng sáng, đều màu da.',
+      'Hỗ trợ thu nhỏ lỗ chân lông',
+      'Tăng độ đàn hồi, săn chắc da và giúp da mịn màng hơn.',
+    ],
+    benenif: [
+      'Giúp da trắng tự nhiên và đều màu, lấy lại vẻ tươi sáng',
+      'Cải thiện vùng da tăng sắc tố, giảm thâm và sạm nám',
+      'Tăng độ đàn hồi, giúp da săn chắc và căng bóng hơn',
+      'Hỗ trợ thu nhỏ lỗ chân lông, làm bề mặt da mịn màng',
+      'Làm chậm quá trình lão hóa da, hạn chế các nếp nhăn',
+      'Dưỡng da hồng hào, khỏe mạnh, tràn đầy sức sống'
+    ],
+    primaryConditionIds: ['lo-chan-long', 'da-tham-mun'],
+    secondaryConditionIds: ['lan-da-xin-mau'],
+    sessions: 10,
+    o2skinComboRef: '',
+    referenceLink: '/programs/dieu-tri-seo-ro-vet-tham-va-se-khit-lo-chan-long/tre-hoa-da-va-ho-tro-thu-nho-lo-chan-long/',
+  },
+
+
 ];
