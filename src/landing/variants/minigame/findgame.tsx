@@ -9,6 +9,7 @@ export function FindgameMinigame({ onComplete }: MinigameSlotProps) {
         conditions: [condition],
         condition,
         zoneLabel: stats.zoneLabel,
+        zoneIds: [],
         triggerNote: '',
       })}
     />

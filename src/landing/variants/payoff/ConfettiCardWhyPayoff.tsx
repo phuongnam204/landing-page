@@ -82,6 +82,24 @@ function SafeBody({ html, className }: { html: string; className?: string }) {
   );
 }
 
+// ─── Zone-specific insights ──────────────────────────────────────────────────
+
+const ZONE_INSIGHT_LABELS: Record<string, string> = {
+  'forehead':    'Trán',
+  'nose':        'Mũi / Chữ T',
+  'left-cheek':  'Má trái',
+  'right-cheek': 'Má phải',
+  'chin-jaw':    'Cằm & quai hàm',
+};
+
+const ZONE_INSIGHTS: Record<string, string> = {
+  'forehead':    'Thường liên quan đến stress, thiếu ngủ, hoặc sản phẩm tóc bít lỗ chân lông.',
+  'nose':        'Vùng chữ T có mật độ tuyến bã nhờn cao nhất — dễ hình thành đầu đen và lỗ chân lông to.',
+  'left-cheek':  'Hay bị do tiếp xúc màn hình điện thoại và vỏ gối không được thay thường xuyên.',
+  'right-cheek': 'Hay bị do tiếp xúc màn hình điện thoại và vỏ gối không được thay thường xuyên.',
+  'chin-jaw':    'Dấu hiệu điển hình của mụn nội tiết — thường bùng phát theo chu kỳ hoặc khi stress tăng cao.',
+};
+
 // ─── Result section text ─────────────────────────────────────────────────────
 
 const HEADERS: Record<'positive' | 'concern', string> = {
@@ -199,6 +217,20 @@ export function ConfettiCardWhyPayoff({ result, onContinue }: PayoffSlotProps) {
               <p className="payoff-stat-chip text-xs md:text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 leading-relaxed" style={{ animationDelay: '0.86s' }}>
                 {result.triggerNote}
               </p>
+            )}
+            {result.zoneIds && result.zoneIds.length > 0 && (
+              <div className="flex flex-col gap-1.5 mt-2.5">
+                {result.zoneIds.filter(z => ZONE_INSIGHTS[z]).map((z, i) => (
+                  <p
+                    key={z}
+                    className="payoff-stat-chip text-xs text-cta/70 bg-[var(--lp-bg-hero)] border border-[var(--lp-border)] rounded-lg px-3 py-2 leading-relaxed"
+                    style={{ animationDelay: `${1.0 + i * 0.12}s` }}
+                  >
+                    <span className="font-semibold text-cta">{ZONE_INSIGHT_LABELS[z]}: </span>
+                    {ZONE_INSIGHTS[z]}
+                  </p>
+                ))}
+              </div>
             )}
           </div>
           {result.condition.body && (

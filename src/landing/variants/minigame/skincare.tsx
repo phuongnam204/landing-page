@@ -9,6 +9,7 @@ export function SkincareMinigame({ onComplete }: MinigameSlotProps) {
         conditions: [condition],
         condition,
         zoneLabel: stats.zoneLabel,
+        zoneIds: [],
         triggerNote: stats.triggerNote ?? '',
       })}
     />

@@ -6,6 +6,7 @@ export type MinigameResult = {
   conditions: SkinCondition[];
   condition: SkinCondition;
   zoneLabel: string;
+  zoneIds: string[];
   triggerNote: string;
 };
 
