@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { PayoffSlotProps } from '../../slots';
 import type { ConditionId } from '../../../content/quiz';
 import { Benefit } from './Benefit';
@@ -67,6 +67,21 @@ function runWorryParticles(canvas: HTMLCanvasElement): () => void {
   return () => cancelAnimationFrame(rafId);
 }
 
+// ─── Safe inline HTML renderer (internal data only — <b> and <em> only) ─────
+
+function SafeBody({ html, className }: { html: string; className?: string }) {
+  const parts = html.split(/(<b>.*?<\/b>|<em>.*?<\/em>)/);
+  return (
+    <p className={className}>
+      {parts.map((chunk, i) => {
+        if (chunk.startsWith('<b>')) return <b key={i}>{chunk.slice(3, -4)}</b>;
+        if (chunk.startsWith('<em>')) return <em key={i}>{chunk.slice(4, -5)}</em>;
+        return chunk;
+      })}
+    </p>
+  );
+}
+
 // ─── Result section text ─────────────────────────────────────────────────────
 
 const HEADERS: Record<'positive' | 'concern', string> = {
@@ -114,10 +129,13 @@ function WhySection({ conditionId, onScrollDown }: { conditionId: ConditionId; o
 // ─── Main export ─────────────────────────────────────────────────────────────
 
 export function ConfettiCardWhyPayoff({ result, onContinue }: PayoffSlotProps) {
-  const canvasRef  = useRef<HTMLCanvasElement>(null);
-  const whyRef     = useRef<HTMLDivElement>(null);
-  const statsRef   = useRef<HTMLDivElement>(null);
-  const featureRef = useRef<HTMLDivElement>(null);
+  const canvasRef        = useRef<HTMLCanvasElement>(null);
+  const whyRef           = useRef<HTMLDivElement>(null);
+  const statsRef         = useRef<HTMLDivElement>(null);
+  const featureRef       = useRef<HTMLDivElement>(null);
+  const resultSectRef    = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [showSkipCta, setShowSkipCta] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current; if (!canvas) return;
@@ -125,13 +143,37 @@ export function ConfettiCardWhyPayoff({ result, onContinue }: PayoffSlotProps) {
     return runWorryParticles(canvas);
   }, [result.condition.tone]);
 
+  // Show sticky skip CTA once the result card scrolls out of the scroll container
+  useEffect(() => {
+    const el = resultSectRef.current;
+    const container = scrollContainerRef.current;
+    if (!el || !container) return;
+    function onScroll() {
+      setShowSkipCta(container!.scrollTop > el!.offsetHeight - 80);
+    }
+    container.addEventListener('scroll', onScroll, { passive: true });
+    return () => container.removeEventListener('scroll', onScroll);
+  }, []);
+
   const isPositive = result.condition.tone === 'positive';
 
   return (
-    <div className="h-[100dvh] w-full bg-[var(--lp-bg-payoff)] overflow-y-auto">
+    <div ref={scrollContainerRef} className="h-[100dvh] w-full bg-[var(--lp-bg-payoff)] overflow-y-auto">
+
+      {/* Sticky skip CTA — appears after result card scrolls out */}
+      {showSkipCta && (
+        <div className="fixed bottom-5 right-4 z-50 animate-fade-in-up">
+          <button
+            onClick={onContinue}
+            className="bg-cta text-white text-sm font-bold py-3 px-5 rounded-soft shadow-lg shadow-cta/30 hover:opacity-90 transition-opacity"
+          >
+            Đặt lịch ngay &#8594;
+          </button>
+        </div>
+      )}
 
       {/* Section 1: Kết quả (above fold) */}
-      <div className="relative min-h-[100dvh] flex items-center justify-center px-5 overflow-hidden">
+      <div ref={resultSectRef} className="relative min-h-[100dvh] flex items-center justify-center px-5 overflow-hidden">
         <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none" style={{ zIndex: 0 }} />
         <div
           className={['max-w-lg md:max-w-3xl w-full bg-[var(--lp-bg-card)] rounded-soft p-5 md:p-10 shadow-lg shadow-cta/10 relative', isPositive ? 'animate-fade-in-up' : 'payoff-concern-enter'].join(' ')}
@@ -160,7 +202,7 @@ export function ConfettiCardWhyPayoff({ result, onContinue }: PayoffSlotProps) {
             )}
           </div>
           {result.condition.body && (
-            <p className="text-sm md:text-base text-cta/80 leading-relaxed mb-3" dangerouslySetInnerHTML={{ __html: result.condition.body }} />
+            <SafeBody html={result.condition.body} className="text-sm md:text-base text-cta/80 leading-relaxed mb-3" />
           )}
           <p className="text-sm md:text-base text-cta/70 leading-snug px-3.5 py-2.5 bg-[var(--lp-accent)]/5 border border-[var(--lp-border)] rounded-lg mb-5">
             {BRIDGE[result.condition.tone]}

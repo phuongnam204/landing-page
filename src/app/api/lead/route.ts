@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Tên không hợp lệ' }, { status: 400 });
   if (!PHONE_RE.test(phone?.trim() ?? ''))
     return NextResponse.json({ error: 'Số điện thoại không hợp lệ' }, { status: 400 });
-  if (!BRANCH_CODES.includes(branch))
+  if (branch && !BRANCH_CODES.includes(branch))
     return NextResponse.json({ error: 'Chi nhánh không hợp lệ' }, { status: 400 });
 
   const webhookUrl = process.env.LEAD_WEBHOOK_URL;

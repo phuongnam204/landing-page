@@ -138,7 +138,11 @@ function AcneTypeOption({ type, isSelected, onSelect }: {
         <p className="text-sm font-bold text-cta">{type.label}</p>
         <p className="text-xs text-cta/50">{type.desc}</p>
       </div>
-      {isSelected && <span className="text-cta font-bold shrink-0">✓</span>}
+      {isSelected && (
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" className="shrink-0 text-cta">
+          <path d="M3 8l4 4 6-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      )}
     </button>
   );
 }
@@ -205,8 +209,10 @@ export function FaceMapMinigame({ onComplete }: MinigameSlotProps) {
   function handleSubmit() {
     const type = acneType ?? 'none';
     const conditionIds = mapToConditions(selectedZones, type);
-    const conditions = conditionIds.map(id => skinConditions[id]).filter((c): c is NonNullable<typeof c> => c != null);
+    const resolved = conditionIds.map(id => skinConditions[id]).filter((c): c is NonNullable<typeof c> => c != null);
+    const conditions = resolved.length > 0 ? resolved : [skinConditions['da-moi-bat-dau']].filter((c): c is NonNullable<typeof c> => c != null);
     const condition = conditions[0];
+    if (!condition) return;
     const zoneLabel = selectedZones.length > 0
       ? selectedZones.map(z => ZONE_LABELS[z]).join(', ')
       : 'không có vùng cụ thể';

@@ -79,7 +79,7 @@ export function ContactInfoWithVideoDone({ selectedProgramId: _ }: DoneSlotProps
               </div>
             </div>
 
-            <p className="text-xs font-bold text-cta/40 uppercase tracking-widest mb-3">Dịa chỉ phòng khám</p>
+            <p className="text-xs font-bold text-cta/40 uppercase tracking-widest mb-3">Địa chỉ phòng khám</p>
             <div className="flex flex-col gap-4">
               {branches.map(b => (
                 <div key={b.code} className="flex items-start gap-3">

@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { ProgramsSlotProps } from '../../slots';
 import type { ProgramId } from '../../../content/programs';
 import type { ConditionId } from '../../../content/quiz';
@@ -65,6 +65,31 @@ function ProgramDetailDrawer({ program, tint, open, onClose, onBook }: {
   onClose: () => void;
   onBook: () => void;
 }) {
+  const drawerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const el = drawerRef.current;
+    if (!el) return;
+    const focusables = el.querySelectorAll<HTMLElement>(
+      'button, [href], input, [tabindex]:not([tabindex="-1"])'
+    );
+    focusables[0]?.focus();
+    function trap(e: KeyboardEvent) {
+      if (e.key === 'Escape') { e.preventDefault(); onClose(); return; }
+      if (e.key !== 'Tab' || !focusables.length) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+      } else {
+        if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    }
+    document.addEventListener('keydown', trap);
+    return () => document.removeEventListener('keydown', trap);
+  }, [open, onClose]);
+
   return (
     <>
       <div
@@ -74,6 +99,7 @@ function ProgramDetailDrawer({ program, tint, open, onClose, onBook }: {
         aria-hidden="true"
       />
       <div
+        ref={drawerRef}
         role="dialog"
         aria-modal="true"
         aria-label={`Chi tiết: ${program.name}`}

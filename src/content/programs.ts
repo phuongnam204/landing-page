@@ -45,6 +45,7 @@ export const programs: Program[] = [
     sessions: 4,
     o2skinComboRef: 'Combo 4: Sạch Mụn Và Điều Trị Mụn, Thâm Lấy Nhân Mụn & Peel Da',
     referenceLink: '/programs/peel-da-tri-mun',
+    images:['/programs/hinh-gioi-thieu-peel-da-tri-mun-2.jpg', '/programs/hinh-gioi-thieu-peel-da-3.jpg']
   },
   {
     id: 'ipl-oil-control',
@@ -75,10 +76,14 @@ export const programs: Program[] = [
     sessions: 6,
     o2skinComboRef: 'o2skin Combo IPL thật (đối chiếu)',
     referenceLink: '/programs/ipl-kiem-soat-nhon-mun',
+    images:[
+      '/programs/hinh-gioi-thieu-ipl-tri-mun-va-kiem-soat-nhon-3.jpg',
+      '/programs/hinh-gioi-thieu-ipl-tri-mun-va-kiem-soat-nhon-2.jpg'
+    ]
   },
   {
     id: 'laser-scar-treatment',
-    name: 'Laser trị sẹo rỗ & tái tạo da',
+    name: 'Trị Sẹo Rỗ Nhẹ – Trung Bình – Nặng Hiệu Quả Cao',
     description: '',
     isVip: false,
     summary:[
@@ -99,6 +104,7 @@ export const programs: Program[] = [
     sessions: 7,
     o2skinComboRef: '',
     referenceLink: '/programs/laser-tri-seo',
+    images: ['/programs/hinh-anh-gioi-thieu-tri-seo-ro-3.jpg']
   },
   {
     id: 'microneedling-repair',

@@ -95,9 +95,10 @@ function BranchDropdown({ value, onChange, options }: {
 interface ConversionOrganismProps extends ConversionSlotProps {
   showTestimonials?: boolean;
   testimonialsSlot?: React.ReactNode;
+  showBranch?: boolean;
 }
 
-export function ConversionOrganism({ selectedProgramId, minigameResult, onSubmit, showTestimonials, testimonialsSlot }: ConversionOrganismProps) {
+export function ConversionOrganism({ selectedProgramId, minigameResult, onSubmit, showTestimonials, testimonialsSlot, showBranch = false }: ConversionOrganismProps) {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [branch, setBranch] = useState('');
@@ -117,7 +118,7 @@ export function ConversionOrganism({ selectedProgramId, minigameResult, onSubmit
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (uxState === 'pending') return;
-    if (!name.trim() || !validatePhone(phone) || !branch) return;
+    if (!name.trim() || !validatePhone(phone) || (showBranch && !branch)) return;
     setUxState('pending');
     setErrorMessage('');
     try {
@@ -178,11 +179,13 @@ export function ConversionOrganism({ selectedProgramId, minigameResult, onSubmit
             {phoneError && <p className="text-[11px] text-red-500 mt-1 px-1">{phoneError}</p>}
           </div>
 
-          <BranchDropdown
-            value={branch}
-            onChange={setBranch}
-            options={branches}
-          />
+          {showBranch && (
+            <BranchDropdown
+              value={branch}
+              onChange={setBranch}
+              options={branches}
+            />
+          )}
 
           {minigameResult && (
             <div className="border-2 border-[var(--lp-border)] rounded-2xl py-3 px-4 text-sm text-cta/60 bg-[var(--lp-bg-hero)]">

@@ -5,10 +5,10 @@ export function Feature({ onContinue }: { onContinue: () => void }) {
   return (
     <div
       className="relative min-h-[100dvh] flex flex-col items-center justify-center overflow-hidden px-5 py-12"
-      style={{ background: 'linear-gradient(135deg, #1a1654 0%, #2d2982 50%, #5b21b6 100%)' }}
+      style={{ background: 'linear-gradient(135deg, var(--lp-primary) 0%, color-mix(in srgb, var(--lp-primary) 50%, var(--lp-accent)) 50%, var(--lp-accent) 100%)' }}
     >
       <div className="absolute inset-0 pointer-events-none" aria-hidden="true"
-        style={{ background: 'radial-gradient(circle at 85% 15%, rgba(255,255,255,0.07) 0%, transparent 55%), radial-gradient(circle at 15% 85%, rgba(167,139,250,0.12) 0%, transparent 50%)' }} />
+        style={{ background: 'radial-gradient(circle at 85% 15%, rgba(255,255,255,0.07) 0%, transparent 55%)' }} />
 
       <div className="relative z-10 max-w-5xl mx-auto w-full">
         <div className="flex flex-col gap-10 md:grid md:grid-cols-2 md:gap-16 md:items-center">
