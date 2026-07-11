@@ -1,5 +1,5 @@
 import type { Program } from '../../content/programs';
-import { getConditionById, getAllConditionIds } from '../../content/catalog';
+import { getConditionById } from '../../content/catalog';
 import { ColoredDot } from '../atoms/ColoredDot';
 
 interface ProgramCardProps {
@@ -11,7 +11,7 @@ interface ProgramCardProps {
 }
 
 export function ProgramCard({ program, selected, isSuggested, onSelect, style }: ProgramCardProps) {
-  const cond = getConditionById(program.primaryConditionIds[0]);
+  const cond = getConditionById(program.treatsConditions[0]);
   const tint = cond?.color ?? '#A0AEC0';
   return (
     <button
@@ -39,7 +39,7 @@ export function ProgramCard({ program, selected, isSuggested, onSelect, style }:
         )}
         <p className="text-sm text-cta/70 leading-relaxed">{program.description}</p>
         <div className="flex flex-wrap gap-1.5 mt-auto pt-2">
-          {getAllConditionIds(program).map(cid => {
+          {program.treatsConditions.map(cid => {
             const c = getConditionById(cid);
             return (
               <span

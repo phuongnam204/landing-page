@@ -31,20 +31,14 @@ const ACNE_TYPES: { id: AcneType; label: string; desc: string; color: string }[]
   { id: 'none',       label: 'Da ổn, ít mụn',        desc: 'Không có vấn đề rõ rệt',          color: '#10B981' },
 ];
 
-function mapToConditions(zones: Zone[], acneType: AcneType): ConditionId[] {
-  if (acneType === 'none' && zones.length === 0) return ['clean-skin'];
-
-  const result = new Set<ConditionId>();
-
-  if (zones.includes('chin-jaw')) result.add('mun-noi-tiet');
-  if (acneType === 'sensitive') result.add('da-nhay-cam');
-  if (acneType === 'pore') result.add('lo-chan-long');
-  if (zones.includes('nose') && acneType === 'blackhead') result.add('lo-chan-long');
-  if (zones.length > 0 && (acneType === 'inflamed' || acneType === 'blackhead')) {
-    result.add('da-nhon-mun-viem');
-  }
-
-  return result.size > 0 ? [...result] : ['da-moi-bat-dau'];
+function mapToCondition(zones: Zone[], acneType: AcneType): ConditionId {
+  if (acneType === 'none' && zones.length === 0) return 'clean-skin';
+  if (zones.includes('chin-jaw')) return 'mun-noi-tiet';
+  if (acneType === 'sensitive') return 'da-nhay-cam';
+  if (acneType === 'pore' || (zones.includes('nose') && acneType === 'blackhead')) return 'lo-chan-long';
+  if (zones.length > 0 && (acneType === 'inflamed' || acneType === 'blackhead')) return 'da-nhon-mun-viem';
+  if (zones.length > 0) return 'da-nhon-mun-viem';
+  return 'da-moi-bat-dau';
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -204,16 +198,15 @@ export function FaceMapMinigame({ onComplete }: MinigameSlotProps) {
 
   function handleSubmit() {
     const type = acneType ?? 'none';
-    const conditionIds = mapToConditions(selectedZones, type);
-    const conditions = conditionIds.map(id => skinConditions[id]).filter(Boolean);
-    const condition = conditions[0];
+    const conditionId = mapToCondition(selectedZones, type);
+    const condition = skinConditions[conditionId];
     const zoneLabel = selectedZones.length > 0
       ? selectedZones.map(z => ZONE_LABELS[z]).join(', ')
       : 'không có vùng cụ thể';
     const typeInfo = ACNE_TYPES.find(t => t.id === type);
     onComplete({
-      conditions,
       condition,
+      foundCount: selectedZones.length,
       zoneLabel,
       triggerNote: type !== 'none' ? `Loại mụn chủ yếu: ${typeInfo?.label ?? ''}` : '',
     });

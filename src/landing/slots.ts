@@ -1,10 +1,9 @@
 import type { SkinCondition } from '../content/quiz';
 import type { ProgramId } from '../content/programs';
-import type { ScoredProgram } from '../content/recommend';
 
 export type MinigameResult = {
-  conditions: SkinCondition[];
   condition: SkinCondition;
+  foundCount: number;
   zoneLabel: string;
   triggerNote: string;
 };
@@ -21,7 +20,7 @@ export type PayoffSlotProps = {
 };
 
 export type ProgramsSlotProps = {
-  suggestedPrograms: ScoredProgram[];
+  suggestedProgramId: ProgramId;
   onContinue: (programId: ProgramId) => void;
 };
 
