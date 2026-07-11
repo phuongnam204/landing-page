@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import type { ProgramId } from '../content/programs';
-import { getSuggestedProgram } from '../content/catalog';
+import { recommendPrograms, type ScoredProgram } from '../content/recommend';
 import { trackEvent } from '../lib/trackEvent';
 import { registry } from './registry';
 import type { MinigameResult } from './slots';
@@ -13,6 +13,7 @@ export default function LandingFlow({ recipe }: { recipe: Recipe }) {
   const [step, setStep] = useState<Step>('hook');
   const [transitioning, setTransitioning] = useState(false);
   const [minigameResult, setMinigameResult] = useState<MinigameResult | null>(null);
+  const [suggestedPrograms, setSuggestedPrograms] = useState<ScoredProgram[]>([]);
   const [selectedProgram, setSelectedProgram] = useState<ProgramId | null>(null);
 
   function transitionTo(next: Step) {
@@ -48,7 +49,10 @@ export default function LandingFlow({ recipe }: { recipe: Recipe }) {
       {step === 'minigame' && Minigame && (
         <Minigame onComplete={(result) => {
           setMinigameResult(result);
-          setSelectedProgram(getSuggestedProgram(result.condition.id)?.id ?? null);
+          const conditionIds = result.conditions.map(c => c.id);
+          const ranked = recommendPrograms(conditionIds);
+          setSuggestedPrograms(ranked);
+          setSelectedProgram(ranked[0]?.program.id ?? null);
           trackEvent('minigame_complete', { resultId: result.condition.id });
           transitionTo('payoff');
         }} />
@@ -62,7 +66,7 @@ export default function LandingFlow({ recipe }: { recipe: Recipe }) {
       )}
 
       {step === 'programs' && Programs && (
-        <Programs suggestedProgramId={selectedProgram!}
+        <Programs suggestedPrograms={suggestedPrograms}
           onContinue={(programId) => { setSelectedProgram(programId); transitionTo('conversion'); }} />
       )}
 
