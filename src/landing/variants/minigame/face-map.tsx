@@ -205,7 +205,7 @@ export function FaceMapMinigame({ onComplete }: MinigameSlotProps) {
   function handleSubmit() {
     const type = acneType ?? 'none';
     const conditionIds = mapToConditions(selectedZones, type);
-    const conditions = conditionIds.map(id => skinConditions[id]).filter(Boolean);
+    const conditions = conditionIds.map(id => skinConditions[id]).filter((c): c is NonNullable<typeof c> => c != null);
     const condition = conditions[0];
     const zoneLabel = selectedZones.length > 0
       ? selectedZones.map(z => ZONE_LABELS[z]).join(', ')

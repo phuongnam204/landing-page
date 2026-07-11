@@ -21,14 +21,14 @@ export interface SelfReportAnswers {
 export function resolveProfile(zone: SkinZone, feel: SkinFeel, _trigger: SkinTrigger): SkinCondition {
   switch (zone) {
     case 'cam-quai-ham':
-      return skinConditions['mun-noi-tiet'];
+      return skinConditions['mun-noi-tiet']!;
     case 'chu-t':
-      return feel === 'dau' ? skinConditions['da-nhon-mun-viem'] : skinConditions['lo-chan-long'];
+      return feel === 'dau' ? skinConditions['da-nhon-mun-viem']! : skinConditions['lo-chan-long']!;
     case 'hai-ma':
-      return skinConditions['da-nhay-cam'];
+      return skinConditions['da-nhay-cam']!;
     case 'khong-bi':
-      return feel === 'on-dinh' ? skinConditions['clean-skin'] : skinConditions['da-moi-bat-dau'];
+      return feel === 'on-dinh' ? skinConditions['clean-skin']! : skinConditions['da-moi-bat-dau']!;
     default:
-      return skinConditions['da-moi-bat-dau'];
+      return skinConditions['da-moi-bat-dau']!;
   }
 }

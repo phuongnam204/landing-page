@@ -29,7 +29,7 @@ export interface SkinCondition {
   o2skinRef?: string;
 }
 
-export const skinConditions: Record<ConditionId, SkinCondition> = {
+export const skinConditions: Partial<Record<ConditionId, SkinCondition>> = {
   'mun-noi-tiet': {
     id: 'mun-noi-tiet',
     label: 'Mụn nội tiết',
@@ -134,12 +134,5 @@ export const skinConditions: Record<ConditionId, SkinCondition> = {
     body: 'Da bạn có <b>bề mặt sần sùi</b> — do tổn thương da, sẹo lõm hoặc cấu trúc da không đều, ảnh hưởng đến vẻ ngoài và độ mịn của làn da.',
     o2skinRef: 'o2skin SkinType (đối chiếu tên thật)',
   },
-  'sau-dieu-tri': {
-    id: 'sau-dieu-tri',
-    label: 'Sau điều trị',
-    tone: 'positive',
-    color: '#6BCB77',
-    body: 'Da bạn đang trong giai đoạn <b>phục hồi sau điều trị</b> — duy trì đúng lịch liệu trình giúp giữ kết quả bền lâu và ngăn tái phát.',
-    o2skinRef: 'o2skin SkinType (đối chiếu tên thật)',
-  },
+
 };

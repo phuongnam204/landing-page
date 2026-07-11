@@ -38,5 +38,5 @@ export function findNearestUnfoundSpot(spots: AcneSpot[], x: number, y: number, 
 
 export function resolveConditionByZone(zone: SkinZone): SkinCondition {
   const meta = ZONE_META[zone];
-  return skinConditions[meta?.conditionId] ?? skinConditions['da-moi-bat-dau'];
+  return skinConditions[meta?.conditionId] ?? skinConditions['da-moi-bat-dau']!;
 }
