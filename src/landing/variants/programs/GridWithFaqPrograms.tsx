@@ -3,12 +3,12 @@ import { useState, useEffect } from 'react';
 import type { ProgramsSlotProps } from '../../slots';
 import type { ProgramId } from '../../../content/programs';
 import type { ConditionId } from '../../../content/quiz';
-import { getPrograms, getConditionById } from '../../../content/catalog';
+import { getPrograms, getConditionById, getAllConditionIds } from '../../../content/catalog';
 import { trackEvent } from '../../../lib/trackEvent';
 
 type FaqItem = { q: string; a: string };
 
-const FAQ_BY_CONDITION: Record<ConditionId, FaqItem[]> = {
+const FAQ_BY_CONDITION: Partial<Record<ConditionId, FaqItem[]>> = {
   'da-nhon-mun-viem': [
     { q: 'Combo Peel có hiệu quả với mụn viêm và thâm không?', a: 'Có. Peel hoá học tẩy lớp tế bào chết tích tụ, thông thoáng lỗ chân lông và kích thích tái tạo da mới. Mụn viêm giảm rõ trong 2–3 buổi đầu, thâm mờ dần sau 4–6 tuần điều trị.' },
     { q: 'Combo Peel có đau không và cần phục hồi không?', a: 'Cảm giác ngứa nhẹ hoặc ấm trong 5–10 phút sau khi bôi dung dịch peel, hoàn toàn chịu đựng được. Da có thể bong nhẹ 2–3 ngày — không cần nghỉ dưỡng, vẫn đi làm bình thường.' },
@@ -101,11 +101,11 @@ function ConditionTagSmall({ conditionId }: { conditionId: string }) {
   );
 }
 
-function ProgramHighlight({ program, tint, onContinue, suggestedProgramId }: {
+function ProgramHighlight({ program, tint, onContinue, topProgramId }: {
   program: ReturnType<typeof getPrograms>[number];
   tint: string;
   onContinue: (id: ProgramId) => void;
-  suggestedProgramId: ProgramId;
+  topProgramId: ProgramId | undefined;
 }) {
   return (
     <div className="flex flex-col gap-4">
@@ -124,12 +124,12 @@ function ProgramHighlight({ program, tint, onContinue, suggestedProgramId }: {
         <div className="px-5 py-4">
           <p className="text-sm text-cta/70 leading-relaxed">{program.description}</p>
           <div className="flex flex-wrap gap-2 mt-3">
-            {program.treatsConditions.map(cid => <ConditionTagSmall key={cid} conditionId={cid} />)}
+            {getAllConditionIds(program).map(cid => <ConditionTagSmall key={cid} conditionId={cid} />)}
           </div>
         </div>
       </div>
       <button
-        onClick={() => onContinue(suggestedProgramId)}
+        onClick={() => onContinue(topProgramId!)}
         className="bg-cta text-white font-bold text-sm py-3.5 rounded-soft w-full hover:opacity-90 transition-opacity"
       >
         Đặt lịch với liệu trình này
@@ -152,14 +152,15 @@ function FaqSection({ items }: { items: FaqItem[] }) {
   );
 }
 
-export function GridWithFaqPrograms({ suggestedProgramId, onContinue }: ProgramsSlotProps) {
+export function GridWithFaqPrograms({ suggestedPrograms, onContinue }: ProgramsSlotProps) {
   useEffect(() => { trackEvent('programs_faq_view'); }, []);
 
-  const program = getPrograms().find(p => p.id === suggestedProgramId);
-  const primaryConditionId = (program?.treatsConditions[0] ?? 'da-nhon-mun-viem') as ConditionId;
-  const cond = program ? getConditionById(program.treatsConditions[0]) : null;
+  const program = suggestedPrograms[0]?.program;
+  const topProgramId = suggestedPrograms[0]?.program.id ?? (getPrograms()[0].id as ProgramId);
+  const primaryConditionId = (program?.primaryConditionIds[0] ?? 'da-nhon-mun-viem') as ConditionId;
+  const cond = program ? getConditionById(program.primaryConditionIds[0]) : null;
   const tint = cond?.color ?? '#A0AEC0';
-  const faqItems = FAQ_BY_CONDITION[primaryConditionId] ?? FAQ_BY_CONDITION['da-nhon-mun-viem'];
+  const faqItems = FAQ_BY_CONDITION[primaryConditionId] ?? FAQ_BY_CONDITION['da-nhon-mun-viem'] ?? [];
 
   if (!program) return null;
 
@@ -171,7 +172,7 @@ export function GridWithFaqPrograms({ suggestedProgramId, onContinue }: Programs
             program={program}
             tint={tint}
             onContinue={onContinue}
-            suggestedProgramId={suggestedProgramId}
+            topProgramId={topProgramId}
           />
           <FaqSection items={faqItems} />
         </div>
