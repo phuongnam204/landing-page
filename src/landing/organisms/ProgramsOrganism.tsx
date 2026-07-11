@@ -16,9 +16,11 @@ interface ProgramsOrganismProps extends ProgramsSlotProps {
   faqItems?: FaqItem[];
 }
 
-export function ProgramsOrganism({ suggestedProgramId, onContinue, layout, faqItems }: ProgramsOrganismProps) {
-  const [selected, setSelected] = useState<ProgramId>(suggestedProgramId);
+export function ProgramsOrganism({ suggestedPrograms, onContinue, layout, faqItems }: ProgramsOrganismProps) {
+  const suggestedIds = new Set(suggestedPrograms.map(sp => sp.program.id));
+  const topId = suggestedPrograms[0]?.program.id;
   const allPrograms = getPrograms();
+  const [selected, setSelected] = useState<ProgramId>(topId ?? allPrograms[0].id);
   const selectedProgram = allPrograms.find(p => p.id === selected);
 
   return (
@@ -41,7 +43,7 @@ export function ProgramsOrganism({ suggestedProgramId, onContinue, layout, faqIt
                 <ProgramCard
                   program={program}
                   selected={selected === program.id}
-                  isSuggested={program.id === suggestedProgramId}
+                  isSuggested={suggestedIds.has(program.id)}
                   onSelect={() => setSelected(program.id)}
                   style={{ animationDelay: `${0.15 + idx * 0.08}s` }}
                 />
@@ -55,7 +57,7 @@ export function ProgramsOrganism({ suggestedProgramId, onContinue, layout, faqIt
                 key={program.id}
                 program={program}
                 selected={selected === program.id}
-                isSuggested={program.id === suggestedProgramId}
+                isSuggested={suggestedIds.has(program.id)}
                 onSelect={() => setSelected(program.id)}
                 style={{ animationDelay: `${0.15 + idx * 0.08}s` }}
               />
