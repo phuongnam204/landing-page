@@ -85,6 +85,10 @@ const SVG_KEYFRAMES = `
     0%   { stroke-opacity: 0.55; stroke-width: 1.5; }
     100% { stroke-opacity: 0;    stroke-width: 10; }
   }
+  @keyframes zone-hint {
+    0%, 100% { opacity: 0.06; }
+    50%       { opacity: 0.22; }
+  }
   @keyframes scan-sweep {
     0%   { transform: translateY(0);      opacity: 0; }
     6%   { opacity: 0.85; }
@@ -111,6 +115,7 @@ function FaceDiagram({
   isScanning: boolean;
 }) {
   const [hovered, setHovered] = useState<Zone | null>(null);
+  const hasInteracted = selectedZones.length > 0;
 
   return (
     <div className="select-none w-full max-w-[320px]">
@@ -154,13 +159,30 @@ function FaceDiagram({
                 aria-label={z.label}
                 aria-pressed={active}
               >
-                {/* Zone fill */}
+                {/* Zone fill + hint pulse when no zone selected yet */}
                 <ellipse
                   cx={z.cx} cy={z.cy} rx={z.rx} ry={z.ry}
                   fill="var(--lp-accent)"
-                  opacity={active ? 0.22 : isHov ? 0.12 : 0.05}
-                  style={{ transition: 'opacity 0.15s ease' }}
+                  opacity={active ? 0.22 : isHov ? 0.14 : 0.06}
+                  style={{
+                    transition: 'opacity 0.15s ease',
+                    animation: !hasInteracted && !active && !isScanning
+                      ? 'zone-hint 1.1s ease-in-out 4'
+                      : undefined,
+                  }}
                 />
+                {/* Dashed border — always visible in idle, guides user to tap */}
+                {!active && (
+                  <ellipse
+                    cx={z.cx} cy={z.cy} rx={z.rx} ry={z.ry}
+                    fill="none"
+                    stroke="var(--lp-accent)"
+                    strokeWidth="1"
+                    strokeDasharray="4 3"
+                    opacity={isHov ? 0.55 : 0.28}
+                    style={{ transition: 'opacity 0.15s ease', pointerEvents: 'none' }}
+                  />
+                )}
                 {/* Expanding ring on select */}
                 {active && (
                   <ellipse
@@ -278,6 +300,29 @@ function AcneTypeOption({ type, isSelected, onSelect }: {
   );
 }
 
+// ─── Mobile scan screen ───────────────────────────────────────────────────────
+
+function ScanningScreen({ selectedZones }: { selectedZones: Zone[] }) {
+  return (
+    <div className="w-full max-w-sm flex flex-col items-center gap-5 animate-fade-in-up">
+      <div className="text-center">
+        <p className="font-extrabold text-xl text-cta">Đang phân tích da của bạn...</p>
+        <p className="text-sm text-cta/50 mt-1">Chỉ mất vài giây</p>
+      </div>
+      <FaceDiagram selectedZones={selectedZones} onToggle={() => {}} isScanning={true} />
+      <div className="flex items-center gap-2">
+        {[0, 1, 2].map(i => (
+          <div
+            key={i}
+            className="w-2 h-2 rounded-full bg-cta/40"
+            style={{ animation: `acne-pulse 0.9s ease-in-out ${i * 0.2}s infinite` }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── Steps ────────────────────────────────────────────────────────────────────
 
 function Step1({
@@ -381,23 +426,30 @@ export function FaceMapMinigame({ onComplete }: MinigameSlotProps) {
 
       {/* Mobile: 2 bước tuần tự */}
       <div className="md:hidden w-full flex flex-col items-center gap-4">
-        <StepProgress step={step} />
-        {step === 1
-          ? (
-            <Step1
-              selectedZones={selectedZones}
-              onToggle={toggleZone}
-              onNext={() => setStep(2)}
-              isScanning={isScanning}
-            />
-          ) : (
-            <Step2
-              acneType={acneType}
-              onSelect={setAcneType}
-              onBack={() => setStep(1)}
-              onSubmit={handleSubmit}
-              isScanning={isScanning}
-            />
+        {isScanning
+          ? <ScanningScreen selectedZones={selectedZones} />
+          : (
+            <>
+              <StepProgress step={step} />
+              {step === 1
+                ? (
+                  <Step1
+                    selectedZones={selectedZones}
+                    onToggle={toggleZone}
+                    onNext={() => setStep(2)}
+                    isScanning={false}
+                  />
+                ) : (
+                  <Step2
+                    acneType={acneType}
+                    onSelect={setAcneType}
+                    onBack={() => setStep(1)}
+                    onSubmit={handleSubmit}
+                    isScanning={false}
+                  />
+                )
+              }
+            </>
           )
         }
       </div>
