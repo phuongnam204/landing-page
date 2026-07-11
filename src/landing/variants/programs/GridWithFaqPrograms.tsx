@@ -99,31 +99,71 @@ function ProgramDetailDrawer({ program, tint, open, onClose, onBook }: {
             </svg>
           </button>
         </div>
-        <div className="overflow-y-auto flex-1 px-5 py-5 flex flex-col gap-5">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: tint }}>Về liệu trình</p>
-            <p className="text-sm text-cta/75 leading-relaxed">{program.description}</p>
-          </div>
-          {program.benenif && program.benenif.length > 0 && (
-            <div className="rounded-soft p-4 border border-[var(--lp-border)]" style={{ background: `${tint}14` }}>
-              <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: tint }}>Lợi ích nổi bật</p>
-              <ul className="flex flex-col gap-2">
-                {program.benenif.map((b, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm text-cta/75">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" className="shrink-0 mt-0.5">
-                      <circle cx="8" cy="8" r="7.5" fill="currentColor" style={{ color: `${tint}33` }} />
-                      <path d="M5 8.5l2.5 2.5 4-5" stroke={tint} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                    <span>{b}</span>
-                  </li>
-                ))}
-              </ul>
+        <div className="overflow-y-auto flex-1 px-5 py-5">
+          <div className="flex flex-col gap-5 md:grid md:grid-cols-[55%_1fr] md:gap-6 md:items-start">
+            {/* Left column */}
+            <div className="flex flex-col gap-5">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: tint }}>Về liệu trình</p>
+                <p className="text-sm text-cta/75 leading-relaxed">{program.description}</p>
+              </div>
+              {program.benenif && program.benenif.length > 0 && (
+                <div className="rounded-soft p-4 border border-[var(--lp-border)]" style={{ background: `${tint}14` }}>
+                  <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: tint }}>Lợi ích nổi bật</p>
+                  <ul className="flex flex-col gap-2">
+                    {program.benenif.map((b, i) => (
+                      <li key={i} className="flex items-start gap-2 text-sm text-cta/75">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" className="shrink-0 mt-0.5">
+                          <circle cx="8" cy="8" r="7.5" fill="currentColor" style={{ color: `${tint}33` }} />
+                          <path d="M5 8.5l2.5 2.5 4-5" stroke={tint} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                        <span>{b}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              <div>
+                <p className="text-xs font-bold uppercase tracking-widest text-cta/40 mb-2">Phù hợp với</p>
+                <div className="flex flex-wrap gap-2">
+                  {getAllConditionIds(program).map(cid => <ConditionTagSmall key={cid} conditionId={cid} />)}
+                </div>
+              </div>
+              {program.referenceLink && (
+                <a
+                  href={program.referenceLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold hover:underline underline-offset-2 transition-opacity hover:opacity-70"
+                  style={{ color: tint }}
+                >
+                  Tìm hiểu thêm về liệu trình
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                    <polyline points="15 3 21 3 21 9" />
+                    <line x1="10" y1="14" x2="21" y2="3" />
+                  </svg>
+                </a>
+              )}
             </div>
-          )}
-          <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-cta/40 mb-2">Phù hợp với</p>
-            <div className="flex flex-wrap gap-2">
-              {getAllConditionIds(program).map(cid => <ConditionTagSmall key={cid} conditionId={cid} />)}
+            {/* Right column: images or tint placeholder */}
+            <div className="flex flex-col gap-3">
+              {program.images && program.images.length > 0 ? (
+                program.images.slice(0, 2).map((src, i) => (
+                  <img
+                    key={i}
+                    src={src}
+                    alt=""
+                    className="w-full rounded-soft object-cover"
+                    style={{ aspectRatio: '4/3' }}
+                  />
+                ))
+              ) : (
+                <div
+                  className="w-full rounded-soft"
+                  style={{ background: `${tint}20`, minHeight: 120 }}
+                />
+              )}
             </div>
           </div>
           <div className="h-2" />
