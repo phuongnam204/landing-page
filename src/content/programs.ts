@@ -55,7 +55,7 @@ export const programs: Program[] = [
     trung bình mà còn đạt kết quả ấn tượng với trường hợp da mụn nặng và đổ \
     nhờn nhiều.\
     Không chỉ có ưu điểm ít xâm lấn, ít gây tổn thương cho da, trị mụn bằng IPL còn sở hữu rất nhiều công dụng nổi bật với thời gian điều trị ngắn và hồi phục nhanh và không có tác dụng phụ.',
-    isVip: true,
+    isVip: false,
     summary: [
       "Hỗ trợ trị mụn mức độ nhẹ đến trung bình.",
       "Điều tiết hoạt động tuyến bã nhờn, thu nhỏ lỗ chân lông.",
@@ -80,7 +80,7 @@ export const programs: Program[] = [
     id: 'laser-scar-treatment',
     name: 'Laser trị sẹo rỗ & tái tạo da',
     description: '',
-    isVip: true,
+    isVip: false,
     summary:[
       'Lấp đầy sẹo rỗ, hiệu quả với nhiều loại sẹo, kể cả sẹo sâu, sẹo lâu năm.',
       'Se khít lỗ chân lông và cải thiện kết cấu da, trẻ hóa da',
@@ -120,13 +120,30 @@ export const programs: Program[] = [
   },
   {
     id: 'hormonal-acne-plan',
-    name: 'Phác đồ mụn nội tiết',
-    description: '',
-    isVip: true,
+    name: 'Lấy Nhân Mụn Chuẩn Y Khoa',
+    summary:[
+      "Loại bỏ nhanh cồi mụn, bụi bẩn, tế bào chết.",
+      "Hạn chế tổn thương da, ít gây sẹo rỗ, sẹo xấu.",
+      "Rút ngắn thời gian điều trị mụn.",
+      "Ngăn ngừa mụn mới hình thành."
+    ],
+    description: 'Lấy nhân mụn là một trong những phương pháp cải thiện mụn trên da \
+    được nhiều bạn áp dụng. Tuy nhiên, nếu lấy nhân mụn không đúng cách tại nhà có \
+    thể khiến da sưng đỏ, viêm nhiễm, để lại sẹo thâm, sẹo rỗ. Do đó, để đảm bảo an \
+    toàn và hiệu quả bạn nên chọn địa chỉ lấy nhân mụn uy tín, có bác sĩ da liễu thăm khám và chỉ định.\
+    Phương pháp lấy nhân mụn mang lại nhiều lợi ích cho việc điều trị mụn nếu được thực hiện theo đúng chuẩn Y khoa.',
+    isVip: false,
+    benenif: [
+      "Hạn chế nhiễm trùng, sẹo thâm, sẹo rỗ",
+      "Lấy sạch nhân mụn, cải thiện bề mặt da tức thì",
+      "Thời gian phục hồi nhanh chóng",
+      "Ngừa mụn mới hình thành, hiệu quả lâu dài",
+      "Rút ngắn thời gian và tiết kiệm chi phí"
+    ],
     primaryConditionIds: ['mun-noi-tiet'],
     secondaryConditionIds: ['da-nhon-mun-viem'],
     sessions: 8,
-    o2skinComboRef: 'o2skin Combo thật (đối chiếu)',
+    o2skinComboRef: '',
     referenceLink: '/programs/phac-do-mun-noi-tiet',
   },
   {
