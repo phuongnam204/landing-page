@@ -22,6 +22,10 @@
   --lp-border-mint: #9FE6BD;
   --lp-border-lavender: #B6BCEE;
   --lp-label-purple: #9b8fc4;
+  /* band tokens (not used by this archetype, fallback only) */
+  --lp-band-bg:     var(--lp-accent);
+  --lp-band-text:   #ffffff;
+  --lp-band-accent: var(--lp-accent);
 }
 
 .theme-ocean {
@@ -45,6 +49,10 @@
   --lp-border-mint: #7DD3FC;
   --lp-border-lavender: #60A5FA;
   --lp-label-purple: #0284c7;
+  /* band tokens (not used by this archetype, fallback only) */
+  --lp-band-bg:     var(--lp-accent);
+  --lp-band-text:   #ffffff;
+  --lp-band-accent: var(--lp-accent);
 }
 
 .theme-sage {
@@ -68,6 +76,10 @@
   --lp-border-mint: #86EFAC;
   --lp-border-lavender: #A7F3D0;
   --lp-label-purple: #16a34a;
+  /* band tokens (not used by this archetype, fallback only) */
+  --lp-band-bg:     var(--lp-accent);
+  --lp-band-text:   #ffffff;
+  --lp-band-accent: var(--lp-accent);
 }
 
 .theme-golden {
@@ -91,6 +103,10 @@
   --lp-border-mint: #FCD34D;
   --lp-border-lavender: #FBBF24;
   --lp-label-purple: #d97706;
+  /* dark amber band — contrast anchor for Bold Golden archetype */
+  --lp-band-bg:     #92400e;
+  --lp-band-text:   #FCD34D;
+  --lp-band-accent: #F59E0B;
 }
 
 .theme-midnight {
@@ -114,4 +130,36 @@
   --lp-border-mint: #4c1d95;
   --lp-border-lavender: #5b21b6;
   --lp-label-purple: #a78bfa;
+  /* band tokens (not used by this archetype, fallback only) */
+  --lp-band-bg:     var(--lp-accent);
+  --lp-band-text:   #ffffff;
+  --lp-band-accent: var(--lp-accent);
+}
+
+/* === theme-magenta (Electric Magenta archetype) === */
+.theme-magenta {
+  --lp-bg-hero:        #1a0533;
+  --lp-bg-minigame:    #2d1058;
+  --lp-bg-payoff:      #3b0764;
+  --lp-bg-programs:    #2d1058;
+  --lp-bg-card:        #1e0a42;
+  --lp-primary:        #f0e6ff;
+  --lp-accent:         #db2777;
+  --lp-border:         #7e22ce;
+  --lp-blob-1:         #9333ea;
+  --lp-blob-2:         #db2777;
+  --lp-blob-3:         #6b21a8;
+  --lp-radius-card:    20px;
+  --lp-radius-btn:     20px;
+  --lp-pastel-pink:    #2d1b69;
+  --lp-pastel-lavender:#1a0533;
+  --lp-pastel-mint:    #3b0764;
+  --lp-border-pink:    #9333ea;
+  --lp-border-mint:    #7e22ce;
+  --lp-border-lavender:#6b21a8;
+  --lp-label-purple:   #db2777;
+  /* dark-band vars (inherited by all archetypes, only used by bold) */
+  --lp-band-bg:        #1a0533;
+  --lp-band-text:      #f0e6ff;
+  --lp-band-accent:    #db2777;
 }
