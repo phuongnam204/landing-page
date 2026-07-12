@@ -85,7 +85,7 @@ export const programs: Program[] = [
   {
     id: 'laser-scar-treatment',
     name: 'Trị Sẹo Rỗ Nhẹ – Trung Bình – Nặng Hiệu Quả Cao',
-    description: '',
+    description: 'Lấp đầy sẹo rỗ, cải thiện kết cấu da với hiệu quả lên đến 90%. Áp dụng cho mọi loại sẹo và mọi loại da.',
     isVip: false,
     summary:[
       'Lấp đầy sẹo rỗ, hiệu quả với nhiều loại sẹo, kể cả sẹo sâu, sẹo lâu năm.',
@@ -176,6 +176,7 @@ export const programs: Program[] = [
     primaryConditionIds: ['clean-skin', 'da-moi-bat-dau', 'da-nhay-cam'],
     secondaryConditionIds: ['sau-dieu-tri'],
     sessions: 9,
+    images:['/programs/hinh-gioi-thieu-cham-soc-da-trang-sang-chuyen-sau.png','/programs/hinh-gioi-thieu-cham-soc-da-trang-sang-chuyen-sau-3.jpg'],
     o2skinComboRef: 'o2skin Combo thật (đối chiếu)',
     referenceLink: '/programs/cham-soc-da-trang-sang',
   },
