@@ -84,31 +84,38 @@ function SafeBody({ html, className }: { html: string; className?: string }) {
 
 // ─── Zone-specific insights ──────────────────────────────────────────────────
 
-const ZONE_INSIGHT_LABELS: Record<string, string> = {
-  'forehead':    'Trán',
-  'nose':        'Mũi / Chữ T',
-  'left-cheek':  'Má trái',
-  'right-cheek': 'Má phải',
-  'chin-jaw':    'Cằm & quai hàm',
+const ZONE_INSIGHTS: Record<string, { label: string; text: string }> = {
+  'forehead':    { label: 'Trán',           text: 'Thường liên quan đến stress, thiếu ngủ, hoặc sản phẩm tóc bít lỗ chân lông.' },
+  'nose':        { label: 'Mũi / Chữ T',    text: 'Vùng chữ T có mật độ tuyến bã nhờn cao nhất — dễ hình thành đầu đen và lỗ chân lông to.' },
+  'left-cheek':  { label: 'Má trái',         text: 'Hay bị do tiếp xúc màn hình điện thoại và vỏ gối không được thay thường xuyên.' },
+  'right-cheek': { label: 'Má phải',         text: 'Hay bị do tiếp xúc màn hình điện thoại và vỏ gối không được thay thường xuyên.' },
+  'chin-jaw':    { label: 'Cằm & quai hàm', text: 'Dấu hiệu điển hình của mụn nội tiết — thường bùng phát theo chu kỳ hoặc khi stress tăng cao.' },
 };
 
-const ZONE_INSIGHTS: Record<string, string> = {
-  'forehead':    'Thường liên quan đến stress, thiếu ngủ, hoặc sản phẩm tóc bít lỗ chân lông.',
-  'nose':        'Vùng chữ T có mật độ tuyến bã nhờn cao nhất — dễ hình thành đầu đen và lỗ chân lông to.',
-  'left-cheek':  'Hay bị do tiếp xúc màn hình điện thoại và vỏ gối không được thay thường xuyên.',
-  'right-cheek': 'Hay bị do tiếp xúc màn hình điện thoại và vỏ gối không được thay thường xuyên.',
-  'chin-jaw':    'Dấu hiệu điển hình của mụn nội tiết — thường bùng phát theo chu kỳ hoặc khi stress tăng cao.',
-};
+function getZoneInsightRows(zoneIds: string[]) {
+  const hasBothCheeks = zoneIds.includes('left-cheek') && zoneIds.includes('right-cheek');
+  const rows: { key: string; label: string; text: string }[] = [];
+  const seen = new Set<string>();
+  for (const z of zoneIds) {
+    if (z === 'left-cheek' || z === 'right-cheek') {
+      if (hasBothCheeks && !seen.has('cheeks')) {
+        seen.add('cheeks');
+        rows.push({ key: 'both-cheeks', label: 'Má phải + Má trái', text: 'Có thể do tiếp xúc màn hình điện thoại quá nhiều hoặc vỏ gối chưa được thay thường xuyên.' });
+      } else if (!hasBothCheeks && ZONE_INSIGHTS[z]) {
+        rows.push({ key: z, ...ZONE_INSIGHTS[z] });
+      }
+    } else if (ZONE_INSIGHTS[z]) {
+      rows.push({ key: z, ...ZONE_INSIGHTS[z] });
+    }
+  }
+  return rows;
+}
 
 // ─── Result section text ─────────────────────────────────────────────────────
 
 const HEADERS: Record<'positive' | 'concern', string> = {
   positive: 'Tuyệt vời, da bạn đang rất khỏe!',
   concern:  'Hmm, có điều bạn cần biết về da mình...',
-};
-const BRIDGE: Record<'positive' | 'concern', string> = {
-  positive: 'Da bạn đang ở điểm khởi đầu tốt — và chúng tôi có thể giúp bạn duy trì điều đó lâu dài.',
-  concern:  'Tình trạng như của bạn không hiếm — và có cách xử lý đúng hướng từ gốc rễ.',
 };
 
 // ─── WhySection ───────────────────────────────────────────────────────────────
@@ -131,12 +138,17 @@ function WhySection({ conditionId, onScrollDown }: { conditionId: ConditionId; o
           </div>
         ))}
       </div>
-      <blockquote className="relative bg-[var(--lp-accent)]/5 border border-cta/10 rounded-lg px-5 pt-7 pb-4">
+      <blockquote className="relative bg-white border border-cta/10 rounded-lg px-5 pt-7 pb-4">
         <span className="absolute top-3 left-4 text-3xl font-black text-[var(--lp-accent)] opacity-25 leading-none select-none" aria-hidden="true">&ldquo;</span>
         <p className="text-sm md:text-base text-cta/80 italic leading-relaxed">{edu.expertQuote}</p>
         <cite className="not-italic text-xs text-cta/65 font-semibold mt-2 block">{edu.expertName}</cite>
       </blockquote>
-      <CtaButton fullWidth onClick={onScrollDown} className="md:text-base">
+      <CtaButton
+        fullWidth
+        onClick={onScrollDown}
+        className="md:text-base"
+        style={{ animation: 'cta-nudge 1.6s ease-in-out 2.5s 3' }}
+      >
         Tìm ngay giải pháp cho bạn! &#8595;
       </CtaButton>
       <div className="h-4" />
@@ -177,13 +189,14 @@ export function ConfettiCardWhyPayoff({ result, onContinue }: PayoffSlotProps) {
 
   return (
     <div ref={scrollContainerRef} className="h-[100dvh] w-full bg-[var(--lp-bg-payoff)] overflow-y-auto">
+      <style>{`@keyframes cta-nudge{0%,100%{transform:translateY(0)}40%{transform:translateY(-4px)}70%{transform:translateY(-2px)}}`}</style>
 
       {/* Sticky skip CTA — appears after result card scrolls out */}
       {showSkipCta && (
         <div className="fixed bottom-5 right-4 z-50 animate-fade-in-up">
           <button
             onClick={onContinue}
-            className="bg-cta text-white text-sm font-bold py-3 px-5 rounded-soft shadow-lg shadow-cta/30 hover:opacity-90 transition-opacity"
+            className="bg-cta text-white text-sm font-bold py-3 px-5 rounded-soft shadow-lg shadow-cta/30 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
           >
             Đặt lịch ngay &#8594;
           </button>
@@ -218,27 +231,30 @@ export function ConfettiCardWhyPayoff({ result, onContinue }: PayoffSlotProps) {
                 {result.triggerNote}
               </p>
             )}
-            {result.zoneIds && result.zoneIds.length > 0 && (
-              <div className="flex flex-col gap-1.5 mt-2.5">
-                {result.zoneIds.filter(z => ZONE_INSIGHTS[z]).map((z, i) => (
-                  <p
-                    key={z}
-                    className="payoff-stat-chip text-xs text-cta/70 bg-[var(--lp-bg-hero)] border border-[var(--lp-border)] rounded-lg px-3 py-2 leading-relaxed"
-                    style={{ animationDelay: `${1.0 + i * 0.12}s` }}
-                  >
-                    <span className="font-semibold text-cta">{ZONE_INSIGHT_LABELS[z]}: </span>
-                    {ZONE_INSIGHTS[z]}
-                  </p>
-                ))}
-              </div>
-            )}
+            {result.zoneIds && result.zoneIds.length > 0 && (() => {
+              const rows = getZoneInsightRows(result.zoneIds);
+              return rows.length > 0 ? (
+                <div className="flex flex-col gap-1.5 mt-2.5">
+                  {rows.map((row, i) => (
+                    <p
+                      key={row.key}
+                      className="payoff-stat-chip text-xs text-cta/70 bg-[var(--lp-bg-hero)] border border-[var(--lp-border)] rounded-lg px-3 py-2 leading-relaxed"
+                      style={{ animationDelay: `${1.0 + i * 0.12}s` }}
+                    >
+                      <span className="font-semibold text-cta">{row.label}: </span>
+                      {row.text}
+                    </p>
+                  ))}
+                </div>
+              ) : null;
+            })()}
           </div>
           {result.condition.body && (
-            <SafeBody html={result.condition.body} className="text-sm md:text-base text-cta/80 leading-relaxed mb-3" />
+            <SafeBody html={result.condition.body} className="text-sm md:text-base text-cta/80 leading-relaxed mb-2" />
           )}
-          <p className="text-sm md:text-base text-cta/70 leading-snug px-3.5 py-2.5 bg-[var(--lp-accent)]/5 border border-[var(--lp-border)] rounded-lg mb-5">
-            {BRIDGE[result.condition.tone]}
-          </p>
+          {result.condition.bridge && (
+            <p className="text-sm md:text-base text-cta/70 leading-relaxed mb-5">{result.condition.bridge}</p>
+          )}
           <CtaButton fullWidth onClick={() => whyRef.current?.scrollIntoView({ behavior: 'smooth' })} className="md:text-base">
             Tìm hiểu thêm về da của bạn &#8595;
           </CtaButton>

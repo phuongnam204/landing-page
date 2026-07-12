@@ -259,7 +259,9 @@ function SelectedZoneTags({ selectedZones }: { selectedZones: Zone[] }) {
   return (
     <div className="min-h-7 flex flex-wrap gap-1.5 justify-center">
       {selectedZones.length === 0
-        ? <span className="text-xs text-cta/30">Chưa chọn — nhấn vào vùng trên mặt</span>
+        // ? <span className="text-xs text-cta/30">Nhấn vào một vùng trên mặt</span>
+        ? <p className="text-sm text-cta/50 mt-1">Chạm vào vùng da bạn hay có mụn nhất</p>
+
         : selectedZones.map(z => (
           <span key={z} className="text-xs bg-cta/10 text-cta font-semibold rounded-full px-2.5 py-1">
             {ZONE_LABELS[z]}
@@ -334,8 +336,17 @@ function Step1({
     <div className="w-full max-w-sm flex flex-col items-center gap-4 animate-fade-in-up">
       <div className="text-center">
         <p className="font-extrabold text-xl text-cta">Bạn hay bị mụn ở đâu?</p>
-        <p className="text-sm text-cta/50 mt-1">Chạm vào vùng da bạn hay có mụn nhất</p>
       </div>
+      {selectedZones.length === 0 && (
+        <div className="flex flex-col items-center gap-1 -mb-2" aria-hidden="true">
+          <style>{`@keyframes arrow-bounce{0%,100%{transform:translateY(0);opacity:.45}50%{transform:translateY(7px);opacity:.85}}`}</style>
+          <p className="text-xs text-cta/45 font-semibold">Chạm vào vùng da bạn hay bị</p>
+          <svg width="18" height="26" viewBox="0 0 18 26" fill="none" className="text-cta/50" style={{ animation: 'arrow-bounce 1.3s ease-in-out infinite' }}>
+            <path d="M9 2 L9 20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            <path d="M3 15 L9 23 L15 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
+      )}
       <FaceDiagram selectedZones={selectedZones} onToggle={onToggle} isScanning={isScanning} />
       <SelectedZoneTags selectedZones={selectedZones} />
       <button

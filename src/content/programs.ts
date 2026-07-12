@@ -15,6 +15,7 @@ export interface Program {
   o2skinComboRef?: string;
   referenceLink?: string;
   images?: string[];
+  comboWith?: ProgramId;
 }
 
 export const getAllConditionIds = (p: Program): ConditionId[] =>
@@ -146,8 +147,9 @@ export const programs: Program[] = [
       "Ngừa mụn mới hình thành, hiệu quả lâu dài",
       "Rút ngắn thời gian và tiết kiệm chi phí"
     ],
-    primaryConditionIds: ['mun-noi-tiet'],
+    primaryConditionIds: ['mun-noi-tiet', 'da-nhay-cam'],
     secondaryConditionIds: ['da-nhon-mun-viem'],
+    comboWith: 'maintenance-skin-health',
     sessions: 8,
     o2skinComboRef: '',
     referenceLink: '/programs/phac-do-mun-noi-tiet',
@@ -171,7 +173,7 @@ export const programs: Program[] = [
       'Không xâm lấn và an toàn cho làn da',
       'Thực hiện nhanh, không đau, không cần nghỉ dưỡng'
     ],
-    primaryConditionIds: ['clean-skin', 'da-moi-bat-dau'],
+    primaryConditionIds: ['clean-skin', 'da-moi-bat-dau', 'da-nhay-cam'],
     secondaryConditionIds: ['sau-dieu-tri'],
     sessions: 9,
     o2skinComboRef: 'o2skin Combo thật (đối chiếu)',
@@ -204,6 +206,7 @@ export const programs: Program[] = [
     primaryConditionIds: ['lo-chan-long', 'da-tham-mun'],
     secondaryConditionIds: ['lan-da-xin-mau'],
     sessions: 10,
+    images:['/programs/hinh-anh-gioi-thieu-tre-hoa-da-mat-va-ho-tro-thu-nho-lo-chan-long-3.jpg', '/programs/hinh-anh-gioi-thieu-tre-hoa-da-mat-va-ho-tro-thu-nho-lo-chan-long-2.jpg'],
     o2skinComboRef: '',
     referenceLink: '/programs/dieu-tri-seo-ro-vet-tham-va-se-khit-lo-chan-long/tre-hoa-da-va-ho-tro-thu-nho-lo-chan-long/',
   },

@@ -8,6 +8,8 @@ import { trackEvent } from '../../../lib/trackEvent';
 import { CtaButton } from '../../../components/atoms/CtaButton';
 import { FAQ_BY_CONDITION } from './const/FAQCondition';
 
+const OCEAN_TINT = 'var(--lp-accent)';
+
 type FaqItem = { q: string; a: string };
 
 function ChevronIcon({ open }: { open: boolean }) {
@@ -173,7 +175,7 @@ function ProgramDetailDrawer({ program, tint, open, onClose, onBook }: {
               )}
             </div>
             {/* Right column: images or tint placeholder */}
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-3 h-2">
               {program.images && program.images.length > 0 ? (
                 program.images.slice(0, 2).map((src, i) => (
                   <img
@@ -204,9 +206,55 @@ function ProgramDetailDrawer({ program, tint, open, onClose, onBook }: {
   );
 }
 
-function ProgramHighlight({ program, tint, onOpenDrawer }: {
+function ProgramCard({ program, label, onOpenDrawer }: {
   program: ReturnType<typeof getPrograms>[number];
-  tint: string;
+  label?: string;
+  onOpenDrawer: () => void;
+}) {
+  return (
+    <div className="bg-[var(--lp-bg-card)] rounded-soft shadow-lg shadow-cta/10 overflow-hidden flex-1 min-w-0">
+      <div className="px-5 py-4 lg:px-6 lg:py-5" style={{ background: OCEAN_TINT }}>
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-xs font-bold bg-white/20 text-white px-2.5 py-0.5 rounded-full">
+            {label ?? 'Phù hợp nhất'}
+          </span>
+          {program.sessions && (
+            <span className="text-xs text-white/70 font-semibold">{program.sessions} buổi</span>
+          )}
+        </div>
+        <h2 className="text-base lg:text-lg font-extrabold text-white">{program.name}</h2>
+      </div>
+      {program.summary && program.summary.length > 0 ? (
+        <ul className="px-5 pt-4 pb-2 lg:px-6 flex flex-col gap-2">
+          {program.summary.map((item, i) => (
+            <li key={i} className="flex items-start gap-2 text-sm text-cta/75">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" className="shrink-0 mt-0.5">
+                <circle cx="8" cy="8" r="7.5" fill="var(--lp-accent)" opacity="0.18" />
+                <path d="M5 8.5l2.5 2.5 4-5" stroke={OCEAN_TINT} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="px-5 pt-4 pb-2 lg:px-6 text-sm text-cta/70 leading-relaxed">{program.description}</p>
+      )}
+      <div className="px-5 pb-5 lg:px-6 pt-3">
+        <button
+          type="button"
+          onClick={onOpenDrawer}
+          className="text-xs font-semibold underline underline-offset-2 hover:opacity-70 transition-opacity"
+          style={{ color: OCEAN_TINT }}
+        >
+          Xem chi tiết liệu trình &#8595;
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function ProgramHighlight({ program, onOpenDrawer }: {
+  program: ReturnType<typeof getPrograms>[number];
   onOpenDrawer: () => void;
 }) {
   return (
@@ -214,49 +262,29 @@ function ProgramHighlight({ program, tint, onOpenDrawer }: {
       <p className="text-sm font-bold text-cta/60 uppercase tracking-widest text-center md:text-left">
         Gợi ý liệu trình cho bạn
       </p>
-      <div className="bg-[var(--lp-bg-card)] rounded-soft shadow-lg shadow-cta/10 overflow-hidden">
-        <div
-          className="px-5 py-4 lg:px-8 lg:py-6"
-          style={{ background: tint }}
-        >
-          <div className="flex items-center gap-2 mb-2 lg:mb-3">
-            <span className="text-xs font-bold bg-white/20 text-white px-2.5 py-0.5 rounded-full">
-              Phù hợp nhất
-            </span>
-            {program.sessions && (
-              <span className="text-xs text-white/70 font-semibold">{program.sessions} buổi</span>
-            )}
-          </div>
-          <h2 className="text-lg lg:text-xl font-extrabold text-white">{program.name}</h2>
-        </div>
-        {program.summary && program.summary.length > 0 ? (
-          <ul className="px-5 pt-4 pb-2 lg:px-8 flex flex-col gap-2.5">
-            {program.summary.map((item, i) => (
-              <li key={i} className="flex items-start gap-2 text-sm text-cta/75">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" className="shrink-0 mt-0.5">
-                  <circle cx="8" cy="8" r="7.5" fill="currentColor" style={{ color: `${tint}33` }} />
-                  <path d="M5 8.5l2.5 2.5 4-5" stroke={tint} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                <span>{item}</span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="px-5 pt-4 pb-2 lg:px-8 text-sm text-cta/70 leading-relaxed">{program.description}</p>
-        )}
-        <div className="px-5 pb-5 lg:px-8">
-          <div className="flex flex-wrap gap-2 mt-4 mb-3">
-            {getAllConditionIds(program).map(cid => <ConditionTagSmall key={cid} conditionId={cid} />)}
-          </div>
-          <button
-            type="button"
-            onClick={onOpenDrawer}
-            className="text-xs font-semibold underline underline-offset-2 hover:opacity-70 transition-opacity"
-            style={{ color: tint }}
-          >
-            Xem chi tiết liệu trình &#8595;
-          </button>
-        </div>
+      <ProgramCard program={program} onOpenDrawer={onOpenDrawer} />
+    </div>
+  );
+}
+
+function ComboHighlight({ programs, onOpenDrawer }: {
+  programs: ReturnType<typeof getPrograms>;
+  onOpenDrawer: (idx: number) => void;
+}) {
+  return (
+    <div className="flex flex-col gap-4">
+      <p className="text-sm font-bold text-cta/60 uppercase tracking-widest text-center md:text-left">
+        Combo gợi ý cho bạn
+      </p>
+      <div className="flex flex-col md:flex-row gap-3">
+        {programs.map((prog, i) => (
+          <ProgramCard
+            key={prog.id}
+            program={prog}
+            label={i === 0 ? 'Bước 1' : 'Bước 2'}
+            onOpenDrawer={() => onOpenDrawer(i)}
+          />
+        ))}
       </div>
     </div>
   );
@@ -278,49 +306,62 @@ function FaqSection({ items }: { items: FaqItem[] }) {
 
 export function GridWithFaqPrograms({ suggestedPrograms, onContinue }: ProgramsSlotProps) {
   useEffect(() => { trackEvent('programs_faq_view'); }, []);
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [openDrawerIdx, setOpenDrawerIdx] = useState<number | null>(null);
 
-  const program = suggestedPrograms[0]?.program;
-  const topProgramId = (program?.id ?? getPrograms()[0].id) as ProgramId;
-  const primaryConditionId = (program?.primaryConditionIds[0] ?? 'da-nhon-mun-viem') as ConditionId;
-  const cond = program ? getConditionById(program.primaryConditionIds[0]) : null;
-  const tint = cond?.color ?? '#A0AEC0';
-  const faqItems = FAQ_BY_CONDITION[primaryConditionId] ?? FAQ_BY_CONDITION['da-nhon-mun-viem'] ?? [];
+  const program = suggestedPrograms[0]?.program ?? getPrograms()[0];
+  const program2 = suggestedPrograms[1]?.program;
+  const isCombo = !!(program.comboWith && program2 && program.comboWith === program2.id);
+  const comboPrograms = isCombo ? [program, program2] : [];
 
-  if (!program) return null;
+  const topProgramId = program.id as ProgramId;
+  // Use the condition the user actually matched (matchedPrimary) to pick FAQ, not the program's full list
+  const faqConditionId = (
+    suggestedPrograms[0]?.matchedPrimary[0]
+    ?? program.primaryConditionIds[0]
+    ?? 'da-nhon-mun-viem'
+  ) as ConditionId;
+  const faqItems = FAQ_BY_CONDITION[faqConditionId] ?? FAQ_BY_CONDITION['da-nhon-mun-viem'] ?? [];
 
-  const handleOpenDrawer = () => {
-    setDrawerOpen(true);
-    trackEvent('program_detail_open', { programId: topProgramId });
+  const drawerProgram = openDrawerIdx !== null
+    ? (isCombo ? comboPrograms[openDrawerIdx] : program)
+    : null;
+  const drawerProgramId = drawerProgram?.id as ProgramId | undefined;
+
+  const handleOpenDrawer = (idx = 0) => {
+    setOpenDrawerIdx(idx);
+    const pid = isCombo ? (comboPrograms[idx]?.id ?? topProgramId) : topProgramId;
+    trackEvent('program_detail_open', { programId: pid });
   };
 
   return (
     <div className="h-[100dvh] w-full bg-[var(--lp-bg-payoff)] overflow-y-auto">
       <div className="min-h-full flex items-center justify-center">
-      <div className="max-w-5xl w-full mx-auto px-5 py-8">
-        <div className="flex flex-col gap-5 md:grid md:grid-cols-2 md:gap-8 md:items-start">
-          <ProgramHighlight
-            program={program}
-            tint={tint}
-            onOpenDrawer={handleOpenDrawer}
-          />
-          <FaqSection items={faqItems} />
+        <div className="max-w-5xl w-full mx-auto px-5 py-8">
+          <div className="flex flex-col gap-5 md:grid md:grid-cols-2 md:gap-8 md:items-start">
+            {isCombo ? (
+              <ComboHighlight programs={comboPrograms} onOpenDrawer={handleOpenDrawer} />
+            ) : (
+              <ProgramHighlight program={program} onOpenDrawer={() => handleOpenDrawer(0)} />
+            )}
+            <FaqSection items={faqItems} />
+          </div>
+          <div className="mt-6">
+            <CtaButton variant="golden" fullWidth onClick={() => onContinue(topProgramId)}>
+              Đặt lịch với liệu trình này
+            </CtaButton>
+          </div>
+          <div className="h-4" />
         </div>
-        <div className="mt-6">
-          <CtaButton variant="golden" fullWidth onClick={() => onContinue(topProgramId)}>
-            Đặt lịch với liệu trình này
-          </CtaButton>
-        </div>
-        <div className="h-4" />
       </div>
-      </div>
-      <ProgramDetailDrawer
-        program={program}
-        tint={tint}
-        open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-        onBook={() => onContinue(topProgramId)}
-      />
+      {drawerProgram && (
+        <ProgramDetailDrawer
+          program={drawerProgram}
+          tint={OCEAN_TINT}
+          open={openDrawerIdx !== null}
+          onClose={() => setOpenDrawerIdx(null)}
+          onBook={() => onContinue(drawerProgramId ?? topProgramId)}
+        />
+      )}
     </div>
   );
 }

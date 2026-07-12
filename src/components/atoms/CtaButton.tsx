@@ -12,6 +12,7 @@ interface CtaButtonProps {
   fullWidth?: boolean;
   disabled?: boolean;
   className?: string;
+  style?: React.CSSProperties;
 }
 
 const SIZE: Record<CtaButtonSize, string> = {
@@ -37,15 +38,18 @@ export function CtaButton({
   fullWidth = false,
   disabled = false,
   className = '',
+  style,
 }: CtaButtonProps) {
   return (
     <button
       type={type}
       onClick={onClick}
       disabled={disabled}
+      style={style}
       className={[
         'font-bold rounded-soft transition-all duration-200',
-        'disabled:opacity-60 flex items-center justify-center gap-2',
+        'hover:-translate-y-0.5 active:translate-y-0',
+        'disabled:opacity-60 disabled:translate-y-0 flex items-center justify-center gap-2',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--lp-accent)] focus-visible:ring-offset-2',
         SIZE[size],
         VARIANT[variant],
