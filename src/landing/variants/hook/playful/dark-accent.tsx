@@ -4,7 +4,7 @@ import { CtaButton } from '../../../../components/atoms/CtaButton';
 
 export function PlayfulDarkAccentHook({ onStart }: HookSlotProps) {
   return (
-    <div className="h-[100dvh] w-full bg-[var(--lp-accent)] relative flex items-center overflow-hidden">
+    <div className="h-[100dvh] w-full bg-[var(--lp-primary)] relative flex items-center overflow-hidden">
       <div className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-[var(--lp-blob-3)] blur-3xl opacity-20 pointer-events-none" />
 
       <div className="max-w-6xl mx-auto w-full px-5 md:flex md:items-center md:gap-12 relative z-10">
@@ -22,15 +22,15 @@ export function PlayfulDarkAccentHook({ onStart }: HookSlotProps) {
             <span className="text-[var(--lp-blob-3)]">giấu</span>{' '}
             điều gì?
           </h1>
-          <p className="text-base md:text-lg text-white/70 mt-5">
+          <p className="text-base md:text-lg text-white/90 mt-5">
             Tìm những &ldquo;bạn nhỏ&rdquo; ẩn náu và khám phá điều da bạn thực sự cần.
           </p>
           <div className="flex justify-center md:justify-start mt-7">
-            <CtaButton onClick={onStart} size="lg" className="bg-white text-[var(--lp-accent)]">
+            <CtaButton onClick={onStart} size="lg" variant="blob">
               Soi da ngay →
             </CtaButton>
           </div>
-          <p className="text-sm md:text-base text-white/50 mt-4">Chỉ mất 60 giây</p>
+          <p className="text-sm md:text-base text-white/75 mt-4">Chỉ mất 60 giây</p>
         </div>
       </div>
     </div>
