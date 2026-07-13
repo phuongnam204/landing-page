@@ -542,6 +542,87 @@
   --lp-band-accent:    #818CF8;
 }
 
+/* === theme-jade (Jade) === */
+.theme-jade {
+  --lp-bg-hero:        #ECFDF5;
+  --lp-bg-minigame:    #A7F3D0;
+  --lp-bg-payoff:      #6EE7B7;
+  --lp-bg-programs:    #A7F3D0;
+  --lp-bg-card:        #ffffff;
+  --lp-primary:        #064E3B;
+  --lp-accent:         #059669;
+  --lp-border:         #6EE7B7;
+  --lp-blob-1:         #6EE7B7;
+  --lp-blob-2:         #34D399;
+  --lp-blob-3:         #A7F3D0;
+  --lp-radius-card:    20px;
+  --lp-radius-btn:     20px;
+  --lp-pastel-pink:    #ECFDF5;
+  --lp-pastel-lavender:#A7F3D0;
+  --lp-pastel-mint:    #6EE7B7;
+  --lp-border-pink:    #6EE7B7;
+  --lp-border-mint:    #34D399;
+  --lp-border-lavender:#6EE7B7;
+  --lp-label-purple:   #059669;
+  --lp-band-bg:        #064E3B;
+  --lp-band-text:      #ECFDF5;
+  --lp-band-accent:    #059669;
+}
+
+/* === theme-rose-vivid (Rose Vivid) === */
+.theme-rose-vivid {
+  --lp-bg-hero:        #FFF0F3;
+  --lp-bg-minigame:    #FFD6E0;
+  --lp-bg-payoff:      #FDA4AF;
+  --lp-bg-programs:    #FFD6E0;
+  --lp-bg-card:        #ffffff;
+  --lp-primary:        #881337;
+  --lp-accent:         #E11D48;
+  --lp-border:         #FDA4AF;
+  --lp-blob-1:         #FDA4AF;
+  --lp-blob-2:         #FB7185;
+  --lp-blob-3:         #FFD6E0;
+  --lp-radius-card:    20px;
+  --lp-radius-btn:     20px;
+  --lp-pastel-pink:    #FFF0F3;
+  --lp-pastel-lavender:#FFD6E0;
+  --lp-pastel-mint:    #FDA4AF;
+  --lp-border-pink:    #FDA4AF;
+  --lp-border-mint:    #FB7185;
+  --lp-border-lavender:#FDA4AF;
+  --lp-label-purple:   #E11D48;
+  --lp-band-bg:        #881337;
+  --lp-band-text:      #FFF0F3;
+  --lp-band-accent:    #E11D48;
+}
+
+/* === theme-nebula (Nebula) === */
+.theme-nebula {
+  --lp-bg-hero:        #060B1A;
+  --lp-bg-minigame:    #0D1535;
+  --lp-bg-payoff:      #3730A3;
+  --lp-bg-programs:    #0D1535;
+  --lp-bg-card:        #0D1535;
+  --lp-primary:        #E0E7FF;
+  --lp-accent:         #6366F1;
+  --lp-border:         #3730A3;
+  --lp-blob-1:         #3730A3;
+  --lp-blob-2:         #4338CA;
+  --lp-blob-3:         #1E1B4B;
+  --lp-radius-card:    20px;
+  --lp-radius-btn:     20px;
+  --lp-pastel-pink:    #060B1A;
+  --lp-pastel-lavender:#0D1535;
+  --lp-pastel-mint:    #3730A3;
+  --lp-border-pink:    #3730A3;
+  --lp-border-mint:    #4338CA;
+  --lp-border-lavender:#3730A3;
+  --lp-label-purple:   #6366F1;
+  --lp-band-bg:        #060B1A;
+  --lp-band-text:      #E0E7FF;
+  --lp-band-accent:    #6366F1;
+}
+
 /* ─── blob CTA shimmer hover ─── */
 @keyframes cta-shimmer-sweep {
   from { transform: translateX(-120%) skewX(-15deg); }
