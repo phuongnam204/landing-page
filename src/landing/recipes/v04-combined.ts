@@ -3,7 +3,7 @@ import type { Recipe } from '../validateRecipe';
 export const v04Combined: Recipe = {
   id: 'v04-combined',
   label: 'v04 — Programs+FAQ / Conversion+Testimonial',
-  theme: 'ocean',
+  theme: 'coral',
   slots: {
     hook:       'bold-single',
     minigame:   'face-map',

@@ -4,7 +4,7 @@ import { v04Combined } from './v04-combined';
 import { v05PlayfulClassic } from './v05-playful-classic';
 import { v06PlayfulMinimal } from './v06-playful-minimal';
 import { v07PlayfulImmersive } from './v07-playful-immersive';
-import { v08PlayfulDarkAccent } from './v08-playful-dark-accent';
+import { v08NavyMint } from './v08-navy-mint';
 import { v09ClinicalClassic } from './v09-clinical-classic';
 import { v10ClinicalCompact } from './v10-clinical-compact';
 import { v11ClinicalDashboard } from './v11-clinical-dashboard';
@@ -30,7 +30,7 @@ export const allRecipes: Recipe[] = [
   v05PlayfulClassic,
   v06PlayfulMinimal,
   v07PlayfulImmersive,
-  v08PlayfulDarkAccent,
+  v08NavyMint,
   v09ClinicalClassic,
   v10ClinicalCompact,
   v11ClinicalDashboard,

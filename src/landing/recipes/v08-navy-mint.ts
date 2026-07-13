@@ -1,9 +1,10 @@
 import type { Recipe } from '../validateRecipe';
 
-export const v08PlayfulDarkAccent: Recipe = {
-  id: 'v08-playful-dark-accent',
-  label: 'v08 — Playful Blossom / Dark Accent',
-  theme: 'blossom',
+export const v08NavyMint: Recipe = {
+  id: 'v08-navy-mint',
+  label: 'v08 — Navy × Mint',
+  theme: 'nebula',
+  chipColor: { bg: '#2D2640', text: '#8FE3BC', label: 'Navy × Mint' },
   slots: {
     hook: 'playful-dark-accent',
     minigame: 'playful-dark-accent',

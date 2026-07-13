@@ -3,7 +3,7 @@ import type { Recipe } from '../validateRecipe';
 export const v23ElectricSoftDark: Recipe = {
   id: 'v23-electric-soft-dark',
   label: 'v23 — Electric Magenta / Soft Dark',
-  theme: 'magenta',
+  theme: 'forest',
   slots: {
     hook:       'electric-soft-dark',
     minigame:   'electric-soft-dark',

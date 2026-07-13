@@ -3,7 +3,7 @@ import type { Recipe } from '../validateRecipe';
 export const v22ElectricGlowHeavy: Recipe = {
   id: 'v22-electric-glow-heavy',
   label: 'v22 — Electric Magenta / Glow Heavy',
-  theme: 'magenta',
+  theme: 'crimson',
   slots: {
     hook:       'electric-glow-heavy',
     minigame:   'electric-glow-heavy',

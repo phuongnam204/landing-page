@@ -3,7 +3,7 @@ import type { Recipe } from '../validateRecipe';
 export const v24ElectricLightPop: Recipe = {
   id: 'v24-electric-light-pop',
   label: 'v24 — Electric Magenta / Light Pop',
-  theme: 'magenta',
+  theme: 'jade',
   slots: {
     hook:       'electric-light-pop',
     minigame:   'electric-light-pop',

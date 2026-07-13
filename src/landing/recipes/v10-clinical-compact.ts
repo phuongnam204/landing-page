@@ -3,7 +3,7 @@ import type { Recipe } from '../validateRecipe';
 export const v10ClinicalCompact: Recipe = {
   id: 'v10-clinical-compact',
   label: 'v10 — Clinical Ocean / Compact',
-  theme: 'ocean',
+  theme: 'ice',
   slots: {
     hook: 'clinical-compact',
     minigame: 'clinical-compact',

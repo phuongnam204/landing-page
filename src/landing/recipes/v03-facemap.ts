@@ -3,7 +3,7 @@ import type { Recipe } from '../validateRecipe';
 export const v03Facemap: Recipe = {
   id: 'v03-facemap',
   label: 'Face-map tự khai + ocean',
-  theme: 'ocean',
+  theme: 'opal',
   slots: {
     hook: 'bold-single',
     minigame: 'face-map',

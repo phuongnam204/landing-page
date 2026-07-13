@@ -3,7 +3,7 @@ import type { Recipe } from '../validateRecipe';
 export const v07PlayfulImmersive: Recipe = {
   id: 'v07-playful-immersive',
   label: 'v07 — Playful Blossom / Immersive',
-  theme: 'blossom',
+  theme: 'berry',
   slots: {
     hook: 'playful-immersive',
     minigame: 'playful-immersive',
