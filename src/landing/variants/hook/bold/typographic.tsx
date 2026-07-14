@@ -6,7 +6,7 @@ export function BoldTypographicHook({ onStart }: HookSlotProps) {
   return (
     <div className="h-[100dvh] w-full flex flex-col overflow-hidden">
       <div
-        className="flex-[1] flex items-center justify-center px-5"
+        className="hook-da-bg flex-[1] flex items-center justify-center px-5"
         style={{ background: 'var(--lp-band-bg)' }}
       >
         <h1
@@ -21,17 +21,22 @@ export function BoldTypographicHook({ onStart }: HookSlotProps) {
         style={{ background: 'var(--lp-bg-hero)' }}
       >
         <p
-          className="text-6xl md:text-9xl font-extrabold tracking-tight text-center leading-[0.9]"
+          className="hook-can-text text-6xl md:text-9xl font-extrabold tracking-tight text-center leading-[0.9]"
           style={{ color: 'var(--lp-band-accent)' }}
         >
           CẦN GÌ?
         </p>
-        <p className="text-sm md:text-base text-cta/60 text-center max-w-md leading-relaxed">
+        <p
+          className="hook-fade-in text-sm md:text-base text-cta/60 text-center max-w-md leading-relaxed"
+          style={{ animationDelay: '0.55s' }}
+        >
           Phân tích vùng da mặt chỉ trong 60 giây.
         </p>
-        <CtaButton onClick={onStart} size="lg">
-          Soi da ngay →
-        </CtaButton>
+        <div className="hook-fade-in" style={{ animationDelay: '0.7s' }}>
+          <CtaButton onClick={onStart} size="lg">
+            Soi da ngay →
+          </CtaButton>
+        </div>
       </div>
     </div>
   );

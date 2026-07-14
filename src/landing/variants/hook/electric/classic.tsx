@@ -17,33 +17,44 @@ export function ElectricClassicHook({ onStart }: HookSlotProps) {
         }}
       />
 
-      <div className="max-w-2xl mx-auto w-full px-5 relative z-10 text-center animate-fade-in-up">
-        <div className="inline-block mb-6 px-4 py-1.5 rounded-full" style={{ background: 'rgba(219,39,119,.2)', border: '1px solid rgba(219,39,119,.3)' }}>
-          <span className="text-sm font-medium" style={{ color: 'var(--lp-accent)' }}>Phân tích vùng da</span>
+      <div className="max-w-5xl mx-auto w-full px-5 relative z-10 flex flex-col md:flex-row items-center gap-8 md:gap-14 animate-fade-in-up">
+        <div className="shrink-0 flex items-center justify-center">
+          <img
+            src="/face-map-hook.svg"
+            alt="Phân tích vùng da mụn"
+            className="h-52 md:h-[340px] w-auto object-contain"
+            style={{ filter: 'drop-shadow(0 0 28px rgba(219,39,119,.4))' }}
+          />
         </div>
 
-        <h1 className="font-extrabold text-4xl md:text-6xl leading-tight mb-5" style={{ color: 'var(--lp-primary)' }}>
-          Da bạn<br />
-          <span style={{ color: 'var(--lp-accent)', filter: 'drop-shadow(0 0 20px var(--lp-accent))' }}>đang nói gì</span>?
-        </h1>
+        <div className="flex flex-col items-center md:items-start gap-4 text-center md:text-left">
+          <div className="inline-block px-4 py-1.5 rounded-full" style={{ background: 'rgba(219,39,119,.2)', border: '1px solid rgba(219,39,119,.3)' }}>
+            <span className="text-sm font-medium" style={{ color: 'var(--lp-accent)' }}>Phân tích vùng da</span>
+          </div>
 
-        <p className="text-base md:text-lg max-w-md mx-auto mb-8 leading-relaxed" style={{ color: 'rgba(240,230,255,.7)' }}>
-          Chỉ mất 60 giây để làn da bạn được&ldquo;nghe&rdquo; — và tìm ra điều thực sự cần thiết.
-        </p>
+          <h1 className="font-extrabold text-4xl md:text-6xl leading-tight" style={{ color: 'var(--lp-band-text)' }}>
+            Da bạn<br />
+            <span style={{ color: 'var(--lp-accent)', filter: 'drop-shadow(0 0 20px var(--lp-accent))' }}>đang nói gì</span>?
+          </h1>
 
-        <button
-          onClick={onStart}
-          className="px-8 py-3.5 rounded-full font-bold text-base transition-all duration-200 cursor-pointer"
-          style={{
-            background: 'var(--lp-accent)',
-            color: '#fff',
-            boxShadow: '0 0 24px rgba(219,39,119,.5)',
-          }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 0 36px rgba(219,39,119,.7)'; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 0 24px rgba(219,39,119,.5)'; }}
-        >
-          Soi da ngay
-        </button>
+          <p className="text-base md:text-lg max-w-md leading-relaxed" style={{ color: 'color-mix(in srgb, var(--lp-band-text) 65%, transparent)' }}>
+            Chỉ mất 60 giây để làn da bạn được&ldquo;nghe&rdquo; — và tìm ra điều thực sự cần thiết.
+          </p>
+
+          <button
+            onClick={onStart}
+            className="px-8 py-3.5 rounded-full font-bold text-base transition-all duration-200 cursor-pointer"
+            style={{
+              background: 'var(--lp-accent)',
+              color: '#fff',
+              boxShadow: '0 0 24px rgba(219,39,119,.5)',
+            }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 0 36px rgba(219,39,119,.7)'; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 0 24px rgba(219,39,119,.5)'; }}
+          >
+            Soi da ngay
+          </button>
+        </div>
       </div>
     </div>
   );

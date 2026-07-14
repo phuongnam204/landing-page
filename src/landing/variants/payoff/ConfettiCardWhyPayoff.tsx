@@ -158,7 +158,22 @@ function WhySection({ conditionId, onScrollDown }: { conditionId: ConditionId; o
 
 // ─── Main export ─────────────────────────────────────────────────────────────
 
-export function ConfettiCardWhyPayoff({ result, onContinue }: PayoffSlotProps) {
+export type TopbarConfig = {
+  labels: {
+    result: string;
+    why: string;
+    benefit: string;
+  };
+  style?: React.CSSProperties;
+  className?: string;
+};
+
+export function ConfettiCardWhyPayoff({
+  result,
+  onContinue,
+  FeatureComponent: FeatureComp = Feature,
+  topbarConfig,
+}: PayoffSlotProps & { FeatureComponent?: React.ComponentType<{ onContinue: () => void }>; topbarConfig?: TopbarConfig }) {
   const canvasRef        = useRef<HTMLCanvasElement>(null);
   const whyRef           = useRef<HTMLDivElement>(null);
   const statsRef         = useRef<HTMLDivElement>(null);
@@ -166,6 +181,8 @@ export function ConfettiCardWhyPayoff({ result, onContinue }: PayoffSlotProps) {
   const resultSectRef    = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [showSkipCta, setShowSkipCta] = useState(false);
+  const [activeSection, setActiveSection] = useState<'result' | 'why' | 'benefit'>('result');
+  const prevSectionRef = useRef<string>('result');
 
   useEffect(() => {
     const canvas = canvasRef.current; if (!canvas) return;
@@ -185,11 +202,46 @@ export function ConfettiCardWhyPayoff({ result, onContinue }: PayoffSlotProps) {
     return () => container.removeEventListener('scroll', onScroll);
   }, []);
 
+  useEffect(() => {
+    if (!topbarConfig) return;
+    const root = scrollContainerRef.current;
+    if (!root) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          let next: 'result' | 'why' | 'benefit' = 'result';
+          if (entry.target === resultSectRef.current) next = 'result';
+          else if (entry.target === whyRef.current) next = 'why';
+          else next = 'benefit';
+          if (next !== prevSectionRef.current) {
+            prevSectionRef.current = next;
+            setActiveSection(next);
+          }
+        }
+      },
+      { root, threshold: 0.4 },
+    );
+    [resultSectRef, whyRef, statsRef, featureRef].forEach((r) => { if (r.current) observer.observe(r.current); });
+    return () => observer.disconnect();
+  }, [topbarConfig]);
+
   const isPositive = result.condition.tone === 'positive';
 
   return (
     <div ref={scrollContainerRef} className="h-[100dvh] w-full bg-[var(--lp-bg-payoff)] overflow-y-auto">
       <style>{`@keyframes cta-nudge{0%,100%{transform:translateY(0)}40%{transform:translateY(-4px)}70%{transform:translateY(-2px)}}`}</style>
+
+      {topbarConfig && (
+        <div
+          className={`sticky top-0 z-50 py-3.5 px-6 text-center font-bold text-base md:text-lg tracking-widest uppercase overflow-hidden${topbarConfig.className ? ` ${topbarConfig.className}` : ''}`}
+          style={topbarConfig.style}
+        >
+          <span key={activeSection} className="topbar-label-in inline-block">
+            {topbarConfig.labels[activeSection]}
+          </span>
+        </div>
+      )}
 
       {/* Sticky skip CTA — appears after result card scrolls out */}
       {showSkipCta && (
@@ -213,42 +265,41 @@ export function ConfettiCardWhyPayoff({ result, onContinue }: PayoffSlotProps) {
           <h1 className={['font-extrabold text-xl md:text-2xl mb-4', isPositive ? 'text-teal-800' : 'text-amber-900'].join(' ')}>
             {HEADERS[result.condition.tone]}
           </h1>
-          <div className="mb-4">
-            <p className="text-sm md:text-base text-cta/60 mb-2">Sau khi soi da của bạn:</p>
-            <div className="flex flex-wrap gap-2 mb-2.5">
-              {[
-                // { key: 'found', color: '#FF5C9E', content: <span>đã soi <b>{result.foundCount}</b> nốt mụn</span> },
-                { key: 'zone',  color: 'var(--lp-accent)', content: <span>da bạn hay bị ở <b>{result.zoneLabel}</b></span> },
-              ].map((chip, i) => (
-                <span key={chip.key} className="payoff-stat-chip inline-flex items-center gap-1.5 rounded-full bg-cta/5 px-3 py-1.5 text-sm font-semibold text-cta" style={{ animationDelay: `${0.5 + i * 0.18}s` }}>
-                  <span className="inline-block w-2.5 h-2.5 rounded-full shrink-0" style={{ background: chip.color }} />
-                  {chip.content}
-                </span>
-              ))}
-            </div>
-            {result.triggerNote && (
-              <p className="payoff-stat-chip text-xs md:text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 leading-relaxed" style={{ animationDelay: '0.86s' }}>
-                {result.triggerNote}
-              </p>
-            )}
-            {result.zoneIds && result.zoneIds.length > 0 && (() => {
-              const rows = getZoneInsightRows(result.zoneIds);
-              return rows.length > 0 ? (
-                <div className="flex flex-col gap-1.5 mt-2.5">
-                  {rows.map((row, i) => (
-                    <p
-                      key={row.key}
-                      className="payoff-stat-chip text-xs text-cta/70 bg-[var(--lp-bg-hero)] border border-[var(--lp-border)] rounded-lg px-3 py-2 leading-relaxed"
-                      style={{ animationDelay: `${1.0 + i * 0.12}s` }}
-                    >
-                      <span className="font-semibold text-cta">{row.label}: </span>
-                      {row.text}
-                    </p>
-                  ))}
+          {(result.zoneLabel || result.triggerNote || (result.zoneIds && result.zoneIds.length > 0)) && (
+            <div className="mb-4">
+              <p className="text-sm md:text-base text-cta/80 mb-2">Sau khi soi da của bạn:</p>
+              {result.zoneLabel && (
+                <div className="flex flex-wrap gap-2 mb-2.5">
+                  <span className="payoff-stat-chip inline-flex items-center gap-1.5 rounded-full bg-cta/5 px-3 py-1.5 text-sm font-semibold text-cta" style={{ animationDelay: '0.5s' }}>
+                    <span className="inline-block w-2.5 h-2.5 rounded-full shrink-0" style={{ background: 'var(--lp-accent)' }} />
+                    <span>da bạn hay bị ở <b>{result.zoneLabel}</b></span>
+                  </span>
                 </div>
-              ) : null;
-            })()}
-          </div>
+              )}
+              {result.triggerNote && (
+                <p className="payoff-stat-chip text-xs md:text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 leading-relaxed" style={{ animationDelay: '0.86s' }}>
+                  {result.triggerNote}
+                </p>
+              )}
+              {result.zoneIds && result.zoneIds.length > 0 && (() => {
+                const rows = getZoneInsightRows(result.zoneIds);
+                return rows.length > 0 ? (
+                  <div className="flex flex-col gap-1.5 mt-2.5">
+                    {rows.map((row, i) => (
+                      <p
+                        key={row.key}
+                        className="payoff-stat-chip text-xs text-cta/70 bg-[var(--lp-bg-hero)] border border-[var(--lp-border)] rounded-lg px-3 py-2 leading-relaxed"
+                        style={{ animationDelay: `${1.0 + i * 0.12}s` }}
+                      >
+                        <span className="font-semibold text-cta">{row.label}: </span>
+                        {row.text}
+                      </p>
+                    ))}
+                  </div>
+                ) : null;
+              })()}
+            </div>
+          )}
           {result.condition.body && (
             <SafeBody html={result.condition.body} className="text-sm md:text-base text-cta/80 leading-relaxed mb-2" />
           )}
@@ -276,7 +327,7 @@ export function ConfettiCardWhyPayoff({ result, onContinue }: PayoffSlotProps) {
 
       {/* Section 4: Feature + final CTA */}
       <div ref={featureRef}>
-        <Feature onContinue={onContinue} />
+        <FeatureComp onContinue={onContinue} />
       </div>
 
     </div>

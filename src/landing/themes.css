@@ -139,29 +139,28 @@
 /* === theme-magenta (Electric Magenta archetype) === */
 .theme-magenta {
   --lp-bg-hero:        #1a0533;
-  --lp-bg-minigame:    #2d1058;
-  --lp-bg-payoff:      #3b0764;
-  --lp-bg-programs:    #2d1058;
-  --lp-bg-card:        #1e0a42;
-  --lp-primary:        #f0e6ff;
-  --lp-accent:         #db2777;
-  --lp-border:         #7e22ce;
+  --lp-bg-minigame:    #F5F0FF;
+  --lp-bg-payoff:      #EDE9FE;
+  --lp-bg-programs:    #F5F0FF;
+  --lp-bg-card:        #ffffff;
+  --lp-primary:        #6D28D9;
+  --lp-accent:         #DB2777;
+  --lp-border:         #DDD6FE;
   --lp-blob-1:         #9333ea;
   --lp-blob-2:         #db2777;
-  --lp-blob-3:         #6b21a8;
+  --lp-blob-3:         #C4B5FD;
   --lp-radius-card:    20px;
   --lp-radius-btn:     20px;
-  --lp-pastel-pink:    #2d1b69;
-  --lp-pastel-lavender:#1a0533;
-  --lp-pastel-mint:    #3b0764;
-  --lp-border-pink:    #9333ea;
-  --lp-border-mint:    #7e22ce;
-  --lp-border-lavender:#6b21a8;
-  --lp-label-purple:   #db2777;
-  /* dark-band vars (inherited by all archetypes, only used by bold) */
+  --lp-pastel-pink:    #FDF4FF;
+  --lp-pastel-lavender:#EDE9FE;
+  --lp-pastel-mint:    #F5F0FF;
+  --lp-border-pink:    #E9D5FF;
+  --lp-border-mint:    #DDD6FE;
+  --lp-border-lavender:#E9D5FF;
+  --lp-label-purple:   #7C3AED;
   --lp-band-bg:        #1a0533;
-  --lp-band-text:      #f0e6ff;
-  --lp-band-accent:    #db2777;
+  --lp-band-text:      #F0E6FF;
+  --lp-band-accent:    #DB2777;
 }
 
 /* === theme-coral (Coral Peach) === */
@@ -464,25 +463,25 @@
 /* === theme-crimson (Crimson Night) === */
 .theme-crimson {
   --lp-bg-hero:        #0F0005;
-  --lp-bg-minigame:    #1F0010;
-  --lp-bg-payoff:      #300018;
-  --lp-bg-programs:    #1F0010;
-  --lp-bg-card:        #1A000D;
-  --lp-primary:        #FFE4E6;
+  --lp-bg-minigame:    #FFF0F3;
+  --lp-bg-payoff:      #FFD6E0;
+  --lp-bg-programs:    #FFF0F3;
+  --lp-bg-card:        #ffffff;
+  --lp-primary:        #881337;
   --lp-accent:         #E11D48;
-  --lp-border:         #4C0519;
+  --lp-border:         #FECDD3;
   --lp-blob-1:         #9F1239;
   --lp-blob-2:         #BE123C;
-  --lp-blob-3:         #881337;
+  --lp-blob-3:         #FDA4AF;
   --lp-radius-card:    20px;
   --lp-radius-btn:     20px;
-  --lp-pastel-pink:    #0F0005;
-  --lp-pastel-lavender:#1F0010;
-  --lp-pastel-mint:    #300018;
-  --lp-border-pink:    #9F1239;
-  --lp-border-mint:    #BE123C;
-  --lp-border-lavender:#4C0519;
-  --lp-label-purple:   #E11D48;
+  --lp-pastel-pink:    #FFF0F3;
+  --lp-pastel-lavender:#FFE4E6;
+  --lp-pastel-mint:    #FFD6E0;
+  --lp-border-pink:    #FECDD3;
+  --lp-border-mint:    #FDA4AF;
+  --lp-border-lavender:#FECDD3;
+  --lp-label-purple:   #BE123C;
   --lp-band-bg:        #0F0005;
   --lp-band-text:      #FFE4E6;
   --lp-band-accent:    #E11D48;
@@ -623,6 +622,33 @@
   --lp-band-accent:    #6366F1;
 }
 
+/* === theme-navy-mint (Navy × Mint) === */
+.theme-navy-mint {
+  --lp-bg-hero:        #F0FFF8;
+  --lp-bg-minigame:    #E8FBF3;
+  --lp-bg-payoff:      #A8E6CF;
+  --lp-bg-programs:    #E8FBF3;
+  --lp-bg-card:        #ffffff;
+  --lp-primary:        #2D2640;
+  --lp-accent:         #1A7A55;
+  --lp-border:         #8FE3BC;
+  --lp-blob-1:         #8FE3BC;
+  --lp-blob-2:         #57D4A0;
+  --lp-blob-3:         #8FE3BC;
+  --lp-radius-card:    20px;
+  --lp-radius-btn:     20px;
+  --lp-pastel-pink:    #E8FBF3;
+  --lp-pastel-lavender:#F0FFF8;
+  --lp-pastel-mint:    #A8E6CF;
+  --lp-border-pink:    #8FE3BC;
+  --lp-border-mint:    #57D4A0;
+  --lp-border-lavender:#A8E6CF;
+  --lp-label-purple:   #1A7A55;
+  --lp-band-bg:        #2D2640;
+  --lp-band-text:      #8FE3BC;
+  --lp-band-accent:    #8FE3BC;
+}
+
 /* ─── blob CTA shimmer hover ─── */
 @keyframes cta-shimmer-sweep {
   from { transform: translateX(-120%) skewX(-15deg); }
@@ -644,4 +670,38 @@
 
 @media (prefers-reduced-motion: reduce) {
   .cta-shimmer::after { display: none; }
+}
+
+/* ─── CTA accent hover (primary + dark variants) ─── */
+.cta-glow-hover:hover {
+  box-shadow: 0 6px 24px color-mix(in srgb, var(--lp-accent) 40%, transparent);
+}
+
+/* ─── Topbar label entrance ─── */
+@keyframes topbar-label-in {
+  from { opacity: 0; transform: translateY(-5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.topbar-label-in {
+  animation: topbar-label-in 0.3s ease forwards;
+}
+
+/* ─── Typographic hook slide entrance ─── */
+@keyframes slide-from-left {
+  from { transform: translateX(-100%); opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
+}
+@keyframes slide-from-right {
+  from { transform: translateX(100%);  opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
+}
+@keyframes hook-fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hook-da-bg  { animation: slide-from-left  0.65s cubic-bezier(0.22,1,0.36,1) both; }
+.hook-can-text { animation: slide-from-right 0.65s cubic-bezier(0.22,1,0.36,1) both; }
+.hook-fade-in  { animation: hook-fade-up    0.4s  ease                        both; }
+@media (prefers-reduced-motion: reduce) {
+  .hook-da-bg, .hook-can-text { animation: hook-fade-up 0.3s ease both; }
 }
