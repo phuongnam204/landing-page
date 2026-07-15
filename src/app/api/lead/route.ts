@@ -17,8 +17,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Chi nhánh không hợp lệ' }, { status: 400 });
 
   const webhookUrl = process.env.LEAD_WEBHOOK_URL;
-  if (!webhookUrl)
-    return NextResponse.json({ error: 'webhook not configured' }, { status: 503 });
 
   const payload = {
     timestamp: new Date().toISOString(),
@@ -30,15 +28,17 @@ export async function POST(req: NextRequest) {
     recipeId: recipeId ?? '',
   };
 
-  try {
-    const res = await fetch(webhookUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    if (!res.ok) throw new Error(`upstream ${res.status}`);
-  } catch {
-    return NextResponse.json({ error: 'Không thể gửi thông tin, thử lại sau.' }, { status: 502 });
+  if (webhookUrl) {
+    try {
+      const res = await fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error(`upstream ${res.status}`);
+    } catch {
+      return NextResponse.json({ error: 'Không thể gửi thông tin, thử lại sau.' }, { status: 502 });
+    }
   }
 
   return NextResponse.json({ ok: true });
