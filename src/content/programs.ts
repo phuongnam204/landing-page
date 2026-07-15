@@ -45,7 +45,7 @@ export const programs: Program[] = [
     ],
     sessions: 4,
     o2skinComboRef: 'Combo 4: Sạch Mụn Và Điều Trị Mụn, Thâm Lấy Nhân Mụn & Peel Da',
-    referenceLink: '/programs/peel-da-tri-mun',
+    referenceLink: 'https://o2skin.vn/dieu-tri-mun/peel-da-dieu-tri-mun/',
     images:['/programs/hinh-gioi-thieu-peel-da-tri-mun-2.jpg', '/programs/hinh-gioi-thieu-peel-da-3.jpg']
   },
   {
@@ -76,7 +76,7 @@ export const programs: Program[] = [
     ],
     sessions: 6,
     o2skinComboRef: 'o2skin Combo IPL thật (đối chiếu)',
-    referenceLink: '/programs/ipl-kiem-soat-nhon-mun',
+    referenceLink: 'https://o2skin.vn/dieu-tri-mun/ipl-dieu-tri-mun-va-kiem-soat-nhon-nang/',
     images:[
       '/programs/hinh-gioi-thieu-ipl-tri-mun-va-kiem-soat-nhon-3.jpg',
       '/programs/hinh-gioi-thieu-ipl-tri-mun-va-kiem-soat-nhon-2.jpg'
@@ -104,7 +104,7 @@ export const programs: Program[] = [
     // secondaryConditionIds: [''],
     sessions: 7,
     o2skinComboRef: '',
-    referenceLink: '/programs/laser-tri-seo',
+    referenceLink: 'https://o2skin.vn/dieu-tri-seo-ro-vet-tham-va-se-khit-lo-chan-long/dieu-tri-seo-ro-nhe-da-nhay-cam/',
     images: ['/programs/hinh-anh-gioi-thieu-tri-seo-ro-3.jpg']
   },
   {
@@ -123,7 +123,7 @@ export const programs: Program[] = [
     secondaryConditionIds: ['lo-chan-long'],
     sessions: 5,
     o2skinComboRef: 'o2skin Combo Lăn kim thật (đối chiếu)',
-    referenceLink: '/programs/lan-kim-phuc-hoi',
+    referenceLink: 'https://o2skin.vn/cham-soc-da-sau-dieu-tri-mun/lkn-cap-am-va-tai-tao-da/',
   },
   {
     id: 'hormonal-acne-plan',
@@ -152,7 +152,7 @@ export const programs: Program[] = [
     comboWith: 'maintenance-skin-health',
     sessions: 8,
     o2skinComboRef: '',
-    referenceLink: '/programs/phac-do-mun-noi-tiet',
+    referenceLink: 'https://o2skin.vn/dieu-tri-mun/lay-nhan-mun-y-khoa/',
   },
   {
     id: 'maintenance-skin-health',
@@ -178,7 +178,7 @@ export const programs: Program[] = [
     sessions: 9,
     images:['/programs/hinh-gioi-thieu-cham-soc-da-trang-sang-chuyen-sau.png','/programs/hinh-gioi-thieu-cham-soc-da-trang-sang-chuyen-sau-3.jpg'],
     o2skinComboRef: 'o2skin Combo thật (đối chiếu)',
-    referenceLink: '/programs/cham-soc-da-trang-sang',
+    referenceLink: 'https://o2skin.vn/cham-soc-da-sau-dieu-tri-mun/dien-di-sang-da-chuyen-sau/',
   },
 
   {
@@ -209,7 +209,7 @@ export const programs: Program[] = [
     sessions: 10,
     images:['/programs/hinh-anh-gioi-thieu-tre-hoa-da-mat-va-ho-tro-thu-nho-lo-chan-long-3.jpg', '/programs/hinh-anh-gioi-thieu-tre-hoa-da-mat-va-ho-tro-thu-nho-lo-chan-long-2.jpg'],
     o2skinComboRef: '',
-    referenceLink: '/programs/dieu-tri-seo-ro-vet-tham-va-se-khit-lo-chan-long/tre-hoa-da-va-ho-tro-thu-nho-lo-chan-long/',
+    referenceLink: 'https://o2skin.vn/dieu-tri-seo-ro-vet-tham-va-se-khit-lo-chan-long/tre-hoa-da-va-ho-tro-thu-nho-lo-chan-long/',
   },
 
 

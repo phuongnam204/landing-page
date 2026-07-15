@@ -188,32 +188,41 @@ function ProgramDetailDrawer({ program, tint, open, onClose, onBook, ctaVariant 
             {/* Right column: images or tint placeholder */}
             <div className="flex flex-col gap-2">
               {program.images && program.images.length > 0 ? (
-                <>
-                  <img
-                    src={program.images[0]}
-                    alt=""
-                    className="w-full rounded-soft object-cover"
-                    style={{ aspectRatio: '16/9' }}
-                  />
-                  {program.images.length > 1 && (
-                    <div className="grid grid-cols-2 gap-2">
-                      {program.images.slice(1, 3).map((src, i) => (
-                        <img
-                          key={i}
-                          src={src}
-                          alt=""
-                          className="w-full rounded-soft object-cover"
-                          style={{ aspectRatio: '1/1' }}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </>
+                (() => {
+                  const imgs = program.images!.slice(0, 3);
+                  if (imgs.length === 1) {
+                    return (
+                      <img src={imgs[0]} alt="" className="w-full rounded-soft object-cover"
+                        style={{ aspectRatio: '4/3' }} />
+                    );
+                  }
+                  if (imgs.length === 2) {
+                    return (
+                      <div className="grid grid-cols-2 gap-2">
+                        {imgs.map((src, i) => (
+                          <img key={i} src={src} alt="" className="w-full rounded-soft object-cover"
+                            style={{ aspectRatio: '1/1' }} />
+                        ))}
+                      </div>
+                    );
+                  }
+                  // 3 images: top row 2:1 + bottom row 2×1:1
+                  // Both rows render at the same height (W/2), visually balanced
+                  return (
+                    <>
+                      <img src={imgs[0]} alt="" className="w-full rounded-soft object-cover"
+                        style={{ aspectRatio: '2/1' }} />
+                      <div className="grid grid-cols-2 gap-2">
+                        {imgs.slice(1).map((src, i) => (
+                          <img key={i} src={src} alt="" className="w-full rounded-soft object-cover"
+                            style={{ aspectRatio: '1/1' }} />
+                        ))}
+                      </div>
+                    </>
+                  );
+                })()
               ) : (
-                <div
-                  className="w-full rounded-soft"
-                  style={{ background: `${tint}20`, minHeight: 120 }}
-                />
+                <div className="w-full rounded-soft" style={{ background: `${tint}20`, minHeight: 120 }} />
               )}
             </div>
           </div>
