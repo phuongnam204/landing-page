@@ -16,19 +16,18 @@ export function PlayfulMinimalHook({ onStart }: HookSlotProps) {
 
         <div className="flex-1 text-center md:text-left animate-fade-in-up">
           <h1 className="font-extrabold text-3xl md:text-5xl text-cta leading-tight">
-            Da bạn đang{' '}
-            <span className="text-[var(--lp-accent)]">giấu</span>{' '}
-            điều gì?
+            Da bạn cần được{' '}
+            <span className="text-[var(--lp-accent)]">hiểu đúng</span>
           </h1>
           <p className="text-base md:text-lg text-cta/70 mt-5">
-            Tìm những &ldquo;bạn nhỏ&rdquo; ẩn náu và khám phá điều da bạn thực sự cần.
+            Không phải mua thêm — chỉ cần biết chính xác điều da bạn đang thực sự cần.
           </p>
           <div className="flex justify-center md:justify-start mt-7">
             <CtaButton onClick={onStart} size="lg">
-              Soi da ngay →
+              Khám phá ngay
             </CtaButton>
           </div>
-          <p className="text-sm md:text-base text-cta/50 mt-4">Chỉ mất 60 giây</p>
+          <p className="text-sm md:text-base text-cta/50 mt-4">Chỉ 60 giây là xong</p>
         </div>
       </div>
     </div>

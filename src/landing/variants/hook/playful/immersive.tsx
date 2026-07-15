@@ -16,19 +16,18 @@ export function PlayfulImmersiveHook({ onStart }: HookSlotProps) {
       <div className="max-w-6xl mx-auto w-full px-5 relative z-10">
         <div className="text-center md:text-left md:max-w-xl animate-fade-in-up">
           <h1 className="font-extrabold text-5xl md:text-7xl text-cta leading-tight">
-            Da bạn đang{' '}
-            <span className="text-[var(--lp-accent)]">giấu</span>{' '}
-            điều gì?
+            Đã thử đủ thứ,{' '}
+            <span className="text-[var(--lp-accent)]">vẫn mụn</span>?
           </h1>
           <p className="text-base md:text-lg text-cta/70 mt-5">
-            Tìm những &ldquo;bạn nhỏ&rdquo; ẩn náu và khám phá điều da bạn thực sự cần.
+            Có thể vấn đề không nằm ở sản phẩm — mà ở chỗ chưa ai thực sự hiểu da bạn.
           </p>
           <div className="flex justify-center md:justify-start mt-7">
             <CtaButton onClick={onStart} size="lg">
-              Soi da ngay →
+              Để da tôi lên tiếng →
             </CtaButton>
           </div>
-          <p className="text-sm md:text-base text-cta/50 mt-4">Chỉ mất 60 giây</p>
+          <p className="text-sm md:text-base text-cta/50 mt-4">Phân tích miễn phí trong 60 giây</p>
         </div>
       </div>
     </div>

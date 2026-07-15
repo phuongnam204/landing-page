@@ -1,11 +1,13 @@
 'use client';
 import type { PayoffSlotProps } from '../../../slots';
 import { ConfettiCardWhyPayoff } from '../ConfettiCardWhyPayoff';
+import { CirclesWithBackground } from '../feature-layouts';
 
 export function BoldTypographicPayoff(props: PayoffSlotProps) {
   return (
     <ConfettiCardWhyPayoff
       {...props}
+      FeatureComponent={CirclesWithBackground}
       topbarConfig={{
         labels: {
           result:  'Kết quả phân tích',

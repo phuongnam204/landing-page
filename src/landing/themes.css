@@ -356,7 +356,7 @@
 .theme-periwinkle {
   --lp-bg-hero:        #EEF2FF;
   --lp-bg-minigame:    #E0E7FF;
-  --lp-bg-payoff:      #C7D2FE;
+  --lp-bg-payoff:      #DBE4FE;
   --lp-bg-programs:    #E0E7FF;
   --lp-bg-card:        #ffffff;
   --lp-primary:        #1E1B4B;
@@ -462,9 +462,9 @@
 
 /* === theme-crimson (Crimson Night) === */
 .theme-crimson {
-  --lp-bg-hero:        #0F0005;
+  --lp-bg-hero:        #3D0020;
   --lp-bg-minigame:    #FFF0F3;
-  --lp-bg-payoff:      #FFD6E0;
+  --lp-bg-payoff:      #FFE4E6;
   --lp-bg-programs:    #FFF0F3;
   --lp-bg-card:        #ffffff;
   --lp-primary:        #881337;
@@ -482,7 +482,7 @@
   --lp-border-mint:    #FDA4AF;
   --lp-border-lavender:#FECDD3;
   --lp-label-purple:   #BE123C;
-  --lp-band-bg:        #0F0005;
+  --lp-band-bg:        #3D0020;
   --lp-band-text:      #FFE4E6;
   --lp-band-accent:    #E11D48;
 }

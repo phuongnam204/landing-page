@@ -7,9 +7,8 @@ describe('registry', () => {
     expect(registry.payoff).toBeDefined(); expect(registry.conversion).toBeDefined();
   });
   it('hook two-column là component', () => expect(typeof registry.hook['two-column']).toBe('function'));
-  it('minigame có findgame và skincare', () => {
-    expect(typeof registry.minigame['findgame']).toBe('function');
-    expect(typeof registry.minigame['skincare']).toBe('function');
+  it('minigame face-map là component', () => {
+    expect(typeof registry.minigame['face-map']).toBe('function');
   });
   it('programs grid là component', () => expect(typeof registry.programs['grid']).toBe('function'));
   it('socialProof video-proof là component', () => expect(typeof registry.socialProof['video-proof']).toBe('function'));

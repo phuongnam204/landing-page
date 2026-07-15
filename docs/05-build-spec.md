@@ -36,28 +36,7 @@ giữ chân so với quiz.
 
 ## 4. Đề xuất tech stack (mới — thay thế phần "chưa chốt" ở [03-open-questions.md](03-open-questions.md))
 
-**Đề xuất: Astro làm framework chính, dùng React islands chỉ cho phần quiz/progress tương tác,
-deploy lên Vercel hoặc Netlify (static/edge hosting).**
-
-Lý do:
-
-- Ràng buộc số 1 là tốc độ tải trang trên mobile/mạng di động — cao hơn cả "dev quen tay". Astro
-  mặc định render HTML tĩnh, chỉ gửi JavaScript cho đúng phần cần tương tác (client-side hydration
-  có chọn lọc qua "islands"), nên payload JS ban đầu nhỏ hơn nhiều so với một Next.js app gửi cả
-  React runtime cho toàn trang trong khi 80% trang (hook, payoff, trust section) là tĩnh.
-- Team đã quen React/Next.js — Astro hỗ trợ viết component bằng React trực tiếp (`.tsx` islands),
-  nên phần quiz cá nhân hoá vẫn viết bằng React như team quen tay, không phải học framework UI mới.
-  Chỉ phần routing/layout tổng thể dùng cú pháp Astro, vốn rất gần HTML/JSX nên chi phí học thấp.
-  Đây là phương án "không đánh đổi tốc độ tải lấy dev quen tay" — đạt cả hai vì chỉ phần thật sự cần
-  interactivity (quiz + progress bar) mới load React, còn lại là HTML tĩnh.
-- Không cần backend server riêng ở giai đoạn độc lập hiện tại — Astro build ra static output, deploy
-  thẳng lên Vercel/Netlify, có CDN/edge cache mặc định, khớp với yêu cầu deploy nhanh.
-- MVP không cần canvas/game engine nặng (quiz + progress là state đơn giản), nên không cần đánh đổi
-  sang một stack chuyên game.
-
-Phương án thay thế đã cân nhắc và loại: Next.js static export (cùng hệ React nhưng mặc định hydrate
-nhiều hơn cần thiết nếu không cấu hình kỹ App Router/RSC); pure vanilla JS (tải nhanh nhất nhưng bỏ
-phí kinh nghiệm React sẵn có của team, tăng thời gian dev cho quiz logic).
+**Đề xuất: NextJs làm framework chính.
 
 ## 5. Đo lường (chi tiết: [03-open-questions.md](03-open-questions.md) mục Đo lường)
 
@@ -74,7 +53,7 @@ thật sau này không cần sửa logic.
 
 ## 7. Checklist thực thi theo thứ tự ưu tiên
 
-1. Khởi tạo project Astro + React integration, cấu hình deploy target Vercel/Netlify.
+1. Khởi tạo project Nextjs.
 2. Dựng layout cấu trúc trang theo mục 2 (5 section, scroll dọc), dùng placeholder content.
 3. Build component quiz cá nhân hoá (React island) — 3-5 câu, lựa chọn icon/hình ảnh, logic mapping
    câu trả lời sang kết quả payoff.

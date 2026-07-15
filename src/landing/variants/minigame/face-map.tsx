@@ -4,8 +4,8 @@ import type { MinigameSlotProps } from '../../slots';
 import { skinConditions } from '../../../content/quiz';
 import type { ConditionId } from '../../../content/quiz';
 
-type Zone = 'forehead' | 'left-cheek' | 'right-cheek' | 'nose' | 'chin-jaw';
-type AcneType = 'inflamed' | 'blackhead' | 'sensitive' | 'pore' | 'none';
+export type Zone = 'forehead' | 'left-cheek' | 'right-cheek' | 'nose' | 'chin-jaw';
+export type AcneType = 'inflamed' | 'blackhead' | 'sensitive' | 'pore' | 'none';
 
 const ZONE_LABELS: Record<Zone, string> = {
   forehead:      'vùng trán',
@@ -22,35 +22,67 @@ type ZoneDef = {
   dots: { x: number; y: number }[];
 };
 
-const ZONES_SVG: ZoneDef[] = [
+// ─── Face illustration scale ──────────────────────────────────────────────────
+// To resize: change FACE_SCALE only. 1 = original, 2 = 2x zoom. Everything else is derived.
+const FACE_SCALE = 2;
+const FACE_BASE_W = 176;
+const FACE_OFFSET_X = -((FACE_SCALE - 1) * FACE_BASE_W) / 2;
+
+// Base zone definitions at scale=1.
+// face-map-minigame.svg is 2209×1521 (landscape). With xMidYMin meet at 352×352,
+// the image renders 352×242px. Hair fills y≈0–88; skin (forehead) starts at y≈88.
+// Coords below are calibrated via DOM measurement of the rendered SVG at FACE_SCALE=2.
+const BASE_ZONES: ZoneDef[] = [
   {
     id: 'forehead', label: 'Trán',
-    cx: 88, cy: 46, rx: 42, ry: 22,
-    dots: [{ x: 74, y: 38 }, { x: 88, y: 30 }, { x: 102, y: 38 }, { x: 80, y: 52 }, { x: 97, y: 50 }],
+    cx: 88, cy: 54, rx: 14, ry: 5,
+    dots: [ { x: 82, y: 57 }, { x: 94, y: 56 }, { x: 80, y: 54 }, { x: 92, y: 55 }],
   },
   {
     id: 'nose', label: 'Mũi / Chữ T',
-    cx: 88, cy: 110, rx: 18, ry: 28,
-    dots: [{ x: 82, y: 98 }, { x: 94, y: 106 }, { x: 84, y: 120 }, { x: 92, y: 126 }],
+    cx: 88, cy: 74, rx: 7, ry: 11,
+    dots: [{ x: 85, y: 68 }, { x: 91, y: 73 }, { x: 86, y: 80 }],
   },
   {
     id: 'left-cheek', label: 'Má trái',
-    cx: 47, cy: 124, rx: 26, ry: 24,
-    dots: [{ x: 36, y: 116 }, { x: 50, y: 122 }, { x: 38, y: 132 }, { x: 58, y: 128 }],
+    cx: 75, cy: 78, rx: 6, ry: 6,
+    dots: [ { x: 74, y: 75 }, { x: 75, y: 83 }, { x: 79, y: 82 }],
   },
   {
     id: 'right-cheek', label: 'Má phải',
-    cx: 129, cy: 124, rx: 26, ry: 24,
-    dots: [{ x: 118, y: 116 }, { x: 132, y: 122 }, { x: 120, y: 132 }, { x: 140, y: 128 }],
+    cx: 101, cy: 78, rx: 6, ry: 6,
+    dots: [{ x: 97, y: 74 }, { x: 106, y: 74 }, { x: 97, y: 79 }],
   },
   {
     id: 'chin-jaw', label: 'Cằm & quai hàm',
-    cx: 88, cy: 176, rx: 44, ry: 22,
-    dots: [{ x: 74, y: 170 }, { x: 88, y: 166 }, { x: 102, y: 170 }, { x: 80, y: 182 }, { x: 97, y: 180 }],
+    cx: 88, cy: 92, rx: 18, ry: 7,
+    dots: [{ x: 74, y: 88 }, { x: 88, y: 86 }, { x: 98, y: 88 }, { x: 81, y: 96 }, { x: 95, y: 96 }, { x: 91, y: 85 }],
   },
 ];
 
-const ACNE_TYPES: { id: AcneType; label: string; desc: string; color: string }[] = [
+// Derived zones — auto-scaled; edit BASE_ZONES above, not here
+const ZONES_SVG: ZoneDef[] = BASE_ZONES.map(z => ({
+  ...z,
+  cx: z.cx * FACE_SCALE + FACE_OFFSET_X,
+  cy: z.cy * FACE_SCALE,
+  rx: z.rx * FACE_SCALE,
+  ry: z.ry * FACE_SCALE,
+  dots: z.dots.map(d => ({
+    x: d.x * FACE_SCALE + FACE_OFFSET_X,
+    y: d.y * FACE_SCALE,
+  })),
+}));
+
+// Clip ellipse at scale=1 — covers skin area (forehead to chin), excludes hair
+const BASE_CLIP = { cx: 88, cy: 72, rx: 41, ry: 30 };
+const FACE_CLIP = {
+  cx: BASE_CLIP.cx * FACE_SCALE + FACE_OFFSET_X,
+  cy: BASE_CLIP.cy * FACE_SCALE,
+  rx: BASE_CLIP.rx * FACE_SCALE,
+  ry: BASE_CLIP.ry * FACE_SCALE,
+};
+
+export const ACNE_TYPES: { id: AcneType; label: string; desc: string; color: string }[] = [
   { id: 'inflamed',  label: 'Mụn viêm đỏ',         desc: 'Đau, có mủ, đỏ',                    color: '#EF4444' },
   { id: 'blackhead', label: 'Đầu đen / đầu trắng',  desc: 'Nốt nhỏ, không viêm',              color: '#374151' },
   { id: 'sensitive', label: 'Mẩn đỏ kích ứng',      desc: 'Nổi khi đổi thời tiết, mỹ phẩm',  color: '#F472B6' },
@@ -58,8 +90,9 @@ const ACNE_TYPES: { id: AcneType; label: string; desc: string; color: string }[]
   { id: 'none',      label: 'Da ổn, ít mụn',         desc: 'Không có vấn đề rõ rệt',           color: '#10B981' },
 ];
 
-function mapToConditions(zones: Zone[], acneType: AcneType): ConditionId[] {
-  if (acneType === 'none' && zones.length === 0) return ['clean-skin'];
+export function mapToConditions(zones: Zone[], acneType: AcneType): ConditionId[] {
+  if (acneType === 'none') return ['clean-skin'];
+  if (zones.length === 0) return ['clean-skin'];
   const result = new Set<ConditionId>();
   if (zones.includes('chin-jaw')) result.add('mun-noi-tiet');
   if (acneType === 'sensitive') result.add('da-nhay-cam');
@@ -105,7 +138,7 @@ const SVG_KEYFRAMES = `
 
 // ─── Face diagram (fully SVG-based interaction) ───────────────────────────────
 
-function FaceDiagram({
+export function FaceDiagram({
   selectedZones,
   onToggle,
   isScanning,
@@ -118,7 +151,7 @@ function FaceDiagram({
   const hasInteracted = selectedZones.length > 0;
 
   return (
-    <div className="select-none w-full max-w-[320px]">
+    <div className="select-none w-full max-w-[240px] md:max-w-[320px]" style={{ filter: 'drop-shadow(0 4px 16px color-mix(in srgb, var(--lp-accent) 28%, transparent))' }}>
       <svg
         viewBox="0 0 176 240"
         className="w-full h-auto"
@@ -128,20 +161,18 @@ function FaceDiagram({
       >
         <defs>
           <clipPath id="fc-clip">
-            <ellipse cx="88" cy="120" rx="71" ry="95" />
+            <ellipse cx={FACE_CLIP.cx} cy={FACE_CLIP.cy} rx={FACE_CLIP.rx} ry={FACE_CLIP.ry} />
           </clipPath>
           <style>{SVG_KEYFRAMES}</style>
         </defs>
 
-        {/* Base face */}
-        <ellipse
-          cx="88" cy="120" rx="72" ry="96"
-          fill="var(--lp-bg-card)" stroke="currentColor"
-          strokeWidth="1.8" className="text-cta/20"
+        {/* Illustrated face base — zoomed by FACE_SCALE */}
+        <image
+          href="/face-map-minigame.svg"
+          x={FACE_OFFSET_X} y="0"
+          width={FACE_BASE_W * FACE_SCALE} height={FACE_BASE_W * FACE_SCALE}
+          preserveAspectRatio="xMidYMin meet"
         />
-        {/* Ears */}
-        <ellipse cx="16"  cy="120" rx="7" ry="13" fill="var(--lp-bg-card)" stroke="currentColor" strokeWidth="1.5" className="text-cta/18" />
-        <ellipse cx="160" cy="120" rx="7" ry="13" fill="var(--lp-bg-card)" stroke="currentColor" strokeWidth="1.5" className="text-cta/18" />
 
         {/* Zone fills + acne dots (clipped to face silhouette) */}
         <g clipPath="url(#fc-clip)">
@@ -226,13 +257,6 @@ function FaceDiagram({
           )}
         </g>
 
-        {/* Face features — rendered above zone fills */}
-        <path d="M62 84 Q76 78 90 84"  stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="text-cta/25" />
-        <path d="M86 84 Q100 78 114 84" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="text-cta/25" />
-        <ellipse cx="76"  cy="96" rx="11" ry="7" stroke="currentColor" strokeWidth="1.5" className="text-cta/28" />
-        <ellipse cx="100" cy="96" rx="11" ry="7" stroke="currentColor" strokeWidth="1.5" className="text-cta/28" />
-        <path d="M82 116 Q88 126 94 116" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="text-cta/22" />
-        <path d="M72 148 Q88 160 104 148" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="text-cta/25" />
 
       </svg>
     </div>
@@ -241,7 +265,7 @@ function FaceDiagram({
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-function StepProgress({ step }: { step: 1 | 2 }) {
+export function StepProgress({ step }: { step: 1 | 2 }) {
   return (
     <div className="w-full max-w-sm mb-5 flex items-center gap-3">
       <div className="flex-1 h-1.5 rounded-full bg-cta/10 overflow-hidden">
@@ -255,7 +279,7 @@ function StepProgress({ step }: { step: 1 | 2 }) {
   );
 }
 
-function SelectedZoneTags({ selectedZones }: { selectedZones: Zone[] }) {
+export function SelectedZoneTags({ selectedZones }: { selectedZones: Zone[] }) {
   return (
     <div className="min-h-7 flex flex-wrap gap-1.5 justify-center">
       {selectedZones.length === 0
@@ -272,39 +296,74 @@ function SelectedZoneTags({ selectedZones }: { selectedZones: Zone[] }) {
   );
 }
 
-function AcneTypeOption({ type, isSelected, onSelect }: {
-  type: typeof ACNE_TYPES[number]; isSelected: boolean; onSelect: () => void;
+const CARD_ICONS: Record<AcneType, React.ReactNode> = {
+  inflamed: (
+    <svg width="44" height="44" viewBox="0 0 44 44" fill="none" aria-hidden="true">
+      <circle cx="22" cy="22" r="13" fill="#EF4444" opacity="0.12" />
+      <circle cx="22" cy="22" r="6"   fill="#EF4444" opacity="0.9" />
+      <circle cx="14" cy="16" r="3.5" fill="#EF4444" opacity="0.6" />
+      <circle cx="30" cy="28" r="3"   fill="#EF4444" opacity="0.5" />
+      <circle cx="32" cy="16" r="2"   fill="#EF4444" opacity="0.4" />
+    </svg>
+  ),
+  blackhead: (
+    <svg width="44" height="44" viewBox="0 0 44 44" fill="none" aria-hidden="true">
+      <circle cx="22" cy="22" r="4"   fill="#374151" opacity="0.95" />
+      <circle cx="14" cy="16" r="2.5" fill="#374151" opacity="0.75" />
+      <circle cx="30" cy="16" r="2.5" fill="#374151" opacity="0.75" />
+      <circle cx="16" cy="29" r="2"   fill="#374151" opacity="0.6" />
+      <circle cx="28" cy="27" r="2"   fill="#374151" opacity="0.6" />
+      <circle cx="22" cy="32" r="1.5" fill="#374151" opacity="0.5" />
+    </svg>
+  ),
+  sensitive: (
+    <svg width="44" height="44" viewBox="0 0 44 44" fill="none" aria-hidden="true">
+      <path d="M8 22 Q14 15 22 22 Q30 29 36 22" stroke="#F472B6" strokeWidth="3"   strokeLinecap="round" fill="none" opacity="0.9" />
+      <path d="M8 29 Q14 22 22 29 Q30 36 36 29" stroke="#F472B6" strokeWidth="2.5" strokeLinecap="round" fill="none" opacity="0.55" />
+      <path d="M8 15 Q14 8  22 15 Q30 22 36 15" stroke="#F472B6" strokeWidth="2"   strokeLinecap="round" fill="none" opacity="0.3" />
+    </svg>
+  ),
+  pore: (
+    <svg width="44" height="44" viewBox="0 0 44 44" fill="none" aria-hidden="true">
+      <circle cx="22" cy="22" r="7"   stroke="#8B5CF6" strokeWidth="2.5" opacity="0.9" />
+      <circle cx="22" cy="22" r="2.5" stroke="#8B5CF6" strokeWidth="1.5" opacity="0.7" />
+      <circle cx="13" cy="15" r="4"   stroke="#8B5CF6" strokeWidth="2"   opacity="0.55" />
+      <circle cx="31" cy="28" r="3.5" stroke="#8B5CF6" strokeWidth="2"   opacity="0.45" />
+    </svg>
+  ),
+  none: (
+    <svg width="44" height="44" viewBox="0 0 44 44" fill="none" aria-hidden="true">
+      <circle cx="22" cy="22" r="14" fill="#10B981" opacity="0.12" />
+      <path d="M14 22l5.5 5.5L30 16" stroke="#10B981" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
+};
+
+function AcneCard({ type, selected, onSelect }: {
+  type: typeof ACNE_TYPES[number]; selected: boolean; onSelect: () => void;
 }) {
   return (
     <button
       onClick={onSelect}
-      className={[
-        'w-full text-left flex items-center gap-3 px-4 py-3 rounded-2xl border-2 transition-all duration-150',
-        isSelected
-          ? 'border-cta/60 bg-cta/10 scale-[1.01]'
-          : 'border-cta/15 bg-[var(--lp-bg-card)] hover:border-cta/35',
-      ].join(' ')}
+      aria-pressed={selected}
+      className="flex flex-col items-center justify-center gap-2 py-4 px-3 rounded-2xl border-2 transition-all duration-150 text-center"
+      style={{
+        borderColor: selected ? type.color : 'var(--lp-border)',
+        background: selected ? `color-mix(in srgb, ${type.color} 10%, var(--lp-bg-card))` : 'var(--lp-bg-card)',
+        transform: selected ? 'scale(1.04)' : 'scale(1)',
+        boxShadow: selected ? `0 4px 16px ${type.color}28` : 'none',
+      }}
     >
-      <span
-        className="w-5 h-5 rounded-full shrink-0 shadow-sm"
-        style={{ background: type.color, boxShadow: isSelected ? `0 0 0 3px ${type.color}33` : undefined }}
-      />
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-bold text-cta">{type.label}</p>
-        <p className="text-xs text-cta/50">{type.desc}</p>
-      </div>
-      {isSelected && (
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" className="shrink-0 text-cta">
-          <path d="M3 8l4 4 6-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      )}
+      {CARD_ICONS[type.id]}
+      <p className="text-xs font-bold text-cta leading-tight">{type.label}</p>
+      <p className="text-[10px] text-cta/50 leading-tight">{type.desc}</p>
     </button>
   );
 }
 
 // ─── Mobile scan screen ───────────────────────────────────────────────────────
 
-function ScanningScreen({ selectedZones }: { selectedZones: Zone[] }) {
+export function ScanningScreen({ selectedZones }: { selectedZones: Zone[] }) {
   return (
     <div className="w-full max-w-sm flex flex-col items-center gap-5 animate-fade-in-up">
       <div className="text-center">
@@ -327,13 +386,13 @@ function ScanningScreen({ selectedZones }: { selectedZones: Zone[] }) {
 
 // ─── Steps ────────────────────────────────────────────────────────────────────
 
-function Step1({
+export function Step1({
   selectedZones, onToggle, onNext, isScanning,
 }: {
   selectedZones: Zone[]; onToggle: (z: Zone) => void; onNext: () => void; isScanning: boolean;
 }) {
   return (
-    <div className="w-full max-w-sm flex flex-col items-center gap-4 animate-fade-in-up">
+    <div className="w-full max-w-sm flex flex-col items-center gap-3 md:gap-4 animate-fade-in-up">
       <div className="text-center">
         <p className="font-extrabold text-xl text-cta">Bạn hay bị mụn ở đâu?</p>
       </div>
@@ -366,15 +425,18 @@ function Step2({
   onBack: () => void; onSubmit: () => void; isScanning: boolean;
 }) {
   return (
-    <div className="w-full max-w-sm flex flex-col gap-2.5 animate-fade-in-up">
+    <div className="w-full max-w-sm flex flex-col gap-3 animate-fade-in-up">
       <div className="text-center mb-1">
         <p className="font-extrabold text-xl text-cta">Mụn thường trông như thế nào?</p>
         <p className="text-sm text-cta/50 mt-1">Chọn loại gần nhất với da bạn</p>
       </div>
-      {ACNE_TYPES.map(t => (
-        <AcneTypeOption key={t.id} type={t} isSelected={acneType === t.id} onSelect={() => onSelect(t.id)} />
-      ))}
-      <div className="flex gap-2 mt-1">
+      <div className="grid grid-cols-2 gap-2.5">
+        {ACNE_TYPES.slice(0, 4).map(t => (
+          <AcneCard key={t.id} type={t} selected={acneType === t.id} onSelect={() => onSelect(t.id)} />
+        ))}
+      </div>
+      <AcneCard type={ACNE_TYPES[4]} selected={acneType === ACNE_TYPES[4].id} onSelect={() => onSelect(ACNE_TYPES[4].id)} />
+      <div className="flex gap-2">
         <button
           onClick={onBack}
           disabled={isScanning}
@@ -387,7 +449,7 @@ function Step2({
           disabled={!acneType || isScanning}
           className="flex-1 bg-cta text-white font-bold py-3.5 rounded-soft text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
         >
-          {isScanning ? 'Đang phân tích...' : 'Xem kết quả của tôi &#8594;'}
+          {isScanning ? 'Đang phân tích...' : 'Xem kết quả của tôi'}
         </button>
       </div>
     </div>
@@ -415,9 +477,10 @@ export function FaceMapMinigame({ onComplete }: MinigameSlotProps) {
     const condition = conditions[0];
     if (!condition) return;
 
-    const zoneLabel = selectedZones.length > 0
+    const zoneLabel = type !== 'none' && selectedZones.length > 0
       ? selectedZones.map(z => ZONE_LABELS[z]).join(', ')
-      : 'không có vùng cụ thể';
+      : '';
+    const zoneIds = type !== 'none' ? [...selectedZones] : [];
     const typeInfo = ACNE_TYPES.find(t => t.id === type);
 
     setIsScanning(true);
@@ -426,7 +489,7 @@ export function FaceMapMinigame({ onComplete }: MinigameSlotProps) {
         conditions,
         condition,
         zoneLabel,
-        zoneIds: [...selectedZones],
+        zoneIds,
         triggerNote: type !== 'none' ? `Loại mụn chủ yếu: ${typeInfo?.label ?? ''}` : '',
       });
     }, 1150);
@@ -481,15 +544,18 @@ export function FaceMapMinigame({ onComplete }: MinigameSlotProps) {
             <p className="font-extrabold text-2xl text-cta">Mụn thường trông như thế nào?</p>
             <p className="text-sm text-cta/50 mt-1">Chọn loại gần nhất với da bạn</p>
           </div>
-          {ACNE_TYPES.map(t => (
-            <AcneTypeOption key={t.id} type={t} isSelected={acneType === t.id} onSelect={() => setAcneType(t.id)} />
-          ))}
+          <div className="grid grid-cols-2 gap-2.5">
+            {ACNE_TYPES.slice(0, 4).map(t => (
+              <AcneCard key={t.id} type={t} selected={acneType === t.id} onSelect={() => setAcneType(t.id)} />
+            ))}
+          </div>
+          <AcneCard type={ACNE_TYPES[4]} selected={acneType === ACNE_TYPES[4].id} onSelect={() => setAcneType(ACNE_TYPES[4].id)} />
           <button
             onClick={handleSubmit}
             disabled={!acneType || isScanning}
             className="mt-1 w-full bg-cta text-white font-bold py-3.5 rounded-soft text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
           >
-            {isScanning ? 'Đang phân tích...' : 'Xem kết quả của tôi →'}
+            {isScanning ? 'Đang phân tích...' : 'Xem kết quả của tôi'}
           </button>
         </div>
       </div>

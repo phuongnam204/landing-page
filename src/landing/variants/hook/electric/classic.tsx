@@ -1,5 +1,6 @@
 'use client';
 import type { HookSlotProps } from '../../../slots';
+import { CtaButton } from '../../../../components/atoms/CtaButton';
 
 export function ElectricClassicHook({ onStart }: HookSlotProps) {
   return (
@@ -7,13 +8,13 @@ export function ElectricClassicHook({ onStart }: HookSlotProps) {
       <div
         className="absolute -top-32 -right-32 w-112 h-112 rounded-full pointer-events-none"
         style={{
-          background: 'radial-gradient(circle, rgba(219,39,119,.35) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, color-mix(in srgb, var(--lp-accent) 35%, transparent) 0%, transparent 70%)',
         }}
       />
       <div
         className="absolute -bottom-32 -left-32 w-112 h-112 rounded-full pointer-events-none"
         style={{
-          background: 'radial-gradient(circle, rgba(147,51,234,.3) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, color-mix(in srgb, var(--lp-primary) 30%, transparent) 0%, transparent 70%)',
         }}
       />
 
@@ -23,13 +24,19 @@ export function ElectricClassicHook({ onStart }: HookSlotProps) {
             src="/face-map-hook.svg"
             alt="Phân tích vùng da mụn"
             className="h-52 md:h-[340px] w-auto object-contain"
-            style={{ filter: 'drop-shadow(0 0 28px rgba(219,39,119,.4))' }}
+            style={{ filter: 'drop-shadow(0 0 28px color-mix(in srgb, var(--lp-accent) 40%, transparent))' }}
           />
         </div>
 
         <div className="flex flex-col items-center md:items-start gap-4 text-center md:text-left">
-          <div className="inline-block px-4 py-1.5 rounded-full" style={{ background: 'rgba(219,39,119,.2)', border: '1px solid rgba(219,39,119,.3)' }}>
-            <span className="text-sm font-medium" style={{ color: 'var(--lp-accent)' }}>Phân tích vùng da</span>
+          <div
+            className="inline-block px-4 py-1.5 rounded-full"
+            style={{
+              background: 'color-mix(in srgb, var(--lp-accent) 20%, transparent)',
+              border: '1px solid color-mix(in srgb, var(--lp-accent) 30%, transparent)',
+            }}
+          >
+            <span className="text-sm font-medium" style={{ color: 'var(--lp-band-text)' }}>Phân tích vùng da</span>
           </div>
 
           <h1 className="font-extrabold text-4xl md:text-6xl leading-tight" style={{ color: 'var(--lp-band-text)' }}>
@@ -41,19 +48,9 @@ export function ElectricClassicHook({ onStart }: HookSlotProps) {
             Chỉ mất 60 giây để làn da bạn được&ldquo;nghe&rdquo; — và tìm ra điều thực sự cần thiết.
           </p>
 
-          <button
-            onClick={onStart}
-            className="px-8 py-3.5 rounded-full font-bold text-base transition-all duration-200 cursor-pointer"
-            style={{
-              background: 'var(--lp-accent)',
-              color: '#fff',
-              boxShadow: '0 0 24px rgba(219,39,119,.5)',
-            }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 0 36px rgba(219,39,119,.7)'; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 0 24px rgba(219,39,119,.5)'; }}
-          >
+          <CtaButton onClick={onStart} variant="accent" size="lg" className="cta-glow-hover">
             Soi da ngay
-          </button>
+          </CtaButton>
         </div>
       </div>
     </div>

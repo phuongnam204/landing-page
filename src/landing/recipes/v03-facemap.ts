@@ -8,9 +8,8 @@ export const v03Facemap: Recipe = {
     hook: 'bold-single',
     minigame: 'face-map',
     payoff: 'confetti-card',
-    programs: 'carousel',
-    conversion: 'short-form',
-    socialProof: 'video-proof',
-    done: 'contact-info',
+    programs: 'grid-with-faq',
+    conversion: 'short-form-with-testimonials',
+    done: 'contact-info-with-video',
   },
 };

@@ -11,7 +11,17 @@ export function BoldDiagonalPayoff(props: PayoffSlotProps) {
       >
         KET QUA PHAN TICH
       </div>
-      <ConfettiCardWhyPayoff {...props} />
+      <ConfettiCardWhyPayoff
+        {...props}
+        topbarConfig={{
+          labels: {
+            result:  'Kết quả phân tích',
+            why:     'Tìm hiểu nguyên nhân',
+            benefit: 'Hãy đến O2skin!',
+          },
+          style: { background: 'var(--lp-band-bg)', color: 'var(--lp-band-text)' },
+        }}
+      />
     </div>
   );
 }

@@ -2,8 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import type { PayoffSlotProps } from '../../slots';
 import type { ConditionId } from '../../../content/quiz';
-import { Benefit } from './Benefit';
-import { Feature } from './Feature';
+import { NumberedBadgeCirclesRight, Carousel } from './feature-layouts';
 import { CONDITION_EDUCATION } from './constant/ConditionEducation';
 import { CtaButton } from '../../../components/atoms/CtaButton';
 
@@ -133,15 +132,15 @@ function WhySection({ conditionId, onScrollDown }: { conditionId: ConditionId; o
             </div>
             <div>
               <p className="font-bold text-cta text-sm md:text-base">{step.title}</p>
-              <p className="text-sm text-cta/70 leading-relaxed mt-1">{step.body}</p>
+              <p className="text-sm text-cta/80 leading-relaxed mt-1">{step.body}</p>
             </div>
           </div>
         ))}
       </div>
       <blockquote className="relative bg-white border border-cta/10 rounded-lg px-5 pt-7 pb-4">
         <span className="absolute top-3 left-4 text-3xl font-black text-[var(--lp-accent)] opacity-25 leading-none select-none" aria-hidden="true">&ldquo;</span>
-        <p className="text-sm md:text-base text-cta/80 italic leading-relaxed">{edu.expertQuote}</p>
-        <cite className="not-italic text-xs text-cta/65 font-semibold mt-2 block">{edu.expertName}</cite>
+        <p className="text-sm md:text-base text-cta/85 italic leading-relaxed">{edu.expertQuote}</p>
+        <cite className="not-italic text-xs text-cta/75 font-semibold mt-2 block">{edu.expertName}</cite>
       </blockquote>
       <CtaButton
         fullWidth
@@ -171,7 +170,7 @@ export type TopbarConfig = {
 export function ConfettiCardWhyPayoff({
   result,
   onContinue,
-  FeatureComponent: FeatureComp = Feature,
+  FeatureComponent: FeatureComp = Carousel,
   topbarConfig,
 }: PayoffSlotProps & { FeatureComponent?: React.ComponentType<{ onContinue: () => void }>; topbarConfig?: TopbarConfig }) {
   const canvasRef        = useRef<HTMLCanvasElement>(null);
@@ -288,7 +287,7 @@ export function ConfettiCardWhyPayoff({
                     {rows.map((row, i) => (
                       <p
                         key={row.key}
-                        className="payoff-stat-chip text-xs text-cta/70 bg-[var(--lp-bg-hero)] border border-[var(--lp-border)] rounded-lg px-3 py-2 leading-relaxed"
+                        className="payoff-stat-chip text-xs text-cta/80 bg-[var(--lp-bg-minigame)] border border-[var(--lp-border)] rounded-lg px-3 py-2 leading-relaxed"
                         style={{ animationDelay: `${1.0 + i * 0.12}s` }}
                       >
                         <span className="font-semibold text-cta">{row.label}: </span>
@@ -322,7 +321,7 @@ export function ConfettiCardWhyPayoff({
 
       {/* Section 3: Benefit */}
       <div ref={statsRef}>
-        <Benefit onScrollDown={() => featureRef.current?.scrollIntoView({ behavior: 'smooth' })} />
+        <NumberedBadgeCirclesRight onContinue={() => featureRef.current?.scrollIntoView({ behavior: 'smooth' })} />
       </div>
 
       {/* Section 4: Feature + final CTA */}

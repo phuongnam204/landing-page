@@ -1,7 +1,7 @@
-import { O2SKIN_FEATURES } from "./constant/Features";
-import { CtaButton } from "../../../components/atoms/CtaButton";
+import { O2SKIN_FEATURES } from '../constant/Features';
+import { CtaButton } from '../../../../components/atoms/CtaButton';
 
-export function Feature({ onContinue }: { onContinue: () => void }) {
+export function CardListCirclesLeft({ onContinue }: { onContinue: () => void }) {
   return (
     <div
       className="relative min-h-[100dvh] flex flex-col items-center justify-center overflow-hidden px-5 py-12"
@@ -53,7 +53,7 @@ export function Feature({ onContinue }: { onContinue: () => void }) {
               ))}
             </div>
 
-            <CtaButton variant="golden" size="lg" onClick={onContinue} className="shadow-lg">
+            <CtaButton variant="dark" size="lg" onClick={onContinue} className="shadow-lg">
               Xem chương trình phù hợp &#8594;
             </CtaButton>
           </div>

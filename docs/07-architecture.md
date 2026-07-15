@@ -6,7 +6,7 @@ nhật lại file này.
 
 ## Công cụ nền
 
-- **Framework:** Astro + React integration (đã chốt ở [05-build-spec.md](05-build-spec.md)).
+- **Framework:** NextJs (đã chốt ở [05-build-spec.md](05-build-spec.md)).
 - **Styling:** Tailwind CSS — design token (màu, font-size, border-radius) lấy từ
   [06-visual-style.md](06-visual-style.md), định nghĩa trong `tailwind.config.mjs`.
 - **Package manager:** npm.

@@ -12,6 +12,7 @@ export type Recipe = {
   id: string;
   label: string;
   theme?: string;
+  chipColor?: { bg: string; text: string; label: string };
   slots: RecipeSlots;
 };
 

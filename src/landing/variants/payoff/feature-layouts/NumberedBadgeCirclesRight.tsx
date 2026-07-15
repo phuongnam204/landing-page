@@ -1,12 +1,13 @@
-import { O2SKIN_BENEFIT } from "./constant/Benefit";
+import { O2SKIN_BENEFIT } from '../constant/Benefit';
+import { CtaButton } from '../../../../components/atoms/CtaButton';
 
-export function Benefit({ onScrollDown }: { onScrollDown: () => void }) {
+export function NumberedBadgeCirclesRight({ onContinue }: { onContinue: () => void }) {
   return (
-    <div className="relative min-h-[100dvh] bg-[var(--lp-bg-hero)] flex items-center overflow-hidden px-5 py-16">
+    <div className="relative min-h-[100dvh] bg-[var(--lp-bg-minigame)] flex items-center overflow-hidden px-5 py-16">
       <div className="max-w-5xl mx-auto w-full">
         <div className="flex flex-col gap-12 md:grid md:grid-cols-2 md:gap-16 md:items-center">
 
-          {/* ─── Left: title + numbered benefit list ─── */}
+          {/* ─── Left: title + numbered benefit list + CTA ─── */}
           <div className="flex flex-col gap-7 relative">
             {/* Orbit / radar decoration */}
             <div className="absolute -top-8 -left-10 w-52 h-52 text-cta opacity-[0.08] pointer-events-none" aria-hidden="true">
@@ -32,11 +33,15 @@ export function Benefit({ onScrollDown }: { onScrollDown: () => void }) {
                   </div>
                   <div>
                     <p className="font-black text-xl md:text-2xl text-cta leading-none">{stat.value}</p>
-                    <p className="text-sm text-cta/65 leading-snug mt-0.5">{stat.label}</p>
+                    <p className="text-sm text-cta/75 leading-snug mt-0.5">{stat.label}</p>
                   </div>
                 </div>
               ))}
             </div>
+
+            <CtaButton onClick={onContinue}>
+              Xem chương trình phù hợp &#8594;
+            </CtaButton>
           </div>
 
           {/* ─── Right: overlapping circle images ─── */}

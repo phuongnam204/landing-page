@@ -2,11 +2,11 @@ import { describe, it, expect } from 'vitest';
 import { validateRecipe } from '../validateRecipe';
 
 const reg = {
-  hook: { 'two-column': {} }, minigame: { skincare: {}, findgame: {} },
+  hook: { 'two-column': {} }, minigame: { 'face-map': {} },
   payoff: { 'confetti-card': {} }, conversion: { 'short-form': {} },
   programs: { grid: {} }, socialProof: { 'video-proof': {} }, done: { 'contact-info': {} },
 };
-const base = { id: 'v', label: 'T', slots: { hook: 'two-column', minigame: 'skincare', payoff: 'confetti-card', conversion: 'short-form' } };
+const base = { id: 'v', label: 'T', slots: { hook: 'two-column', minigame: 'face-map', payoff: 'confetti-card', conversion: 'short-form' } };
 
 describe('validateRecipe', () => {
   it('passes valid minimal recipe', () => expect(validateRecipe(base, reg).valid).toBe(true));

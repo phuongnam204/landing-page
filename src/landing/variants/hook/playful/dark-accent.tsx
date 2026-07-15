@@ -18,19 +18,19 @@ export function PlayfulDarkAccentHook({ onStart }: HookSlotProps) {
 
         <div className="flex-1 text-center md:text-left animate-fade-in-up">
           <h1 className="font-extrabold text-4xl md:text-6xl text-white leading-tight">
-            Da bạn đang{' '}
-            <span className="text-[var(--lp-blob-3)]">giấu</span>{' '}
-            điều gì?
+            Da mụn không{' '}
+            <span className="text-[var(--lp-blob-3)]">tự hết</span>{' '}
+            đâu
           </h1>
           <p className="text-base md:text-lg text-white/90 mt-5">
-            Tìm những &ldquo;bạn nhỏ&rdquo; ẩn náu và khám phá điều da bạn thực sự cần.
+            Cần phác đồ đúng, không cần thêm thử nghiệm. 60 giây phân tích — liệu trình phù hợp cho bạn.
           </p>
           <div className="flex justify-center md:justify-start mt-7">
             <CtaButton onClick={onStart} size="lg" variant="blob">
-              Soi da ngay →
+              Phân tích ngay →
             </CtaButton>
           </div>
-          <p className="text-sm md:text-base text-white/75 mt-4">Chỉ mất 60 giây</p>
+          <p className="text-sm md:text-base text-white/75 mt-4">Không cam kết, không ràng buộc</p>
         </div>
       </div>
     </div>

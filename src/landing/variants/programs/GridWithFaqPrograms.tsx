@@ -60,12 +60,13 @@ function ConditionTagSmall({ conditionId }: { conditionId: string }) {
   );
 }
 
-function ProgramDetailDrawer({ program, tint, open, onClose, onBook }: {
+function ProgramDetailDrawer({ program, tint, open, onClose, onBook, ctaVariant = 'golden' }: {
   program: ReturnType<typeof getPrograms>[number];
   tint: string;
   open: boolean;
   onClose: () => void;
   onBook: () => void;
+  ctaVariant?: 'golden' | 'dark';
 }) {
   const drawerRef = useRef<HTMLDivElement>(null);
 
@@ -100,13 +101,23 @@ function ProgramDetailDrawer({ program, tint, open, onClose, onBook }: {
         onClick={onClose}
         aria-hidden="true"
       />
+      <style>{`
+        @media (prefers-reduced-motion: reduce) {
+          .program-detail-drawer { transition: none !important; }
+        }
+      `}</style>
       <div
         ref={drawerRef}
         role="dialog"
         aria-modal="true"
         aria-label={`Chi tiết: ${program.name}`}
-        className="fixed bottom-0 left-0 right-0 z-50 flex flex-col bg-[var(--lp-bg-card)] rounded-t-2xl shadow-2xl shadow-cta/20 max-h-[85dvh] transition-transform duration-300"
-        style={{ transform: open ? 'translateY(0)' : 'translateY(100%)' }}
+        className="program-detail-drawer fixed bottom-0 left-0 right-0 z-50 flex flex-col bg-[var(--lp-bg-card)] rounded-t-2xl shadow-2xl shadow-cta/20 max-h-[85dvh]"
+        style={{
+          transform: open ? 'translateY(0)' : 'translateY(100%)',
+          transition: open
+            ? 'transform 420ms cubic-bezier(0.34, 1.28, 0.64, 1)'
+            : 'transform 220ms cubic-bezier(0.4, 0, 1, 1)',
+        }}
       >
         <div className="flex justify-center pt-3 pb-1 shrink-0">
           <div className="w-10 h-1 rounded-full bg-cta/20" />
@@ -142,8 +153,8 @@ function ProgramDetailDrawer({ program, tint, open, onClose, onBook }: {
                     {program.benenif.map((b, i) => (
                       <li key={i} className="flex items-start gap-2 text-sm text-cta/75">
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" className="shrink-0 mt-0.5">
-                          <circle cx="8" cy="8" r="7.5" fill="currentColor" style={{ color: `${tint}33` }} />
-                          <path d="M5 8.5l2.5 2.5 4-5" stroke={tint} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                          <circle cx="8" cy="8" r="7.5" fill="var(--lp-primary)" opacity="0.15" />
+                          <path d="M5 8.5l2.5 2.5 4-5" stroke="var(--lp-accent)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                         <span>{b}</span>
                       </li>
@@ -175,17 +186,29 @@ function ProgramDetailDrawer({ program, tint, open, onClose, onBook }: {
               )}
             </div>
             {/* Right column: images or tint placeholder */}
-            <div className="flex flex-col gap-3 h-2">
+            <div className="flex flex-col gap-2">
               {program.images && program.images.length > 0 ? (
-                program.images.slice(0, 2).map((src, i) => (
+                <>
                   <img
-                    key={i}
-                    src={src}
+                    src={program.images[0]}
                     alt=""
                     className="w-full rounded-soft object-cover"
-                    style={{ aspectRatio: '4/3' }}
+                    style={{ aspectRatio: '16/9' }}
                   />
-                ))
+                  {program.images.length > 1 && (
+                    <div className="grid grid-cols-2 gap-2">
+                      {program.images.slice(1, 3).map((src, i) => (
+                        <img
+                          key={i}
+                          src={src}
+                          alt=""
+                          className="w-full rounded-soft object-cover"
+                          style={{ aspectRatio: '1/1' }}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </>
               ) : (
                 <div
                   className="w-full rounded-soft"
@@ -197,7 +220,7 @@ function ProgramDetailDrawer({ program, tint, open, onClose, onBook }: {
           <div className="h-2" />
         </div>
         <div className="px-5 py-4 border-t border-[var(--lp-border)] shrink-0">
-          <CtaButton variant="golden" fullWidth onClick={onBook}>
+          <CtaButton variant={ctaVariant} fullWidth onClick={onBook}>
             Đặt lịch với liệu trình này
           </CtaButton>
         </div>
@@ -304,7 +327,7 @@ function FaqSection({ items }: { items: FaqItem[] }) {
   );
 }
 
-export function GridWithFaqPrograms({ suggestedPrograms, onContinue }: ProgramsSlotProps) {
+export function GridWithFaqPrograms({ suggestedPrograms, onContinue, ctaVariant = 'dark' }: ProgramsSlotProps & { ctaVariant?: 'golden' | 'dark' }) {
   useEffect(() => { trackEvent('programs_faq_view'); }, []);
   const [openDrawerIdx, setOpenDrawerIdx] = useState<number | null>(null);
 
@@ -346,22 +369,21 @@ export function GridWithFaqPrograms({ suggestedPrograms, onContinue }: ProgramsS
             <FaqSection items={faqItems} />
           </div>
           <div className="mt-6">
-            <CtaButton variant="golden" fullWidth onClick={() => onContinue(topProgramId)}>
+            <CtaButton variant={ctaVariant} fullWidth onClick={() => onContinue(topProgramId)}>
               Đặt lịch với liệu trình này
             </CtaButton>
           </div>
           <div className="h-4" />
         </div>
       </div>
-      {drawerProgram && (
-        <ProgramDetailDrawer
-          program={drawerProgram}
-          tint={OCEAN_TINT}
-          open={openDrawerIdx !== null}
-          onClose={() => setOpenDrawerIdx(null)}
-          onBook={() => onContinue(drawerProgramId ?? topProgramId)}
-        />
-      )}
+      <ProgramDetailDrawer
+        program={drawerProgram ?? program}
+        tint={OCEAN_TINT}
+        open={openDrawerIdx !== null}
+        onClose={() => setOpenDrawerIdx(null)}
+        onBook={() => onContinue(drawerProgramId ?? topProgramId)}
+        ctaVariant={ctaVariant}
+      />
     </div>
   );
 }

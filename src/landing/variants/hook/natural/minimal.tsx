@@ -5,8 +5,13 @@ import { CtaButton } from '../../../../components/atoms/CtaButton';
 export function NaturalMinimalHook({ onStart }: HookSlotProps) {
   return (
     <div className="h-[100dvh] w-full bg-[var(--lp-bg-hero)] flex items-center justify-center px-5 overflow-hidden">
-      <div className="max-w-lg mx-auto w-full flex flex-col items-center gap-5 text-center animate-fade-in-up">
-        <h1 className="font-bold text-2xl md:text-3xl text-cta leading-snug">
+      <div className="max-w-2xl mx-auto w-full flex flex-col items-center gap-6 text-center animate-fade-in-up">
+        <img
+          src="/face-map-hook.svg"
+          alt="Phân tích vùng da"
+          className="h-36 md:h-52 w-auto object-contain"
+        />
+        <h1 className="font-bold text-4xl md:text-5xl text-cta leading-snug">
           Lắng nghe điều{' '}
           <span className="text-[var(--lp-accent)]">làn da</span>{' '}
           bạn đang nói

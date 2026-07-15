@@ -1,26 +1,9 @@
 'use client';
 import type { ConversionSlotProps } from '../../slots';
 import { ConversionOrganism } from '../../organisms/ConversionOrganism';
+import { type Testimonial, getTestimonialsForPrograms } from './constant/testimonials';
 
-const TESTIMONIALS = [
-  {
-    quote: 'Sau 3 buổi IPL mụn viêm giảm rõ, thâm mụn cũng mờ dần. Bác sĩ giải thích kỹ từng bước.',
-    name: 'Thanh Hà', age: 22, branch: 'Chi nhánh Quận 3',
-    letter: 'T', bg: '#fde68a', fg: '#92400e',
-  },
-  {
-    quote: 'Không ép uống thuốc, không bán thêm. Thấy da tốt lên thật sự sau liệu trình.',
-    name: 'Minh Châu', age: 25, branch: 'Chi nhánh Bình Thạnh',
-    letter: 'M', bg: '#ddd6fe', fg: '#5b21b6',
-  },
-  {
-    quote: 'Da nhạy cảm nhưng IPL không bị kích ứng. Được dặn dò kỹ trước và sau buổi trị.',
-    name: 'Phương Linh', age: 20, branch: 'Chi nhánh Thủ Đức',
-    letter: 'P', bg: '#d1fae5', fg: '#065f46',
-  },
-] as const;
-
-function TestimonialCard({ quote, name, age, branch, letter, bg, fg }: typeof TESTIMONIALS[number]) {
+function TestimonialCard({ quote, name, age, branch, letter, bg, fg }: Testimonial) {
   return (
     <div className="bg-[var(--lp-bg-card)] rounded-soft border border-[var(--lp-border)] p-4 shadow-sm">
       <div className="flex gap-0.5 mb-2" aria-label="5 sao">
@@ -45,30 +28,32 @@ function TestimonialCard({ quote, name, age, branch, letter, bg, fg }: typeof TE
   );
 }
 
-function TestimonialsBlock() {
+function TestimonialsBlock({ programIds }: { programIds: string[] }) {
+  const testimonials = getTestimonialsForPrograms(programIds);
   return (
     <div className="w-full flex flex-col gap-3 md:mt-0 animate-fade-in-up">
       <div className="hidden md:block mb-2">
-        <p className="text-sm font-bold text-cta/60 uppercase tracking-widest">Khách hàng nói gì</p>
+        <p className="text-sm font-bold text-cta/60 uppercase whitespace-nowrap">Khách hàng nói gì về chương trình ?</p>
       </div>
       <div className="flex items-center gap-3 md:hidden">
         <hr className="flex-1 border-[var(--lp-border)]" />
-        <span className="text-sm font-bold text-cta/60 whitespace-nowrap">Khách hàng nói gì</span>
+        <span className="text-sm font-bold text-cta/60 whitespace-nowrap">Khách hàng nói gì về chương trình ?</span>
         <hr className="flex-1 border-[var(--lp-border)]" />
       </div>
       <div className="flex flex-col gap-3">
-        {TESTIMONIALS.map((t, i) => <TestimonialCard key={i} {...t} />)}
+        {testimonials.map((t, i) => <TestimonialCard key={i} {...t} />)}
       </div>
     </div>
   );
 }
 
 export function ShortFormWithTestimonialsConversion(props: ConversionSlotProps) {
+  const programIds = props.selectedProgramId ? [props.selectedProgramId] : [];
   return (
     <ConversionOrganism
       {...props}
       showTestimonials
-      testimonialsSlot={<TestimonialsBlock />}
+      testimonialsSlot={<TestimonialsBlock programIds={programIds} />}
     />
   );
 }
