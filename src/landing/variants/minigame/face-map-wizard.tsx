@@ -5,7 +5,7 @@ import { skinConditions } from '../../../content/quiz';
 import type { ConditionId } from '../../../content/quiz';
 
 type Zone = 'forehead' | 'left-cheek' | 'right-cheek' | 'nose' | 'chin-jaw';
-type AcneType = 'inflamed' | 'blackhead' | 'sensitive' | 'pore' | 'none';
+type AcneType = 'inflamed' | 'blackhead' | 'sensitive' | 'pore' | 'none' | 'scar';
 
 const ZONE_LABELS: Record<Zone, string> = {
   forehead:      'Trán',
@@ -98,6 +98,21 @@ const ACNE_CARDS: {
       </svg>
     ),
   },
+  {
+    id: 'scar',
+    label: 'Sẹo rỗ',
+    subtitle: 'Lỗ nhỏ lõm sau mụn',
+    accent: '#9C7A5F',
+    icon: (
+      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+        <circle cx="18" cy="18" r="3.5" stroke="#9C7A5F" strokeWidth="1.6" opacity="0.85" />
+        <circle cx="11" cy="13" r="2.5" stroke="#9C7A5F" strokeWidth="1.4" opacity="0.65" />
+        <circle cx="25" cy="13" r="2.5" stroke="#9C7A5F" strokeWidth="1.4" opacity="0.65" />
+        <circle cx="13" cy="25" r="2"   stroke="#9C7A5F" strokeWidth="1.3" opacity="0.5"  />
+        <circle cx="24" cy="24" r="2"   stroke="#9C7A5F" strokeWidth="1.3" opacity="0.5"  />
+      </svg>
+    ),
+  },
 ];
 
 function mapToConditions(zones: Zone[], acneType: AcneType): ConditionId[] {
@@ -109,6 +124,7 @@ function mapToConditions(zones: Zone[], acneType: AcneType): ConditionId[] {
   if (acneType === 'pore') result.add('lo-chan-long');
   if (zones.includes('nose') && acneType === 'blackhead') result.add('lo-chan-long');
   if (zones.length > 0 && (acneType === 'inflamed' || acneType === 'blackhead')) result.add('da-nhon-mun-viem');
+  if (acneType === 'scar') result.add('da-seo-ro');
   return result.size > 0 ? [...result] : ['da-moi-bat-dau'];
 }
 

@@ -159,5 +159,13 @@ export const skinConditions: Partial<Record<ConditionId, SkinCondition>> = {
     tone: 'concern',
     color: '#A09080',
   },
+  'da-seo-ro': {
+    id: 'da-seo-ro',
+    label: 'Sẹo rỗ',
+    tone: 'concern',
+    color: '#9C7A5F',
+    body: 'Da bạn có <b>sẹo rỗ</b> — tổn thương sau khi mụn viêm mạnh để lại các lỗ nhỏ lõm trên bề mặt, khiến da không đều và thiếu mịn màng dù mụn đã hết.',
+    bridge: 'Sẹo rỗ có thể cải thiện rõ rệt với công nghệ laser — không cần phải sống chung với nó mãi.',
+  },
 
 };

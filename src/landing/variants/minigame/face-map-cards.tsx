@@ -5,7 +5,7 @@ import { skinConditions } from '../../../content/quiz';
 import type { ConditionId } from '../../../content/quiz';
 
 type Zone = 'forehead' | 'left-cheek' | 'right-cheek' | 'nose' | 'chin-jaw';
-type AcneType = 'inflamed' | 'blackhead' | 'sensitive' | 'pore' | 'none';
+type AcneType = 'inflamed' | 'blackhead' | 'sensitive' | 'pore' | 'none' | 'scar';
 
 const ZONE_LABELS: Record<Zone, string> = {
   forehead: 'Trán',
@@ -32,6 +32,7 @@ const ACNE_TYPES: { id: AcneType; label: string; desc: string; color: string }[]
   { id: 'sensitive', label: 'Mẩn đỏ kích ứng',      desc: 'Nổi khi đổi thời tiết',        color: '#F472B6' },
   { id: 'pore',      label: 'Lỗ chân lông to',      desc: 'Ít mụn, lỗ chân lông rõ',      color: '#8B5CF6' },
   { id: 'none',      label: 'Da ổn, ít mụn',         desc: 'Không có vấn đề rõ rệt',       color: '#10B981' },
+  { id: 'scar',      label: 'Sẹo rỗ',               desc: 'Lỗ nhỏ lõm sau mụn viêm',      color: '#9C7A5F' },
 ];
 
 function mapToConditions(zones: Zone[], acneType: AcneType): ConditionId[] {
@@ -43,6 +44,7 @@ function mapToConditions(zones: Zone[], acneType: AcneType): ConditionId[] {
   if (acneType === 'pore') result.add('lo-chan-long');
   if (zones.includes('nose') && acneType === 'blackhead') result.add('lo-chan-long');
   if (zones.length > 0 && (acneType === 'inflamed' || acneType === 'blackhead')) result.add('da-nhon-mun-viem');
+  if (acneType === 'scar') result.add('da-seo-ro');
   return result.size > 0 ? [...result] : ['da-moi-bat-dau'];
 }
 

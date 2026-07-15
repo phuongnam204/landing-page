@@ -5,7 +5,7 @@ import { skinConditions } from '../../../content/quiz';
 import type { ConditionId } from '../../../content/quiz';
 
 export type Zone = 'forehead' | 'left-cheek' | 'right-cheek' | 'nose' | 'chin-jaw';
-export type AcneType = 'inflamed' | 'blackhead' | 'sensitive' | 'pore' | 'none';
+export type AcneType = 'inflamed' | 'blackhead' | 'sensitive' | 'pore' | 'none' | 'scar';
 
 const ZONE_LABELS: Record<Zone, string> = {
   forehead:      'vùng trán',
@@ -88,6 +88,7 @@ export const ACNE_TYPES: { id: AcneType; label: string; desc: string; color: str
   { id: 'sensitive', label: 'Mẩn đỏ kích ứng',      desc: 'Nổi khi đổi thời tiết, mỹ phẩm',  color: '#F472B6' },
   { id: 'pore',      label: 'Lỗ chân lông to',      desc: 'Ít mụn nhưng lỗ chân lông rõ',     color: '#8B5CF6' },
   { id: 'none',      label: 'Da ổn, ít mụn',         desc: 'Không có vấn đề rõ rệt',           color: '#10B981' },
+  { id: 'scar',      label: 'Sẹo rỗ',               desc: 'Lỗ nhỏ lõm sau mụn viêm',          color: '#9C7A5F' },
 ];
 
 export function mapToConditions(zones: Zone[], acneType: AcneType): ConditionId[] {
@@ -99,6 +100,7 @@ export function mapToConditions(zones: Zone[], acneType: AcneType): ConditionId[
   if (acneType === 'pore') result.add('lo-chan-long');
   if (zones.includes('nose') && acneType === 'blackhead') result.add('lo-chan-long');
   if (zones.length > 0 && (acneType === 'inflamed' || acneType === 'blackhead')) result.add('da-nhon-mun-viem');
+  if (acneType === 'scar') result.add('da-seo-ro');
   return result.size > 0 ? [...result] : ['da-moi-bat-dau'];
 }
 
@@ -337,6 +339,15 @@ const CARD_ICONS: Record<AcneType, React.ReactNode> = {
       <path d="M14 22l5.5 5.5L30 16" stroke="#10B981" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
+  scar: (
+    <svg width="44" height="44" viewBox="0 0 44 44" fill="none" aria-hidden="true">
+      <circle cx="22" cy="22" r="4"   stroke="#9C7A5F" strokeWidth="1.8" opacity="0.85" />
+      <circle cx="13" cy="15" r="3"   stroke="#9C7A5F" strokeWidth="1.5" opacity="0.65" />
+      <circle cx="31" cy="15" r="3"   stroke="#9C7A5F" strokeWidth="1.5" opacity="0.65" />
+      <circle cx="15" cy="30" r="2.5" stroke="#9C7A5F" strokeWidth="1.5" opacity="0.5"  />
+      <circle cx="29" cy="29" r="2.5" stroke="#9C7A5F" strokeWidth="1.5" opacity="0.5"  />
+    </svg>
+  ),
 };
 
 function AcneCard({ type, selected, onSelect }: {
@@ -431,11 +442,10 @@ function Step2({
         <p className="text-sm text-cta/50 mt-1">Chọn loại gần nhất với da bạn</p>
       </div>
       <div className="grid grid-cols-2 gap-2.5">
-        {ACNE_TYPES.slice(0, 4).map(t => (
+        {ACNE_TYPES.map(t => (
           <AcneCard key={t.id} type={t} selected={acneType === t.id} onSelect={() => onSelect(t.id)} />
         ))}
       </div>
-      <AcneCard type={ACNE_TYPES[4]} selected={acneType === ACNE_TYPES[4].id} onSelect={() => onSelect(ACNE_TYPES[4].id)} />
       <div className="flex gap-2">
         <button
           onClick={onBack}
@@ -545,11 +555,10 @@ export function FaceMapMinigame({ onComplete }: MinigameSlotProps) {
             <p className="text-sm text-cta/50 mt-1">Chọn loại gần nhất với da bạn</p>
           </div>
           <div className="grid grid-cols-2 gap-2.5">
-            {ACNE_TYPES.slice(0, 4).map(t => (
+            {ACNE_TYPES.map(t => (
               <AcneCard key={t.id} type={t} selected={acneType === t.id} onSelect={() => setAcneType(t.id)} />
             ))}
           </div>
-          <AcneCard type={ACNE_TYPES[4]} selected={acneType === ACNE_TYPES[4].id} onSelect={() => setAcneType(ACNE_TYPES[4].id)} />
           <button
             onClick={handleSubmit}
             disabled={!acneType || isScanning}
