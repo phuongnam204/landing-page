@@ -7,7 +7,7 @@ export function BoldDiagonalHook({ onStart }: HookSlotProps) {
     <div className="h-[100dvh] w-full flex flex-col overflow-hidden">
       {/* Top band: bold title */}
       <div
-        className="flex-[1] flex items-center justify-center px-5 min-h-0"
+        className="flex-1 flex items-center justify-center px-5 min-h-0 animate-fade-in-up"
         style={{ background: 'var(--lp-band-bg)' }}
       >
         <h1
@@ -22,12 +22,12 @@ export function BoldDiagonalHook({ onStart }: HookSlotProps) {
 
       {/* Bottom section: diagonal clip, image + text side by side */}
       <div
-        className="flex-[2] flex items-center justify-center px-5"
+        className="flex-1 flex items-center justify-center px-5"
         style={{
           background: 'var(--lp-bg-hero)',
-          clipPath: 'polygon(0 10%, 100% 0, 100% 100%, 0 100%)',
-          marginTop: '-32px',
-          paddingTop: '56px',
+          clipPath: 'polygon(0 12%, 100% 0, 100% 100%, 0 100%)',
+          marginTop: '-40px',
+          paddingTop: '64px',
         }}
       >
         <div className="max-w-4xl w-full mx-auto flex flex-col md:flex-row items-center gap-6 md:gap-12">

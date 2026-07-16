@@ -5,9 +5,9 @@ import { CtaButton } from '../../../../components/atoms/CtaButton';
 export function BoldClassicHook({ onStart }: HookSlotProps) {
   return (
     <div className="h-[100dvh] w-full flex flex-col overflow-hidden">
-      <div className="flex-[1] flex items-center justify-center px-5" style={{ background: 'var(--lp-band-bg)' }}>
+      <div className="flex-[1] flex items-center justify-center px-5 animate-fade-in-up" style={{ background: 'var(--lp-band-bg)' }}>
         <h1
-          className="text-5xl md:text-8xl font-extrabold tracking-tight text-center leading-[0.95]"
+          className="text-5xl md:text-8xl font-extrabold tracking-tight text-center leading-[1.15] md:leading-[1.15]"
           style={{ color: 'var(--lp-band-text)', fontFamily: 'var(--font-plus-jakarta)' }}
         >
           DA BẠN
