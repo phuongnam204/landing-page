@@ -13,7 +13,7 @@ export function BoldTypographicHook({ onStart }: HookSlotProps) {
           className="text-6xl md:text-9xl font-extrabold tracking-tight text-center leading-[0.9]"
           style={{ color: 'var(--lp-band-text)', fontFamily: 'var(--font-plus-jakarta)' }}
         >
-          Không phải bạn.
+          Soi da.
         </h1>
       </div>
       <div
@@ -24,13 +24,13 @@ export function BoldTypographicHook({ onStart }: HookSlotProps) {
           className="hook-can-text text-6xl md:text-9xl font-extrabold tracking-tight text-center leading-[0.9]"
           style={{ color: 'var(--lp-band-accent)' }}
         >
-          Là cách tiếp cận.
+          60 giây.
         </p>
         <p
           className="hook-fade-in text-sm md:text-base text-cta/60 text-center max-w-md leading-relaxed"
           style={{ animationDelay: '0.55s' }}
         >
-          Tìm đúng hướng chỉ mất 60 giây.
+          Phân tích vùng mụn và nhận phác đồ cá nhân hóa — hoàn toàn miễn phí.
         </p>
         <div className="hook-fade-in" style={{ animationDelay: '0.7s' }}>
           <CtaButton onClick={onStart} size="lg">

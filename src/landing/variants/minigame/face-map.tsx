@@ -93,7 +93,15 @@ export const ACNE_TYPES: { id: AcneType; label: string; desc: string; color: str
 
 export function mapToConditions(zones: Zone[], acneType: AcneType): ConditionId[] {
   if (acneType === 'none') return ['clean-skin'];
-  if (zones.length === 0) return ['clean-skin'];
+  if (zones.length === 0) {
+    // User selected an acne type but skipped zone step — map type directly
+    if (acneType === 'sensitive') return ['da-nhay-cam'];
+    if (acneType === 'pore')      return ['lo-chan-long'];
+    if (acneType === 'blackhead') return ['lo-chan-long'];
+    if (acneType === 'inflamed')  return ['da-nhon-mun-viem'];
+    if (acneType === 'scar')      return ['da-seo-ro'];
+    return ['da-moi-bat-dau'];
+  }
   const result = new Set<ConditionId>();
   if (zones.includes('chin-jaw')) result.add('mun-noi-tiet');
   if (acneType === 'sensitive') result.add('da-nhay-cam');

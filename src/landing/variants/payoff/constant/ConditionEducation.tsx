@@ -129,6 +129,16 @@ export const CONDITION_EDUCATION: Partial<Record<ConditionId, ConditionEducation
     expertQuote: 'Da thô ráp cần được tái tạo từ bên trong — không chỉ tẩy tế bào chết bề mặt. Kích thích collagen và phục hồi cấu trúc da mới mang lại độ mịn bền vững.',
     expertName: 'BS. Chuyên khoa Da liễu, o2skin',
   },
+  'da-seo-ro': {
+    whyTitle: 'Điều gì xảy ra bên dưới vết sẹo rỗ?',
+    steps: [
+      { title: 'Mụn viêm sâu phá hủy mô collagen', body: 'Mụn viêm nặng hoặc nặn sai cách có thể tổn thương tầng collagen bên dưới da — để lại hố lõm ngay cả sau khi mụn đã lành hoàn toàn.' },
+      { title: 'Sẹo rỗ không tự lành theo thời gian', body: 'Khác với thâm mụn có thể mờ dần, sẹo rỗ là tổn thương cấu trúc — không thể phục hồi bằng sản phẩm dưỡng thông thường hay để tự khỏi.' },
+      { title: 'Can thiệp sớm cho kết quả tốt hơn rõ rệt', body: 'Công nghệ tái tạo da hiện đại có thể cải thiện sẹo rỗ đáng kể — nhưng hiệu quả phụ thuộc nhiều vào việc can thiệp sớm trước khi cấu trúc da bị tổn thương quá sâu.' },
+    ],
+    expertQuote: 'Sẹo rỗ là tổn thương cấu trúc collagen — không phải vấn đề bề mặt. Điều trị hiệu quả cần tác động đến tầng collagen dưới da, không chỉ làm mờ bề mặt.',
+    expertName: 'BS. Chuyên khoa Da liễu, o2skin',
+  },
   'da-san-sui': {
     whyTitle: 'Tại sao bề mặt da không đều và sần sùi?',
     steps: [
