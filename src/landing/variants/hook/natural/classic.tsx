@@ -19,12 +19,13 @@ export function NaturalClassicHook({ onStart }: HookSlotProps) {
         {/* Text block */}
         <div className="flex flex-col gap-5 md:gap-6 animate-fade-in-up text-center md:text-left items-center md:items-start mb-8 md:mb-0">
           <h1 className="font-extrabold text-4xl md:text-6xl text-cta leading-tight">
-            Lắng nghe điều{' '}
-            <span className="text-[var(--lp-accent)]">làn da</span>{' '}
-            bạn đang nói
+            Da bạn đang phản bội bạn —{' '}
+            hay{' '}
+            <span className="text-[var(--lp-accent)]">bạn đang hiểu nhầm</span>{' '}
+            nó?
           </h1>
           <p className="text-sm md:text-base text-cta/60 max-w-sm leading-relaxed">
-            Chỉ mất 60 giây để biết làn da bạn thực sự cần gì — và liệu trình nào phù hợp nhất.
+            Câu trả lời khác hoàn toàn tùy vào góc nhìn.
           </p>
           <CtaButton onClick={onStart} size="lg">
             Soi da ngay →

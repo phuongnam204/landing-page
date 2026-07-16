@@ -10,12 +10,12 @@ export function ElectricLightPopHook({ onStart }: HookSlotProps) {
         </div>
 
         <h1 className="font-extrabold text-4xl md:text-6xl leading-tight mb-5" style={{ color: 'var(--lp-primary)' }}>
-          Da bạn<br />
-          <span style={{ color: 'var(--lp-accent)' }}>đang nói gì</span>?
+          Một ngày không cần<br />
+          <span style={{ color: 'var(--lp-accent)' }}>nghĩ đến mụn</span>. Nghe hay không?
         </h1>
 
         <p className="text-base md:text-lg max-w-md mx-auto mb-8 leading-relaxed" style={{ color: 'color-mix(in srgb, var(--lp-primary) 60%, transparent)' }}>
-          Chỉ mất 60 giây để làn da bạn được&ldquo;nghe&rdquo; — và tìm ra điều thực sự cần thiết.
+          Không cần perfect — chỉ cần đúng hướng.
         </p>
 
         <button

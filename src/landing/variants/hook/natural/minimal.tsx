@@ -12,12 +12,12 @@ export function NaturalMinimalHook({ onStart }: HookSlotProps) {
           className="h-36 md:h-52 w-auto object-contain"
         />
         <h1 className="font-bold text-4xl md:text-5xl text-cta leading-snug">
-          Lắng nghe điều{' '}
-          <span className="text-[var(--lp-accent)]">làn da</span>{' '}
-          bạn đang nói
+          Mụn không phải lỗi của bạn.{' '}
+          <span className="text-[var(--lp-accent)]">Nhưng cách xử lý</span>{' '}
+          thì có thể.
         </h1>
         <p className="text-sm text-cta/55 max-w-xs leading-relaxed">
-          Chỉ mất 60 giây để biết làn da bạn thực sự cần gì.
+          Hiểu đúng — để lần này làm khác đi.
         </p>
         <CtaButton onClick={onStart} size="md">
           Soi da ngay →

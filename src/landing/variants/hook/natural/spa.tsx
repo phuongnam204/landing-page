@@ -15,12 +15,12 @@ export function NaturalSpaHook({ onStart }: HookSlotProps) {
         </div>
         <div className="flex flex-col items-center md:items-start gap-6 text-center md:text-left">
           <h1 className="font-extrabold text-5xl md:text-6xl text-cta leading-tight">
-            Lắng nghe điều{' '}
-            <span className="text-[var(--lp-accent)]">làn da</span>{' '}
-            bạn đang nói
+            Chỉ cần da{' '}
+            <span className="text-[var(--lp-accent)]">tốt hơn tuần trước</span>.
+            Không cần perfect.
           </h1>
           <p className="text-base md:text-lg text-cta/55 max-w-lg leading-relaxed">
-            Chỉ mất 60 giây để biết làn da bạn thực sự cần gì — và liệu trình nào phù hợp nhất.
+            Bắt đầu từ việc hiểu đúng da bạn.
           </p>
           <CtaButton onClick={onStart} size="lg">
             Soi da ngay →

@@ -35,12 +35,12 @@ export function ElectricGlowHeavyHook({ onStart }: HookSlotProps) {
           </div>
 
           <h1 className="font-extrabold text-4xl md:text-6xl leading-tight" style={{ color: 'var(--lp-band-text)' }}>
-            Da bạn<br />
-            <span style={{ color: 'var(--lp-accent)', filter: 'drop-shadow(0 0 30px var(--lp-accent))' }}>đang nói gì</span>?
+            Skincare routine dài<br />
+            <span style={{ color: 'var(--lp-accent)', filter: 'drop-shadow(0 0 30px var(--lp-accent))' }}>hơn cả bộ phim</span>. Da vẫn tệ.
           </h1>
 
           <p className="text-base md:text-lg max-w-md leading-relaxed" style={{ color: 'color-mix(in srgb, var(--lp-band-text) 65%, transparent)' }}>
-            Chỉ mất 60 giây để làn da bạn được&ldquo;nghe&rdquo; — và tìm ra điều thực sự cần thiết.
+            Không phải bạn lười. Là cách tiếp cận.
           </p>
 
           <button

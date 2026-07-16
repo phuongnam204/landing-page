@@ -14,9 +14,9 @@ export function BoldDiagonalHook({ onStart }: HookSlotProps) {
           className="text-5xl md:text-7xl font-extrabold tracking-tight text-center leading-[1.1]"
           style={{ color: 'var(--lp-band-text)' }}
         >
-          DA BẠN
+          Đã filter đến mức
           <br />
-          <span style={{ color: 'var(--lp-band-accent)' }}>CẦN GÌ?</span>
+          <span style={{ color: 'var(--lp-band-accent)' }}>không nhận ra mình nữa?</span>
         </h1>
       </div>
 
@@ -41,7 +41,7 @@ export function BoldDiagonalHook({ onStart }: HookSlotProps) {
           </div>
           <div className="flex flex-col items-center md:items-start gap-4 text-center md:text-left">
             <p className="text-sm md:text-base text-cta/70 max-w-xs md:max-w-sm leading-relaxed">
-              Phân tích vùng da mặt chỉ trong 60 giây — để biết làn da bạn thực sự cần gì và liệu trình nào phù hợp nhất.
+              Da thật không cần filter — chỉ cần đúng cách chăm.
             </p>
             <CtaButton onClick={onStart} size="lg">
               Soi da ngay

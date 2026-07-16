@@ -15,12 +15,12 @@ export function ClinicalCompactHook({ onStart }: HookSlotProps) {
       <div className="max-w-5xl mx-auto w-full px-4 md:grid md:grid-cols-2 md:gap-8 md:items-center relative z-10">
         <div className="flex flex-col gap-3 py-10 md:py-0">
           <h1 className="font-extrabold text-3xl md:text-5xl text-[var(--lp-text)] leading-tight">
-            Biết chính xác{' '}
-            <span className="text-[var(--lp-accent)]">da bạn cần gì</span>{' '}
-            trong 60 giây
+            60 giây để biết điều mà{' '}
+            <span className="text-[var(--lp-accent)]">2 năm thử sản phẩm</span>{' '}
+            không nói ra.
           </h1>
           <p className="text-sm md:text-base text-[var(--lp-text)]/60 max-w-sm">
-            Hệ thống phân tích vùng da mặt bằng bản đồ mụn — nhanh và trực quan.
+            Phân tích da miễn phí — không cần đăng ký.
           </p>
           <div>
             <CtaButton onClick={onStart} size="md">

@@ -18,12 +18,12 @@ export function ClinicalEditorialHook({ onStart }: HookSlotProps) {
       <div className="max-w-6xl mx-auto w-full px-6 md:grid md:grid-cols-2 md:gap-16 md:items-center relative z-10">
         <div className="flex flex-col gap-6 py-16 md:py-0">
           <h1 className="font-bold text-4xl md:text-6xl text-[var(--lp-primary)] leading-snug">
-            Biết chính xác{' '}
-            <span className="text-[var(--lp-accent)]">da bạn cần gì</span>{' '}
-            trong 60 giây
+            Da bạn xứng đáng được{' '}
+            <span className="text-[var(--lp-accent)]">hiểu</span>{' '}
+            — không chỉ được che.
           </h1>
           <p className="text-base md:text-lg text-[var(--lp-primary)]/55 max-w-md leading-relaxed">
-            Hệ thống phân tích vùng da mặt bằng bản đồ mụn — một phương pháp nhanh, trực quan, và được thiết kế riêng cho từng người.
+            Không che. Không filter. Chỉ cần đúng phác đồ.
           </p>
           <div>
             <CtaButton onClick={onStart} size="lg">

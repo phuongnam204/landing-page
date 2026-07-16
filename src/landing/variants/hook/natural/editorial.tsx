@@ -9,12 +9,12 @@ export function NaturalEditorialHook({ onStart }: HookSlotProps) {
         {/* Text block — editorial / magazine style */}
         <div className="flex flex-col gap-6 text-center md:text-left items-center md:items-start mb-8 md:mb-0 animate-fade-in-up">
           <h1 className="font-serif font-bold text-4xl md:text-6xl text-cta leading-tight italic">
-            Lắng nghe điều{' '}
-            <span className="text-[var(--lp-accent)] not-italic">làn da</span>{' '}
-            bạn đang nói
+            Bạn Google{' '}
+            <span className="text-[var(--lp-accent)] not-italic">&lsquo;cách trị mụn&rsquo;</span>{' '}
+            lần thứ mấy rồi?
           </h1>
           <p className="font-serif italic text-base md:text-lg text-cta/55 max-w-sm leading-relaxed">
-            Chỉ mất 60 giây để biết làn da bạn thực sự cần gì — và liệu trình nào phù hợp nhất.
+            Bạn biết câu trả lời rồi — và vẫn chưa tìm được đúng chỗ.
           </p>
           <CtaButton onClick={onStart} size="lg">
             Soi da ngay →

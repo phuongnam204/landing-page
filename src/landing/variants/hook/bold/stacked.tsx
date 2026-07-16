@@ -13,7 +13,7 @@ export function BoldStackedHook({ onStart }: HookSlotProps) {
           className="text-3xl md:text-5xl font-extrabold tracking-tight text-center leading-tight"
           style={{ color: 'var(--lp-band-text)' }}
         >
-          DA BẠN CẦN GÌ?
+          Hết mụn này, mụn khác mọc. Vòng lặp đó có thể kết thúc.
         </h1>
       </div>
       <div
@@ -26,7 +26,7 @@ export function BoldStackedHook({ onStart }: HookSlotProps) {
           className="h-36 md:h-48 w-auto object-contain"
         />
         <p className="text-sm md:text-base text-cta/60 text-center max-w-md leading-relaxed">
-          Phân tích vùng da mặt chỉ trong 60 giây — để biết làn da bạn thực sự cần gì.
+          Khi xử lý đúng nguyên nhân, không phải triệu chứng.
         </p>
         <CtaButton onClick={onStart} size="lg">
           Soi da ngay →

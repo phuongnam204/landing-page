@@ -21,11 +21,12 @@ export function ClinicalDashboardHook({ onStart }: HookSlotProps) {
       <div className="max-w-6xl mx-auto w-full px-5 md:grid md:grid-cols-2 md:gap-12 md:items-center relative z-10">
         <div className="flex flex-col gap-5 py-12 md:py-0">
           <h1 className="font-extrabold text-4xl md:text-5xl text-[var(--lp-primary)] leading-tight">
-            Phân tích da{' '}
-            <span className="text-[var(--lp-accent)]">chính xác</span> bằng dữ liệu
+            Sản phẩm xịn không trị được da —{' '}
+            <span className="text-[var(--lp-accent)]">hiểu đúng da</span>{' '}
+            mới làm được.
           </h1>
           <p className="text-base text-[var(--lp-primary)]/60 max-w-md">
-            Hệ thống bản đồ mụn khuếch đại vùng da có vấn đề — cho bạn cái nhìn rõ ràng nhất.
+            Đúng sản phẩm cho sai da còn tệ hơn không dùng gì.
           </p>
           <div className="rounded-[var(--lp-radius-card)] border border-[var(--lp-accent)]/20 bg-[var(--lp-bg-card)] p-4 flex flex-col gap-2.5 w-fit">
             {STATS.map((s) => (

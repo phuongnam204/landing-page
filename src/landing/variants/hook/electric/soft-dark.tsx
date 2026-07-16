@@ -35,12 +35,12 @@ export function ElectricSoftDarkHook({ onStart }: HookSlotProps) {
           </div>
 
           <h1 className="font-extrabold text-4xl md:text-6xl leading-tight" style={{ color: 'var(--lp-primary)' }}>
-            Da bạn<br />
-            <span style={{ color: 'var(--lp-accent)' }}>đang nói gì</span>?
+            Có một lý do da bạn<br />
+            <span style={{ color: 'var(--lp-accent)' }}>chưa khỏi hẳn</span>.
           </h1>
 
           <p className="text-base md:text-lg max-w-md leading-relaxed" style={{ color: 'color-mix(in srgb, var(--lp-primary) 65%, transparent)' }}>
-            Chỉ mất 60 giây để làn da bạn được&ldquo;nghe&rdquo; — và tìm ra điều thực sự cần thiết.
+            Và nó thường không phải thứ bạn đang điều trị.
           </p>
 
           <button
