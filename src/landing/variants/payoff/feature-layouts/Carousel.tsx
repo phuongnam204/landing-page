@@ -1,12 +1,13 @@
 'use client';
 import { useState, useEffect } from 'react';
+import type { PayoffItem } from './types';
+import { featuresAsItems } from '../constant/Features';
 import { CtaButton } from '../../../../components/atoms/CtaButton';
-import { O2SKIN_FEATURES } from '../constant/Features';
 
 function CarouselCard({
   image, alt, title, highlighted,
 }: {
-  image: string; alt: string; title: string; highlighted?: boolean;
+  image?: string; alt?: string; title: string; highlighted?: boolean;
 }) {
   return (
     <div
@@ -17,7 +18,9 @@ function CarouselCard({
         transform: highlighted ? 'scale(1.025)' : 'scale(1)',
       }}
     >
-      <img src={image} alt={alt} className="absolute inset-0 w-full h-full object-cover" />
+      {image && (
+        <img src={image} alt={alt ?? ''} className="absolute inset-0 w-full h-full object-cover" />
+      )}
       <div
         className="absolute inset-0"
         style={{ background: 'linear-gradient(to top, rgba(45,38,64,0.92) 0%, rgba(45,38,64,0.25) 50%, transparent 100%)' }}
@@ -33,9 +36,15 @@ function CarouselCard({
   );
 }
 
-export function Carousel({ onContinue }: { onContinue: () => void }) {
+export function Carousel({
+  onContinue,
+  items = featuresAsItems,
+}: {
+  onContinue: () => void;
+  items?: PayoffItem[];
+}) {
   const [idx, setIdx] = useState(0);
-  const n = O2SKIN_FEATURES.length;
+  const n = items.length;
 
   useEffect(() => {
     const t = setInterval(() => setIdx(i => (i + 1) % n), 4000);
@@ -61,7 +70,7 @@ export function Carousel({ onContinue }: { onContinue: () => void }) {
 
       {/* Desktop: 3-column grid, active card highlighted by auto-cycling dot */}
       <div className="hidden md:grid md:grid-cols-3 md:gap-5 w-full max-w-5xl mx-auto">
-        {O2SKIN_FEATURES.map((item, i) => (
+        {items.map((item, i) => (
           <CarouselCard key={i} image={item.image} alt={item.alt} title={item.title} highlighted={i === idx} />
         ))}
       </div>
@@ -76,7 +85,7 @@ export function Carousel({ onContinue }: { onContinue: () => void }) {
               transition: 'transform 350ms ease-in-out',
             }}
           >
-            {O2SKIN_FEATURES.map((item, i) => (
+            {items.map((item, i) => (
               <div key={i} className="shrink-0" style={{ width: '85%', marginRight: '12px' }}>
                 <CarouselCard image={item.image} alt={item.alt} title={item.title} highlighted={i === idx} />
               </div>
@@ -105,7 +114,7 @@ export function Carousel({ onContinue }: { onContinue: () => void }) {
       </div>
 
       <div className="flex gap-2.5">
-        {O2SKIN_FEATURES.map((_, i) => (
+        {items.map((_, i) => (
           <button
             key={i}
             onClick={() => setIdx(i)}

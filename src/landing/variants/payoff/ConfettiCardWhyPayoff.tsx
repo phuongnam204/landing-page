@@ -171,8 +171,13 @@ export function ConfettiCardWhyPayoff({
   result,
   onContinue,
   FeatureComponent: FeatureComp = Carousel,
+  BenefitComponent: BenefitComp = NumberedBadgeCirclesRight,
   topbarConfig,
-}: PayoffSlotProps & { FeatureComponent?: React.ComponentType<{ onContinue: () => void }>; topbarConfig?: TopbarConfig }) {
+}: PayoffSlotProps & {
+  FeatureComponent?: React.ComponentType<{ onContinue: () => void }>;
+  BenefitComponent?: React.ComponentType<{ onContinue: () => void }>;
+  topbarConfig?: TopbarConfig;
+}) {
   const canvasRef        = useRef<HTMLCanvasElement>(null);
   const whyRef           = useRef<HTMLDivElement>(null);
   const statsRef         = useRef<HTMLDivElement>(null);
@@ -321,7 +326,7 @@ export function ConfettiCardWhyPayoff({
 
       {/* Section 3: Benefit */}
       <div ref={statsRef}>
-        <NumberedBadgeCirclesRight onContinue={() => featureRef.current?.scrollIntoView({ behavior: 'smooth' })} />
+        <BenefitComp onContinue={() => featureRef.current?.scrollIntoView({ behavior: 'smooth' })} />
       </div>
 
       {/* Section 4: Feature + final CTA */}

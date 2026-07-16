@@ -1,3 +1,5 @@
+import type { PayoffItem } from '../feature-layouts/types';
+
 export const O2SKIN_FEATURES = [
   {
     title: 'Cơ Sở Vật Chất Hiện Đại, Đạt Chuẩn Y Tế',
@@ -18,3 +20,10 @@ export const O2SKIN_FEATURES = [
     alt: 'Nhà thuốc đạt chuẩn GPP',
   },
 ];
+
+export const featuresAsItems: PayoffItem[] = O2SKIN_FEATURES.map(f => ({
+  title: f.title,
+  body: f.body,
+  image: f.image,
+  alt: f.alt,
+}));

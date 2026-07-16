@@ -1,7 +1,21 @@
-import { O2SKIN_FEATURES } from '../constant/Features';
+import type { PayoffItem } from './types';
+import { featuresAsItems } from '../constant/Features';
 import { CtaButton } from '../../../../components/atoms/CtaButton';
 
-export function CardListCirclesLeft({ onContinue }: { onContinue: () => void }) {
+const DEFAULT_ACCENT_IMAGES: [string, string] = [
+  '/feature/IMG_1619.jpg',
+  '/feature/co-so-vat-chat-hien-dai-3.jpg',
+];
+
+export function CardListCirclesLeft({
+  onContinue,
+  items = featuresAsItems,
+  accentImages = DEFAULT_ACCENT_IMAGES,
+}: {
+  onContinue: () => void;
+  items?: PayoffItem[];
+  accentImages?: [string, string];
+}) {
   return (
     <div
       className="relative min-h-[100dvh] flex flex-col items-center justify-center overflow-hidden px-5 py-12"
@@ -17,14 +31,14 @@ export function CardListCirclesLeft({ onContinue }: { onContinue: () => void }) 
           <div className="relative h-[300px] md:h-[460px]">
             <div className="absolute top-0 left-0 w-56 h-56 md:w-72 md:h-72 rounded-full overflow-hidden border-4 border-white/20 shadow-2xl">
               <img
-                src="/feature/IMG_1619.jpg"
+                src={accentImages[0]}
                 alt="Điều trị IPL tại O2Skin"
                 className="w-full h-full object-cover"
               />
             </div>
             <div className="absolute bottom-0 left-20 md:left-28 w-40 h-40 md:w-52 md:h-52 rounded-full overflow-hidden border-4 border-white/10 shadow-xl">
               <img
-                src="/feature/co-so-vat-chat-hien-dai-3.jpg"
+                src={accentImages[1]}
                 alt="Cơ sở vật chất hiện đại tại O2skin"
                 className="w-full h-full object-cover"
               />
@@ -43,12 +57,12 @@ export function CardListCirclesLeft({ onContinue }: { onContinue: () => void }) 
             </h2>
 
             <div className="flex flex-col gap-4">
-              {O2SKIN_FEATURES.map((f, i) => (
+              {items.map((item, i) => (
                 <div key={i} className="bg-white/90 rounded-soft p-4 md:p-5 flex flex-col gap-1.5">
                   <p className="font-extrabold text-xs md:text-sm text-cta uppercase tracking-wider leading-snug">
-                    {f.title}
+                    {item.title}
                   </p>
-                  <p className="text-sm text-cta/70 leading-relaxed">{f.body}</p>
+                  <p className="text-sm text-cta/70 leading-relaxed">{item.body}</p>
                 </div>
               ))}
             </div>
