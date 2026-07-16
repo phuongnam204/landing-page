@@ -8,26 +8,26 @@ export function BoldDiagonalHook({ onStart }: HookSlotProps) {
       <style>{`
         @keyframes v19SlideTop {
           from { transform: translateY(-100%); opacity: 0; }
-          65%  { transform: translateY(5%); opacity: 1; }
-          82%  { transform: translateY(-2%); }
+          65%  { transform: translateY(2%); opacity: 1; }
+          82%  { transform: translateY(-1%); }
           to   { transform: translateY(0); }
         }
         @keyframes v19SlideBottom {
           from { transform: translateY(100%); opacity: 0; }
-          65%  { transform: translateY(-5%); opacity: 1; }
-          82%  { transform: translateY(2%); }
+          65%  { transform: translateY(-2%); opacity: 1; }
+          82%  { transform: translateY(1%); }
           to   { transform: translateY(0); }
         }
         @keyframes v19SlideLeft {
           from { transform: translateX(-100%); opacity: 0; }
-          65%  { transform: translateX(5%); opacity: 1; }
-          82%  { transform: translateX(-2%); }
+          65%  { transform: translateX(2%); opacity: 1; }
+          82%  { transform: translateX(-1%); }
           to   { transform: translateX(0); }
         }
         @keyframes v19SlideRight {
           from { transform: translateX(100%); opacity: 0; }
-          65%  { transform: translateX(-5%); opacity: 1; }
-          82%  { transform: translateX(2%); }
+          65%  { transform: translateX(-2%); opacity: 1; }
+          82%  { transform: translateX(1%); }
           to   { transform: translateX(0); }
         }
         .v19-top {
