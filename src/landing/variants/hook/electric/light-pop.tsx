@@ -9,7 +9,7 @@ export function ElectricLightPopHook({ onStart }: HookSlotProps) {
           <span className="text-sm font-medium" style={{ color: 'var(--lp-accent)' }}>Phân tích vùng da</span>
         </div>
 
-        <h1 className="font-extrabold text-4xl md:text-6xl leading-tight mb-5" style={{ color: 'var(--lp-primary)' }}>
+        <h1 className="font-extrabold text-4xl md:text-6xl leading-snug [text-wrap:balance] mb-5" style={{ color: 'var(--lp-primary)', fontFamily: 'var(--font-plus-jakarta)' }}>
           Một ngày không cần<br />
           <span style={{ color: 'var(--lp-accent)' }}>nghĩ đến mụn</span>. Nghe hay không?
         </h1>

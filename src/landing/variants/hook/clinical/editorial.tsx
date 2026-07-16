@@ -17,7 +17,7 @@ export function ClinicalEditorialHook({ onStart }: HookSlotProps) {
       />
       <div className="max-w-6xl mx-auto w-full px-6 md:grid md:grid-cols-2 md:gap-16 md:items-center relative z-10">
         <div className="flex flex-col gap-6 py-16 md:py-0">
-          <h1 className="font-bold text-4xl md:text-6xl text-[var(--lp-primary)] leading-snug">
+          <h1 className="font-bold text-4xl md:text-6xl text-[var(--lp-primary)] leading-snug [text-wrap:balance]">
             Da bạn xứng đáng được{' '}
             <span className="text-[var(--lp-accent)]">hiểu</span>{' '}
             — không chỉ được che.

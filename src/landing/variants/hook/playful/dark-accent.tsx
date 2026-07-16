@@ -17,7 +17,7 @@ export function PlayfulDarkAccentHook({ onStart }: HookSlotProps) {
         </div>
 
         <div className="flex-1 text-center md:text-left animate-fade-in-up">
-          <h1 className="font-extrabold text-4xl md:text-6xl text-white leading-tight">
+          <h1 className="font-extrabold text-4xl md:text-6xl text-white leading-snug [text-wrap:balance]">
             Da mụn không{' '}
             <span className="text-[var(--lp-blob-3)]">tự hết</span>{' '}
             đâu

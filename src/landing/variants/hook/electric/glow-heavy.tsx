@@ -34,7 +34,7 @@ export function ElectricGlowHeavyHook({ onStart }: HookSlotProps) {
             <span className="text-sm font-medium" style={{ color: 'var(--lp-accent)' }}>Phân tích vùng da</span>
           </div>
 
-          <h1 className="font-extrabold text-4xl md:text-6xl leading-tight" style={{ color: 'var(--lp-band-text)' }}>
+          <h1 className="font-extrabold text-4xl md:text-6xl leading-snug [text-wrap:balance]" style={{ color: 'var(--lp-band-text)', fontFamily: 'var(--font-plus-jakarta)' }}>
             Skincare routine dài<br />
             <span style={{ color: 'var(--lp-accent)', filter: 'drop-shadow(0 0 30px var(--lp-accent))' }}>hơn cả bộ phim</span>. Da vẫn tệ.
           </h1>

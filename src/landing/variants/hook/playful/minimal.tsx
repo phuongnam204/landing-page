@@ -15,7 +15,7 @@ export function PlayfulMinimalHook({ onStart }: HookSlotProps) {
         </div>
 
         <div className="flex-1 text-center md:text-left animate-fade-in-up">
-          <h1 className="font-extrabold text-3xl md:text-5xl text-cta leading-tight">
+          <h1 className="font-extrabold text-3xl md:text-5xl text-cta leading-snug [text-wrap:balance]">
             Skincare không cần nhiều.{' '}
             <span className="text-[var(--lp-accent)]">Cần đúng.</span>
           </h1>

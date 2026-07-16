@@ -39,7 +39,7 @@ export function ElectricClassicHook({ onStart }: HookSlotProps) {
             <span className="text-sm font-medium" style={{ color: 'var(--lp-band-text)' }}>Phân tích vùng da</span>
           </div>
 
-          <h1 className="font-extrabold text-4xl md:text-6xl leading-tight" style={{ color: 'var(--lp-band-text)' }}>
+          <h1 className="font-extrabold text-4xl md:text-6xl leading-snug [text-wrap:balance]" style={{ color: 'var(--lp-band-text)', fontFamily: 'var(--font-plus-jakarta)' }}>
             Da bạn<br />
             <span style={{ color: 'var(--lp-accent)', filter: 'drop-shadow(0 0 20px var(--lp-accent))' }}>đang nói gì</span>?
           </h1>

@@ -25,7 +25,7 @@ export function PlayfulImmersiveHook({ onStart }: HookSlotProps) {
 
       <div className="max-w-6xl mx-auto w-full px-5 relative z-10 pt-14 md:pt-0">
         <div className="text-center md:text-left md:max-w-xl animate-fade-in-up">
-          <h1 className="font-extrabold text-4xl md:text-7xl text-cta leading-tight">
+          <h1 className="font-extrabold text-4xl md:text-7xl text-cta leading-snug [text-wrap:balance]">
             Đã thử đủ thứ,{' '}
             <span className="text-[var(--lp-accent)]">vẫn mụn</span>?
           </h1>

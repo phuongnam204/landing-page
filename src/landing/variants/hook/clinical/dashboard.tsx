@@ -20,7 +20,7 @@ export function ClinicalDashboardHook({ onStart }: HookSlotProps) {
       />
       <div className="max-w-6xl mx-auto w-full px-5 md:grid md:grid-cols-2 md:gap-12 md:items-center relative z-10">
         <div className="flex flex-col gap-5 py-12 md:py-0">
-          <h1 className="font-extrabold text-4xl md:text-5xl text-[var(--lp-primary)] leading-tight">
+          <h1 className="font-extrabold text-4xl md:text-5xl text-[var(--lp-primary)] leading-snug [text-wrap:balance]">
             Sản phẩm xịn không trị được da —{' '}
             <span className="text-[var(--lp-accent)]">hiểu đúng da</span>{' '}
             mới làm được.

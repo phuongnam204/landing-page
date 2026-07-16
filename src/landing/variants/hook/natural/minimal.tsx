@@ -11,7 +11,7 @@ export function NaturalMinimalHook({ onStart }: HookSlotProps) {
           alt="Phân tích vùng da"
           className="h-36 md:h-52 w-auto object-contain"
         />
-        <h1 className="font-bold text-4xl md:text-5xl text-cta leading-snug">
+        <h1 className="font-bold text-4xl md:text-5xl text-cta leading-snug [text-wrap:balance]" style={{ fontFamily: 'var(--font-nunito)' }}>
           Mụn không phải lỗi của bạn.{' '}
           <span className="text-[var(--lp-accent)]">Nhưng cách xử lý</span>{' '}
           thì có thể.

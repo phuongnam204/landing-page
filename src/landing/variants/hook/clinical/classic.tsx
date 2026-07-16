@@ -25,7 +25,7 @@ export function ClinicalClassicHook({ onStart }: HookSlotProps) {
             </svg>
             Phân tích da chính xác
           </span>
-          <h1 className="font-extrabold text-4xl md:text-6xl text-[var(--lp-text)] leading-tight">
+          <h1 className="font-extrabold text-4xl md:text-6xl text-[var(--lp-text)] leading-snug [text-wrap:balance]">
             Biết chính xác{' '}
             <span className="text-[var(--lp-accent)]">da bạn cần gì</span>{' '}
             trong 60 giây

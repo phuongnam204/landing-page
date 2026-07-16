@@ -10,8 +10,8 @@ export function BoldStackedHook({ onStart }: HookSlotProps) {
         style={{ background: 'var(--lp-band-bg)' }}
       >
         <h1
-          className="text-3xl md:text-5xl font-extrabold tracking-tight text-center leading-tight"
-          style={{ color: 'var(--lp-band-text)' }}
+          className="text-3xl md:text-5xl font-extrabold tracking-tight text-center leading-snug [text-wrap:balance]"
+          style={{ color: 'var(--lp-band-text)', fontFamily: 'var(--font-plus-jakarta)' }}
         >
           Hết mụn này, mụn khác mọc. Vòng lặp đó có thể kết thúc.
         </h1>

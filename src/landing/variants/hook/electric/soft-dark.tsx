@@ -34,7 +34,7 @@ export function ElectricSoftDarkHook({ onStart }: HookSlotProps) {
             <span className="text-sm font-medium" style={{ color: 'var(--lp-accent)' }}>Phân tích vùng da</span>
           </div>
 
-          <h1 className="font-extrabold text-4xl md:text-6xl leading-tight" style={{ color: 'var(--lp-primary)' }}>
+          <h1 className="font-extrabold text-4xl md:text-6xl leading-snug [text-wrap:balance]" style={{ color: 'var(--lp-primary)', fontFamily: 'var(--font-plus-jakarta)' }}>
             Có một lý do da bạn<br />
             <span style={{ color: 'var(--lp-accent)' }}>chưa khỏi hẳn</span>.
           </h1>

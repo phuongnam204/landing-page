@@ -8,7 +8,7 @@ export function NaturalEditorialHook({ onStart }: HookSlotProps) {
       <div className="max-w-6xl mx-auto w-full md:grid md:grid-cols-2 md:gap-16 md:items-center">
         {/* Text block — editorial / magazine style */}
         <div className="flex flex-col gap-6 text-center md:text-left items-center md:items-start mb-8 md:mb-0 animate-fade-in-up">
-          <h1 className="font-serif font-bold text-4xl md:text-6xl text-cta leading-tight italic">
+          <h1 className="font-serif font-bold text-4xl md:text-6xl text-cta leading-snug [text-wrap:balance] italic">
             Bạn Google{' '}
             <span className="text-[var(--lp-accent)] not-italic">&lsquo;cách trị mụn&rsquo;</span>{' '}
             lần thứ mấy rồi?

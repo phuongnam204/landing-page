@@ -11,8 +11,8 @@ export function BoldDiagonalHook({ onStart }: HookSlotProps) {
         style={{ background: 'var(--lp-band-bg)' }}
       >
         <h1
-          className="text-5xl md:text-7xl font-extrabold tracking-tight text-center leading-[1.1]"
-          style={{ color: 'var(--lp-band-text)' }}
+          className="text-5xl md:text-7xl font-extrabold tracking-tight text-center leading-snug [text-wrap:balance]"
+          style={{ color: 'var(--lp-band-text)', fontFamily: 'var(--font-plus-jakarta)' }}
         >
           Đã filter đến mức
           <br />

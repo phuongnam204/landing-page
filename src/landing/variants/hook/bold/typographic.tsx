@@ -11,7 +11,7 @@ export function BoldTypographicHook({ onStart }: HookSlotProps) {
       >
         <h1
           className="text-6xl md:text-9xl font-extrabold tracking-tight text-center leading-[0.9]"
-          style={{ color: 'var(--lp-band-text)' }}
+          style={{ color: 'var(--lp-band-text)', fontFamily: 'var(--font-plus-jakarta)' }}
         >
           Không phải bạn.
         </h1>

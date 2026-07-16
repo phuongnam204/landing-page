@@ -19,7 +19,7 @@ export function PlayfulClassicHook({ onStart }: HookSlotProps) {
         </div>
 
         <div className="flex-1 text-center md:text-left animate-fade-in-up">
-          <h1 className="font-extrabold text-4xl md:text-6xl text-cta leading-tight">
+          <h1 className="font-extrabold text-4xl md:text-6xl text-cta leading-snug [text-wrap:balance]">
             Mụn của bạn đang{' '}
             <span className="text-[var(--lp-accent)]">giấu</span>{' '}
             bí mật gì?

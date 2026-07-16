@@ -9,7 +9,7 @@ export function BoldSingleHook({ onStart }: HookSlotProps) {
 
         {/* Text block */}
         <div className="flex flex-col gap-4 md:gap-5 animate-fade-in-up text-center md:text-left items-center md:items-start">
-          <h1 className="font-extrabold text-4xl md:text-7xl text-cta leading-[1.05] tracking-tight">
+          <h1 className="font-extrabold text-4xl md:text-7xl text-cta leading-snug [text-wrap:balance] tracking-tight">
             Cùng sản phẩm, người kia hết mụn — bạn thì không.{' '}
             <span className="bg-gradient-to-r from-violet-500 to-pink-500 bg-clip-text text-transparent">
               Tại sao?

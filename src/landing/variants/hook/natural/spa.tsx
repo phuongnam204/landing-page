@@ -14,7 +14,7 @@ export function NaturalSpaHook({ onStart }: HookSlotProps) {
           />
         </div>
         <div className="flex flex-col items-center md:items-start gap-6 text-center md:text-left">
-          <h1 className="font-extrabold text-5xl md:text-6xl text-cta leading-tight">
+          <h1 className="font-extrabold text-5xl md:text-6xl text-cta leading-snug [text-wrap:balance]" style={{ fontFamily: 'var(--font-nunito)' }}>
             Chỉ cần da{' '}
             <span className="text-[var(--lp-accent)]">tốt hơn tuần trước</span>.
             Không cần perfect.
