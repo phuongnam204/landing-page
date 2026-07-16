@@ -14,7 +14,7 @@ export function ClinicalCompactHook({ onStart }: HookSlotProps) {
       />
       <div className="max-w-5xl mx-auto w-full px-4 md:grid md:grid-cols-2 md:gap-8 md:items-center relative z-10">
         <div className="flex flex-col gap-3 py-10 md:py-0">
-          <h1 className="font-extrabold text-3xl md:text-5xl text-[var(--lp-text)] leading-snug [text-wrap:balance]">
+          <h1 className="font-extrabold text-3xl md:text-5xl text-[var(--lp-text)] leading-snug md:leading-snug [text-wrap:balance]">
             60 giây để biết điều mà{' '}
             <span className="text-[var(--lp-accent)]">2 năm thử sản phẩm</span>{' '}
             không nói ra.

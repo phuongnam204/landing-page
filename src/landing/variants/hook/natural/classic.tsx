@@ -18,7 +18,7 @@ export function NaturalClassicHook({ onStart }: HookSlotProps) {
       <div className="max-w-6xl mx-auto w-full px-5 md:grid md:grid-cols-2 md:gap-12 md:items-center relative z-10">
         {/* Text block */}
         <div className="flex flex-col gap-5 md:gap-6 animate-fade-in-up text-center md:text-left items-center md:items-start mb-8 md:mb-0">
-          <h1 className="font-extrabold text-4xl md:text-6xl text-cta leading-snug [text-wrap:balance]" style={{ fontFamily: 'var(--font-nunito)' }}>
+          <h1 className="font-extrabold text-4xl md:text-6xl text-cta leading-snug md:leading-snug [text-wrap:balance]" style={{ fontFamily: 'var(--font-nunito)' }}>
             Da bạn đang phản bội bạn —{' '}
             hay{' '}
             <span className="text-[var(--lp-accent)]">bạn đang hiểu nhầm</span>{' '}

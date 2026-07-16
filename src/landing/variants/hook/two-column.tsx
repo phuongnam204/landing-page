@@ -18,7 +18,7 @@ export function TwoColumnHook({ onStart }: HookSlotProps) {
           />
         </div>
         <div className="text-center md:text-left animate-fade-in-up">
-          <h1 className="font-extrabold text-4xl md:text-6xl text-cta leading-snug [text-wrap:balance]">
+          <h1 className="font-extrabold text-4xl md:text-6xl text-cta leading-snug md:leading-snug [text-wrap:balance]">
             Da bạn đang{' '}
             <span className="bg-gradient-to-r from-violet-500 to-pink-500 bg-clip-text text-transparent">giấu</span>{' '}
             điều gì?
