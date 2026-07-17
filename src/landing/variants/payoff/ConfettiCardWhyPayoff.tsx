@@ -50,10 +50,9 @@ function WhySection({ conditionId, onScrollDown }: { conditionId: ConditionId; o
 function ClinicIntroSection({ onScrollDown }: { onScrollDown: () => void }) {
   return (
     <div className="relative min-h-[60dvh] flex flex-col items-center justify-center overflow-hidden px-6 py-16 bg-[var(--lp-bg-payoff)]">
-      {/* Ảnh nền — user đặt ảnh vào /public/clinic/o2skin-intro.jpg */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: "url('/clinic/o2skin-intro.jpg')", opacity: 0.18 }}
+        style={{ backgroundImage: "url('/clinic/hinh-banner-about-us-desktop-update.png')", opacity: 0.18 }}
         aria-hidden="true"
       />
       {/* Lớp màu overlay — blend ảnh vào màu nền version */}
