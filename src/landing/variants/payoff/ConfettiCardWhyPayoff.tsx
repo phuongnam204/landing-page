@@ -38,9 +38,49 @@ function WhySection({ conditionId, onScrollDown }: { conditionId: ConditionId; o
         className="md:text-base"
         style={{ animation: 'cta-nudge 1.6s ease-in-out 2.5s 3' }}
       >
-        Tìm ngay giải pháp cho bạn! &#8595;
+        Tôi phải làm sao? &#8595;
       </CtaButton>
       <div className="h-4" />
+    </div>
+  );
+}
+
+// ─── ClinicIntroSection ───────────────────────────────────────────────────────
+
+function ClinicIntroSection({ onScrollDown }: { onScrollDown: () => void }) {
+  return (
+    <div className="relative min-h-[60dvh] flex flex-col items-center justify-center overflow-hidden px-6 py-16 bg-[var(--lp-bg-payoff)]">
+      {/* Ảnh nền — user đặt ảnh vào /public/clinic/o2skin-intro.jpg */}
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: "url('/clinic/o2skin-intro.jpg')", opacity: 0.18 }}
+        aria-hidden="true"
+      />
+      {/* Lớp màu overlay — blend ảnh vào màu nền version */}
+      <div
+        className="absolute inset-0 bg-[var(--lp-bg-payoff)]"
+        style={{ opacity: 0.55 }}
+        aria-hidden="true"
+      />
+      <div className="relative z-10 text-center max-w-lg mx-auto flex flex-col items-center gap-5">
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--lp-accent)]">
+          Hãy đến O2skin
+        </p>
+        <h2 className="font-extrabold text-2xl md:text-3xl text-cta leading-snug">
+          Tình trạng như của bạn,<br className="hidden sm:block" />
+          chúng tôi đã có giải pháp.
+        </h2>
+        <p className="text-sm md:text-base text-cta/75 leading-relaxed">
+          Tại đây chúng tôi có giải pháp toàn diện cho làn da của bạn!
+        </p>
+        <button
+          onClick={onScrollDown}
+          className="mt-3 text-sm font-semibold text-[var(--lp-accent)] hover:text-cta transition-colors flex items-center gap-1.5"
+          style={{ animation: 'cta-nudge 1.6s ease-in-out 2s 3' }}
+        >
+          Cùng tham quan một chút nhé! &#8595;
+        </button>
+      </div>
     </div>
   );
 }
@@ -51,6 +91,7 @@ export type TopbarConfig = {
   labels: {
     result: string;
     why: string;
+    clinic?: string;
     benefit: string;
   };
   style?: React.CSSProperties;
@@ -71,21 +112,22 @@ export function ConfettiCardWhyPayoff({
   topbarConfig?: TopbarConfig;
 }) {
   const whyRef             = useRef<HTMLDivElement>(null);
+  const clinicRef          = useRef<HTMLDivElement>(null);
   const statsRef           = useRef<HTMLDivElement>(null);
   const featureRef         = useRef<HTMLDivElement>(null);
   const resultSectRef      = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [showSkipCta, setShowSkipCta] = useState(false);
-  const [activeSection, setActiveSection] = useState<'result' | 'why' | 'benefit'>('result');
+  const [activeSection, setActiveSection] = useState<'result' | 'why' | 'clinic' | 'benefit'>('result');
   const prevSectionRef = useRef<string>('result');
 
-  // Show sticky skip CTA once the result card scrolls out of the scroll container
+  // Show sticky skip CTA once Benefit section enters view
   useEffect(() => {
-    const el = resultSectRef.current;
     const container = scrollContainerRef.current;
-    if (!el || !container) return;
+    if (!container) return;
     function onScroll() {
-      setShowSkipCta(container!.scrollTop > el!.offsetHeight - 80);
+      const benefitTop = statsRef.current?.offsetTop ?? Infinity;
+      setShowSkipCta(container!.scrollTop >= benefitTop - 100);
     }
     container.addEventListener('scroll', onScroll, { passive: true });
     return () => container.removeEventListener('scroll', onScroll);
@@ -99,9 +141,10 @@ export function ConfettiCardWhyPayoff({
       (entries) => {
         for (const entry of entries) {
           if (!entry.isIntersecting) continue;
-          let next: 'result' | 'why' | 'benefit' = 'result';
+          let next: 'result' | 'why' | 'clinic' | 'benefit' = 'result';
           if (entry.target === resultSectRef.current) next = 'result';
           else if (entry.target === whyRef.current) next = 'why';
+          else if (entry.target === clinicRef.current) next = 'clinic';
           else next = 'benefit';
           if (next !== prevSectionRef.current) {
             prevSectionRef.current = next;
@@ -111,7 +154,7 @@ export function ConfettiCardWhyPayoff({
       },
       { root, threshold: 0.4 },
     );
-    [resultSectRef, whyRef, statsRef, featureRef].forEach((r) => { if (r.current) observer.observe(r.current); });
+    [resultSectRef, whyRef, clinicRef, statsRef, featureRef].forEach((r) => { if (r.current) observer.observe(r.current); });
     return () => observer.disconnect();
   }, [topbarConfig]);
 
@@ -125,12 +168,12 @@ export function ConfettiCardWhyPayoff({
           style={topbarConfig.style}
         >
           <span key={activeSection} className="topbar-label-in inline-block">
-            {topbarConfig.labels[activeSection]}
+            {topbarConfig.labels[activeSection] ?? topbarConfig.labels.benefit}
           </span>
         </div>
       )}
 
-      {/* Sticky skip CTA — appears after result card scrolls out */}
+      {/* Sticky skip CTA — xuất hiện khi Benefit section vào view */}
       {showSkipCta && (
         <div className="fixed bottom-5 right-4 z-50 animate-fade-in-up">
           <button
@@ -153,6 +196,13 @@ export function ConfettiCardWhyPayoff({
       <div ref={whyRef} className="bg-[var(--lp-bg-payoff)]">
         <WhySection
           conditionId={result.condition.id as ConditionId}
+          onScrollDown={() => clinicRef.current?.scrollIntoView({ behavior: 'smooth' })}
+        />
+      </div>
+
+      {/* Section 2.5: Clinic Intro */}
+      <div ref={clinicRef}>
+        <ClinicIntroSection
           onScrollDown={() => statsRef.current?.scrollIntoView({ behavior: 'smooth' })}
         />
       </div>

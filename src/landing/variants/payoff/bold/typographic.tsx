@@ -12,7 +12,8 @@ export function BoldTypographicPayoff(props: PayoffSlotProps) {
         labels: {
           result:  'Kết quả phân tích',
           why:     'Tìm hiểu nguyên nhân',
-          benefit: 'Hãy đến O2skin!',
+          clinic:  'Hãy đến O2skin!',
+          benefit: 'Lợi ích & dịch vụ',
         },
         style: { background: 'var(--lp-band-bg)', color: 'var(--lp-band-text)' },
       }}
