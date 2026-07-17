@@ -49,24 +49,14 @@ function WhySection({ conditionId, onScrollDown }: { conditionId: ConditionId; o
 
 function ClinicIntroSection({ onScrollDown }: { onScrollDown: () => void }) {
   return (
-    <div className="relative min-h-[60dvh] flex flex-col items-center justify-center overflow-hidden px-6 py-16 bg-[var(--lp-bg-payoff)]">
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: "url('/clinic/hinh-banner-about-us-desktop-update.png')", opacity: 0.18 }}
-        aria-hidden="true"
-      />
-      {/* Lớp màu overlay — blend ảnh vào màu nền version */}
-      <div
-        className="absolute inset-0 bg-[var(--lp-bg-payoff)]"
-        style={{ opacity: 0.55 }}
-        aria-hidden="true"
-      />
-      <div className="relative z-10 text-center max-w-lg mx-auto flex flex-col items-center gap-5">
+    <div className="min-h-[100dvh] bg-[var(--lp-bg-payoff)] flex flex-col md:flex-row md:items-center px-6 md:px-12 lg:px-20 py-14 gap-10 md:gap-12">
+      {/* Text — mobile: dưới ảnh (order-2), desktop: bên trái (order-1) */}
+      <div className="flex-1 flex flex-col items-start gap-5 order-2 md:order-1">
         <p className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--lp-accent)]">
           Hãy đến O2skin
         </p>
         <h2 className="font-extrabold text-2xl md:text-3xl text-cta leading-snug">
-          Tình trạng như của bạn,<br className="hidden sm:block" />
+          Tình trạng như của bạn,<br />
           chúng tôi đã có giải pháp.
         </h2>
         <p className="text-sm md:text-base text-cta/75 leading-relaxed">
@@ -74,11 +64,21 @@ function ClinicIntroSection({ onScrollDown }: { onScrollDown: () => void }) {
         </p>
         <button
           onClick={onScrollDown}
-          className="mt-3 text-sm font-semibold text-[var(--lp-accent)] hover:text-cta transition-colors flex items-center gap-1.5"
+          className="mt-2 text-sm font-semibold text-[var(--lp-accent)] hover:text-cta transition-colors flex items-center gap-1.5"
           style={{ animation: 'cta-nudge 1.6s ease-in-out 2s 3' }}
         >
           Cùng tham quan một chút nhé! &#8595;
         </button>
+      </div>
+      {/* Ảnh landscape — mobile: trên cùng (order-1), desktop: bên phải (order-2) */}
+      <div className="flex-1 order-1 md:order-2">
+        <div className="w-full aspect-video overflow-hidden rounded-soft shadow-lg shadow-cta/10">
+          <img
+            src="/clinic/hinh-banner-about-us-desktop-update.png"
+            alt="Phòng khám da liễu O2skin"
+            className="w-full h-full object-cover"
+          />
+        </div>
       </div>
     </div>
   );
