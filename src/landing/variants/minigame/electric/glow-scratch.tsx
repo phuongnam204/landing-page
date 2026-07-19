@@ -5,10 +5,10 @@ import { skinConditions } from '../../../../content/quiz';
 import type { SkinCondition } from '../../../../content/quiz';
 
 const REVEAL_ZONES = [
-  { id: 'forehead', label: 'Tran', x: 50, y: 20, w: 36, h: 14, conditionId: 'lo-chan-long' as const },
-  { id: 'nose',     label: 'Mui',   x: 42, y: 36, w: 16, h: 16, conditionId: 'da-nhon-mun-viem' as const },
-  { id: 'chin',     label: 'Cam',   x: 42, y: 60, w: 16, h: 14, conditionId: 'mun-noi-tiet' as const },
-  { id: 'cheeks',   label: 'Ma',    x: 12, y: 32, w: 76, h: 28, conditionId: 'mun-trung-ca' as const },
+  { id: 'forehead', label: 'Trán', x: 50, y: 20, w: 36, h: 14, conditionId: 'lo-chan-long' as const },
+  { id: 'nose',     label: 'Mũi',  x: 42, y: 36, w: 16, h: 16, conditionId: 'da-nhon-mun-viem' as const },
+  { id: 'chin',     label: 'Cằm',  x: 42, y: 60, w: 16, h: 14, conditionId: 'mun-noi-tiet' as const },
+  { id: 'cheeks',   label: 'Má',   x: 12, y: 32, w: 76, h: 28, conditionId: 'mun-trung-ca' as const },
 ];
 
 export function ElectricGlowScratchMinigame({ onComplete }: MinigameSlotProps) {
@@ -58,9 +58,9 @@ export function ElectricGlowScratchMinigame({ onComplete }: MinigameSlotProps) {
       const result: MinigameResult = {
         conditions: [condition],
         condition,
-        zoneLabel: 'Nhieu vung',
+        zoneLabel: 'Nhiều vùng',
         zoneIds: REVEAL_ZONES.map(z => z.id),
-        triggerNote: 'quet da phat hien',
+        triggerNote: 'quét da phát hiện',
       };
       setTimeout(() => onComplete(result), 500);
     }
@@ -81,7 +81,7 @@ export function ElectricGlowScratchMinigame({ onComplete }: MinigameSlotProps) {
         </div>
         <div className="flex-1">
           <div className="text-sm font-bold" style={{ color: 'var(--lp-primary)' }}>O2skin Glow Scan</div>
-          <div className="text-xs" style={{ color: 'color-mix(in srgb, var(--lp-primary) 55%, transparent)' }}>Quet ngon tay de kham pha vung da</div>
+          <div className="text-xs" style={{ color: 'color-mix(in srgb, var(--lp-primary) 55%, transparent)' }}>Quét ngón tay để khám phá vùng da</div>
         </div>
         <div className="text-xs font-bold" style={{ color: 'var(--lp-primary)' }}>{Math.round(progress * 100)}%</div>
       </div>
@@ -119,7 +119,7 @@ export function ElectricGlowScratchMinigame({ onComplete }: MinigameSlotProps) {
             ))}
           </svg>
           {phase === 'scratch' && (
-            <p className="text-center text-xs mt-3" style={{ color: 'color-mix(in srgb, var(--lp-primary) 50%, transparent)' }}>Quet ngon tay tren cac vung de kham pha</p>
+            <p className="text-center text-xs mt-3" style={{ color: 'color-mix(in srgb, var(--lp-primary) 50%, transparent)' }}>Quét ngón tay trên các vùng để khám phá</p>
           )}
         </div>
       </div>

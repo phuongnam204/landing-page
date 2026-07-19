@@ -27,10 +27,10 @@ export function BoldStackedPathChooser({ options, onChoose }: PathChooserSlotPro
       <div className="w-full max-w-sm mx-auto text-center flex flex-col gap-5">
         <div>
           <h2 className="text-lg font-extrabold" style={{ color: 'var(--lp-primary)' }}>
-            Ban muon tiep theo?
+            Bạn muốn làm gì tiếp theo?
           </h2>
           <p className="text-sm mt-2" style={{ color: 'color-mix(in srgb, var(--lp-primary) 55%, transparent)' }}>
-            Chon huong di phu hop nhat voi ban
+            Chọn hướng đi phù hợp nhất với bạn
           </p>
         </div>
 
@@ -84,7 +84,7 @@ export function BoldStackedPathChooser({ options, onChoose }: PathChooserSlotPro
         <button onClick={handleConfirm} disabled={!selected}
           className="w-full rounded-full py-3.5 text-base font-bold text-white transition-all duration-200 disabled:opacity-40 active:scale-[0.98]"
           style={{ background: selected ? 'var(--lp-accent)' : 'color-mix(in srgb, var(--lp-accent) 30%, white)' }}>
-          {selected ? 'Xac nhan' : 'Hay chon mot huong di'}
+          {selected ? 'Xác nhận' : 'Hãy chọn một hướng đi'}
         </button>
       </div>
     </div>

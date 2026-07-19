@@ -8,9 +8,8 @@ export const v20BoldTypographic: Recipe = {
     hook:       'bold-typographic',
     minigame:   'bold-typographic',
     payoff:     'bold-typographic',
-    programs:   'bold-typographic',
+    programs:   'bold-typographic-commitment',
     conversion: 'bold-typographic',
     done:       'bold-typographic',
-    teaserPayoff: 'bold-classic',
   },
 };

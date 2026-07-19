@@ -7,9 +7,9 @@ import { trackEvent } from '../../../../lib/trackEvent';
 import { CtaButton } from '../../../../components/atoms/CtaButton';
 
 const COMMITMENT_LEVELS = [
-  { id: 'discover',   label: 'kham pha',    desc: 'Tim hieu so bo, chua cam ket',   icon: 'search' },
-  { id: 'serious',    label: 'nghiem tuc',  desc: 'San sang bat dau lieu trinh',    icon: 'target' },
-  { id: 'committed',  label: 'cam ket',     desc: 'Da xac dinh dieu tri dut diem',  icon: 'zap' },
+  { id: 'discover',   label: 'Khám phá',    desc: 'Tìm hiểu sơ bộ, chưa cam kết',       icon: 'search' },
+  { id: 'serious',    label: 'Nghiêm túc',  desc: 'Sẵn sàng bắt đầu liệu trình',        icon: 'target' },
+  { id: 'committed',  label: 'Cam kết',     desc: 'Đã xác định, muốn điều trị dứt điểm', icon: 'zap' },
 ];
 
 export function BoldTypographicCommitmentPrograms({ suggestedPrograms, onContinue }: ProgramsSlotProps) {
@@ -28,10 +28,10 @@ export function BoldTypographicCommitmentPrograms({ suggestedPrograms, onContinu
         <div className="max-w-lg w-full flex flex-col gap-6">
           <div className="text-center">
             <h2 className="text-xl font-extrabold" style={{ color: 'var(--lp-primary)' }}>
-              Ban muon di bao xa?
+              Bạn muốn đi bao xa?
             </h2>
             <p className="text-sm mt-2 leading-relaxed" style={{ color: 'color-mix(in srgb, var(--lp-primary) 65%, transparent)' }}>
-              Chon muc do cam ket de nhan goi y phu hop
+              Chọn mức độ cam kết để nhận gợi ý phù hợp
             </p>
           </div>
 
@@ -81,7 +81,7 @@ export function BoldTypographicCommitmentPrograms({ suggestedPrograms, onContinu
           </div>
 
           <CtaButton variant="golden" fullWidth onClick={handleContinue} disabled={!selected}>
-            {selected ? 'Xem lieu trinh phu hop' : 'Hay chon mot muc do'}
+            {selected ? 'Xem liệu trình phù hợp' : 'Hãy chọn một mức độ'}
           </CtaButton>
         </div>
       </div>

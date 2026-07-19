@@ -7,9 +7,9 @@ import { trackEvent } from '../../../../lib/trackEvent';
 import { CtaButton } from '../../../../components/atoms/CtaButton';
 
 const MILESTONES = [
-  { step: 1, label: 'Tham da & tu van', icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z' },
-  { step: 2, label: 'Lieu trinh ca nhan hoa', icon: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2' },
-  { step: 3, label: 'Theo doi & dieu chinh', icon: 'M22 12h-4l-3 9L9 3l-3 9H2' },
+  { step: 1, label: 'Thăm da & tư vấn', icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z' },
+  { step: 2, label: 'Liệu trình cá nhân hóa', icon: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2' },
+  { step: 3, label: 'Theo dõi & điều chỉnh', icon: 'M22 12h-4l-3 9L9 3l-3 9H2' },
 ];
 
 export function NaturalEditorialJourneyPrograms({ suggestedPrograms, onContinue }: ProgramsSlotProps) {
@@ -28,7 +28,7 @@ export function NaturalEditorialJourneyPrograms({ suggestedPrograms, onContinue 
         <div className="max-w-lg w-full flex flex-col gap-6">
           <div className="text-center">
             <p className="text-xs font-bold uppercase tracking-widest" style={{ color: 'color-mix(in srgb, var(--lp-primary) 50%, transparent)' }}>
-              Hanh trinh cua ban
+              Hành trình của bạn
             </p>
             <h2 className="text-xl font-extrabold mt-2" style={{ color: 'var(--lp-primary)' }}>
               {program.name}
@@ -72,9 +72,9 @@ export function NaturalEditorialJourneyPrograms({ suggestedPrograms, onContinue 
                     </p>
                     {isActive && (
                       <p className="text-xs mt-1 leading-relaxed" style={{ color: 'color-mix(in srgb, var(--lp-primary) 55%, transparent)' }}>
-                        {i === 0 && 'Chuyen vien se phan tich da va tu van lieu trinh phu hop.'}
-                        {i === 1 && 'Lieu trinh duoc thiet ke rieng cho tinh trang da cua ban.'}
-                        {i === 2 && 'Theo doi dinh ky va dieu chinh de dat ket qua tot nhat.'}
+                        {i === 0 && 'Chuyên viên sẽ phân tích da và tư vấn liệu trình phù hợp.'}
+                        {i === 1 && 'Liệu trình được thiết kế riêng cho tình trạng da của bạn.'}
+                        {i === 2 && 'Theo dõi định kỳ và điều chỉnh để đạt kết quả tốt nhất.'}
                       </p>
                     )}
                   </div>
@@ -87,7 +87,7 @@ export function NaturalEditorialJourneyPrograms({ suggestedPrograms, onContinue 
           </div>
 
           <CtaButton variant="golden" fullWidth onClick={handleContinue}>
-            Bat dau hanh trinh
+            Bắt đầu hành trình
           </CtaButton>
         </div>
       </div>

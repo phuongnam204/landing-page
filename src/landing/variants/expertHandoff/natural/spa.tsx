@@ -4,10 +4,10 @@ import type { ExpertHandoffSlotProps } from '../../../slots';
 import { trackEvent } from '../../../../lib/trackEvent';
 
 const BUBBLES = [
-  { text: 'Cam on ban da danh thong tin!', delay: 300 },
-  { text: 'Duoi day la nhan xet so bo ve tinh trang da cua ban...', delay: 1800 },
-  { text: 'Chung toi se lien he trong vong 24h de tu van chi tiet hon.', delay: 3200 },
-  { text: 'Ban cung co the dat lich ngay ben duoi.', delay: 4600 },
+  { text: 'Cảm ơn bạn đã chia sẻ thông tin!', delay: 300 },
+  { text: 'Dưới đây là nhận xét sơ bộ về tình trạng da của bạn...', delay: 1800 },
+  { text: 'Chúng tôi sẽ liên hệ trong vòng 24h để tư vấn chi tiết hơn.', delay: 3200 },
+  { text: 'Bạn cũng có thể đặt lịch ngay bên dưới.', delay: 4600 },
 ];
 
 export function NaturalSpaExpertHandoff({ result, programId, onContinue }: ExpertHandoffSlotProps) {
@@ -45,8 +45,8 @@ export function NaturalSpaExpertHandoff({ result, programId, onContinue }: Exper
           </svg>
         </div>
         <div>
-          <div className="text-sm font-bold" style={{ color: 'var(--lp-primary)' }}>Chuyen vien O2skin</div>
-          <div className="text-xs" style={{ color: 'color-mix(in srgb, var(--lp-primary) 55%, transparent)' }}>Dang tra loi...</div>
+          <div className="text-sm font-bold" style={{ color: 'var(--lp-primary)' }}>Chuyên viên O2skin</div>
+          <div className="text-xs" style={{ color: 'color-mix(in srgb, var(--lp-primary) 55%, transparent)' }}>Đang trả lời...</div>
         </div>
       </div>
 
@@ -86,10 +86,10 @@ export function NaturalSpaExpertHandoff({ result, programId, onContinue }: Exper
           <button onClick={() => { trackEvent('expert_handoff_continue', { programId }); onContinue(); }}
             className="w-full rounded-full py-3.5 text-base font-bold text-white transition-all active:scale-[0.98]"
             style={{ background: 'var(--lp-accent)' }}>
-            Dat lich tu van ngay
+            Đặt lịch tư vấn ngay
           </button>
           <p className="text-xs text-center mt-2" style={{ color: 'color-mix(in srgb, var(--lp-primary) 45%, transparent)' }}>
-            Hoan toan mien phi, khong cam ket
+            Hoàn toàn miễn phí, không cam kết
           </p>
         </div>
       )}

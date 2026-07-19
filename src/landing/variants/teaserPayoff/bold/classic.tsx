@@ -19,7 +19,7 @@ export function BoldClassicTeaserPayoff({ onContinue }: TeaserPayoffSlotProps) {
       <div className="w-full max-w-sm mx-auto text-center">
         <p className="text-xs font-bold uppercase tracking-widest mb-4"
           style={{ color: 'color-mix(in srgb, var(--lp-primary) 50%, transparent)' }}>
-          Ban chua san sang?
+          Kết quả dành riêng cho bạn
         </p>
 
         <div className="teaser-card rounded-soft p-6 relative overflow-hidden"
@@ -54,12 +54,12 @@ export function BoldClassicTeaserPayoff({ onContinue }: TeaserPayoffSlotProps) {
           <button onClick={() => { trackEvent('teaser_book'); onContinue(); }}
             className="w-full rounded-full py-3.5 text-base font-bold text-white transition-all active:scale-[0.98]"
             style={{ background: 'var(--lp-accent)' }}>
-            Dat lich de xem day du
+            Đặt lịch để xem đầy đủ
           </button>
           <button onClick={() => { trackEvent('teaser_skip'); onContinue(); }}
             className="text-sm font-semibold underline underline-offset-2"
             style={{ color: 'color-mix(in srgb, var(--lp-primary) 55%, transparent)' }}>
-            Bo qua, chuyen den dang ky
+            Bỏ qua, chuyển đến đăng ký
           </button>
         </div>
       </div>

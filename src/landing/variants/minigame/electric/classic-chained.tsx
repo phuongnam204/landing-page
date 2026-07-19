@@ -8,17 +8,17 @@ type ZoneKey = 'forehead' | 'nose' | 'chin' | 'left-cheek' | 'right-cheek';
 type Severity = 'mild' | 'moderate' | 'severe';
 
 const ZONE_LABEL_MAP: Record<ZoneKey, string> = {
-  forehead: 'Tran',
-  nose: 'Mui',
-  chin: 'Cam',
-  'left-cheek': 'Ma trai',
-  'right-cheek': 'Ma phai',
+  forehead: 'Trán',
+  nose: 'Mũi',
+  chin: 'Cằm',
+  'left-cheek': 'Má trái',
+  'right-cheek': 'Má phải',
 };
 
 const SEVERITY_OPTIONS: Array<{ label: string; value: Severity }> = [
-  { label: 'Nhe, vai cai',       value: 'mild' },
-  { label: 'Vua phai, nhieu cai', value: 'moderate' },
-  { label: 'Nhieu, dam / viem',   value: 'severe' },
+  { label: 'Nhẹ, vài cái',         value: 'mild' },
+  { label: 'Vừa phải, nhiều cái',   value: 'moderate' },
+  { label: 'Nhiều, đậm / viêm',     value: 'severe' },
 ];
 
 function resolveCondition(zones: ZoneKey[], severity: Severity): ConditionId {
@@ -60,7 +60,7 @@ export function ElectricClassicChainedMinigame({ onComplete }: MinigameSlotProps
         condition,
         zoneLabel: selectedZones.map(z => ZONE_LABEL_MAP[z]).join(', '),
         zoneIds: selectedZones,
-        triggerNote: s === 'severe' ? 'tinh trang viem nang' : 'tinh trang nhe-den-vua',
+        triggerNote: s === 'severe' ? 'tình trạng viêm nặng' : 'tình trạng nhẹ đến vừa',
       };
       onComplete(result);
     }, 400);
@@ -85,14 +85,14 @@ export function ElectricClassicChainedMinigame({ onComplete }: MinigameSlotProps
         </div>
         <div>
           <div className="text-sm font-bold" style={{ color: 'var(--lp-primary)' }}>O2skin Skin Scan</div>
-          <div className="text-xs" style={{ color: 'color-mix(in srgb, var(--lp-primary) 55%, transparent)' }}>{phase === 'zone' ? 'Cham vao vung da co mun' : phase === 'severity' ? 'Danh gia muc do' : 'Dang phan tich...'}</div>
+          <div className="text-xs" style={{ color: 'color-mix(in srgb, var(--lp-primary) 55%, transparent)' }}>{phase === 'zone' ? 'Chạm vào vùng da có mụn' : phase === 'severity' ? 'Đánh giá mức độ' : 'Đang phân tích...'}</div>
         </div>
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-5">
         {phase === 'zone' && (
           <div className="flex flex-col gap-4" style={{ animation: 'fade-in 300ms ease-out both' }}>
-            <p className="text-sm font-bold" style={{ color: 'var(--lp-primary)' }}>Cham vao cac vung da co mun:</p>
+            <p className="text-sm font-bold" style={{ color: 'var(--lp-primary)' }}>Chạm vào các vùng da có mụn:</p>
             <div className="grid grid-cols-2 gap-3">
               {(Object.entries(ZONE_LABEL_MAP) as [ZoneKey, string][]).map(([key, label]) => {
                 const sel = selectedZones.includes(key);
@@ -114,14 +114,14 @@ export function ElectricClassicChainedMinigame({ onComplete }: MinigameSlotProps
             <button onClick={confirmZone} disabled={selectedZones.length === 0}
               className="w-full rounded-full py-3.5 text-base font-bold text-white transition-all duration-200 disabled:opacity-40"
               style={{ background: selectedZones.length > 0 ? 'var(--lp-accent)' : 'color-mix(in srgb, var(--lp-accent) 30%, white)' }}>
-              Tiep theo ({selectedZones.length} vung)
+              Tiếp theo ({selectedZones.length} vùng)
             </button>
           </div>
         )}
 
         {phase === 'severity' && showSeverity && (
           <div className="flex flex-col gap-4" style={{ animation: 'fade-in 300ms ease-out both' }}>
-            <p className="text-sm font-bold" style={{ color: 'var(--lp-primary)' }}>Muc do tren tung vung:</p>
+            <p className="text-sm font-bold" style={{ color: 'var(--lp-primary)' }}>Mức độ trên từng vùng:</p>
             {SEVERITY_OPTIONS.map(opt => (
               <button key={opt.value} onClick={() => confirmSeverity(opt.value)}
                 className="rounded-soft px-5 py-4 text-left text-sm font-semibold transition-all"
@@ -141,7 +141,7 @@ export function ElectricClassicChainedMinigame({ onComplete }: MinigameSlotProps
             <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ background: 'var(--lp-accent)' }}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M20 6L9 17l-5-5" /></svg>
             </div>
-            <p className="text-sm font-bold" style={{ color: 'var(--lp-primary)' }}>Dang phan tich...</p>
+            <p className="text-sm font-bold" style={{ color: 'var(--lp-primary)' }}>Đang phân tích...</p>
           </div>
         )}
       </div>

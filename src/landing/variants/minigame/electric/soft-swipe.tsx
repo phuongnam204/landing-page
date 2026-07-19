@@ -13,11 +13,11 @@ interface SwipeCard {
 }
 
 const CARDS: SwipeCard[] = [
-  { id: 'oily',    label: 'Da nhon, nhieu dau',       emojiLabel: 'Bong dau',         conditionId: 'da-nhon-mun-viem', zones: ['forehead', 'nose'] },
-  { id: 'acne',    label: 'Mun viem, mun boc',         emojiLabel: 'Mun do',           conditionId: 'mun-trung-ca',     zones: ['cheeks'] },
-  { id: 'dry-red', label: 'Kho, do, kich ung',         emojiLabel: 'Kich ung',         conditionId: 'da-nhay-cam',      zones: ['cheeks', 'forehead'] },
-  { id: 'pores',   label: 'Lo chan long to, khong mun', emojiLabel: 'Lo to',           conditionId: 'lo-chan-long',     zones: ['nose', 'forehead'] },
-  { id: 'clear',   label: 'Da khoe, khong co van de gi',emojiLabel: 'Da dep',          conditionId: 'clean-skin',       zones: [] },
+  { id: 'oily',    label: 'Da nhờn, bóng dầu',         emojiLabel: 'Da nhờn',       conditionId: 'da-nhon-mun-viem', zones: ['forehead', 'nose'] },
+  { id: 'acne',    label: 'Mụn viêm, mụn bọc',          emojiLabel: 'Mụn viêm',      conditionId: 'mun-trung-ca',     zones: ['cheeks'] },
+  { id: 'dry-red', label: 'Khô, đỏ, dễ kích ứng',       emojiLabel: 'Da nhạy cảm',   conditionId: 'da-nhay-cam',      zones: ['cheeks', 'forehead'] },
+  { id: 'pores',   label: 'Lỗ chân lông to, ít mụn',    emojiLabel: 'Lỗ chân lông',  conditionId: 'lo-chan-long',     zones: ['nose', 'forehead'] },
+  { id: 'clear',   label: 'Da khỏe, không có vấn đề gì', emojiLabel: 'Da sạch',       conditionId: 'clean-skin',       zones: [] },
 ];
 
 export function ElectricSoftSwipeMinigame({ onComplete }: MinigameSlotProps) {
@@ -45,7 +45,7 @@ export function ElectricSoftSwipeMinigame({ onComplete }: MinigameSlotProps) {
         const result: MinigameResult = {
           conditions: [condition],
           condition,
-          zoneLabel: current.zones.join(', ') || 'Khong co vung cu the',
+          zoneLabel: current.zones.join(', ') || 'Không có vùng cụ thể',
           zoneIds: current.zones,
           triggerNote: current.label,
         };
@@ -60,7 +60,7 @@ export function ElectricSoftSwipeMinigame({ onComplete }: MinigameSlotProps) {
           const result: MinigameResult = {
             conditions: [condition],
             condition,
-            zoneLabel: last.zones.join(', ') || 'Khong co vung cu the',
+            zoneLabel: last.zones.join(', ') || 'Không có vùng cụ thể',
             zoneIds: last.zones,
             triggerNote: last.label,
           };
@@ -127,7 +127,7 @@ export function ElectricSoftSwipeMinigame({ onComplete }: MinigameSlotProps) {
         </div>
         <div>
           <div className="text-sm font-bold" style={{ color: 'var(--lp-primary)' }}>O2skin Swipe</div>
-          <div className="text-xs" style={{ color: 'color-mix(in srgb, var(--lp-primary) 55%, transparent)' }}>Vuot phai de chon, trai de bo qua</div>
+          <div className="text-xs" style={{ color: 'color-mix(in srgb, var(--lp-primary) 55%, transparent)' }}>Vuốt phải để chọn, trái để bỏ qua</div>
         </div>
       </div>
 
@@ -157,7 +157,7 @@ export function ElectricSoftSwipeMinigame({ onComplete }: MinigameSlotProps) {
             {current.label}
           </p>
           <p className="text-xs mt-4" style={{ color: 'color-mix(in srgb, var(--lp-primary) 50%, transparent)' }}>
-            Vuot phai de chon / Vuot trai de bo qua
+            Vuốt phải để chọn / vuốt trái để bỏ qua
           </p>
         </div>
       </div>
