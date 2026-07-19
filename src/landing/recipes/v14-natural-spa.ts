@@ -11,5 +11,6 @@ export const v14NaturalSpa: Recipe = {
     programs:   'natural-spa',
     conversion: 'natural-spa',
     done:       'natural-spa',
+    expertHandoff: 'natural-spa',
   },
 };

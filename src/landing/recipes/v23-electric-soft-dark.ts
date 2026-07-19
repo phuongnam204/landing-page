@@ -6,7 +6,7 @@ export const v23ElectricSoftDark: Recipe = {
   theme: 'periwinkle',
   slots: {
     hook:       'electric-soft-dark',
-    minigame:   'electric-soft-dark',
+    minigame:   'electric-soft-swipe',
     payoff:     'electric-soft-dark',
     programs:   'electric-soft-dark',
     conversion: 'electric-soft-dark',

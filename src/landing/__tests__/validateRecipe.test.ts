@@ -5,6 +5,7 @@ const reg = {
   hook: { 'two-column': {} }, minigame: { 'face-map': {} },
   payoff: { 'confetti-card': {} }, conversion: { 'short-form': {} },
   programs: { grid: {} }, socialProof: { 'video-proof': {} }, done: { 'contact-info': {} },
+  teaserPayoff: { 'bold-classic': {} }, pathChooser: { 'bold-stacked': {} }, expertHandoff: { 'natural-spa': {} },
 };
 const base = { id: 'v', label: 'T', slots: { hook: 'two-column', minigame: 'face-map', payoff: 'confetti-card', conversion: 'short-form' } };
 
@@ -28,6 +29,30 @@ describe('validateRecipe', () => {
   it('passes recipe with valid optional slots', () => {
     const r = validateRecipe({ ...base, slots: { ...base.slots, programs: 'grid', done: 'contact-info' } }, reg);
     expect(r.valid).toBe(true);
+  });
+  it('passes recipe with valid teaserPayoff slot', () => {
+    const r = validateRecipe({ ...base, slots: { ...base.slots, teaserPayoff: 'bold-classic' } }, reg);
+    expect(r.valid).toBe(true);
+  });
+  it('passes recipe with valid pathChooser slot', () => {
+    const r = validateRecipe({ ...base, slots: { ...base.slots, pathChooser: 'bold-stacked' } }, reg);
+    expect(r.valid).toBe(true);
+  });
+  it('passes recipe with valid expertHandoff slot', () => {
+    const r = validateRecipe({ ...base, slots: { ...base.slots, expertHandoff: 'natural-spa' } }, reg);
+    expect(r.valid).toBe(true);
+  });
+  it('fails unknown teaserPayoff variant', () => {
+    const r = validateRecipe({ ...base, slots: { ...base.slots, teaserPayoff: 'ghost' } }, reg);
+    expect(r.valid).toBe(false);
+  });
+  it('fails unknown pathChooser variant', () => {
+    const r = validateRecipe({ ...base, slots: { ...base.slots, pathChooser: 'ghost' } }, reg);
+    expect(r.valid).toBe(false);
+  });
+  it('fails unknown expertHandoff variant', () => {
+    const r = validateRecipe({ ...base, slots: { ...base.slots, expertHandoff: 'ghost' } }, reg);
+    expect(r.valid).toBe(false);
   });
   it('passes v04 recipe using compound variant ids', () => {
     const reg4 = {

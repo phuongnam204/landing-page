@@ -6,6 +6,9 @@ export type RecipeSlots = {
   conversion: string;
   socialProof?: string;
   done?: string;
+  teaserPayoff?: string;
+  pathChooser?: string;
+  expertHandoff?: string;
 };
 
 export type Recipe = {
@@ -21,7 +24,7 @@ export type ValidationResult =
   | { valid: false; errors: string[] };
 
 const REQUIRED = ['hook', 'minigame', 'payoff', 'conversion'] as const;
-const OPTIONAL = ['programs', 'socialProof', 'done'] as const;
+const OPTIONAL = ['programs', 'socialProof', 'done', 'teaserPayoff', 'pathChooser', 'expertHandoff'] as const;
 
 export function validateRecipe(
   recipe: Recipe,

@@ -8,7 +8,7 @@ export const v15NaturalEditorial: Recipe = {
     hook:       'natural-editorial',
     minigame:   'natural-editorial',
     payoff:     'natural-editorial',
-    programs:   'natural-editorial',
+    programs:   'natural-editorial-journey',
     conversion: 'natural-editorial',
     done:       'natural-editorial',
   },

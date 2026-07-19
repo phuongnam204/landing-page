@@ -35,3 +35,19 @@ export type ConversionSlotProps = {
 export type SocialProofSlotProps = { onContinue: () => void };
 
 export type DoneSlotProps = { selectedProgramId: ProgramId | null };
+
+export type ExternHandoffSlotProps = {
+  result: MinigameResult;
+  programId: ProgramId | null;
+  onContinue: () => void;
+};
+
+export type TeaserPayoffSlotProps = {
+  result: MinigameResult;
+  onContinue: () => void;
+};
+
+export type PathChooserSlotProps = {
+  options: Array<{ id: string; label: string; description: string }>;
+  onChoose: (optionId: string) => void;
+};

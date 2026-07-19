@@ -6,7 +6,7 @@ export const v21ElectricClassic: Recipe = {
   theme: 'magenta',
   slots: {
     hook:       'electric-classic',
-    minigame:   'electric-classic',
+    minigame:   'electric-classic-chained',
     payoff:     'electric-classic',
     programs:   'electric-classic',
     conversion: 'electric-classic',

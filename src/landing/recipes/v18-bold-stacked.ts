@@ -11,5 +11,6 @@ export const v18BoldStacked: Recipe = {
     programs:   'bold-stacked',
     conversion: 'bold-stacked',
     done:       'bold-stacked',
+    pathChooser: 'bold-stacked',
   },
 };

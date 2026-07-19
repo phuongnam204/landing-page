@@ -7,7 +7,7 @@ import { registry } from './registry';
 import type { MinigameResult } from './slots';
 import type { Recipe } from './validateRecipe';
 
-type Step = 'hook' | 'minigame' | 'payoff' | 'programs' | 'conversion' | 'socialProof' | 'done';
+type Step = 'hook' | 'minigame' | 'payoff' | 'expertHandoff' | 'programs' | 'pathChooser' | 'conversion' | 'teaserPayoff' | 'socialProof' | 'done';
 
 export default function LandingFlow({ recipe }: { recipe: Recipe }) {
   const [step, setStep] = useState<Step>('hook');
@@ -22,8 +22,18 @@ export default function LandingFlow({ recipe }: { recipe: Recipe }) {
   }
 
   function nextAfterPayoff() {
+    if (recipe.slots.expertHandoff) return transitionTo('expertHandoff');
     if (recipe.slots.programs) return transitionTo('programs');
+    if (recipe.slots.pathChooser) return transitionTo('pathChooser');
+    if (recipe.slots.teaserPayoff) return transitionTo('teaserPayoff');
     return transitionTo('conversion');
+  }
+
+  function nextAfterPrograms(programId: ProgramId) {
+    setSelectedProgram(programId);
+    if (recipe.slots.pathChooser) return transitionTo('pathChooser');
+    if (recipe.slots.teaserPayoff) return transitionTo('teaserPayoff');
+    transitionTo('conversion');
   }
 
   function nextAfterConversion() {
@@ -34,13 +44,16 @@ export default function LandingFlow({ recipe }: { recipe: Recipe }) {
   const themeClass = `theme-${recipe.theme ?? 'blossom'}`;
   const containerClass = `transition-opacity duration-300 ${transitioning ? 'opacity-0' : 'opacity-100'}`;
 
-  const Hook       = registry.hook[recipe.slots.hook];
-  const Minigame   = registry.minigame[recipe.slots.minigame];
-  const Payoff     = registry.payoff[recipe.slots.payoff];
-  const Programs   = recipe.slots.programs   ? registry.programs[recipe.slots.programs]     : null;
-  const Conversion = registry.conversion[recipe.slots.conversion];
-  const SocialProof= recipe.slots.socialProof? registry.socialProof[recipe.slots.socialProof]: null;
-  const Done       = recipe.slots.done       ? registry.done[recipe.slots.done]              : null;
+  const Hook          = registry.hook[recipe.slots.hook];
+  const Minigame      = registry.minigame[recipe.slots.minigame];
+  const Payoff        = registry.payoff[recipe.slots.payoff];
+  const ExpertHandoff = recipe.slots.expertHandoff ? registry.expertHandoff?.[recipe.slots.expertHandoff] : null;
+  const Programs      = recipe.slots.programs       ? registry.programs[recipe.slots.programs]               : null;
+  const PathChooser   = recipe.slots.pathChooser    ? registry.pathChooser?.[recipe.slots.pathChooser]       : null;
+  const Conversion    = registry.conversion[recipe.slots.conversion];
+  const TeaserPayoff  = recipe.slots.teaserPayoff   ? registry.teaserPayoff?.[recipe.slots.teaserPayoff]     : null;
+  const SocialProof   = recipe.slots.socialProof    ? registry.socialProof[recipe.slots.socialProof]          : null;
+  const Done          = recipe.slots.done            ? registry.done[recipe.slots.done]                       : null;
 
   return (
     <div className={`overflow-hidden ${themeClass} ${containerClass}`}>
@@ -65,9 +78,42 @@ export default function LandingFlow({ recipe }: { recipe: Recipe }) {
         }} />
       )}
 
+      {step === 'expertHandoff' && ExpertHandoff && minigameResult && (
+        <ExpertHandoff
+          result={minigameResult}
+          programId={selectedProgram}
+          onContinue={() => {
+            if (recipe.slots.programs) return transitionTo('programs');
+            if (recipe.slots.pathChooser) return transitionTo('pathChooser');
+            if (recipe.slots.teaserPayoff) return transitionTo('teaserPayoff');
+            transitionTo('conversion');
+          }}
+        />
+      )}
+
       {step === 'programs' && Programs && (
         <Programs suggestedPrograms={suggestedPrograms}
-          onContinue={(programId) => { setSelectedProgram(programId); transitionTo('conversion'); }} />
+          onContinue={(programId) => {
+            trackEvent('program_selected', { programId });
+            nextAfterPrograms(programId);
+          }} />
+      )}
+
+      {step === 'pathChooser' && PathChooser && (
+        <PathChooser
+          options={[
+            { id: 'book', label: 'Dat lich tu van', description: 'Chuyen vien se lien he trong 24h' },
+            { id: 'self', label: 'Tu tim hieu them', description: 'Xem them tai lieu va bai viet' },
+          ]}
+          onChoose={(optionId) => {
+            if (optionId === 'book') transitionTo('conversion');
+            else if (optionId === 'self') transitionTo('teaserPayoff');
+          }}
+        />
+      )}
+
+      {step === 'teaserPayoff' && TeaserPayoff && minigameResult && (
+        <TeaserPayoff result={minigameResult} onContinue={() => transitionTo('conversion')} />
       )}
 
       {step === 'conversion' && Conversion && (
@@ -86,12 +132,12 @@ export default function LandingFlow({ recipe }: { recipe: Recipe }) {
         ? <Done selectedProgramId={selectedProgram} />
         : <div className="h-screen w-full bg-[var(--lp-bg-payoff)] flex items-center justify-center px-5">
             <div className="bg-[var(--lp-bg-card)] rounded-soft p-8 shadow-lg text-center max-w-sm w-full">
-              <svg viewBox="0 0 48 48" className="w-12 h-12 text-teal-500 mx-auto mb-3" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg viewBox="0 0 48 48" className="w-12 h-12 mx-auto mb-3" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="24" cy="24" r="21" strokeOpacity="0.25" />
                 <path d="M14 25l7 7 13-14" />
               </svg>
-              <p className="font-extrabold text-xl text-cta">Đã nhận thông tin của bạn!</p>
-              <p className="text-sm text-cta/60 mt-2">Chuyên viên sẽ liên hệ trong 24 giờ.</p>
+              <p className="font-extrabold text-xl text-cta">Da nhan thong tin cua ban!</p>
+              <p className="text-sm text-cta/60 mt-2">Chuyen vien se lien he trong 24 gio.</p>
             </div>
           </div>
       )}

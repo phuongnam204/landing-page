@@ -11,5 +11,6 @@ export const v20BoldTypographic: Recipe = {
     programs:   'bold-typographic',
     conversion: 'bold-typographic',
     done:       'bold-typographic',
+    teaserPayoff: 'bold-classic',
   },
 };
