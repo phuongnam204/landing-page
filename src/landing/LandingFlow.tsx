@@ -15,24 +15,27 @@ export default function LandingFlow({ recipe }: { recipe: Recipe }) {
   const [minigameResult, setMinigameResult] = useState<MinigameResult | null>(null);
   const [suggestedPrograms, setSuggestedPrograms] = useState<ScoredProgram[]>([]);
   const [selectedProgram, setSelectedProgram] = useState<ProgramId | null>(null);
+  const [isFastTrack, setIsFastTrack] = useState(false);
 
   function transitionTo(next: Step) {
     setTransitioning(true);
     setTimeout(() => { setStep(next); setTransitioning(false); }, 300);
   }
 
+  function nextAfterHook() {
+    if (recipe.slots.pathChooser) return transitionTo('pathChooser');
+    if (recipe.slots.teaserPayoff) return transitionTo('teaserPayoff');
+    return transitionTo('minigame');
+  }
+
   function nextAfterPayoff() {
     if (recipe.slots.expertHandoff) return transitionTo('expertHandoff');
     if (recipe.slots.programs) return transitionTo('programs');
-    if (recipe.slots.pathChooser) return transitionTo('pathChooser');
-    if (recipe.slots.teaserPayoff) return transitionTo('teaserPayoff');
     return transitionTo('conversion');
   }
 
   function nextAfterPrograms(programId: ProgramId) {
     setSelectedProgram(programId);
-    if (recipe.slots.pathChooser) return transitionTo('pathChooser');
-    if (recipe.slots.teaserPayoff) return transitionTo('teaserPayoff');
     transitionTo('conversion');
   }
 
@@ -57,7 +60,30 @@ export default function LandingFlow({ recipe }: { recipe: Recipe }) {
 
   return (
     <div className={`overflow-hidden ${themeClass} ${containerClass}`}>
-      {step === 'hook' && Hook && <Hook onStart={() => transitionTo('minigame')} />}
+      {step === 'hook' && Hook && <Hook onStart={nextAfterHook} />}
+
+      {step === 'pathChooser' && PathChooser && (
+        <PathChooser
+          options={[
+            { id: 'fast', label: 'Đặt lịch tư vấn', description: 'Chuyên viên sẽ liên hệ trong 24h' },
+            { id: 'full', label: 'Phân tích da trước', description: 'Nhận kết quả cá nhân hóa' },
+          ]}
+          onChoose={(optionId) => {
+            if (optionId === 'fast') {
+              setIsFastTrack(true);
+              trackEvent('path_chosen', { path: 'fast_track' });
+              transitionTo('conversion');
+            } else {
+              trackEvent('path_chosen', { path: 'full_flow' });
+              transitionTo('minigame');
+            }
+          }}
+        />
+      )}
+
+      {step === 'teaserPayoff' && TeaserPayoff && (
+        <TeaserPayoff onContinue={() => transitionTo('minigame')} />
+      )}
 
       {step === 'minigame' && Minigame && (
         <Minigame onComplete={(result) => {
@@ -97,23 +123,6 @@ export default function LandingFlow({ recipe }: { recipe: Recipe }) {
             trackEvent('program_selected', { programId });
             nextAfterPrograms(programId);
           }} />
-      )}
-
-      {step === 'pathChooser' && PathChooser && (
-        <PathChooser
-          options={[
-            { id: 'book', label: 'Dat lich tu van', description: 'Chuyen vien se lien he trong 24h' },
-            { id: 'self', label: 'Tu tim hieu them', description: 'Xem them tai lieu va bai viet' },
-          ]}
-          onChoose={(optionId) => {
-            if (optionId === 'book') transitionTo('conversion');
-            else if (optionId === 'self') transitionTo('teaserPayoff');
-          }}
-        />
-      )}
-
-      {step === 'teaserPayoff' && TeaserPayoff && minigameResult && (
-        <TeaserPayoff result={minigameResult} onContinue={() => transitionTo('conversion')} />
       )}
 
       {step === 'conversion' && Conversion && (

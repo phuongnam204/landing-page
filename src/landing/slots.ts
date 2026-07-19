@@ -36,14 +36,13 @@ export type SocialProofSlotProps = { onContinue: () => void };
 
 export type DoneSlotProps = { selectedProgramId: ProgramId | null };
 
-export type ExternHandoffSlotProps = {
+export type ExpertHandoffSlotProps = {
   result: MinigameResult;
   programId: ProgramId | null;
   onContinue: () => void;
 };
 
 export type TeaserPayoffSlotProps = {
-  result: MinigameResult;
   onContinue: () => void;
 };
 

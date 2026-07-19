@@ -5,11 +5,12 @@ export const v17BoldClassic: Recipe = {
   label: 'v17 — Bold Golden / Classic',
   theme: 'golden',
   slots: {
-    hook:       'bold-classic',
-    minigame:   'bold-classic',
-    payoff:     'bold-classic',
-    programs:   'bold-classic',
-    conversion: 'bold-classic',
-    done:       'bold-classic',
+    hook:         'bold-classic',
+    teaserPayoff: 'bold-classic',
+    minigame:     'bold-classic',
+    payoff:       'bold-classic',
+    programs:     'bold-classic',
+    conversion:   'bold-classic',
+    done:         'bold-classic',
   },
 };

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import type { TeaserPayoffSlotProps } from '../../../slots';
 import { trackEvent } from '../../../../lib/trackEvent';
 
-export function BoldClassicTeaserPayoff({ result, onContinue }: TeaserPayoffSlotProps) {
+export function BoldClassicTeaserPayoff({ onContinue }: TeaserPayoffSlotProps) {
   const [hovered, setHovered] = useState(false);
 
   return (

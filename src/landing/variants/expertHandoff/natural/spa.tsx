@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import type { ExternHandoffSlotProps } from '../../../slots';
+import type { ExpertHandoffSlotProps } from '../../../slots';
 import { trackEvent } from '../../../../lib/trackEvent';
 
 const BUBBLES = [
@@ -10,7 +10,7 @@ const BUBBLES = [
   { text: 'Ban cung co the dat lich ngay ben duoi.', delay: 4600 },
 ];
 
-export function NaturalSpaExpertHandoff({ result, programId, onContinue }: ExternHandoffSlotProps) {
+export function NaturalSpaExpertHandoff({ result, programId, onContinue }: ExpertHandoffSlotProps) {
   const [visibleBubbles, setVisibleBubbles] = useState<number[]>([]);
   const [showCta, setShowCta] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
