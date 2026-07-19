@@ -11,6 +11,5 @@ export const v16NaturalMinimal: Recipe = {
     programs:   'natural-minimal',
     conversion: 'natural-minimal',
     done:       'natural-minimal',
-    teaserPayoff: 'bold-classic',
   },
 };

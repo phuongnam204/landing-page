@@ -6,11 +6,10 @@ export const v19BoldDiagonal: Recipe = {
   theme: 'tropical',
   slots: {
     hook:       'bold-diagonal',
-    minigame:   'story-day',
+    minigame:   'bold-diagonal',
     payoff:     'bold-diagonal',
     programs:   'bold-diagonal',
     conversion: 'bold-diagonal',
     done:       'bold-diagonal',
-    pathChooser: 'bold-stacked',
   },
 };
