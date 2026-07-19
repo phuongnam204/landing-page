@@ -91,7 +91,7 @@ function BotMessage({ text }: { text: string }) {
       </div>
       <div
         className="max-w-[75%] rounded-2xl rounded-bl-sm px-4 py-2.5 text-sm leading-relaxed"
-        style={{ background: 'color-mix(in srgb, var(--lp-primary) 8%, white)', color: 'var(--lp-primary)' }}
+        style={{ background: 'color-mix(in srgb, var(--lp-primary) 8%, white)', color: 'var(--lp-primary)', animation: 'msg-bot 300ms cubic-bezier(0.22, 1, 0.36, 1) both' }}
       >
         {text}
       </div>
@@ -104,7 +104,7 @@ function UserMessage({ text }: { text: string }) {
     <div className="flex justify-end">
       <div
         className="max-w-[70%] rounded-2xl rounded-br-sm px-4 py-2.5 text-sm leading-relaxed font-medium"
-        style={{ background: 'var(--lp-accent)', color: '#fff' }}
+        style={{ background: 'var(--lp-accent)', color: '#fff', animation: 'msg-user 300ms cubic-bezier(0.22, 1, 0.36, 1) both' }}
       >
         {text}
       </div>
@@ -114,7 +114,7 @@ function UserMessage({ text }: { text: string }) {
 
 function TypingIndicator({ analyzing }: { analyzing?: boolean }) {
   return (
-    <div className="flex gap-2.5 items-end">
+    <div className="flex gap-2.5 items-end" style={{ animation: 'fade-quick 150ms ease-out both' }}>
       <div className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center" style={{ background: 'var(--lp-primary)' }}>
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
           <circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
@@ -174,9 +174,9 @@ const CHIPS_MAP = {
 // ─── Main export ───────────────────────────────────────────────────────────
 
 export function SkinScanChatMinigame({ onComplete }: MinigameSlotProps) {
-  const [phase, setPhase]       = useState<Phase>('intro');
-  const [step, setStep]         = useState<1 | 2 | 3>(1);
-  const [showTyping, setShowTyping] = useState(false);
+  const [phase, setPhase]           = useState<Phase>('intro');
+  const [step, setStep]             = useState<1 | 2 | 3>(1);
+  const [showTyping, setShowTyping] = useState(true); // starts true for async intro
 
   const s1Ref = useRef<S1 | null>(null);
   const s2Ref = useRef<S2 | null>(null);
@@ -184,16 +184,29 @@ export function SkinScanChatMinigame({ onComplete }: MinigameSlotProps) {
 
   const [messages, setMessages] = useState<Array<
     { type: 'bot'; text: string } | { type: 'user'; text: string; signal: string }
-  >>([{ type: 'bot', text: 'Cho mình hỏi 3 câu nhanh để phân tích đúng tình trạng da của bạn nhé!' }]);
+  >>([]); // starts empty — bot "types" the intro asynchronously
 
   const bottomRef = useRef<HTMLDivElement>(null);
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages, showTyping]);
 
+  // Async intro: show typing indicator on mount, reveal opening message after delay
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setShowTyping(false);
+      setMessages([{ type: 'bot', text: 'Cho mình hỏi 3 câu nhanh để phân tích đúng tình trạng da của bạn nhé!' }]);
+    }, 900);
+    return () => clearTimeout(t);
+  }, []);
+
   function handleChipSelect(label: string, signal: string, signalType: 'start' | 'q1' | 'q2' | 'q3') {
     if (signalType === 'start') {
-      setMessages(m => [...m, { type: 'bot', text: Q1_TEXT }]);
       setPhase('chatting');
-      setStep(1);
+      setShowTyping(true);
+      setTimeout(() => {
+        setShowTyping(false);
+        setMessages(m => [...m, { type: 'bot', text: Q1_TEXT }]);
+        setStep(1);
+      }, 700);
       return;
     }
 
@@ -222,7 +235,7 @@ export function SkinScanChatMinigame({ onComplete }: MinigameSlotProps) {
           };
           onComplete(result);
         }, 1000);
-      }, 400);
+      }, 500);
       return;
     }
 
@@ -235,7 +248,7 @@ export function SkinScanChatMinigame({ onComplete }: MinigameSlotProps) {
         setMessages(m => [...m, { type: 'bot', text: Q3_TEXT }]);
         setStep(3);
       }
-    }, 400);
+    }, 650); // natural conversation pace
   }
 
   const currentChips =
@@ -246,11 +259,46 @@ export function SkinScanChatMinigame({ onComplete }: MinigameSlotProps) {
                             CHIPS_MAP.q3;
 
   return (
-    <div className="h-[100dvh] flex flex-col bg-[var(--lp-bg-hero)]">
+    <div
+      className="h-[100dvh] flex flex-col bg-[var(--lp-bg-hero)]"
+      style={{ animation: 'chat-panel-enter 400ms cubic-bezier(0.22, 1, 0.36, 1) both' }}
+    >
       <style>{`
         @keyframes typing-dot {
           0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
           30%            { transform: translateY(-4px); opacity: 1; }
+        }
+        @keyframes msg-bot {
+          from { opacity: 0; transform: translateY(10px) translateX(-6px); }
+          to   { opacity: 1; transform: translateY(0) translateX(0); }
+        }
+        @keyframes msg-user {
+          from { opacity: 0; transform: translateY(10px) translateX(6px); }
+          to   { opacity: 1; transform: translateY(0) translateX(0); }
+        }
+        @keyframes chip-pop {
+          from { opacity: 0; transform: scale(0.85) translateY(8px); }
+          to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes fade-quick {
+          from { opacity: 0; }
+          to   { opacity: 1; }
+        }
+        @keyframes chat-panel-enter {
+          from { opacity: 0; transform: translateY(18px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .skin-chip {
+          transition: background 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+        }
+        .skin-chip:hover {
+          background: color-mix(in srgb, var(--lp-accent) 15%, white) !important;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px color-mix(in srgb, var(--lp-accent) 22%, transparent);
+        }
+        .skin-chip:active {
+          transform: scale(0.95) translateY(0);
+          box-shadow: none;
         }
       `}</style>
 
@@ -267,16 +315,17 @@ export function SkinScanChatMinigame({ onComplete }: MinigameSlotProps) {
       </div>
 
       {currentChips.length > 0 && (
-        <div className="px-4 pb-6 pt-3 flex flex-wrap gap-2">
+        <div key={`${phase}-${step}`} className="px-4 pb-6 pt-3 flex flex-wrap gap-2">
           {currentChips.map((chip, i) => (
             <button
-              key={i}
+              key={chip.signal}
               onClick={() => handleChipSelect(chip.label, chip.signal, chip.type)}
-              className="px-4 py-2 rounded-full text-sm font-medium border transition-all duration-150 active:scale-95"
+              className="skin-chip px-4 py-2 rounded-full text-sm font-medium border"
               style={{
                 borderColor: 'var(--lp-accent)',
                 color: 'var(--lp-accent)',
                 background: 'color-mix(in srgb, var(--lp-accent) 6%, white)',
+                animation: `chip-pop 240ms cubic-bezier(0.34, 1.56, 0.64, 1) ${i * 50}ms both`,
               }}
             >
               {chip.label}
