@@ -33,7 +33,7 @@ function SlideContent({
   );
 }
 
-export function Carousel({
+export function CarouselKenBurn({
   onContinue,
   items = featuresAsItems,
 }: {

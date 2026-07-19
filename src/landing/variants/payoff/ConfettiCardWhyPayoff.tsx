@@ -2,14 +2,18 @@
 import React, { useEffect, useRef, useState } from 'react';
 import type { PayoffSlotProps, MinigameResult } from '../../slots';
 import type { ConditionId } from '../../../content/quiz';
-import { NumberedBadgeCirclesRight, Carousel } from './feature-layouts';
+import { NumberedBadgeCirclesRight, CarouselKenBurn } from './feature-layouts';
 import { CONDITION_EDUCATION } from './constant/ConditionEducation';
 import { CtaButton } from '../../../components/atoms/CtaButton';
 import { ResultCard } from './result-layouts/ResultCard';
 
 // ─── WhySection ───────────────────────────────────────────────────────────────
 
-function WhySection({ conditionId, onScrollDown }: { conditionId: ConditionId; onScrollDown: () => void }) {
+function WhySection({ conditionId, tone, onScrollDown }: {
+  conditionId: ConditionId;
+  tone: 'positive' | 'concern';
+  onScrollDown: () => void;
+}) {
   const edu = CONDITION_EDUCATION[conditionId]!;
   return (
     <div className="max-w-lg md:max-w-3xl mx-auto px-5 py-10 flex flex-col gap-6">
@@ -38,7 +42,7 @@ function WhySection({ conditionId, onScrollDown }: { conditionId: ConditionId; o
         className="md:text-base"
         style={{ animation: 'cta-nudge 1.6s ease-in-out 2.5s 3' }}
       >
-        Tôi phải làm sao? &#8595;
+        {tone === 'positive' ? 'Làm sao để duy trì làn da này? ↓' : 'Tôi phải làm sao? ↓'}
       </CtaButton>
       <div className="h-4" />
     </div>
@@ -47,38 +51,46 @@ function WhySection({ conditionId, onScrollDown }: { conditionId: ConditionId; o
 
 // ─── ClinicIntroSection ───────────────────────────────────────────────────────
 
-function ClinicIntroSection({ onScrollDown }: { onScrollDown: () => void }) {
+const CLINIC_COPY = {
+  concern: {
+    headline: (<>Tình trạng như của bạn,<br />chúng tôi đã có giải pháp.</>),
+    subtext:  'Tại đây chúng tôi có giải pháp toàn diện cho làn da của bạn!',
+    scrollCta: 'Cùng tham quan một chút nhé! ↓',
+  },
+  positive: {
+    headline: (<>Da bạn đang ổn — chúng tôi<br />giúp bạn giữ mãi được như vậy.</>),
+    subtext:  'Chúng tôi có liệu trình chăm sóc phù hợp giúp duy trì làn da khỏe mạnh lâu dài.',
+    scrollCta: 'Cùng khám phá giải pháp nhé! ↓',
+  },
+} as const;
+
+function ClinicIntroSection({ tone, onScrollDown }: { tone: 'positive' | 'concern'; onScrollDown: () => void }) {
+  const copy = CLINIC_COPY[tone];
   return (
     <div className="min-h-[100dvh] bg-[var(--lp-bg-payoff)] flex flex-col md:flex-row md:items-center px-6 md:px-12 lg:px-20 py-14 gap-10 md:gap-12">
       {/* Text — mobile: dưới ảnh (order-2), desktop: bên trái (order-1) */}
       <div className="flex-1 flex flex-col items-start gap-5 order-2 md:order-1">
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--lp-accent)]">
-          Hãy đến O2skin
-        </p>
-        <h2 className="font-extrabold text-2xl md:text-3xl text-cta leading-snug">
-          Tình trạng như của bạn,<br />
-          chúng tôi đã có giải pháp.
+        <h2 className="font-extrabold text-3xl md:text-4xl text-cta leading-snug">
+          {copy.headline}
         </h2>
         <p className="text-sm md:text-base text-cta/75 leading-relaxed">
-          Tại đây chúng tôi có giải pháp toàn diện cho làn da của bạn!
+          {copy.subtext}
         </p>
         <button
           onClick={onScrollDown}
           className="mt-2 text-sm font-semibold text-[var(--lp-accent)] hover:text-cta transition-colors flex items-center gap-1.5"
           style={{ animation: 'cta-nudge 1.6s ease-in-out 2s 3' }}
         >
-          Cùng tham quan một chút nhé! &#8595;
+          {copy.scrollCta}
         </button>
       </div>
-      {/* Ảnh landscape — mobile: trên cùng (order-1), desktop: bên phải (order-2) */}
+      {/* Ảnh — mobile: trên cùng (order-1), desktop: bên phải (order-2), kích thước tự nhiên */}
       <div className="flex-1 order-1 md:order-2">
-        <div className="w-full aspect-video overflow-hidden rounded-soft shadow-lg shadow-cta/10">
-          <img
-            src="/clinic/hinh-banner-about-us-desktop-update.png"
-            alt="Phòng khám da liễu O2skin"
-            className="w-full h-full object-cover"
-          />
-        </div>
+        <img
+          src="/clinic/hinh-banner-about-us-desktop-update.png"
+          alt="Phòng khám da liễu O2skin"
+          className="w-full h-auto rounded-soft"
+        />
       </div>
     </div>
   );
@@ -100,7 +112,7 @@ export type TopbarConfig = {
 export function ConfettiCardWhyPayoff({
   result,
   onContinue,
-  FeatureComponent: FeatureComp = Carousel,
+  FeatureComponent: FeatureComp = CarouselKenBurn,
   BenefitComponent: BenefitComp = NumberedBadgeCirclesRight,
   ResultComponent: ResultComp = ResultCard,
   topbarConfig,
@@ -195,6 +207,7 @@ export function ConfettiCardWhyPayoff({
       <div ref={whyRef} className="bg-[var(--lp-bg-payoff)]">
         <WhySection
           conditionId={result.condition.id as ConditionId}
+          tone={result.condition.tone}
           onScrollDown={() => clinicRef.current?.scrollIntoView({ behavior: 'smooth' })}
         />
       </div>
@@ -202,6 +215,7 @@ export function ConfettiCardWhyPayoff({
       {/* Section 2.5: Clinic Intro */}
       <div ref={clinicRef}>
         <ClinicIntroSection
+          tone={result.condition.tone}
           onScrollDown={() => statsRef.current?.scrollIntoView({ behavior: 'smooth' })}
         />
       </div>
