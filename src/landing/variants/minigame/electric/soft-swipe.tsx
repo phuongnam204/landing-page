@@ -165,6 +165,54 @@ export function ElectricSoftSwipeMinigame({ onComplete }: MinigameSlotProps) {
     }
   }, [phase, renderFrame]);
 
+  // ─── Spring + snap ────────────────────────────────────────────────────────
+  const springTo = useCallback((target: number) => {
+    if (animFrame.current !== null) cancelAnimationFrame(animFrame.current);
+    function step() {
+      wheelAngle.current += (target - wheelAngle.current) * SPRING_STIFFNESS;
+      renderFrame();
+      if (Math.abs(target - wheelAngle.current) < SPRING_THRESHOLD) {
+        wheelAngle.current = target;
+        renderFrame();
+        animFrame.current = null;
+        return;
+      }
+      animFrame.current = requestAnimationFrame(step);
+    }
+    animFrame.current = requestAnimationFrame(step);
+  }, [renderFrame]);
+
+  const snapBy = useCallback((dir: -1 | 1) => {
+    if (wheelLocked.current) return;
+    const current = Math.round(wheelAngle.current / ARC_STEP);
+    const next = Math.max(0, Math.min(CARDS.length - 1, current + dir));
+    springTo(next * ARC_STEP);
+  }, [springTo]);
+
+  // ─── Pointer handlers ────────────────────────────────────────────────────
+  const handlePointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (wheelLocked.current) return;
+    if (animFrame.current !== null) { cancelAnimationFrame(animFrame.current); animFrame.current = null; }
+    isDragging.current = true;
+    dragStartX.current = e.clientX;
+    dragStartAngle.current = wheelAngle.current;
+    (e.currentTarget as HTMLDivElement).setPointerCapture(e.pointerId);
+  }, []);
+
+  const handlePointerMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDragging.current || wheelLocked.current) return;
+    const raw = dragStartAngle.current - (e.clientX - dragStartX.current) / DRAG_SENS;
+    wheelAngle.current = clampWithDamping(raw);
+    renderFrame();
+  }, [renderFrame]);
+
+  const handlePointerUp = useCallback(() => {
+    if (!isDragging.current) return;
+    isDragging.current = false;
+    const target = Math.max(MIN_ANGLE, Math.min(MAX_ANGLE, Math.round(wheelAngle.current / ARC_STEP) * ARC_STEP));
+    springTo(target);
+  }, [springTo]);
+
   // ─── Render ────────────────────────────────────────────────────────────────
   return (
     <div
@@ -275,7 +323,11 @@ export function ElectricSoftSwipeMinigame({ onComplete }: MinigameSlotProps) {
           {/* Arc canvas — fills remaining vertical space */}
           <div
             ref={containerRef}
-            style={{ flex: 1, position: 'relative' }}
+            style={{ flex: 1, position: 'relative', touchAction: 'none', cursor: 'grab' }}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerLeave={handlePointerUp}
           >
             {CARDS.map((card, i) => (
               <div
@@ -338,7 +390,7 @@ export function ElectricSoftSwipeMinigame({ onComplete }: MinigameSlotProps) {
           {/* Arrow controls */}
           <div style={{ display: 'flex', justifyContent: 'center', gap: 16, paddingBottom: 20 }}>
             <button
-              onClick={() => {/* snapBy(-1) — Task 4 */}}
+              onClick={() => snapBy(-1)}
               style={{
                 width: 44, height: 44, borderRadius: '50%',
                 background: 'color-mix(in srgb, var(--lp-primary) 8%, transparent)',
@@ -352,7 +404,7 @@ export function ElectricSoftSwipeMinigame({ onComplete }: MinigameSlotProps) {
               </svg>
             </button>
             <button
-              onClick={() => {/* snapBy(1) — Task 4 */}}
+              onClick={() => snapBy(1)}
               style={{
                 width: 44, height: 44, borderRadius: '50%',
                 background: 'color-mix(in srgb, var(--lp-primary) 8%, transparent)',
