@@ -53,8 +53,8 @@ function WhySection({ conditionId, tone, onScrollDown }: {
 
 const CLINIC_COPY = {
   concern: {
-    headline: (<>Tình trạng như của bạn,<br />chúng tôi đã có giải pháp.</>),
-    subtext:  'Tại đây chúng tôi có giải pháp toàn diện cho làn da của bạn!',
+    headline: 'Chúng tôi có giải pháp cho làn da của bạn!',
+    subtext:  '',
     scrollCta: 'Cùng tham quan một chút nhé! ↓',
   },
   positive: {
@@ -73,9 +73,6 @@ function ClinicIntroSection({ tone, onScrollDown }: { tone: 'positive' | 'concer
         <h2 className="font-extrabold text-3xl md:text-4xl text-cta leading-snug">
           {copy.headline}
         </h2>
-        <p className="text-sm md:text-base text-cta/75 leading-relaxed">
-          {copy.subtext}
-        </p>
         <button
           onClick={onScrollDown}
           className="mt-2 text-sm font-semibold text-[var(--lp-accent)] hover:text-cta transition-colors flex items-center gap-1.5"

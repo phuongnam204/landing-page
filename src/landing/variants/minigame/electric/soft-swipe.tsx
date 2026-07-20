@@ -27,7 +27,6 @@ interface SwipeCard {
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-const ARC_R = 260;
 const ARC_CY_OFFSET = 60;
 const ARC_STEP = 22;
 const DRAG_SENS = 4.2;
@@ -48,9 +47,9 @@ const MAX_ANGLE = (CARDS.length - 1) * ARC_STEP;
 
 // ─── Arc math ─────────────────────────────────────────────────────────────────
 
-function arcPos(angleDeg: number, cx: number, cy: number): { x: number; y: number } {
+function arcPos(angleDeg: number, cx: number, cy: number, arcR: number): { x: number; y: number } {
   const rad = (angleDeg * Math.PI) / 180;
-  return { x: cx + ARC_R * Math.sin(rad), y: cy - ARC_R * Math.cos(rad) };
+  return { x: cx + arcR * Math.sin(rad), y: cy - arcR * Math.cos(rad) };
 }
 
 interface CardVisual {
@@ -65,13 +64,13 @@ interface CardVisual {
   t: number;
 }
 
-function cardVisual(cardAngle: number, cx: number, cy: number, baseW: number): CardVisual {
+function cardVisual(cardAngle: number, cx: number, cy: number, baseW: number, arcR: number): CardVisual {
   const abs = Math.abs(cardAngle);
   const t = abs / ARC_STEP;
   const baseH = Math.round(baseW * 1.26);
   const minW = Math.round(baseW * 0.56);
   const minH = Math.round(baseH * 0.56);
-  const { x, y } = arcPos(cardAngle, cx, cy);
+  const { x, y } = arcPos(cardAngle, cx, cy, arcR);
   return {
     x, y,
     w: Math.max(minW, Math.round(baseW - t * baseW * 0.18)),
@@ -118,8 +117,13 @@ export function ElectricSoftSwipeMinigame({ onComplete }: MinigameSlotProps) {
     // Dynamic center — works on desktop and mobile
     const cx = container.offsetWidth / 2;
     const cy = container.offsetHeight + ARC_CY_OFFSET;
-    // Center card = 40% of container width, capped at 180px
-    const baseW = Math.min(180, Math.round(container.offsetWidth * 0.40));
+    // Arc radius scales with container height — taller screens get wider arcs
+    const arcR = Math.max(280, Math.round(container.offsetHeight * 0.72));
+    // Card width: ~52% of width on mobile, ~36% on desktop, capped at 275px
+    const isWide = container.offsetWidth >= 600;
+    const baseW = Math.min(275, Math.max(200, Math.round(
+      isWide ? container.offsetWidth * 0.36 : container.offsetWidth * 0.52
+    )));
     const centerIdx = Math.round(wheelAngle.current / ARC_STEP);
 
     CARDS.forEach((_, i) => {
@@ -127,7 +131,7 @@ export function ElectricSoftSwipeMinigame({ onComplete }: MinigameSlotProps) {
       if (!el) return;
       // i * STEP - wheelAngle: positive = right of center, negative = left
       const angle = i * ARC_STEP - wheelAngle.current;
-      const v = cardVisual(angle, cx, cy, baseW);
+      const v = cardVisual(angle, cx, cy, baseW, arcR);
 
       if (v.hidden) { el.style.display = 'none'; return; }
       el.style.display = 'flex';
@@ -270,32 +274,34 @@ export function ElectricSoftSwipeMinigame({ onComplete }: MinigameSlotProps) {
     <div className="h-[100dvh] flex flex-col overflow-hidden" style={{ background: 'var(--lp-bg-hero)' }}>
       {/* Phone-width constraint on desktop */}
       <div
-        className="flex-1 flex flex-col overflow-hidden mx-auto w-full"
-        style={{ maxWidth: 480, animation: 'fade-in 350ms ease-out both' }}
+        className="flex-1 flex flex-col overflow-hidden w-full"
+        style={{ animation: 'fade-in 350ms ease-out both' }}
       >
         <style>{`
           @keyframes fade-in { from { opacity:0; transform:translateY(12px) } to { opacity:1; transform:translateY(0) } }
           @keyframes check-draw { to { stroke-dashoffset: 0 } }
+          @keyframes check-pop { 0% { transform:scale(0.3); opacity:0; } 65% { transform:scale(1.18); opacity:1; } 100% { transform:scale(1); opacity:1; } }
+          @keyframes check-glow-pulse { 0%,100% { box-shadow: 0 0 18px #22c55e55, 0 6px 24px #22c55e33; } 50% { box-shadow: 0 0 40px #22c55eaa, 0 8px 40px #22c55e55; } }
         `}</style>
 
         {/* Header bar */}
         <div
-          className="sticky top-0 z-20 flex items-center gap-3 px-4 py-3 border-b"
+          className="sticky top-0 z-20 flex items-center justify-between px-5 md:px-10 py-3 md:py-4 border-b"
           style={{ borderColor: 'color-mix(in srgb, var(--lp-primary) 12%, transparent)', background: 'var(--lp-bg-hero)' }}
         >
-          <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
-            style={{ background: 'var(--lp-primary)' }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
-              <circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
-            </svg>
-          </div>
-          <div>
-            <div className="text-sm font-bold" style={{ color: 'var(--lp-primary)' }}>O2skin Skin Check</div>
-            <div className="text-xs" style={{ color: 'color-mix(in srgb, var(--lp-primary) 55%, transparent)' }}>
-              {phase === 'intro' && 'Hướng dẫn'}
-              {phase === 'wheel' && `Thẻ ${Math.round(wheelAngle.current / ARC_STEP) + 1} / ${CARDS.length}`}
-              {(phase === 'face-map' || phase === 'scanning') && 'Bước 2/2'}
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 md:w-11 md:h-11 rounded-full flex items-center justify-center flex-shrink-0"
+              style={{ background: 'var(--lp-primary)' }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
+                <circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+              </svg>
             </div>
+            <div className="text-sm md:text-base font-bold" style={{ color: 'var(--lp-primary)' }}>O2skin · Kiểm tra da</div>
+          </div>
+          <div className="text-xs md:text-sm font-semibold" style={{ color: 'color-mix(in srgb, var(--lp-primary) 50%, transparent)' }}>
+            {phase === 'intro' && 'Hướng dẫn'}
+            {phase === 'wheel' && `Thẻ ${Math.round(wheelAngle.current / ARC_STEP) + 1} / ${CARDS.length}`}
+            {(phase === 'face-map' || phase === 'scanning') && 'Bước 2 / 2'}
           </div>
         </div>
 
@@ -363,10 +369,10 @@ export function ElectricSoftSwipeMinigame({ onComplete }: MinigameSlotProps) {
         {phase === 'wheel' && (
           <div className="flex-1 flex flex-col" style={{ position: 'relative', overflow: 'hidden' }}>
             <div className="pt-6 pb-2 px-5 text-center">
-              <h2 className="font-extrabold text-xl leading-snug" style={{ color: 'var(--lp-primary)' }}>
+              <h2 className="font-extrabold text-2xl md:text-4xl leading-snug" style={{ color: 'var(--lp-primary)' }}>
                 Da của bạn dạo này thế nào?
               </h2>
-              <p className="text-xs mt-1" style={{ color: 'color-mix(in srgb, var(--lp-primary) 50%, transparent)' }}>
+              <p className="text-sm md:text-base mt-1" style={{ color: 'color-mix(in srgb, var(--lp-primary) 50%, transparent)' }}>
                 Chọn mô tả phù hợp nhất
               </p>
             </div>
@@ -403,16 +409,16 @@ export function ElectricSoftSwipeMinigame({ onComplete }: MinigameSlotProps) {
                   } as React.CSSProperties}
                 >
                   <div style={{
-                    width: 30, height: 30, borderRadius: '50%',
+                    width: 40, height: 40, borderRadius: '50%',
                     background: 'color-mix(in srgb, var(--lp-accent) 10%, white)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     flexShrink: 0,
                   }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--lp-accent)" strokeWidth="2">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--lp-accent)" strokeWidth="2">
                       <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18" />
                     </svg>
                   </div>
-                  <div style={{ fontWeight: 800, fontSize: 11, lineHeight: 1.3, color: 'var(--lp-primary)' }}>
+                  <div style={{ fontWeight: 800, fontSize: 13, lineHeight: 1.3, color: 'var(--lp-primary)' }}>
                     {card.label}
                   </div>
 
@@ -420,22 +426,22 @@ export function ElectricSoftSwipeMinigame({ onComplete }: MinigameSlotProps) {
                   {checkCardIdx === i && (
                     <div style={{
                       position: 'absolute', inset: 0, borderRadius: 16,
-                      background: 'color-mix(in srgb, var(--lp-accent) 12%, white)',
+                      background: 'rgba(34,197,94,0.10)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       zIndex: 30,
                     }}>
                       <div style={{
-                        width: 56, height: 56, borderRadius: '50%',
-                        background: 'var(--lp-accent)',
+                        width: 68, height: 68, borderRadius: '50%',
+                        background: '#22c55e',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        boxShadow: '0 0 28px color-mix(in srgb, var(--lp-accent) 55%, transparent)',
+                        animation: 'check-pop 420ms cubic-bezier(0.34,1.56,0.64,1) both, check-glow-pulse 1.4s ease-in-out 420ms infinite',
                       }}>
-                        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                        <svg width="34" height="34" viewBox="0 0 28 28" fill="none">
                           <path
                             d="M 5 14 L 12 21 L 23 9"
                             stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"
                             strokeDasharray="40" strokeDashoffset="40"
-                            style={{ animation: 'check-draw 500ms ease forwards 80ms' }}
+                            style={{ animation: 'check-draw 450ms ease forwards 300ms' }}
                           />
                         </svg>
                       </div>
