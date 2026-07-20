@@ -236,6 +236,16 @@ export function ElectricSoftSwipeMinigame({ onComplete }: MinigameSlotProps) {
     }, 900);
   }, [springTo]);
 
+  // ─── Face-map zone toggle ────────────────────────────────────────────────
+  const toggleZone = useCallback((zoneId: string) => {
+    setSelectedZones(prev => {
+      const next = new Set(prev);
+      if (next.has(zoneId)) next.delete(zoneId);
+      else next.add(zoneId);
+      return next;
+    });
+  }, []);
+
   // ─── Render ────────────────────────────────────────────────────────────────
   return (
     <div
@@ -467,6 +477,108 @@ export function ElectricSoftSwipeMinigame({ onComplete }: MinigameSlotProps) {
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Face-map phase */}
+      {phase === 'face-map' && (
+        <div
+          className="flex-1 flex flex-col items-center px-5 pt-6 pb-4 gap-4"
+          style={{ animation: 'fade-in 350ms ease-out both' }}
+        >
+          <div className="text-center">
+            <h2 className="font-extrabold text-lg leading-snug" style={{ color: 'var(--lp-primary)' }}>
+              Vùng da nào bị ảnh hưởng?
+            </h2>
+            <p className="text-xs mt-1" style={{ color: 'color-mix(in srgb, var(--lp-primary) 50%, transparent)' }}>
+              Chạm để chọn hoặc bỏ chọn từng vùng
+            </p>
+          </div>
+
+          {/* Face SVG */}
+          <div style={{ width: '100%', maxWidth: 240, position: 'relative' }}>
+            <svg viewBox="0 0 100 100" width="100%" style={{ display: 'block' }}>
+              {/* Simple face outline */}
+              <ellipse cx="50" cy="45" rx="32" ry="38" fill="color-mix(in srgb, var(--lp-primary) 5%, white)"
+                stroke="color-mix(in srgb, var(--lp-primary) 15%, transparent)" strokeWidth="1" />
+              {/* Eyes */}
+              <ellipse cx="39" cy="40" rx="4" ry="3" fill="color-mix(in srgb, var(--lp-primary) 12%, transparent)" />
+              <ellipse cx="61" cy="40" rx="4" ry="3" fill="color-mix(in srgb, var(--lp-primary) 12%, transparent)" />
+              {/* Nose bridge */}
+              <path d="M50 43 L47 52 L53 52" fill="none" stroke="color-mix(in srgb, var(--lp-primary) 15%, transparent)" strokeWidth="0.8" />
+              {/* Lips */}
+              <path d="M44 60 Q50 64 56 60" fill="none" stroke="color-mix(in srgb, var(--lp-primary) 20%, transparent)" strokeWidth="1" />
+
+              {/* Tappable zones */}
+              {FACE_ZONES.map(zone => {
+                const selected = selectedZones.has(zone.id);
+                return (
+                  <g key={zone.id} onClick={() => toggleZone(zone.id)} style={{ cursor: 'pointer' }}>
+                    <rect
+                      x={zone.x} y={zone.y} width={zone.w} height={zone.h}
+                      rx={4}
+                      fill={selected ? 'var(--lp-accent)' : 'color-mix(in srgb, var(--lp-accent) 10%, transparent)'}
+                      fillOpacity={selected ? 0.28 : 0.18}
+                      stroke={selected ? 'var(--lp-accent)' : 'color-mix(in srgb, var(--lp-accent) 35%, transparent)'}
+                      strokeWidth={selected ? 1.2 : 0.8}
+                      style={{ transition: 'fill 200ms, fill-opacity 200ms, stroke 200ms' }}
+                    />
+                    <text
+                      x={zone.x + zone.w / 2} y={zone.y + zone.h / 2}
+                      textAnchor="middle" dominantBaseline="middle"
+                      fontSize={selected ? 5.5 : 4.5}
+                      fontWeight={selected ? 700 : 500}
+                      fill={selected ? 'var(--lp-accent)' : 'color-mix(in srgb, var(--lp-primary) 45%, transparent)'}
+                      style={{ pointerEvents: 'none', transition: 'font-size 150ms, fill 200ms' }}
+                    >
+                      {zone.label}
+                    </text>
+                  </g>
+                );
+              })}
+            </svg>
+          </div>
+
+          {/* Zone label chips */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, justifyContent: 'center', minHeight: 28 }}>
+            {Array.from(selectedZones).map(zoneId => {
+              const zone = FACE_ZONES.find(z => z.id === zoneId);
+              return zone ? (
+                <div key={zoneId}
+                  style={{
+                    padding: '4px 10px', borderRadius: 999, fontSize: 12, fontWeight: 600,
+                    background: 'color-mix(in srgb, var(--lp-accent) 12%, white)',
+                    color: 'var(--lp-accent)',
+                    border: '1px solid color-mix(in srgb, var(--lp-accent) 30%, transparent)',
+                  }}
+                >
+                  {zone.label}
+                </div>
+              ) : null;
+            })}
+          </div>
+
+          {/* Continue button — appears after ≥1 zone selected */}
+          <div style={{
+            position: 'fixed', bottom: 24, left: 0, right: 0,
+            display: 'flex', justifyContent: 'center',
+            transform: selectedZones.size >= 1 ? 'translateY(0)' : 'translateY(80px)',
+            opacity: selectedZones.size >= 1 ? 1 : 0,
+            transition: 'transform 350ms cubic-bezier(0.34,1.56,0.64,1), opacity 250ms ease',
+            pointerEvents: selectedZones.size >= 1 ? 'auto' : 'none',
+          }}>
+            <button
+              onClick={() => setPhase('scanning')}
+              style={{
+                padding: '14px 36px', borderRadius: 999, fontWeight: 700, fontSize: 16,
+                color: 'white', background: 'var(--lp-accent)',
+                boxShadow: '0 4px 18px color-mix(in srgb, var(--lp-accent) 35%, transparent)',
+                border: 'none', cursor: 'pointer',
+              }}
+            >
+              Tiếp tục →
             </button>
           </div>
         </div>
