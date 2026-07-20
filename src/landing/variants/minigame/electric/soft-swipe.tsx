@@ -217,13 +217,6 @@ export function ElectricSoftSwipeMinigame({ onComplete }: MinigameSlotProps) {
     renderFrame();
   }, [renderFrame]);
 
-  const handlePointerUp = useCallback(() => {
-    if (!isDragging.current) return;
-    isDragging.current = false;
-    const target = Math.max(MIN_ANGLE, Math.min(MAX_ANGLE, Math.round(wheelAngle.current / ARC_STEP) * ARC_STEP));
-    springTo(target);
-  }, [springTo]);
-
   // ─── Card tap → select center / spring to flanking ──────────────────────────
   const handleCardTap = useCallback((cardIdx: number) => {
     if (wheelLocked.current) return;
@@ -242,6 +235,40 @@ export function ElectricSoftSwipeMinigame({ onComplete }: MinigameSlotProps) {
       setPhase('face-map');
     }, 900);
   }, [springTo]);
+
+  const handlePointerUp = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDragging.current) return;
+    const dragDelta = Math.abs(e.clientX - dragStartX.current);
+    isDragging.current = false;
+    const target = Math.max(MIN_ANGLE, Math.min(MAX_ANGLE, Math.round(wheelAngle.current / ARC_STEP) * ARC_STEP));
+    springTo(target);
+
+    // Tap detection (setPointerCapture redirects pointerup to container, so onClick on
+    // card children doesn't fire reliably on desktop — we hit-test manually instead).
+    if (e.type === 'pointerup' && dragDelta < 8) {
+      const container = containerRef.current;
+      if (!container) return;
+      const rect = container.getBoundingClientRect();
+      const tapX = e.clientX - rect.left;
+      const tapY = e.clientY - rect.top;
+      let tappedIdx = -1;
+      let highestZ = -1;
+      CARDS.forEach((_, i) => {
+        const el = cardRefs.current[i];
+        if (!el || el.style.display === 'none') return;
+        const l = parseFloat(el.style.left);
+        const t = parseFloat(el.style.top);
+        const w = parseFloat(el.style.width);
+        const h = parseFloat(el.style.height);
+        const z = parseInt(el.style.zIndex) || 0;
+        if (tapX >= l && tapX <= l + w && tapY >= t && tapY <= t + h && z > highestZ) {
+          tappedIdx = i;
+          highestZ = z;
+        }
+      });
+      if (tappedIdx >= 0) handleCardTap(tappedIdx);
+    }
+  }, [springTo, handleCardTap]);
 
   // ─── Face-map zone toggle ───────────────────────────────────────────────────
   const toggleZone = useCallback((zoneId: Zone) => {
@@ -373,7 +400,7 @@ export function ElectricSoftSwipeMinigame({ onComplete }: MinigameSlotProps) {
                 Da của bạn dạo này thế nào?
               </h2>
               <p className="text-sm md:text-base mt-1" style={{ color: 'color-mix(in srgb, var(--lp-primary) 50%, transparent)' }}>
-                Chọn mô tả phù hợp nhất
+                Vuốt sang trái để chọn mô tả phù hợp nhất
               </p>
             </div>
 
@@ -390,7 +417,6 @@ export function ElectricSoftSwipeMinigame({ onComplete }: MinigameSlotProps) {
                 <div
                   key={card.id}
                   ref={el => { cardRefs.current[i] = el; }}
-                  onClick={() => handleCardTap(i)}
                   style={{
                     position: 'absolute',
                     display: 'flex',
