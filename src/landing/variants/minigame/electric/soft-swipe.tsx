@@ -104,6 +104,7 @@ export function ElectricSoftSwipeMinigame({ onComplete }: MinigameSlotProps) {
   const [phase, setPhase] = useState<Phase>('intro');
   const [selectedCardIdx, setSelectedCardIdx] = useState<number | null>(null);
   const [selectedZones, setSelectedZones] = useState<Set<string>>(new Set());
+  const [checkCardIdx, setCheckCardIdx] = useState<number | null>(null);
 
   // ─── Wheel refs (no re-render during gesture) ───────────────────────────────
   const wheelAngle = useRef(0);
@@ -211,6 +212,28 @@ export function ElectricSoftSwipeMinigame({ onComplete }: MinigameSlotProps) {
     isDragging.current = false;
     const target = Math.max(MIN_ANGLE, Math.min(MAX_ANGLE, Math.round(wheelAngle.current / ARC_STEP) * ARC_STEP));
     springTo(target);
+  }, [springTo]);
+
+  // ─── Card tap → select center / spring to flanking ───────────────────────
+  const handleCardTap = useCallback((cardIdx: number) => {
+    if (wheelLocked.current) return;
+
+    const centerIdx = Math.round(wheelAngle.current / ARC_STEP);
+    if (cardIdx !== centerIdx) {
+      springTo(cardIdx * ARC_STEP);
+      return;
+    }
+
+    wheelLocked.current = true;
+    if (animFrame.current !== null) { cancelAnimationFrame(animFrame.current); animFrame.current = null; }
+    setSelectedCardIdx(cardIdx);
+    setCheckCardIdx(cardIdx);
+
+    setTimeout(() => {
+      setCheckCardIdx(null);
+      setSelectedZones(new Set(CARDS[cardIdx].zones));
+      setPhase('face-map');
+    }, 900);
   }, [springTo]);
 
   // ─── Render ────────────────────────────────────────────────────────────────
@@ -333,6 +356,7 @@ export function ElectricSoftSwipeMinigame({ onComplete }: MinigameSlotProps) {
               <div
                 key={card.id}
                 ref={el => { cardRefs.current[i] = el; }}
+                onClick={() => handleCardTap(i)}
                 style={{
                   position: 'absolute',
                   display: 'flex',
@@ -367,6 +391,33 @@ export function ElectricSoftSwipeMinigame({ onComplete }: MinigameSlotProps) {
                 >
                   {card.label}
                 </div>
+                {checkCardIdx === i && (
+                  <div
+                    style={{
+                      position: 'absolute', inset: 0, borderRadius: 16,
+                      background: 'color-mix(in srgb, var(--lp-accent) 12%, white)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      zIndex: 30,
+                    }}
+                  >
+                    <div style={{
+                      width: 52, height: 52, borderRadius: '50%',
+                      background: 'var(--lp-accent)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      boxShadow: '0 0 24px color-mix(in srgb, var(--lp-accent) 55%, transparent)',
+                    }}>
+                      <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+                        <path
+                          d="M 5 13 L 11 19 L 21 8"
+                          stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
+                          strokeDasharray="40"
+                          strokeDashoffset="40"
+                          style={{ animation: 'check-draw 500ms ease forwards 80ms' }}
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>
