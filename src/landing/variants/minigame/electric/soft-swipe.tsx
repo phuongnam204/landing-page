@@ -105,6 +105,7 @@ export function ElectricSoftSwipeMinigame({ onComplete }: MinigameSlotProps) {
   const [selectedCardIdx, setSelectedCardIdx] = useState<number | null>(null);
   const [selectedZones, setSelectedZones] = useState<Set<string>>(new Set());
   const [checkCardIdx, setCheckCardIdx] = useState<number | null>(null);
+  const [litZones, setLitZones] = useState<Set<string>>(new Set());
 
   // ─── Wheel refs (no re-render during gesture) ───────────────────────────────
   const wheelAngle = useRef(0);
@@ -245,6 +246,44 @@ export function ElectricSoftSwipeMinigame({ onComplete }: MinigameSlotProps) {
       return next;
     });
   }, []);
+
+  // ─── Scanning animation → onComplete ─────────────────────────────────────
+  useEffect(() => {
+    if (phase !== 'scanning') return;
+    setLitZones(new Set());
+
+    const SCAN_DURATION = 800;
+
+    const sortedZones = Array.from(selectedZones)
+      .map(id => FACE_ZONES.find(z => z.id === id)!)
+      .filter(Boolean)
+      .sort((a, b) => a.y - b.y);
+
+    const timeouts: ReturnType<typeof setTimeout>[] = [];
+
+    sortedZones.forEach(zone => {
+      const delay = (zone.y / 100) * SCAN_DURATION + 80;
+      timeouts.push(setTimeout(() => {
+        setLitZones(prev => new Set([...prev, zone.id]));
+      }, delay));
+    });
+
+    const doneDelay = SCAN_DURATION + 300 + 400;
+    timeouts.push(setTimeout(() => {
+      if (selectedCardIdx === null) return;
+      const card = CARDS[selectedCardIdx];
+      const condition = skinConditions[card.conditionId]!;
+      onComplete({
+        condition,
+        conditions: [condition],
+        zoneIds: Array.from(selectedZones),
+        zoneLabel: Array.from(selectedZones).join(', ') || 'Không có vùng cụ thể',
+        triggerNote: card.label,
+      });
+    }, doneDelay));
+
+    return () => timeouts.forEach(clearTimeout);
+  }, [phase, selectedCardIdx, selectedZones, onComplete]);
 
   // ─── Render ────────────────────────────────────────────────────────────────
   return (
@@ -580,6 +619,66 @@ export function ElectricSoftSwipeMinigame({ onComplete }: MinigameSlotProps) {
             >
               Tiếp tục →
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Scanning phase */}
+      {phase === 'scanning' && (
+        <div
+          className="flex-1 flex flex-col items-center justify-center px-5 gap-4"
+          style={{ animation: 'fade-in 350ms ease-out both' }}
+        >
+          <div className="text-center mb-2">
+            <h2 className="font-extrabold text-lg" style={{ color: 'var(--lp-primary)' }}>
+              Đang phân tích...
+            </h2>
+          </div>
+
+          {/* Face SVG with scan line */}
+          <div style={{ width: '100%', maxWidth: 240, position: 'relative' }}>
+            <svg viewBox="0 0 100 100" width="100%" style={{ display: 'block' }}>
+              {/* Face outline */}
+              <ellipse cx="50" cy="45" rx="32" ry="38" fill="color-mix(in srgb, var(--lp-primary) 5%, white)"
+                stroke="color-mix(in srgb, var(--lp-primary) 15%, transparent)" strokeWidth="1" />
+              <ellipse cx="39" cy="40" rx="4" ry="3" fill="color-mix(in srgb, var(--lp-primary) 12%, transparent)" />
+              <ellipse cx="61" cy="40" rx="4" ry="3" fill="color-mix(in srgb, var(--lp-primary) 12%, transparent)" />
+              <path d="M50 43 L47 52 L53 52" fill="none" stroke="color-mix(in srgb, var(--lp-primary) 15%, transparent)" strokeWidth="0.8" />
+              <path d="M44 60 Q50 64 56 60" fill="none" stroke="color-mix(in srgb, var(--lp-primary) 20%, transparent)" strokeWidth="1" />
+
+              {/* Zones: lit if scanned, dim otherwise */}
+              {FACE_ZONES.map(zone => {
+                const wasSelected = selectedZones.has(zone.id);
+                const isLit = litZones.has(zone.id);
+                if (!wasSelected) return null;
+                return (
+                  <rect
+                    key={zone.id}
+                    x={zone.x} y={zone.y} width={zone.w} height={zone.h} rx={4}
+                    fill="var(--lp-accent)"
+                    fillOpacity={isLit ? 0.55 : 0.15}
+                    stroke="var(--lp-accent)"
+                    strokeWidth={isLit ? 1.5 : 0.8}
+                    strokeOpacity={isLit ? 1 : 0.4}
+                    style={{
+                      filter: isLit ? 'drop-shadow(0 0 4px var(--lp-accent))' : 'none',
+                      transition: 'fill-opacity 300ms ease, stroke-opacity 300ms ease, filter 300ms ease',
+                    }}
+                  />
+                );
+              })}
+            </svg>
+
+            {/* Scan line — CSS animation */}
+            <div
+              style={{
+                position: 'absolute', left: '10%', right: '10%', height: 2,
+                background: 'linear-gradient(90deg, transparent, var(--lp-accent), transparent)',
+                boxShadow: '0 0 8px var(--lp-accent)',
+                animation: 'scan-sweep 800ms ease-in-out forwards',
+                top: 0,
+              }}
+            />
           </div>
         </div>
       )}
