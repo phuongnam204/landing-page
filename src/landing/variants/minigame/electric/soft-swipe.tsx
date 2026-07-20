@@ -115,6 +115,56 @@ export function ElectricSoftSwipeMinigame({ onComplete }: MinigameSlotProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
+  // ─── Imperative render (60fps, no React re-render) ────────────────────────
+  const renderFrame = useCallback(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const cy = container.offsetHeight + ARC_CY_OFFSET;
+    const centerIdx = Math.round(wheelAngle.current / ARC_STEP);
+
+    CARDS.forEach((_, i) => {
+      const el = cardRefs.current[i];
+      if (!el) return;
+      const angle = wheelAngle.current - i * ARC_STEP;
+      const v = cardVisual(angle, cy);
+
+      if (v.hidden) { el.style.display = 'none'; return; }
+      el.style.display = 'flex';
+      el.style.left = `${v.x - v.w / 2}px`;
+      el.style.top = `${v.y - v.h / 2}px`;
+      el.style.width = `${v.w}px`;
+      el.style.height = `${v.h}px`;
+      el.style.opacity = `${v.opacity}`;
+      el.style.zIndex = `${v.zIndex}`;
+      el.style.transform = `rotate(${v.tilt}deg)`;
+
+      if (v.isCenter) {
+        el.style.background = 'white';
+        el.style.boxShadow = '0 10px 36px color-mix(in srgb, var(--lp-accent) 32%, transparent), 0 0 0 2px color-mix(in srgb, var(--lp-accent) 40%, transparent)';
+        el.style.backdropFilter = 'none';
+      } else {
+        el.style.background = `rgba(255,255,255,${v.bgAlpha})`;
+        el.style.boxShadow = 'none';
+        el.style.backdropFilter = v.t < 1.5 ? 'blur(6px)' : 'none';
+      }
+    });
+
+    const dotsEl = document.getElementById('wh-dots');
+    if (dotsEl) {
+      dotsEl.querySelectorAll<HTMLDivElement>('[data-dot]').forEach((dot, i) => {
+        const active = i === centerIdx;
+        dot.style.background = active ? 'var(--lp-accent)' : 'color-mix(in srgb, var(--lp-accent) 22%, transparent)';
+        dot.style.width = active ? '18px' : '6px';
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (phase === 'wheel') {
+      requestAnimationFrame(renderFrame);
+    }
+  }, [phase, renderFrame]);
+
   // ─── Render ────────────────────────────────────────────────────────────────
   return (
     <div
@@ -209,7 +259,115 @@ export function ElectricSoftSwipeMinigame({ onComplete }: MinigameSlotProps) {
         </div>
       )}
 
-      {/* Wheel / face-map / scanning phases — added in later tasks */}
+      {/* Wheel phase */}
+      {phase === 'wheel' && (
+        <div className="flex-1 flex flex-col" style={{ position: 'relative', overflow: 'hidden' }}>
+          {/* Question header */}
+          <div className="pt-6 pb-2 px-5 text-center">
+            <h2 className="font-extrabold text-xl leading-snug" style={{ color: 'var(--lp-primary)' }}>
+              Da của bạn dạo này thế nào?
+            </h2>
+            <p className="text-xs mt-1" style={{ color: 'color-mix(in srgb, var(--lp-primary) 50%, transparent)' }}>
+              Chọn mô tả phù hợp nhất
+            </p>
+          </div>
+
+          {/* Arc canvas — fills remaining vertical space */}
+          <div
+            ref={containerRef}
+            style={{ flex: 1, position: 'relative' }}
+          >
+            {CARDS.map((card, i) => (
+              <div
+                key={card.id}
+                ref={el => { cardRefs.current[i] = el; }}
+                style={{
+                  position: 'absolute',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 6,
+                  padding: '10px 8px',
+                  borderRadius: 16,
+                  cursor: 'pointer',
+                  userSelect: 'none',
+                  textAlign: 'center',
+                  border: '1px solid color-mix(in srgb, var(--lp-accent) 18%, transparent)',
+                  willChange: 'transform, opacity',
+                  transition: 'none',
+                }}
+              >
+                <div
+                  style={{
+                    width: 26, height: 26, borderRadius: '50%',
+                    background: 'color-mix(in srgb, var(--lp-accent) 10%, white)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    flexShrink: 0,
+                  }}
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--lp-accent)" strokeWidth="2">
+                    <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18" />
+                  </svg>
+                </div>
+                <div
+                  style={{ fontWeight: 800, fontSize: 10, lineHeight: 1.25, color: 'var(--lp-primary)' }}
+                >
+                  {card.label}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Dot indicators */}
+          <div id="wh-dots" style={{ display: 'flex', justifyContent: 'center', gap: 5, paddingBottom: 8 }}>
+            {CARDS.map((_, i) => (
+              <div
+                key={i}
+                data-dot={i}
+                style={{
+                  height: 5, borderRadius: 3,
+                  background: i === 0 ? 'var(--lp-accent)' : 'color-mix(in srgb, var(--lp-accent) 22%, transparent)',
+                  width: i === 0 ? 18 : 6,
+                  transition: 'all 0.3s ease',
+                }}
+              />
+            ))}
+          </div>
+
+          {/* Arrow controls */}
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 16, paddingBottom: 20 }}>
+            <button
+              onClick={() => {/* snapBy(-1) — Task 4 */}}
+              style={{
+                width: 44, height: 44, borderRadius: '50%',
+                background: 'color-mix(in srgb, var(--lp-primary) 8%, transparent)',
+                border: '1.5px solid color-mix(in srgb, var(--lp-accent) 25%, transparent)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', color: 'color-mix(in srgb, var(--lp-accent) 80%, transparent)',
+              }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M19 12H5M12 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <button
+              onClick={() => {/* snapBy(1) — Task 4 */}}
+              style={{
+                width: 44, height: 44, borderRadius: '50%',
+                background: 'color-mix(in srgb, var(--lp-primary) 8%, transparent)',
+                border: '1.5px solid color-mix(in srgb, var(--lp-accent) 25%, transparent)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', color: 'color-mix(in srgb, var(--lp-accent) 80%, transparent)',
+              }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
