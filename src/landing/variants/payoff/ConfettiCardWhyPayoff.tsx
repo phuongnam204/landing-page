@@ -1,6 +1,7 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
 import type { PayoffSlotProps, MinigameResult } from '../../slots';
+import type { PayoffCopy } from '../../copy';
 import type { ConditionId } from '../../../content/quiz';
 import { NumberedBadgeCirclesRight, CarouselKenBurn } from './feature-layouts';
 import { CONDITION_EDUCATION } from './constant/ConditionEducation';
@@ -109,6 +110,7 @@ export type TopbarConfig = {
 export function ConfettiCardWhyPayoff({
   result,
   onContinue,
+  copy,
   FeatureComponent: FeatureComp = CarouselKenBurn,
   BenefitComponent: BenefitComp = NumberedBadgeCirclesRight,
   ResultComponent: ResultComp = ResultCard,
@@ -116,7 +118,7 @@ export function ConfettiCardWhyPayoff({
 }: PayoffSlotProps & {
   FeatureComponent?: React.ComponentType<{ onContinue: () => void }>;
   BenefitComponent?: React.ComponentType<{ onContinue: () => void }>;
-  ResultComponent?: React.ComponentType<{ result: MinigameResult; onScrollDown: () => void; containerRef?: React.Ref<HTMLDivElement> }>;
+  ResultComponent?: React.ComponentType<{ result: MinigameResult; onScrollDown: () => void; containerRef?: React.Ref<HTMLDivElement>; copy?: PayoffCopy['resultCard'] }>;
   topbarConfig?: TopbarConfig;
 }) {
   const whyRef             = useRef<HTMLDivElement>(null);
@@ -198,6 +200,7 @@ export function ConfettiCardWhyPayoff({
         containerRef={resultSectRef}
         result={result}
         onScrollDown={() => whyRef.current?.scrollIntoView({ behavior: 'smooth' })}
+        copy={copy?.resultCard}
       />
 
       {/* Section 2: Why */}

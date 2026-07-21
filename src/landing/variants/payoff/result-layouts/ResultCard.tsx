@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useRef } from 'react';
 import type { MinigameResult } from '../../../slots';
+import type { PayoffCopy } from '../../../copy';
 import { CtaButton } from '../../../../components/atoms/CtaButton';
 
 // ─── Canvas animations ────────────────────────────────────────────────────────
@@ -120,11 +121,12 @@ export type ResultCardProps = {
   result: MinigameResult;
   onScrollDown: () => void;
   containerRef?: React.Ref<HTMLDivElement>;
+  copy?: PayoffCopy['resultCard'];
 };
 
 import React from 'react';
 
-export function ResultCard({ result, onScrollDown, containerRef }: ResultCardProps) {
+export function ResultCard({ result, onScrollDown, containerRef, copy }: ResultCardProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const isPositive = result.condition.tone === 'positive';
 
@@ -145,7 +147,7 @@ export function ResultCard({ result, onScrollDown, containerRef }: ResultCardPro
           style={{ zIndex: 10 }}
         >
           <h1 className={['font-extrabold text-xl md:text-2xl mb-4', isPositive ? 'text-teal-800' : 'text-amber-900'].join(' ')}>
-            {HEADERS[result.condition.tone]}
+            {copy?.[result.condition.tone] ?? HEADERS[result.condition.tone]}
           </h1>
 
           {(result.zoneLabel || result.triggerNote || (result.zoneIds && result.zoneIds.length > 0)) && (
