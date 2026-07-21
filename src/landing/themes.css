@@ -138,7 +138,7 @@
 
 /* === theme-magenta (Electric Magenta archetype) === */
 .theme-magenta {
-  --lp-bg-hero:        #1a0533;
+  --lp-bg-hero:        #F5F0FF;
   --lp-bg-minigame:    #F5F0FF;
   --lp-bg-payoff:      #EDE9FE;
   --lp-bg-programs:    #F5F0FF;
@@ -329,7 +329,7 @@
 .theme-berry {
   --lp-bg-hero:        #FDF4FF;
   --lp-bg-minigame:    #F5D0FE;
-  --lp-bg-payoff:      #E879F9;
+  --lp-bg-payoff:      #F0ABFC;
   --lp-bg-programs:    #F5D0FE;
   --lp-bg-card:        #ffffff;
   --lp-primary:        #4A044E;
@@ -462,7 +462,7 @@
 
 /* === theme-crimson (Crimson Night) === */
 .theme-crimson {
-  --lp-bg-hero:        #3D0020;
+  --lp-bg-hero:        #FFF0F3;
   --lp-bg-minigame:    #FFF0F3;
   --lp-bg-payoff:      #FFE4E6;
   --lp-bg-programs:    #FFF0F3;
