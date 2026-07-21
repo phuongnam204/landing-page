@@ -270,3 +270,176 @@ export type HookCopy = {
 ```
 
 Áp dụng cho tất cả version dùng `ConversionOrganism` (hầu hết conversion variants).
+
+---
+
+## Phần bổ sung Batch 3: UI polish, contrast, content và feature layouts
+
+### E. V15 — Cải thiện editorial-journey programs
+
+**File:** `src/landing/variants/programs/natural/editorial-journey.tsx`
+
+Component hiện tại render tĩnh — item xuất hiện ngay lập tức, không có animation. Cần:
+
+1. **Staggered entrance** — IntersectionObserver trên `ref={listRef}`, mỗi milestone item fade+slide từ trái với delay tăng dần (100ms, 240ms, 380ms). Header section cũng fade+slide up.
+2. **Vertical connector line** — `<div>` absolutely positioned bên trái danh sách, scale từ 0 → 1 theo `transform: scaleY()` khi visible (origin-top), tạo cảm giác timeline "grow".
+3. **Enhanced milestone circles** — active/completed circle dùng gradient từ `--lp-accent` sang `color-mix(in srgb, --lp-accent 70%, --lp-primary)`. Active circle có glow ring `box-shadow: 0 0 0 4px accent/15%`.
+4. **Smooth description expand** — thay conditional render bằng `max-height: 0 → 80px` + `opacity: 0 → 1` transition 300ms. Không còn layout shift đột ngột khi click.
+5. **CTA entrance** — fade in sau các item với delay 500ms.
+
+**Không thay đổi:** logic `activeStep`, `program`, `handleContinue`, text content trong `MILESTONES`.
+
+---
+
+### F. V07 — Contrast WhySection (berry theme)
+
+**File:** `src/landing/themes.css`
+
+Berry theme (`theme-berry`) có `--lp-bg-payoff: #E879F9` — fuchsia rất bão hòa. WhySection (section đọc nhiều nhất) dùng background này làm nền, khiến văn bản `text-cta` (`#4A044E` = dark purple) bị "chìm" về mặt cảm quan dù WCAG contrast ratio ~ 6:1 về mặt kỹ thuật.
+
+**Fix:** Giảm bão hòa `--lp-bg-payoff` từ `#E879F9` → `#F0ABFC`.
+
+```css
+/* themes.css — theme-berry */
+/* Trước: */
+--lp-bg-payoff: #E879F9;
+
+/* Sau: */
+--lp-bg-payoff: #F0ABFC;
+```
+
+Các section khác dùng cùng biến (`ResultCard`, `ClinicIntroSection`, scroll container) đều được hưởng lợi — background bớt chói, text dễ đọc hơn.
+
+---
+
+### G. ConditionEducation — whyTitle diversity
+
+**File:** `src/landing/variants/payoff/constant/ConditionEducation.tsx`
+
+5 conditions có title generic hoặc lặp lại nhau (3 condition cùng dùng "Điều gì xảy ra bên dưới làn da của bạn?"):
+
+| Condition | Cũ | Mới |
+|-----------|-----|-----|
+| `da-nhon-mun-viem` | "Điều gì xảy ra bên dưới làn da của bạn?" | "Tại sao da nhờn vẫn bị mụn viêm dù rửa mặt cẩn thận?" |
+| `lo-chan-long` | "Điều gì xảy ra bên dưới làn da của bạn?" | "Tại sao lỗ chân lông to ra dù dùng nhiều sản phẩm thu nhỏ?" |
+| `da-nhay-cam` | "Điều gì đang xảy ra với làn da của bạn?" | "Tại sao làn da của bạn phản ứng với hầu hết mọi thứ?" |
+| `mun-noi-tiet` | "Điều gì đang xảy ra trên da của bạn?" | "Tại sao mụn bùng phát theo chu kỳ dù bạn chăm sóc da đúng cách?" |
+| `mun-trung-ca` | "Điều gì xảy ra bên dưới làn da của bạn?" | "Tại sao mụn trứng cá cứ tái phát dù bạn đã dùng nhiều cách?" |
+
+Các condition còn lại (`clean-skin`, `da-moi-bat-dau`, `da-mun-tham-seo`, `da-tham-do`, `da-nep-nhan`, `tan-nhang`, `da-tho-rap`, `da-seo-ro`) đã có title đủ specific — giữ nguyên.
+
+---
+
+### H. V03 — Phục hồi payoff sections + đổi minigame
+
+**File:** `src/landing/recipes/v03-facemap.ts`
+
+**Root cause payoff chỉ hiện Section 1:** V03 dùng `payoff: 'confetti-card'` → `ConfettiCardPayoff` → `PayoffOrganism({ layout: "confetti" })`. Component `PayoffOrganism` chỉ render Section 1 (ResultCard). Đây là payoff "cũ" trước khi `ConfettiCardWhyPayoff` được xây dựng — không có WhySection, ClinicIntroSection, BenefitSection, hay FeatureSection.
+
+**Fix payoff:** Đổi sang `'confetti-card-why-circles-quad'` (variant mới tạo ở Section K) — bao gồm toàn bộ sections + layout CirclesWithBackground + NumberedBadgeQuadGrid.
+
+**Fix minigame:** Đổi `'face-map'` → `'skin-scan-chat'`.
+
+**V03 recipe mới:**
+```ts
+export const v03Facemap: Recipe = {
+  id: 'v03-facemap',
+  label: 'Face-map tự khai + ocean',
+  theme: 'opal',
+  slots: {
+    hook:     'bold-single',
+    minigame: 'skin-scan-chat',
+    payoff:   'confetti-card-why-circles-quad',
+    programs: 'grid-with-faq',
+    conversion: 'short-form-with-testimonials',
+    done:     'contact-info-with-video',
+  },
+};
+```
+
+---
+
+### I. V25 — story-day minigame
+
+**File:** `src/landing/recipes/v25-playful-cotton-candy.ts`
+
+Đổi `minigame: 'face-map'` → `'story-day'`.
+
+---
+
+### J. Đăng ký skin-scan-chat vào registry
+
+`SkinScanChatMinigame` đã có ở `src/landing/variants/minigame/skin-scan-chat.tsx` (export: `SkinScanChatMinigame`) nhưng **chưa được đăng ký** trong `src/landing/registry.ts`.
+
+Cần thêm:
+```ts
+// Import:
+import { SkinScanChatMinigame } from './variants/minigame/skin-scan-chat';
+
+// Registry minigame object:
+'skin-scan-chat': SkinScanChatMinigame,
+```
+
+---
+
+### K. Tạo 2 shared payoff layout variants
+
+**Vấn đề:** `ConfettiCardWhyPayoff` nhận `BenefitComponent` và `FeatureComponent` là extra props không thuộc `PayoffSlotProps`. Các payoff variant hiện tại chỉ forward `PayoffSlotProps` → không thể customize feature layout từ recipe level.
+
+**Giải pháp:** Tạo 2 thin-wrapper variant mới. Mỗi variant hardcode đúng combo layout — không thay đổi `PayoffSlotProps`.
+
+**`src/landing/variants/payoff/confetti-card-why-video-split.tsx`:**
+```tsx
+'use client';
+import type { PayoffSlotProps } from '../../slots';
+import { ConfettiCardWhyPayoff } from './ConfettiCardWhyPayoff';
+import { NumberedBadgeVideoSplit, CarouselGrid } from './feature-layouts';
+
+export function ConfettiCardWhyVideoSplitPayoff(props: PayoffSlotProps) {
+  return (
+    <ConfettiCardWhyPayoff
+      {...props}
+      BenefitComponent={NumberedBadgeVideoSplit}
+      FeatureComponent={CarouselGrid}
+    />
+  );
+}
+```
+
+**`src/landing/variants/payoff/confetti-card-why-circles-quad.tsx`:**
+```tsx
+'use client';
+import type { PayoffSlotProps } from '../../slots';
+import { ConfettiCardWhyPayoff } from './ConfettiCardWhyPayoff';
+import { CirclesWithBackground, NumberedBadgeQuadGrid } from './feature-layouts';
+
+export function ConfettiCardWhyCirclesQuadPayoff(props: PayoffSlotProps) {
+  return (
+    <ConfettiCardWhyPayoff
+      {...props}
+      BenefitComponent={CirclesWithBackground}
+      FeatureComponent={NumberedBadgeQuadGrid}
+    />
+  );
+}
+```
+
+Đăng ký trong `registry.ts`:
+```ts
+'confetti-card-why-video-split': ConfettiCardWhyVideoSplitPayoff,
+'confetti-card-why-circles-quad': ConfettiCardWhyCirclesQuadPayoff,
+```
+
+---
+
+### L. Áp dụng feature layout variants vào recipes
+
+| Version | Payoff slot cũ | Payoff slot mới |
+|---------|---------------|----------------|
+| v04 | `confetti-card-why` | `confetti-card-why-video-split` |
+| v07 | `playful-immersive` | `confetti-card-why-video-split` |
+| v14 | `natural-spa` | `confetti-card-why-video-split` |
+| v25 | `playful-classic` | `confetti-card-why-video-split` |
+| v03 | `confetti-card` *(+ fix sections)* | `confetti-card-why-circles-quad` |
+| v21 | `electric-classic` | `confetti-card-why-circles-quad` |
+| v10 | `clinical-compact` | `confetti-card-why-circles-quad` |

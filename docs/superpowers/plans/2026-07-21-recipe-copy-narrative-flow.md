@@ -953,3 +953,592 @@ Trên desktop, conversion dùng `md:grid md:grid-cols-2` — form và testimonia
 git add src/landing/organisms/ConversionOrganism.tsx
 git commit -m "fix(conversion): allow mobile scroll to testimonials (overflow hidden → auto)"
 ```
+
+---
+
+## Task 13: V15 — editorial-journey UI polish
+
+**Files:**
+- Modify: `src/landing/variants/programs/natural/editorial-journey.tsx`
+
+- [ ] **Thay toàn bộ nội dung file thành:**
+
+```tsx
+'use client';
+import { useState, useEffect, useRef } from 'react';
+import type { ProgramsSlotProps } from '../../../slots';
+import { getPrograms } from '../../../../content/catalog';
+import type { ProgramId } from '../../../../content/programs';
+import { trackEvent } from '../../../../lib/trackEvent';
+import { CtaButton } from '../../../../components/atoms/CtaButton';
+
+const MILESTONES = [
+  { step: 1, label: 'Thăm da & tư vấn', desc: 'Chuyên viên sẽ phân tích da và tư vấn liệu trình phù hợp.', icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z' },
+  { step: 2, label: 'Liệu trình cá nhân hóa', desc: 'Liệu trình được thiết kế riêng cho tình trạng da của bạn.', icon: 'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2' },
+  { step: 3, label: 'Theo dõi & điều chỉnh', desc: 'Theo dõi định kỳ và điều chỉnh để đạt kết quả tốt nhất.', icon: 'M22 12h-4l-3 9L9 3l-3 9H2' },
+];
+
+export function NaturalEditorialJourneyPrograms({ suggestedPrograms, onContinue }: ProgramsSlotProps) {
+  const [activeStep, setActiveStep] = useState(0);
+  const [visible, setVisible] = useState(false);
+  const listRef = useRef<HTMLDivElement>(null);
+  const program = suggestedPrograms[0]?.program ?? getPrograms()[0];
+  const programId = program.id as ProgramId;
+
+  useEffect(() => {
+    const el = listRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect(); } },
+      { threshold: 0.15 },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  function handleContinue() {
+    trackEvent('programs_journey_continue', { programId });
+    onContinue(programId);
+  }
+
+  return (
+    <div className="h-[100dvh] w-full bg-[var(--lp-bg-payoff)] overflow-y-auto">
+      <div className="min-h-full flex items-center justify-center px-5 py-8">
+        <div className="max-w-lg w-full flex flex-col gap-6">
+
+          {/* Header */}
+          <div
+            className="text-center"
+            style={{
+              opacity: visible ? 1 : 0,
+              transform: visible ? 'none' : 'translateY(12px)',
+              transition: 'opacity 500ms ease-out, transform 500ms ease-out',
+            }}
+          >
+            <p className="text-xs font-bold uppercase tracking-widest"
+              style={{ color: 'color-mix(in srgb, var(--lp-primary) 50%, transparent)' }}>
+              Hành trình của bạn
+            </p>
+            <h2 className="text-xl font-extrabold mt-2" style={{ color: 'var(--lp-primary)' }}>
+              {program.name}
+            </h2>
+            <p className="text-sm mt-2 leading-relaxed"
+              style={{ color: 'color-mix(in srgb, var(--lp-primary) 65%, transparent)' }}>
+              {program.description}
+            </p>
+          </div>
+
+          {/* Timeline */}
+          <div ref={listRef} className="flex flex-col relative">
+            {/* Vertical connector line */}
+            <div
+              className="absolute left-[1.125rem] top-9 bottom-9 w-0.5 origin-top pointer-events-none"
+              style={{
+                background: 'color-mix(in srgb, var(--lp-accent) 22%, transparent)',
+                transform: visible ? 'scaleY(1)' : 'scaleY(0)',
+                transition: 'transform 700ms ease-out 180ms',
+              }}
+            />
+
+            {MILESTONES.map((m, i) => {
+              const isActive = i === activeStep;
+              const isPast = i < activeStep;
+              const delay = `${100 + i * 140}ms`;
+              return (
+                <button
+                  key={m.step}
+                  onClick={() => setActiveStep(i)}
+                  className="flex items-start gap-4 rounded-soft p-4 text-left relative z-10"
+                  style={{
+                    background: isActive ? 'color-mix(in srgb, var(--lp-accent) 8%, white)' : 'transparent',
+                    borderLeft: isActive ? '3px solid var(--lp-accent)' : '3px solid transparent',
+                    opacity: visible ? 1 : 0,
+                    transform: visible ? 'none' : 'translateX(-10px)',
+                    transition: `opacity 420ms ease-out ${delay}, transform 420ms ease-out ${delay}, background 200ms ease, border-color 200ms ease`,
+                  }}
+                >
+                  {/* Circle */}
+                  <div
+                    className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
+                    style={{
+                      background: isPast
+                        ? 'var(--lp-accent)'
+                        : isActive
+                          ? `linear-gradient(135deg, var(--lp-accent), color-mix(in srgb, var(--lp-accent) 70%, var(--lp-primary)))`
+                          : 'color-mix(in srgb, var(--lp-accent) 15%, white)',
+                      boxShadow: isActive ? '0 0 0 4px color-mix(in srgb, var(--lp-accent) 15%, transparent)' : 'none',
+                      transition: 'background 300ms ease, box-shadow 300ms ease',
+                    }}
+                  >
+                    {isPast ? (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
+                        <path d="M20 6L9 17l-5-5" />
+                      </svg>
+                    ) : (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke={isActive ? 'white' : 'var(--lp-accent)'}
+                        strokeWidth="2" strokeLinecap="round">
+                        <path d={m.icon} />
+                      </svg>
+                    )}
+                  </div>
+
+                  {/* Text */}
+                  <div className="flex-1 min-w-0">
+                    <p
+                      className="text-sm font-bold"
+                      style={{
+                        color: isActive ? 'var(--lp-primary)' : 'color-mix(in srgb, var(--lp-primary) 60%, transparent)',
+                        transition: 'color 200ms ease',
+                      }}
+                    >
+                      {m.label}
+                    </p>
+                    {/* Smooth expand */}
+                    <div
+                      className="overflow-hidden"
+                      style={{
+                        maxHeight: isActive ? '80px' : '0',
+                        opacity: isActive ? 1 : 0,
+                        transition: 'max-height 300ms ease-in-out, opacity 250ms ease-in-out',
+                      }}
+                    >
+                      <p className="text-xs mt-1 leading-relaxed pt-0.5"
+                        style={{ color: 'color-mix(in srgb, var(--lp-primary) 55%, transparent)' }}>
+                        {m.desc}
+                      </p>
+                    </div>
+                  </div>
+
+                  {!isPast && !isActive && (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                      stroke="var(--lp-accent)" strokeWidth="2">
+                      <path d="M9 18l6-6-6-6" />
+                    </svg>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* CTA */}
+          <div
+            style={{
+              opacity: visible ? 1 : 0,
+              transform: visible ? 'none' : 'translateY(8px)',
+              transition: 'opacity 500ms ease-out 500ms, transform 500ms ease-out 500ms',
+            }}
+          >
+            <CtaButton variant="golden" fullWidth onClick={handleContinue}>
+              Bắt đầu hành trình
+            </CtaButton>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+- [ ] **Commit:**
+
+```bash
+git add src/landing/variants/programs/natural/editorial-journey.tsx
+git commit -m "feat(v15): animate editorial-journey programs — entrance, timeline connector, smooth expand"
+```
+
+---
+
+## Task 14: V07 — Fix berry theme contrast
+
+**Files:**
+- Modify: `src/landing/themes.css`
+
+- [ ] **Tìm dòng trong `.theme-berry` và sửa:**
+
+```css
+/* Trước: */
+--lp-bg-payoff:      #E879F9;
+
+/* Sau: */
+--lp-bg-payoff:      #F0ABFC;
+```
+
+- [ ] **Commit:**
+
+```bash
+git add src/landing/themes.css
+git commit -m "fix(v07): soften berry bg-payoff color for WhySection readability"
+```
+
+---
+
+## Task 15: ConditionEducation — diversify whyTitle
+
+**Files:**
+- Modify: `src/landing/variants/payoff/constant/ConditionEducation.tsx`
+
+- [ ] **Sửa 5 whyTitle (dùng Edit, thay từng dòng một):**
+
+```ts
+// da-nhon-mun-viem — cũ:
+whyTitle: 'Điều gì xảy ra bên dưới làn da của bạn?',
+// Mới:
+whyTitle: 'Tại sao da nhờn vẫn bị mụn viêm dù rửa mặt cẩn thận?',
+```
+
+```ts
+// lo-chan-long — cũ:
+whyTitle: 'Điều gì xảy ra bên dưới làn da của bạn?',
+// Mới:
+whyTitle: 'Tại sao lỗ chân lông to ra dù dùng nhiều sản phẩm thu nhỏ?',
+```
+
+```ts
+// da-nhay-cam — cũ:
+whyTitle: 'Điều gì đang xảy ra với làn da của bạn?',
+// Mới:
+whyTitle: 'Tại sao làn da của bạn phản ứng với hầu hết mọi thứ?',
+```
+
+```ts
+// mun-noi-tiet — cũ:
+whyTitle: 'Điều gì đang xảy ra trên da của bạn?',
+// Mới:
+whyTitle: 'Tại sao mụn bùng phát theo chu kỳ dù bạn chăm sóc da đúng cách?',
+```
+
+```ts
+// mun-trung-ca — cũ:
+whyTitle: 'Điều gì xảy ra bên dưới làn da của bạn?',
+// Mới:
+whyTitle: 'Tại sao mụn trứng cá cứ tái phát dù bạn đã dùng nhiều cách?',
+```
+
+Lưu ý: `lo-chan-long` và `da-nhon-mun-viem` có cùng whyTitle cũ — phải sửa cả 2, dùng `replace_all: false` và thêm context xung quanh để phân biệt.
+
+- [ ] **TypeScript check:**
+
+```bash
+npx tsc --noEmit 2>&1 | head -10
+```
+
+- [ ] **Commit:**
+
+```bash
+git add src/landing/variants/payoff/constant/ConditionEducation.tsx
+git commit -m "feat(payoff): diversify whyTitle per condition for richer payoff narrative"
+```
+
+---
+
+## Task 16: Đăng ký skin-scan-chat + tạo 2 payoff layout variants
+
+**Files:**
+- Modify: `src/landing/registry.ts`
+- Create: `src/landing/variants/payoff/confetti-card-why-video-split.tsx`
+- Create: `src/landing/variants/payoff/confetti-card-why-circles-quad.tsx`
+
+### 16a: Tạo variant video-split
+
+- [ ] **Tạo `src/landing/variants/payoff/confetti-card-why-video-split.tsx`:**
+
+```tsx
+'use client';
+import type { PayoffSlotProps } from '../../slots';
+import { ConfettiCardWhyPayoff } from './ConfettiCardWhyPayoff';
+import { NumberedBadgeVideoSplit, CarouselGrid } from './feature-layouts';
+
+export function ConfettiCardWhyVideoSplitPayoff(props: PayoffSlotProps) {
+  return (
+    <ConfettiCardWhyPayoff
+      {...props}
+      BenefitComponent={NumberedBadgeVideoSplit}
+      FeatureComponent={CarouselGrid}
+    />
+  );
+}
+```
+
+### 16b: Tạo variant circles-quad
+
+- [ ] **Tạo `src/landing/variants/payoff/confetti-card-why-circles-quad.tsx`:**
+
+```tsx
+'use client';
+import type { PayoffSlotProps } from '../../slots';
+import { ConfettiCardWhyPayoff } from './ConfettiCardWhyPayoff';
+import { CirclesWithBackground, NumberedBadgeQuadGrid } from './feature-layouts';
+
+export function ConfettiCardWhyCirclesQuadPayoff(props: PayoffSlotProps) {
+  return (
+    <ConfettiCardWhyPayoff
+      {...props}
+      BenefitComponent={CirclesWithBackground}
+      FeatureComponent={NumberedBadgeQuadGrid}
+    />
+  );
+}
+```
+
+### 16c: Đăng ký tất cả vào registry
+
+- [ ] **Sửa `src/landing/registry.ts` — thêm 3 entries:**
+
+**Thêm 2 import** (ngay sau dòng `import { BoldClassicTeaserPayoff }...`):
+
+```ts
+import { ConfettiCardWhyVideoSplitPayoff } from './variants/payoff/confetti-card-why-video-split';
+import { ConfettiCardWhyCirclesQuadPayoff } from './variants/payoff/confetti-card-why-circles-quad';
+import { SkinScanChatMinigame } from './variants/minigame/skin-scan-chat';
+```
+
+**Trong `registry.minigame`**, thêm entry `'skin-scan-chat'` vào cuối object (trước closing `}`):
+
+```ts
+'skin-scan-chat': SkinScanChatMinigame,
+```
+
+**Trong `registry.payoff`**, thêm 2 entries vào cuối object:
+
+```ts
+'confetti-card-why-video-split': ConfettiCardWhyVideoSplitPayoff,
+'confetti-card-why-circles-quad': ConfettiCardWhyCirclesQuadPayoff,
+```
+
+- [ ] **TypeScript check:**
+
+```bash
+npx tsc --noEmit 2>&1 | head -20
+```
+
+Expected: 0 error.
+
+- [ ] **Commit:**
+
+```bash
+git add src/landing/variants/payoff/confetti-card-why-video-split.tsx src/landing/variants/payoff/confetti-card-why-circles-quad.tsx src/landing/registry.ts
+git commit -m "feat(payoff): add video-split and circles-quad layout variants + register skin-scan-chat"
+```
+
+---
+
+## Task 17: V03 — skin-scan-chat + phục hồi payoff sections
+
+**Files:**
+- Modify: `src/landing/recipes/v03-facemap.ts`
+
+- [ ] **Sửa `v03-facemap.ts`:**
+
+```ts
+import type { Recipe } from '../validateRecipe';
+
+export const v03Facemap: Recipe = {
+  id: 'v03-facemap',
+  label: 'Face-map tự khai + ocean',
+  theme: 'opal',
+  slots: {
+    hook:       'bold-single',
+    minigame:   'skin-scan-chat',
+    payoff:     'confetti-card-why-circles-quad',
+    programs:   'grid-with-faq',
+    conversion: 'short-form-with-testimonials',
+    done:       'contact-info-with-video',
+  },
+};
+```
+
+- [ ] **Chạy tests:**
+
+```bash
+npx vitest run
+```
+
+Expected: all pass.
+
+- [ ] **Commit:**
+
+```bash
+git add src/landing/recipes/v03-facemap.ts
+git commit -m "feat(v03): skin-scan-chat minigame + circles-quad payoff (restore all sections)"
+```
+
+---
+
+## Task 18: V25 — story-day minigame
+
+**Files:**
+- Modify: `src/landing/recipes/v25-playful-cotton-candy.ts`
+
+- [ ] **Sửa `v25-playful-cotton-candy.ts`:**
+
+```ts
+import type { Recipe } from '../validateRecipe';
+
+export const v25PlayfulCottonCandy: Recipe = {
+  id: 'v25-playful-cotton-candy',
+  label: 'v25 — Playful Cotton Candy',
+  theme: 'cotton-candy',
+  slots: {
+    hook:       'playful-classic',
+    minigame:   'story-day',
+    payoff:     'confetti-card-why-video-split',
+    programs:   'playful-classic',
+    conversion: 'playful-classic',
+    done:       'playful-classic',
+  },
+};
+```
+
+Lưu ý: task này kết hợp cả đổi minigame (story-day) lẫn áp dụng feature layout mới (video-split) cho v25.
+
+- [ ] **Commit:**
+
+```bash
+git add src/landing/recipes/v25-playful-cotton-candy.ts
+git commit -m "feat(v25): story-day minigame + video-split payoff layout"
+```
+
+---
+
+## Task 19: Áp dụng video-split payoff cho v04, v07, v14
+
+**Files:**
+- Modify: `src/landing/recipes/v04-combined.ts`
+- Modify: `src/landing/recipes/v07-playful-immersive.ts`
+- Modify: `src/landing/recipes/v14-natural-spa.ts`
+
+- [ ] **Sửa `v04-combined.ts`** — đổi `payoff`:
+
+```ts
+import type { Recipe } from '../validateRecipe';
+
+export const v04Combined: Recipe = {
+  id: 'v04-combined',
+  label: 'v04 — Programs+FAQ / Conversion+Testimonial',
+  theme: 'coral',
+  slots: {
+    hook:       'bold-single',
+    minigame:   'face-map',
+    payoff:     'confetti-card-why-video-split',
+    programs:   'grid-with-faq',
+    conversion: 'short-form-with-testimonials',
+    done:       'contact-info-with-video',
+  },
+};
+```
+
+- [ ] **Sửa `v07-playful-immersive.ts`** — đổi `payoff`:
+
+```ts
+import type { Recipe } from '../validateRecipe';
+
+export const v07PlayfulImmersive: Recipe = {
+  id: 'v07-playful-immersive',
+  label: 'v07 — Playful Blossom / Immersive',
+  theme: 'berry',
+  slots: {
+    hook:       'playful-immersive',
+    minigame:   'playful-immersive',
+    payoff:     'confetti-card-why-video-split',
+    programs:   'playful-immersive',
+    conversion: 'playful-immersive',
+    done:       'playful-immersive',
+  },
+};
+```
+
+- [ ] **Sửa `v14-natural-spa.ts`** — đổi `payoff`:
+
+```ts
+import type { Recipe } from '../validateRecipe';
+
+export const v14NaturalSpa: Recipe = {
+  id: 'v14-natural-spa',
+  label: 'v14 — Natural Sage / Spa',
+  theme: 'dusty-rose',
+  slots: {
+    hook:          'natural-spa',
+    minigame:      'natural-spa',
+    payoff:        'confetti-card-why-video-split',
+    programs:      'natural-spa',
+    conversion:    'natural-spa',
+    done:          'natural-spa',
+    expertHandoff: 'natural-spa',
+  },
+};
+```
+
+- [ ] **Chạy tests:**
+
+```bash
+npx vitest run
+```
+
+- [ ] **Commit:**
+
+```bash
+git add src/landing/recipes/v04-combined.ts src/landing/recipes/v07-playful-immersive.ts src/landing/recipes/v14-natural-spa.ts
+git commit -m "feat(v04,v07,v14): apply video-split + carousel-grid payoff layout"
+```
+
+---
+
+## Task 20: Áp dụng circles-quad payoff cho v21 và v10
+
+**Files:**
+- Modify: `src/landing/recipes/v21-electric-classic.ts`
+- Modify: `src/landing/recipes/v10-clinical-compact.ts`
+
+- [ ] **Sửa `v21-electric-classic.ts`** — đổi `payoff`:
+
+```ts
+import type { Recipe } from '../validateRecipe';
+
+export const v21ElectricClassic: Recipe = {
+  id: 'v21-electric-classic',
+  label: 'v21 — Electric Magenta / Classic',
+  theme: 'magenta',
+  slots: {
+    hook:       'electric-classic',
+    minigame:   'face-map',
+    payoff:     'confetti-card-why-circles-quad',
+    programs:   'electric-classic',
+    conversion: 'electric-classic',
+    done:       'electric-classic',
+  },
+};
+```
+
+- [ ] **Sửa `v10-clinical-compact.ts`** — đổi `payoff`:
+
+```ts
+import type { Recipe } from '../validateRecipe';
+
+export const v10ClinicalCompact: Recipe = {
+  id: 'v10-clinical-compact',
+  label: 'v10 — Clinical Ocean / Compact',
+  theme: 'ice',
+  slots: {
+    hook:       'clinical-compact',
+    minigame:   'clinical-compact',
+    payoff:     'confetti-card-why-circles-quad',
+    programs:   'clinical-compact',
+    conversion: 'clinical-compact',
+    done:       'clinical-compact',
+  },
+};
+```
+
+- [ ] **Chạy tests:**
+
+```bash
+npx vitest run
+```
+
+- [ ] **Commit:**
+
+```bash
+git add src/landing/recipes/v21-electric-classic.ts src/landing/recipes/v10-clinical-compact.ts
+git commit -m "feat(v21,v10): apply circles-with-bg + quad-grid payoff layout"
+```
