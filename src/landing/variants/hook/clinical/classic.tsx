@@ -1,8 +1,19 @@
 'use client';
 import type { HookSlotProps } from '../../../slots';
+import type { HookCopy } from '../../../copy';
 import { CtaButton } from '../../../../components/atoms/CtaButton';
 
-export function ClinicalClassicHook({ onStart }: HookSlotProps) {
+const DEFAULT_COPY: Required<HookCopy> = {
+  badge:         'Phân tích da chính xác',
+  heading:       'Biết chính xác',
+  headingAccent: 'da bạn cần gì trong 60 giây',
+  subtext:       'Hệ thống phân tích vùng da mặt bằng bản đồ mụn — nhanh, trực quan, và cá nhân hóa cho từng người.',
+  cta:           'Bắt đầu phân tích →',
+  hookImage:     '/face-map-hook.svg',
+};
+
+export function ClinicalClassicHook({ onStart, copy }: HookSlotProps) {
+  const c = { ...DEFAULT_COPY, ...copy };
   return (
     <div className="min-h-[100dvh] w-full bg-[var(--lp-bg-hero)] relative flex items-center overflow-hidden">
       <div
@@ -23,26 +34,21 @@ export function ClinicalClassicHook({ onStart }: HookSlotProps) {
               <line x1="2" y1="12" x2="4" y2="12" />
               <line x1="20" y1="12" x2="22" y2="12" />
             </svg>
-            Phân tích da chính xác
+            {c.badge}
           </span>
           <h1 className="font-extrabold text-4xl md:text-6xl text-[var(--lp-text)] leading-snug md:leading-snug [text-wrap:balance]">
-            Biết chính xác{' '}
-            <span className="text-[var(--lp-accent)]">da bạn cần gì</span>{' '}
-            trong 60 giây
+            {c.heading}<br />
+            <span className="text-[var(--lp-accent)]">{c.headingAccent}</span>
           </h1>
-          <p className="text-base md:text-lg text-[var(--lp-text)]/60 max-w-md">
-            Hệ thống phân tích vùng da mặt bằng bản đồ mụn — nhanh, trực quan, và cá nhân hóa cho từng người.
-          </p>
+          <p className="text-base md:text-lg text-[var(--lp-text)]/60 max-w-md">{c.subtext}</p>
           <div>
-            <CtaButton onClick={onStart} size="lg">
-              Bắt đầu phân tích →
-            </CtaButton>
+            <CtaButton onClick={onStart} size="lg">{c.cta}</CtaButton>
           </div>
         </div>
         <div className="hidden md:flex items-center justify-center">
           <div className="rounded-[var(--lp-radius-card)] border border-[var(--lp-accent)]/20 bg-[var(--lp-bg-minigame)] p-4 shadow-sm">
             <img
-              src="/face-map-hook.svg"
+              src={c.hookImage}
               alt="Phân tích vùng da mụn"
               className="w-full max-w-[320px] h-auto object-contain"
             />

@@ -403,22 +403,47 @@ export function ScanningScreen({ selectedZones }: { selectedZones: Zone[] }) {
   );
 }
 
+// ─── Intro screen (shown when copy.intro is present) ─────────────────────────
+
+function IntroScreen({ heading, subtext, cta, onStart }: {
+  heading: string; subtext?: string; cta: string; onStart: () => void;
+}) {
+  return (
+    <div className="h-[100dvh] w-full bg-[var(--lp-bg-minigame)] flex items-center justify-center px-5">
+      <div className="w-full max-w-sm flex flex-col items-center gap-5 text-center animate-fade-in-up">
+        <h2 className="font-extrabold text-2xl md:text-3xl text-cta leading-snug [text-wrap:balance]">{heading}</h2>
+        {subtext && <p className="text-base text-cta/60">{subtext}</p>}
+        <button
+          onClick={onStart}
+          className="w-full bg-cta text-white font-bold py-3.5 rounded-soft text-sm hover:opacity-90 transition-opacity"
+        >
+          {cta}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ─── Steps ────────────────────────────────────────────────────────────────────
 
 export function Step1({
   selectedZones, onToggle, onNext, isScanning,
+  heading, subtext,
 }: {
   selectedZones: Zone[]; onToggle: (z: Zone) => void; onNext: () => void; isScanning: boolean;
+  heading?: string; subtext?: string;
 }) {
+  const h = heading || 'Bạn hay bị mụn ở đâu?';
+  const s = subtext  || 'Chạm vào vùng da bạn hay có mụn nhất';
   return (
     <div className="w-full max-w-sm flex flex-col items-center gap-3 md:gap-4 animate-fade-in-up">
       <div className="text-center">
-        <p className="font-extrabold text-xl text-cta">Bạn hay bị mụn ở đâu?</p>
+        <p className="font-extrabold text-xl text-cta">{h}</p>
       </div>
       {selectedZones.length === 0 && (
         <div className="flex flex-col items-center gap-1 -mb-2" aria-hidden="true">
           <style>{`@keyframes arrow-bounce{0%,100%{transform:translateY(0);opacity:.45}50%{transform:translateY(7px);opacity:.85}}`}</style>
-          <p className="text-xs text-cta/45 font-semibold">Chạm vào vùng da bạn hay bị</p>
+          <p className="text-xs text-cta/45 font-semibold">{s}</p>
           <svg width="18" height="26" viewBox="0 0 18 26" fill="none" className="text-cta/50" style={{ animation: 'arrow-bounce 1.3s ease-in-out infinite' }}>
             <path d="M9 2 L9 20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
             <path d="M3 15 L9 23 L15 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -476,11 +501,16 @@ function Step2({
 
 // ─── Main export ──────────────────────────────────────────────────────────────
 
-export function FaceMapMinigame({ onComplete }: MinigameSlotProps) {
+export function FaceMapMinigame({ onComplete, copy }: MinigameSlotProps) {
+  const hasIntro = !!(copy?.intro?.heading);
+  const [showIntro, setShowIntro]     = useState(hasIntro);
   const [step, setStep]               = useState<1 | 2>(1);
   const [selectedZones, setSelectedZones] = useState<Zone[]>([]);
   const [acneType, setAcneType]       = useState<AcneType | null>(null);
   const [isScanning, setIsScanning]   = useState(false);
+
+  const faceH = copy?.faceMap?.heading;
+  const faceS = copy?.faceMap?.subtext;
 
   function toggleZone(z: Zone) {
     setSelectedZones(prev => prev.includes(z) ? prev.filter(x => x !== z) : [...prev, z]);
@@ -513,6 +543,17 @@ export function FaceMapMinigame({ onComplete }: MinigameSlotProps) {
     }, 1150);
   }
 
+  if (showIntro && copy?.intro) {
+    return (
+      <IntroScreen
+        heading={copy.intro.heading!}
+        subtext={copy.intro.subtext}
+        cta={copy.intro.cta || 'Bắt đầu'}
+        onStart={() => setShowIntro(false)}
+      />
+    );
+  }
+
   return (
     <div className="h-[100dvh] w-full bg-[var(--lp-bg-minigame)] flex items-center justify-center px-5 overflow-hidden">
 
@@ -530,6 +571,8 @@ export function FaceMapMinigame({ onComplete }: MinigameSlotProps) {
                     onToggle={toggleZone}
                     onNext={() => setStep(2)}
                     isScanning={false}
+                    heading={faceH}
+                    subtext={faceS}
                   />
                 ) : (
                   <Step2
@@ -550,8 +593,8 @@ export function FaceMapMinigame({ onComplete }: MinigameSlotProps) {
       <div className="hidden md:flex md:items-start md:gap-10 w-full max-w-4xl">
         <div className="flex-1 flex flex-col items-center gap-4">
           <div className="text-center">
-            <p className="font-extrabold text-2xl text-cta">Bạn hay bị mụn ở đâu?</p>
-            <p className="text-sm text-cta/50 mt-1">Chạm vào vùng da bạn hay có mụn nhất</p>
+            <p className="font-extrabold text-2xl text-cta">{faceH || 'Bạn hay bị mụn ở đâu?'}</p>
+            <p className="text-sm text-cta/50 mt-1">{faceS || 'Chạm vào vùng da bạn hay có mụn nhất'}</p>
           </div>
           <FaceDiagram selectedZones={selectedZones} onToggle={toggleZone} isScanning={isScanning} />
           <SelectedZoneTags selectedZones={selectedZones} />

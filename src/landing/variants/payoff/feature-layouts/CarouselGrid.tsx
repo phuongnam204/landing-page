@@ -4,33 +4,90 @@ import type { PayoffItem } from './types';
 import { featuresAsItems } from '../constant/Features';
 import { CtaButton } from '../../../../components/atoms/CtaButton';
 
+const CARD_ICONS = [
+  <svg key="building" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 9h18" /><path d="M9 21V9" /><path d="M15 21V9" />
+  </svg>,
+  <svg key="zap" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+  </svg>,
+  <svg key="plus" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="9" /><line x1="12" y1="8" x2="12" y2="16" /><line x1="8" y1="12" x2="16" y2="12" />
+  </svg>,
+];
+
 function CarouselCard({
-  image, alt, title, highlighted,
+  image, alt, title, body, highlighted, index,
 }: {
-  image?: string; alt?: string; title: string; highlighted?: boolean;
+  image?: string; alt?: string; title: string; body?: string; highlighted?: boolean; index: number;
 }) {
   return (
     <div
-      className="relative rounded-soft overflow-hidden transition-all duration-300"
+      className="relative transition-all duration-300"
       style={{
-        aspectRatio: '3/4',
-        border: highlighted ? '2px solid rgba(143,227,188,0.55)' : '1px solid rgba(255,255,255,0.12)',
         transform: highlighted ? 'scale(1.025)' : 'scale(1)',
+        borderRadius: 'var(--lp-radius-card)',
+        border: highlighted
+          ? '2px solid color-mix(in srgb, var(--lp-accent) 55%, transparent)'
+          : '1px solid rgba(255,255,255,0.12)',
       }}
     >
-      {image && (
-        <img src={image} alt={alt ?? ''} className="absolute inset-0 w-full h-full object-cover" />
-      )}
+      {/* Image zone — top portion of card */}
       <div
-        className="absolute inset-0"
-        style={{ background: 'linear-gradient(to top, rgba(45,38,64,0.92) 0%, rgba(45,38,64,0.25) 50%, transparent 100%)' }}
-      />
+        className="relative overflow-hidden"
+        style={{ height: '200px', borderRadius: 'var(--lp-radius-card) var(--lp-radius-card) 0 0' }}
+      >
+        {image && (
+          <img src={image} alt={alt ?? ''} className="absolute inset-0 w-full h-full object-cover" />
+        )}
+        <div
+          className="absolute inset-0"
+          style={{ background: 'linear-gradient(to bottom, transparent 40%, rgba(24,16,42,0.6) 100%)' }}
+        />
+        <div
+          className="absolute inset-0"
+          style={{ background: 'linear-gradient(135deg, var(--lp-accent), var(--lp-primary))', opacity: 0.1 }}
+        />
+      </div>
+
+      {/* Icon badge — outside overflow-hidden so it's never clipped */}
       <div
-        className="absolute inset-0"
-        style={{ background: 'linear-gradient(135deg, var(--lp-accent), var(--lp-primary))', opacity: 0.18 }}
-      />
-      <div className="absolute bottom-0 left-0 right-0 p-5">
-        <p className="text-white font-bold text-sm md:text-base leading-snug">{title}</p>
+        className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300"
+        style={{
+          top: '200px',
+          background: 'var(--lp-accent)',
+          boxShadow: highlighted
+            ? '0 0 0 3px white, 0 0 0 5px color-mix(in srgb, var(--lp-accent) 40%, transparent), 0 4px 16px rgba(0,0,0,0.25)'
+            : '0 0 0 3px rgba(255,255,255,0.55), 0 2px 8px rgba(0,0,0,0.2)',
+        }}
+      >
+        {CARD_ICONS[index % CARD_ICONS.length]}
+      </div>
+
+      {/* Content zone — bottom portion */}
+      <div
+        className="relative text-center px-5 pb-5"
+        style={{
+          paddingTop: '44px',
+          borderRadius: '0 0 var(--lp-radius-card) var(--lp-radius-card)',
+          background: 'rgba(24,16,42,0.96)',
+        }}
+      >
+        <p className="font-bold text-white text-sm leading-snug">{title}</p>
+        {body && (
+          <p className="mt-2 text-xs leading-relaxed" style={{ color: 'rgba(255,255,255,0.48)' }}>
+            {body}
+          </p>
+        )}
+
+        {/* Accent bar — full-width bottom border, brightens when highlighted */}
+        <div
+          className="absolute bottom-0 left-0 right-0 h-[3px] rounded-b-[inherit] transition-all duration-500"
+          style={{
+            background: 'var(--lp-accent)',
+            opacity: highlighted ? 1 : 0.2,
+          }}
+        />
       </div>
     </div>
   );
@@ -56,7 +113,7 @@ export function CarouselGrid({
       className="relative min-h-[100dvh] flex flex-col items-center justify-center gap-8 overflow-hidden px-5 py-16"
       style={{ background: 'linear-gradient(135deg, var(--lp-primary) 0%, color-mix(in srgb, var(--lp-primary) 50%, var(--lp-accent)) 50%, var(--lp-accent) 100%)' }}
     >
-      <div className="text-center">
+      <div className="text-center" data-cg="1">
         <p
           className="text-xs font-bold uppercase tracking-widest mb-2"
           style={{ color: 'var(--lp-blob-3)' }}
@@ -68,10 +125,18 @@ export function CarouselGrid({
         </h2>
       </div>
 
-      {/* Desktop: 3-column grid, active card highlighted by auto-cycling dot */}
-      <div className="hidden md:grid md:grid-cols-3 md:gap-5 w-full max-w-5xl mx-auto">
+      {/* Desktop: 3-column grid */}
+      <div className="hidden md:grid md:grid-cols-3 md:gap-6 w-full max-w-5xl mx-auto">
         {items.map((item, i) => (
-          <CarouselCard key={i} image={item.image} alt={item.alt} title={item.title} highlighted={i === idx} />
+          <CarouselCard
+            key={i}
+            image={item.image}
+            alt={item.alt}
+            title={item.title}
+            body={item.body}
+            highlighted={i === idx}
+            index={i}
+          />
         ))}
       </div>
 
@@ -87,7 +152,14 @@ export function CarouselGrid({
           >
             {items.map((item, i) => (
               <div key={i} className="shrink-0" style={{ width: '85%', marginRight: '12px' }}>
-                <CarouselCard image={item.image} alt={item.alt} title={item.title} highlighted={i === idx} />
+                <CarouselCard
+                  image={item.image}
+                  alt={item.alt}
+                  title={item.title}
+                  body={item.body}
+                  highlighted={i === idx}
+                  index={i}
+                />
               </div>
             ))}
           </div>

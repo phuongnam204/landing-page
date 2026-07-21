@@ -12,4 +12,26 @@ export const v25PlayfulCottonCandy: Recipe = {
     conversion: 'playful-classic',
     done:       'playful-classic',
   },
+  copy: {
+    hook: {
+      badge:         'Story của da bạn',
+      heading:       'Mỗi ngày da bạn',
+      headingAccent: 'đều có một câu chuyện.',
+      subtext:       'Kể cho chúng tôi nghe ngày hôm nay của bạn — chúng tôi sẽ tìm giải pháp đúng nhất.',
+      cta:           'Kể câu chuyện của tôi',
+    },
+    minigame: {
+      intro: {
+        heading: 'Hôm nay của bạn như thế nào?',
+        subtext:  'Chọn cảnh huống đúng nhất — chúng tôi sẽ đọc từng khoảnh khắc.',
+        cta:      'Bắt đầu kể',
+      },
+    },
+    payoff: {
+      resultCard: {
+        concern:  'Chúng tôi đã nghe hết câu chuyện của bạn.',
+        positive: 'Và biết chính xác điều da bạn cần ngay lúc này.',
+      },
+    },
+  },
 };

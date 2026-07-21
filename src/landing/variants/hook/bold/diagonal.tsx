@@ -1,96 +1,231 @@
 'use client';
 import type { HookSlotProps } from '../../../slots';
+import type { HookCopy } from '../../../copy';
 import { CtaButton } from '../../../../components/atoms/CtaButton';
 
-export function BoldDiagonalHook({ onStart }: HookSlotProps) {
+const DEFAULT_COPY: Required<HookCopy> = {
+  badge:         '',
+  heading:       'Đã filter đến mức',
+  headingAccent: 'không nhận ra mình nữa?',
+  subtext:       'Da thật không cần filter',
+  cta:           'Soi da ngay →',
+  hookImage:     '',
+};
+
+// Desktop image positioning constants (mobile uses inline flex sizing)
+// x  : translateX(%) from left-1/2 — negative = shift left of center
+// hMd: height % of parent panel — reduced 20% from face-dual for visual balance
+const IMG_A = { x: -45, hMd: 74 } as const;
+const IMG_B = { x: -62, hMd: 74 } as const;
+
+const CTA_COLOR = '#2DD4BF' as const;
+
+const FILTER_A = [
+  'brightness(1.18)',
+  'saturate(1.05)',
+  'drop-shadow(0 0 28px rgba(255,255,255,0.18))',
+  'drop-shadow(0 12px 40px rgba(0,0,0,0.4))',
+].join(' ');
+
+const FILTER_B = [
+  'saturate(0.95)',
+  'drop-shadow(0 0 24px color-mix(in srgb, var(--lp-accent) 30%, transparent))',
+  'drop-shadow(0 12px 36px rgba(0,0,0,0.12))',
+].join(' ');
+
+export function BoldDiagonalHook({ onStart, copy }: HookSlotProps) {
+  const c = { ...DEFAULT_COPY, ...copy };
   return (
-    <div className="h-[100dvh] w-full flex flex-col md:flex-row overflow-hidden">
+    <div
+      className="h-[100dvh] w-full flex flex-col md:flex-row overflow-hidden relative"
+      style={{ background: 'var(--lp-primary)' }}>
       <style>{`
-        @keyframes v19SlideTop {
-          from { transform: translateY(-100%); opacity: 0; }
-          65%  { transform: translateY(2%); opacity: 1; }
-          82%  { transform: translateY(-1%); }
-          to   { transform: translateY(0); }
+        /* ─── Keyframes ──────────────────────────────────────────────────────── */
+        @keyframes v19-in-top {
+          0%   { transform: translateY(-100%) skewX( 4deg) scaleY(0.94); opacity: 0; }
+          62%  { transform: translateY( 2.2%) skewX(-0.6deg) scaleY(1.02); opacity: 1; }
+          79%  { transform: translateY(-0.9%) skewX( 0.2deg) scaleY(0.995); }
+          100% { transform: translateY(0)     skewX(0)       scaleY(1); }
         }
-        @keyframes v19SlideBottom {
-          from { transform: translateY(100%); opacity: 0; }
-          65%  { transform: translateY(-2%); opacity: 1; }
-          82%  { transform: translateY(1%); }
-          to   { transform: translateY(0); }
+        @keyframes v19-in-bottom {
+          0%   { transform: translateY( 100%) skewX(-4deg) scaleY(0.94); opacity: 0; }
+          62%  { transform: translateY(-2.2%) skewX( 0.6deg) scaleY(1.02); opacity: 1; }
+          79%  { transform: translateY( 0.9%) skewX(-0.2deg) scaleY(0.995); }
+          100% { transform: translateY(0)     skewX(0)        scaleY(1); }
         }
-        @keyframes v19SlideLeft {
-          from { transform: translateX(-100%); opacity: 0; }
-          65%  { transform: translateX(2%); opacity: 1; }
-          82%  { transform: translateX(-1%); }
-          to   { transform: translateX(0); }
+        @keyframes v19-in-left {
+          0%   { transform: translateX(-100%) skewY( 4deg) scaleX(0.94); opacity: 0; }
+          62%  { transform: translateX( 2.2%) skewY(-0.6deg) scaleX(1.02); opacity: 1; }
+          79%  { transform: translateX(-0.9%) skewY( 0.2deg) scaleX(0.995); }
+          100% { transform: translateX(0)     skewY(0)        scaleX(1); }
         }
-        @keyframes v19SlideRight {
-          from { transform: translateX(100%); opacity: 0; }
-          65%  { transform: translateX(-2%); opacity: 1; }
-          82%  { transform: translateX(1%); }
-          to   { transform: translateX(0); }
+        @keyframes v19-in-right {
+          0%   { transform: translateX( 100%) skewY(-4deg) scaleX(0.94); opacity: 0; }
+          62%  { transform: translateX(-2.2%) skewY( 0.6deg) scaleX(1.02); opacity: 1; }
+          79%  { transform: translateX( 0.9%) skewY(-0.2deg) scaleX(0.995); }
+          100% { transform: translateX(0)     skewY(0)        scaleX(1); }
         }
-        .v19-top {
-          animation: v19SlideTop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        @keyframes v19-cta-in {
+          0%   { opacity: 0; transform: scale(0.78) translateY(10px); }
+          70%  { transform: scale(1.04) translateY(-2px); }
+          100% { opacity: 1; transform: scale(1) translateY(0); }
         }
-        .v19-bottom {
-          animation: v19SlideBottom 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-          clip-path: polygon(0 12%, 100% 0, 100% 100%, 0 100%);
-          margin-top: -40px;
-          padding-top: 64px;
+
+        /* ─── Panel animations ───────────────────────────────────────────────── */
+        .v19-a { animation: v19-in-top 0.82s cubic-bezier(0.32, 1.42, 0.60, 1) both; }
+        .v19-b {
+          animation: v19-in-bottom 0.82s cubic-bezier(0.32, 1.42, 0.60, 1) 0.06s both;
+          clip-path: polygon(0 22%, 100% 4%, 100% 100%, 0 100%);
+          margin-top: -52px;
+          padding-top: 105px;
         }
         @media (min-width: 768px) {
-          .v19-top {
-            animation-name: v19SlideLeft;
-          }
-          .v19-bottom {
-            animation-name: v19SlideRight;
-            clip-path: polygon(8% 0, 100% 0, 100% 100%, 0 100%);
-            margin-top: 0;
-            margin-left: -32px;
-            padding-top: 0;
-            padding-left: 56px;
+          .v19-a { animation-name: v19-in-left; }
+          .v19-b {
+            animation-name: v19-in-right;
+            clip-path: polygon(10% 0%, 100% 0%, 100% 100%, 0% 100%);
+            margin-top: 0; margin-left: -48px;
+            padding-top: 0; padding-left: 72px;
           }
         }
+
+        /* ─── Desktop image positioning ──────────────────────────────────────── */
+        .v19-img-a {
+          transform: translateX(${IMG_A.x}%);
+          height: ${IMG_A.hMd}%;
+        }
+        .v19-img-b {
+          transform: translateX(${IMG_B.x}%);
+          height: ${IMG_B.hMd}%;
+        }
+
+        /* ─── CTA entrance ───────────────────────────────────────────────────── */
+        .v19-cta { animation: v19-cta-in 0.46s ease-out 0.68s both; }
       `}</style>
 
-      {/* Left on desktop / Top on mobile: bold title */}
+      {/* ══════════════════════════════════════════════════════════════════
+          PANEL A — dark / "Đã filter đến mức"
+          Mobile: flex-row with heading left + image right
+          Desktop: absolute-positioned heading (top-left) + image (bottom-center)
+      ══════════════════════════════════════════════════════════════════ */}
       <div
-        className="v19-top flex-1 flex items-center justify-center px-5 min-h-0"
-        style={{ background: 'var(--lp-band-bg)' }}
+        className="v19-a flex-1 relative overflow-hidden flex flex-row items-center gap-4 px-5 md:block md:px-0"
+        style={{ background: 'var(--lp-primary)' }}
       >
+        {/* Mobile: heading left */}
         <h1
-          className="text-5xl md:text-7xl font-extrabold tracking-tight text-center md:text-left leading-snug md:leading-snug [text-wrap:balance]"
-          style={{ color: 'var(--lp-band-text)', fontFamily: 'var(--font-plus-jakarta)' }}
+          className="md:hidden flex-1 font-extrabold text-[1.75rem] leading-[1.12] text-white [text-wrap:balance]"
+          style={{ fontFamily: 'var(--font-nunito)' }}
         >
-          Đã filter đến mức
-          <br />
-          <span style={{ color: 'var(--lp-band-accent)' }}>không nhận ra mình nữa?</span>
+          {c.heading}
         </h1>
+
+        {/* Mobile: image right */}
+        <img
+          src="/face-map-v1/face-map-hook-1.svg"
+          alt=""
+          aria-hidden="true"
+          className="md:hidden w-[50%] max-w-[175px] h-auto object-contain shrink-0"
+          style={{ filter: FILTER_A }}
+        />
+
+        {/* Desktop: heading absolute top-left */}
+        <h1
+          className="hidden md:block absolute top-14 left-10 z-10
+                     font-extrabold text-[3.8rem] xl:text-[4.8rem]
+                     leading-[1.12] text-white [text-wrap:balance] max-w-[14ch]"
+          style={{ fontFamily: 'var(--font-nunito)' }}
+        >
+          {c.heading}
+        </h1>
+
+        {/* Desktop: image bottom-anchored */}
+        <img
+          src="/face-map-v1/face-map-hook-1.svg"
+          alt=""
+          aria-hidden="true"
+          className="v19-img-a hidden md:block absolute bottom-0 left-1/2 w-auto object-contain object-bottom"
+          style={{ filter: FILTER_A }}
+        />
       </div>
 
-      {/* Right on desktop / Bottom on mobile: diagonal, image + text */}
+      {/* ══════════════════════════════════════════════════════════════════
+          PANEL B — light / "không nhận ra mình nữa?"
+          Mobile: flex-row MIRRORED — image left + heading right
+          Desktop: absolute-positioned image (bottom-center) + heading (top-right)
+      ══════════════════════════════════════════════════════════════════ */}
       <div
-        className="v19-bottom flex-1 flex items-center justify-center px-5"
-        style={{ background: 'var(--lp-bg-hero)' }}
+        className="v19-b flex-1 relative overflow-hidden flex flex-row items-center gap-4 px-5 md:block md:px-0"
+        style={{ background: 'var(--lp-bg-minigame)' }}
       >
-        <div className="max-w-4xl md:max-w-none w-full mx-auto flex flex-col md:flex-col items-center gap-6">
-          <div className="shrink-0 flex items-center justify-center">
-            <img
-              src="/face-map-hook.svg"
-              alt="Phân tích vùng da"
-              className="h-52 md:h-[260px] w-auto object-contain"
-              style={{ filter: 'drop-shadow(0 4px 20px color-mix(in srgb, var(--lp-accent) 35%, transparent))' }}
-            />
-          </div>
-          <div className="flex flex-col items-center gap-4 text-center">
-            <p className="text-sm md:text-base text-cta/70 max-w-xs leading-relaxed">
-              Da thật không cần filter — chỉ cần đúng cách chăm.
-            </p>
-            <CtaButton onClick={onStart} size="lg">
-              Soi da ngay
-            </CtaButton>
-          </div>
+        {/* Mobile: image left (mirrored from Panel A) */}
+        <img
+          src="/face-map-v1/face-map-hook-2.svg"
+          alt=""
+          aria-hidden="true"
+          className="md:hidden w-[50%] max-w-[175px] h-auto object-contain shrink-0"
+          style={{ filter: FILTER_B }}
+        />
+
+        {/* Mobile: heading right */}
+        <h2
+          className="md:hidden flex-1 font-extrabold text-[1.75rem] leading-[1.12] text-right [text-wrap:balance]"
+          style={{ color: 'var(--lp-primary)', fontFamily: 'var(--font-nunito)' }}
+        >
+          {c.headingAccent}
+        </h2>
+
+        {/* Desktop: image bottom-anchored */}
+        <img
+          src="/face-map-v1/face-map-hook-2.svg"
+          alt=""
+          aria-hidden="true"
+          className="v19-img-b hidden md:block absolute bottom-0 left-1/2 w-auto object-contain object-bottom"
+          style={{ filter: FILTER_B }}
+        />
+
+        {/* Desktop: heading absolute top-right */}
+        <h2
+          className="hidden md:block absolute top-14 right-10 z-10
+                     font-extrabold text-[3.8rem] xl:text-[4.8rem]
+                     leading-[1.12] text-right [text-wrap:balance] max-w-[14ch]"
+          style={{ color: 'var(--lp-primary)', fontFamily: 'var(--font-nunito)' }}
+        >
+          {c.headingAccent}
+        </h2>
+      </div>
+
+      {/* ══════════════════════════════════════════════════════════════════
+          CTA — teal pill at the diagonal boundary
+      ══════════════════════════════════════════════════════════════════ */}
+      <div className="v19-cta absolute inset-0 flex items-center justify-center pointer-events-none z-30">
+        <div className="flex flex-col items-center gap-2 pointer-events-auto">
+          <CtaButton
+            onClick={onStart}
+            variant="blob"
+            size="lg"
+            style={{
+              fontFamily: 'var(--font-nunito)',
+              background: CTA_COLOR,
+              color: 'var(--lp-primary)',
+              boxShadow: [
+                '0 0 0 2.5px rgba(255,255,255,0.45)',
+                `0 0 32px ${CTA_COLOR}99`,
+                '0 6px 24px rgba(0,0,0,0.28)',
+              ].join(', '),
+            }}
+          >
+            {c.cta}
+          </CtaButton>
+
+          {c.subtext && (
+            <span
+              className="text-xs font-semibold tracking-wide text-white px-3 py-1 rounded-full"
+              style={{ background: 'rgba(4,47,46,0.65)', backdropFilter: 'blur(8px)' }}
+            >
+              {c.subtext}
+            </span>
+          )}
         </div>
       </div>
     </div>

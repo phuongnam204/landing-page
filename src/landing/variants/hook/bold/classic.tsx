@@ -1,8 +1,19 @@
 'use client';
 import type { HookSlotProps } from '../../../slots';
+import type { HookCopy } from '../../../copy';
 import { CtaButton } from '../../../../components/atoms/CtaButton';
 
-export function BoldClassicHook({ onStart }: HookSlotProps) {
+const DEFAULT_COPY: Required<HookCopy> = {
+  badge:         '',
+  heading:       'DA BẠN',
+  headingAccent: 'CẦN GÌ?',
+  subtext:       '60 giây phân tích — nhận kết quả cá nhân hóa về tình trạng da của bạn.',
+  cta:           'Nhận kết quả của tôi →',
+  hookImage:     '/face-map-hook.svg',
+};
+
+export function BoldClassicHook({ onStart, copy }: HookSlotProps) {
+  const c = { ...DEFAULT_COPY, ...copy };
   return (
     <div className="h-[100dvh] w-full flex flex-col md:flex-row overflow-hidden">
       <style>{`
@@ -63,9 +74,9 @@ export function BoldClassicHook({ onStart }: HookSlotProps) {
           className="text-5xl md:text-8xl font-extrabold tracking-tight text-center md:text-left leading-[1.15] md:leading-[1.15]"
           style={{ color: 'var(--lp-band-text)', fontFamily: 'var(--font-plus-jakarta)' }}
         >
-          DA BẠN
+          {c.heading}
           <br />
-          <span style={{ color: 'var(--lp-band-accent)' }}>CẦN GÌ?</span>
+          <span style={{ color: 'var(--lp-band-accent)' }}>{c.headingAccent}</span>
         </h1>
       </div>
 
@@ -75,17 +86,13 @@ export function BoldClassicHook({ onStart }: HookSlotProps) {
         style={{ background: 'var(--lp-bg-hero)' }}
       >
         <img
-          src="/face-map-hook.svg"
+          src={c.hookImage}
           alt="Phân tích vùng da"
           className="h-56 md:h-full max-h-[52vh] w-auto object-contain drop-shadow-xl"
         />
         <div className="flex flex-col items-center gap-4 text-center">
-          <p className="text-sm md:text-base text-cta/60 max-w-sm leading-relaxed">
-            Phân tích vùng da mặt chỉ trong 60 giây — để biết làn da bạn thực sự cần gì.
-          </p>
-          <CtaButton onClick={onStart} size="lg">
-            Soi da ngay →
-          </CtaButton>
+          <p className="text-sm md:text-base text-cta/60 max-w-sm leading-relaxed">{c.subtext}</p>
+          <CtaButton onClick={onStart} size="lg">{c.cta}</CtaButton>
         </div>
       </div>
     </div>

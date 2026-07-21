@@ -1,8 +1,19 @@
 'use client';
 import type { HookSlotProps } from '../../../slots';
+import type { HookCopy } from '../../../copy';
 import { CtaButton } from '../../../../components/atoms/CtaButton';
 
-export function BoldStackedHook({ onStart }: HookSlotProps) {
+const DEFAULT_COPY: Required<HookCopy> = {
+  badge:         '',
+  heading:       'Hết mụn này, mụn khác mọc.',
+  headingAccent: 'Vòng lặp đó có thể kết thúc.',
+  subtext:       'Đặt lịch ngay hoặc phân tích da trước — chọn cách phù hợp với bạn.',
+  cta:           'Tìm giải pháp phù hợp →',
+  hookImage:     '/face-map-hook.svg',
+};
+
+export function BoldStackedHook({ onStart, copy }: HookSlotProps) {
+  const c = { ...DEFAULT_COPY, ...copy };
   return (
     <div className="h-[100dvh] w-full flex flex-col overflow-hidden">
       <div
@@ -13,7 +24,8 @@ export function BoldStackedHook({ onStart }: HookSlotProps) {
           className="text-3xl md:text-5xl font-extrabold tracking-tight text-center leading-snug md:leading-snug [text-wrap:balance]"
           style={{ color: 'var(--lp-band-text)', fontFamily: 'var(--font-plus-jakarta)' }}
         >
-          Hết mụn này, mụn khác mọc. Vòng lặp đó có thể kết thúc.
+          {c.heading}<br />
+          <span style={{ color: 'var(--lp-band-accent)' }}>{c.headingAccent}</span>
         </h1>
       </div>
       <div
@@ -21,16 +33,12 @@ export function BoldStackedHook({ onStart }: HookSlotProps) {
         style={{ background: 'var(--lp-bg-hero)' }}
       >
         <img
-          src="/face-map-hook.svg"
+          src={c.hookImage}
           alt="Phân tích vùng da"
           className="h-36 md:h-48 w-auto object-contain"
         />
-        <p className="text-sm md:text-base text-cta/60 text-center max-w-md leading-relaxed">
-          Khi xử lý đúng nguyên nhân, không phải triệu chứng.
-        </p>
-        <CtaButton onClick={onStart} size="lg">
-          Soi da ngay →
-        </CtaButton>
+        <p className="text-sm md:text-base text-cta/60 text-center max-w-md leading-relaxed">{c.subtext}</p>
+        <CtaButton onClick={onStart} size="lg">{c.cta}</CtaButton>
       </div>
     </div>
   );

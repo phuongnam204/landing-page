@@ -152,6 +152,7 @@ export const programs: Program[] = [
     comboWith: 'maintenance-skin-health',
     sessions: 8,
     o2skinComboRef: '',
+    images:["/programs/edd6114c-7a56-48c5-b513-e3792c40d030.png", "/programs/phong-cham-soc-da-1.png"],
     referenceLink: 'https://o2skin.vn/dieu-tri-mun/lay-nhan-mun-y-khoa/',
   },
   {

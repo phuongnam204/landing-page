@@ -54,7 +54,7 @@ export function NumberedBadgeCirclesRight({
             </div>
 
             <CtaButton onClick={onContinue}>
-              Xem chương trình phù hợp &#8594;
+              O2 skin có gì đặc biệt ?
             </CtaButton>
           </div>
 

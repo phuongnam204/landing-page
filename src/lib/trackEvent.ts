@@ -14,6 +14,7 @@ export type TrackEventName =
   | 'expert_handoff_continue'
   | 'teaser_book'
   | 'teaser_skip'
+  | 'teaser_continue'
   | 'path_chosen';
 
 export function trackEvent(name: TrackEventName, payload: Record<string, unknown> = {}): void {

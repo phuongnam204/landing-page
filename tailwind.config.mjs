@@ -16,7 +16,10 @@ export default {
         'border-lavender': 'var(--lp-border-lavender)',
         'label-purple':    'var(--lp-label-purple)',
       },
-      fontFamily: { sans: ['var(--font-be-vietnam-pro)', 'Inter', 'sans-serif'] },
+      fontFamily: {
+        sans:  ['var(--font-be-vietnam-pro)', 'Inter', 'sans-serif'],
+        serif: ['var(--font-lora)', 'Georgia', 'serif'],
+      },
       borderRadius: { soft: 'var(--lp-radius-card)' },
     },
   },

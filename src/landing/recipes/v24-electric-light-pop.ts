@@ -12,4 +12,26 @@ export const v24ElectricLightPop: Recipe = {
     conversion: 'electric-light-pop',
     done:       'electric-light-pop',
   },
+  copy: {
+    hook: {
+      badge:         'Phân tích da tươi sáng',
+      heading:       'Da sáng, khoẻ',
+      headingAccent: 'bắt đầu từ bước đầu đúng.',
+      subtext:       'Một vài câu hỏi nhanh — để biết chính xác da bạn cần gì ngay bây giờ.',
+      cta:           'Bắt đầu phân tích',
+    },
+    minigame: {
+      intro: {
+        heading: 'Da bạn đang gặp điều gì?',
+        subtext:  'Chọn nhanh — để chúng tôi phân tích và đưa ra hướng đi ngay.',
+        cta:      'Chọn ngay',
+      },
+    },
+    payoff: {
+      resultCard: {
+        concern:  'Chúng tôi đã xác định được điều da bạn cần cải thiện.',
+        positive: 'Có một hướng đi tươi sáng hơn đang chờ bạn.',
+      },
+    },
+  },
 };
