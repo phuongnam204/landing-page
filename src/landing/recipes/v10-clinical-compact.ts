@@ -5,11 +5,11 @@ export const v10ClinicalCompact: Recipe = {
   label: 'v10 — Clinical Ocean / Compact',
   theme: 'ice',
   slots: {
-    hook: 'clinical-compact',
-    minigame: 'clinical-compact',
-    payoff: 'clinical-compact',
-    programs: 'clinical-compact',
+    hook:       'clinical-compact',
+    minigame:   'clinical-compact',
+    payoff:     'confetti-card-why-circles-quad',
+    programs:   'clinical-compact',
     conversion: 'clinical-compact',
-    done: 'clinical-compact',
+    done:       'clinical-compact',
   },
 };
