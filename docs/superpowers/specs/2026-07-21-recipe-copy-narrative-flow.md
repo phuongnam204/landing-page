@@ -193,3 +193,80 @@ copy: {
 **`Required<HookCopy>` cho DEFAULT_COPY:** Nếu sau này thêm field mới vào `HookCopy`, TypeScript sẽ báo lỗi tại mọi component chưa khai báo default — không thể bỏ sót.
 
 **Optional vs Required trên Recipe:** `copy` là optional ở mọi level (`RecipeCopy?`, `HookCopy?`, từng field `?`) — recipe nào không cần override thì không phải khai báo gì.
+
+**`hookImage` trong HookCopy:** Để các hook variant hiển thị ảnh có thể hoán đổi qua recipe, `HookCopy` thêm field `hookImage?: string` — component dùng `c.hookImage ?? '/face-map-hook.svg'` làm fallback.
+
+---
+
+## Phần bổ sung: Các thay đổi ngoài copy layer
+
+### A. Cải thiện minigame `electric-soft-swipe`
+
+Sau khi tách text ra copy layer, minigame cần 4 cải thiện độc lập nhau:
+
+| # | Vấn đề | Fix |
+|---|--------|-----|
+| 1 | Card style khác với face-map-cards gốc | Border 2px solid, background `var(--lp-bg-card)`, center card highlight màu accent |
+| 2 | Desktop: card bị co cụm, không tận dụng chiều ngang | `arcR` scale theo `offsetWidth` thay vì `offsetHeight` khi `isWide` |
+| 3 | Card phụ hai bên quá đậm | Giảm opacity: `Math.max(0.08, 1 - t * 0.55)` thay vì `max(0.12, 1 - t * 0.42)` |
+| 4 | Swipe quá nhạy | Tăng `DRAG_SENS` từ 4.2 lên 6.5 |
+
+**Card style mục tiêu** (dựa theo `face-map-cards.tsx`):
+- Non-center: `border: '2px solid var(--lp-border)'`, background `var(--lp-bg-card)`
+- Center: `border: '2px solid var(--lp-accent)'`, background `color-mix(in srgb, var(--lp-accent) 10%, var(--lp-bg-card))` + shadow nhẹ
+
+**Desktop arcR công thức mới:**
+```ts
+const arcR = isWide
+  ? Math.max(350, Math.round(container.offsetWidth * 0.32))
+  : Math.max(280, Math.round(container.offsetHeight * 0.72));
+```
+
+### B. Áp dụng `electric-soft-swipe` cho v01 và v02
+
+Sau khi cải thiện xong, áp dụng minigame này vào v01 và v02 kèm teaserPayoff `bold-classic`.
+
+**v01** (`v01-baseline.ts`): thêm `minigame: 'electric-soft-swipe'`, thêm `teaserPayoff: 'bold-classic'`.
+
+**v02** (`v02-lilac.ts`): thêm `minigame: 'electric-soft-swipe'`, thêm `teaserPayoff: 'bold-classic'`.
+
+Cả hai version đã có hook phù hợp, không cần thêm slot khác.
+
+### C. V16 — minigame và hook
+
+**Minigame:** Đổi từ `'natural-minimal'` sang `'story-day'` — đã có trong registry.
+
+**Hook — thử nghiệm `face-map-hook-2`:**
+- Asset mới: `/face-map-v1/face-map-hook-2.svg` (đã có sẵn trong `public/`)
+- `NaturalMinimalHook` hiện tại dùng `/face-map-hook.svg`. Sau khi Task 4 của copy layer cập nhật `HookSlotProps` với `copy?: HookCopy`, hook này có thể nhận `copy.hookImage`
+- V16 recipe thêm `copy.hook.hookImage = '/face-map-v1/face-map-hook-2.svg'` để swap ảnh mà không đổi layout
+
+`HookCopy` cần thêm field:
+```ts
+export type HookCopy = {
+  badge?:         string;
+  heading?:       string;
+  headingAccent?: string;
+  subtext?:       string;
+  cta?:           string;
+  hookImage?:     string;  // ← thêm mới
+};
+```
+
+`NaturalMinimalHook` sẽ destructure `copy` và dùng `copy?.hookImage ?? '/face-map-hook.svg'`.
+
+### D. Bug: Conversion không scroll được trên mobile
+
+**Root cause:** `ConversionOrganism.tsx` (line 145) truyền `overflow="hidden"` vào `SectionShell`, trong khi `SectionShell` đặt `h-[100dvh]`. Trên mobile, layout là `flex-col` (form trên, testimonials dưới) — nội dung dưới bị clip, người dùng không scroll xuống được.
+
+**Fix:** Đổi `overflow="hidden"` thành `overflow="auto"` trong `ConversionOrganism`.
+
+```tsx
+// Trước:
+<SectionShell bgVar="--lp-bg-payoff" overflow="hidden">
+
+// Sau:
+<SectionShell bgVar="--lp-bg-payoff" overflow="auto">
+```
+
+Áp dụng cho tất cả version dùng `ConversionOrganism` (hầu hết conversion variants).

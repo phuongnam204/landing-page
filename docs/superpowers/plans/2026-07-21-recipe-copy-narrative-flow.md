@@ -40,6 +40,7 @@ export type HookCopy = {
   headingAccent?: string;
   subtext?:       string;
   cta?:           string;
+  hookImage?:     string;   // path đến ảnh hero — component dùng làm fallback '/face-map-hook.svg'
 };
 
 export type MinigameCopy = {
@@ -226,6 +227,7 @@ const DEFAULT_COPY: Required<HookCopy> = {
   headingAccent: 'chưa khỏi hẳn',
   subtext:       'Vuốt trái / phải để xác định đúng tình trạng da — chỉ mất 30 giây.',
   cta:           'Bắt đầu vuốt →',
+  hookImage:     '/face-map-hook.svg',
 };
 
 export function ElectricSoftDarkHook({ onStart, copy }: HookSlotProps) {
@@ -245,7 +247,7 @@ export function ElectricSoftDarkHook({ onStart, copy }: HookSlotProps) {
       <div className="max-w-5xl mx-auto w-full px-5 relative z-10 flex flex-col md:flex-row items-center gap-8 md:gap-14 animate-fade-in-up">
         <div className="shrink-0 flex items-center justify-center">
           <img
-            src="/face-map-hook.svg"
+            src={c.hookImage}
             alt="Phân tích vùng da mụn"
             className="h-52 md:h-[340px] w-auto object-contain"
             style={{ filter: 'drop-shadow(0 0 28px color-mix(in srgb, var(--lp-accent) 50%, transparent))' }}
@@ -647,3 +649,307 @@ Kiểm tra từng step:
 Truy cập một version khác (vd `http://localhost:3000/v/v21-electric-classic`) — text phải vẫn là DEFAULT_COPY (text cũ), không bị thay đổi.
 
 - [ ] **Commit cuối nếu có hotfix nhỏ, sau đó done.**
+
+---
+
+## Task 9: Cải thiện minigame `electric-soft-swipe`
+
+**Files:**
+- Modify: `src/landing/variants/minigame/electric/soft-swipe.tsx`
+
+### 9a: Giảm độ nhạy swipe và opacity card phụ
+
+- [ ] **Sửa 2 hằng số ở đầu file:**
+
+```ts
+// Trước:
+const DRAG_SENS = 4.2;
+
+// Sau:
+const DRAG_SENS = 6.5;
+```
+
+```ts
+// Trong hàm cardVisual, tìm dòng:
+opacity: Math.max(0.12, 1 - t * 0.42),
+
+// Sửa thành:
+opacity: Math.max(0.08, 1 - t * 0.55),
+```
+
+### 9b: Fix desktop — arcR scale theo chiều ngang
+
+- [ ] **Trong hàm `renderFrame`, tìm dòng tính `arcR`:**
+
+```ts
+// Trước:
+const arcR = Math.max(280, Math.round(container.offsetHeight * 0.72));
+
+// Sau:
+const arcR = isWide
+  ? Math.max(350, Math.round(container.offsetWidth * 0.32))
+  : Math.max(280, Math.round(container.offsetHeight * 0.72));
+```
+
+Lưu ý: biến `isWide` đã được khai báo ngay sau đó trong cùng hàm — di chuyển khai báo `isWide` lên TRƯỚC dòng `arcR` để dùng được:
+
+```ts
+// Thứ tự mới trong renderFrame:
+const cx = container.offsetWidth / 2;
+const cy = container.offsetHeight + ARC_CY_OFFSET;
+const isWide = container.offsetWidth >= 600;
+const arcR = isWide
+  ? Math.max(350, Math.round(container.offsetWidth * 0.32))
+  : Math.max(280, Math.round(container.offsetHeight * 0.72));
+const baseW = Math.min(275, Math.max(200, Math.round(
+  isWide ? container.offsetWidth * 0.36 : container.offsetWidth * 0.52
+)));
+```
+
+### 9c: Card style giống `face-map-cards`
+
+- [ ] **Trong `renderFrame`, tìm khối `if (v.isCenter) { ... } else { ... }` và sửa toàn bộ:**
+
+```ts
+if (v.isCenter) {
+  el.style.background = 'color-mix(in srgb, var(--lp-accent) 10%, var(--lp-bg-card))';
+  el.style.boxShadow = '0 8px 28px color-mix(in srgb, var(--lp-accent) 22%, transparent)';
+  el.style.border = '2px solid var(--lp-accent)';
+  el.style.backdropFilter = 'none';
+} else {
+  el.style.background = 'var(--lp-bg-card)';
+  el.style.boxShadow = 'none';
+  el.style.border = '2px solid var(--lp-border)';
+  el.style.backdropFilter = 'none';
+}
+```
+
+- [ ] **Trong JSX card template**, tìm `style={{ ... border: '1px solid ... }}` ở initial style object và sửa border thành 2px + thêm background mặc định:
+
+```tsx
+style={{
+  position: 'absolute',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: 8,
+  padding: '12px 10px',
+  borderRadius: 16,
+  cursor: 'pointer',
+  userSelect: 'none',
+  textAlign: 'center',
+  border: '2px solid var(--lp-border)',
+  background: 'var(--lp-bg-card)',
+  willChange: 'transform, opacity',
+  transition: 'none',
+} as React.CSSProperties}
+```
+
+- [ ] **TypeScript check:**
+
+```bash
+npx tsc --noEmit 2>&1 | head -20
+```
+
+- [ ] **Commit:**
+
+```bash
+git add src/landing/variants/minigame/electric/soft-swipe.tsx
+git commit -m "fix(soft-swipe): card style, desktop arc spread, opacity and swipe sensitivity"
+```
+
+---
+
+## Task 10: Áp dụng `electric-soft-swipe` cho v01 và v02
+
+**Files:**
+- Modify: `src/landing/recipes/v01-baseline.ts`
+- Modify: `src/landing/recipes/v02-lilac.ts`
+
+- [ ] **Sửa `v01-baseline.ts`** — thêm `teaserPayoff` và đổi minigame:
+
+```ts
+import type { Recipe } from '../validateRecipe';
+
+export const v01Baseline: Recipe = {
+  id: 'v01-baseline',
+  label: 'v01 — Facemap + blossom + v04 workflow',
+  theme: 'blossom',
+  slots: {
+    hook:         'two-column',
+    teaserPayoff: 'bold-classic',
+    minigame:     'electric-soft-swipe',
+    payoff:       'confetti-card-why',
+    programs:     'grid-with-faq',
+    conversion:   'short-form-with-testimonials',
+    done:         'contact-info-with-video',
+  },
+};
+```
+
+- [ ] **Sửa `v02-lilac.ts`** — thêm `teaserPayoff` và đổi minigame:
+
+```ts
+import type { Recipe } from '../validateRecipe';
+
+export const vPreviewWizard: Recipe = {
+  id: 'v02-lilac',
+  label: 'Lilac',
+  theme: 'lilac',
+  slots: {
+    hook:         'face-dual',
+    teaserPayoff: 'bold-classic',
+    minigame:     'electric-soft-swipe',
+    payoff:       'playful-immersive',
+    programs:     'playful-immersive',
+    conversion:   'playful-immersive',
+    done:         'playful-immersive',
+  },
+};
+```
+
+- [ ] **Chạy tests để verify validateRecipe vẫn pass:**
+
+```bash
+npx vitest run
+```
+
+Expected: tất cả test pass.
+
+- [ ] **Commit:**
+
+```bash
+git add src/landing/recipes/v01-baseline.ts src/landing/recipes/v02-lilac.ts
+git commit -m "feat(v01,v02): add teaserPayoff and switch to electric-soft-swipe minigame"
+```
+
+---
+
+## Task 11: V16 — đổi minigame và thử hook image mới
+
+**Files:**
+- Modify: `src/landing/recipes/v16-natural-minimal.ts`
+- Modify: `src/landing/variants/hook/natural/minimal.tsx`
+
+### 11a: NaturalMinimalHook nhận copy (hookImage)
+
+`HookSlotProps` đã có `copy?: HookCopy` sau Task 2. `NaturalMinimalHook` chỉ cần destructure và dùng `hookImage`:
+
+- [ ] **Sửa `src/landing/variants/hook/natural/minimal.tsx`:**
+
+```tsx
+'use client';
+import type { HookSlotProps } from '../../../slots';
+import type { HookCopy } from '../../../copy';
+import { CtaButton } from '../../../../components/atoms/CtaButton';
+
+const DEFAULT_COPY: Required<HookCopy> = {
+  badge:         '',
+  heading:       'Mụn không phải lỗi của bạn.',
+  headingAccent: 'Nhưng cách xử lý',
+  subtext:       'Hiểu đúng — để lần này làm khác đi.',
+  cta:           'Soi da ngay →',
+  hookImage:     '/face-map-hook.svg',
+};
+
+export function NaturalMinimalHook({ onStart, copy }: HookSlotProps) {
+  const c = { ...DEFAULT_COPY, ...copy };
+  return (
+    <div className="h-[100dvh] w-full bg-[var(--lp-bg-hero)] flex items-center justify-center px-5 overflow-hidden">
+      <div className="max-w-2xl mx-auto w-full flex flex-col items-center gap-6 text-center animate-fade-in-up">
+        <img
+          src={c.hookImage}
+          alt="Phân tích vùng da"
+          className="h-36 md:h-52 w-auto object-contain"
+        />
+        <h1 className="font-bold text-4xl md:text-5xl text-cta leading-snug md:leading-snug [text-wrap:balance]" style={{ fontFamily: 'var(--font-nunito)' }}>
+          {c.heading}{' '}
+          <span className="text-[var(--lp-accent)]">{c.headingAccent}</span>{' '}
+          thì có thể.
+        </h1>
+        <p className="text-sm text-cta/55 max-w-xs leading-relaxed">
+          {c.subtext}
+        </p>
+        <CtaButton onClick={onStart} size="md">
+          {c.cta}
+        </CtaButton>
+      </div>
+    </div>
+  );
+}
+```
+
+### 11b: Cập nhật recipe v16
+
+- [ ] **Sửa `v16-natural-minimal.ts`:**
+
+```ts
+import type { Recipe } from '../validateRecipe';
+
+export const v16NaturalMinimal: Recipe = {
+  id: 'v16-natural-minimal',
+  label: 'v16 — Natural Sage / Minimal',
+  theme: 'matcha',
+  slots: {
+    hook:       'natural-minimal',
+    minigame:   'story-day',
+    payoff:     'natural-minimal',
+    programs:   'natural-minimal',
+    conversion: 'natural-minimal',
+    done:       'natural-minimal',
+  },
+  copy: {
+    hook: {
+      hookImage: '/face-map-v1/face-map-hook-2.svg',
+    },
+  },
+};
+```
+
+- [ ] **TypeScript check:**
+
+```bash
+npx tsc --noEmit 2>&1 | head -20
+```
+
+- [ ] **Commit:**
+
+```bash
+git add src/landing/variants/hook/natural/minimal.tsx src/landing/recipes/v16-natural-minimal.ts
+git commit -m "feat(v16): switch to story-day minigame, try face-map-hook-2 image"
+```
+
+---
+
+## Task 12: Fix conversion scroll bug trên mobile
+
+**Files:**
+- Modify: `src/landing/organisms/ConversionOrganism.tsx`
+
+**Root cause:** `SectionShell` có `h-[100dvh]` và default `overflow="hidden"`. Trên mobile, layout là `flex-col` (form + testimonials xếp chồng). Testimonials bị clip — không scroll được.
+
+- [ ] **Sửa dòng 145 trong `ConversionOrganism.tsx`:**
+
+```tsx
+// Trước:
+<SectionShell bgVar="--lp-bg-payoff" overflow="hidden">
+
+// Sau:
+<SectionShell bgVar="--lp-bg-payoff" overflow="auto">
+```
+
+- [ ] **Verify trên mobile viewport:**
+
+Truy cập bất kỳ version có conversion (vd `http://localhost:3000/v/v01-baseline`), đi đến bước conversion. Trên mobile (375px width), scroll xuống — phải thấy được TestimonialsBlock phía dưới form.
+
+- [ ] **Verify desktop không bị ảnh hưởng:**
+
+Trên desktop, conversion dùng `md:grid md:grid-cols-2` — form và testimonials song song, không cần scroll. Kiểm tra layout vẫn bình thường.
+
+- [ ] **Commit:**
+
+```bash
+git add src/landing/organisms/ConversionOrganism.tsx
+git commit -m "fix(conversion): allow mobile scroll to testimonials (overflow hidden → auto)"
+```
