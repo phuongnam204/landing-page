@@ -13,4 +13,32 @@ export const v17BoldClassic: Recipe = {
     conversion:   'bold-classic',
     done:         'bold-classic',
   },
+  copy: {
+    hook: {
+      badge:         'Điều trị mụn chuyên sâu',
+      heading:       'Da bạn gặp vấn đề?',
+      headingAccent: 'Đừng đoán mò, hãy tìm hiểu nó.',
+      subtext:       'Mỗi loại mụn có một lý do khác nhau. Tìm đúng lý do, chọn đúng cách điều trị.',
+      cta:           'Xác định nguyên nhân',
+    },
+    minigame: {
+      intro: {
+        heading: 'Mụn đang xuất hiện ở vùng nào?',
+        subtext:  'Chỉ ra vùng da trên bản đồ — chúng tôi phân tích và đưa ra hướng xử lý phù hợp.',
+        cta:      'Chọn vùng da',
+      },
+    },
+    payoff: {
+      resultCard: {
+        concern:  'Chúng tôi đã xác định được nguyên nhân cụ thể.',
+        positive: 'Và có giải pháp điều trị phù hợp cho bạn.',
+      },
+    },
+    teaserPayoff: {
+      heading:       'Chọn đúng vùng da —',
+      headingAccent: 'nhận ngay phác đồ điều trị riêng!',
+      subtext:       'Chỉ ra vùng mụn trên bản đồ da mặt. Hệ thống phân tích và gợi ý liệu trình điều trị phù hợp ngay sau đó — miễn phí.',
+      cta:           'Xác định ngay →',
+    },
+  },
 };

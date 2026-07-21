@@ -1,8 +1,19 @@
 'use client';
 import type { HookSlotProps } from '../../../slots';
+import type { HookCopy } from '../../../copy';
 import { CtaButton } from '../../../../components/atoms/CtaButton';
 
-export function BoldTypographicHook({ onStart }: HookSlotProps) {
+const DEFAULT_COPY: Required<HookCopy> = {
+  badge:         '',
+  heading:       'Soi da.',
+  headingAccent: '60 giây.',
+  subtext:       'Phân tích vùng mụn và nhận phác đồ cá nhân hóa — hoàn toàn miễn phí.',
+  cta:           'Soi da ngay →',
+  hookImage:     '',
+};
+
+export function BoldTypographicHook({ onStart, copy }: HookSlotProps) {
+  const c = { ...DEFAULT_COPY, ...copy };
   return (
     <div className="h-[100dvh] w-full flex flex-col overflow-hidden">
       <div
@@ -10,10 +21,10 @@ export function BoldTypographicHook({ onStart }: HookSlotProps) {
         style={{ background: 'var(--lp-band-bg)' }}
       >
         <h1
-          className="text-6xl md:text-9xl font-extrabold tracking-tight text-center leading-[0.9]"
+          className="text-[42px] md:text-[90px] font-extrabold tracking-tight text-center leading-[0.9]"
           style={{ color: 'var(--lp-band-text)', fontFamily: 'var(--font-plus-jakarta)' }}
         >
-          Soi da.
+          {c.heading}
         </h1>
       </div>
       <div
@@ -21,21 +32,19 @@ export function BoldTypographicHook({ onStart }: HookSlotProps) {
         style={{ background: 'var(--lp-bg-hero)' }}
       >
         <p
-          className="hook-can-text text-6xl md:text-9xl font-extrabold tracking-tight text-center leading-[0.9]"
+          className="hook-can-text text-[42px] md:text-[90px] font-extrabold tracking-tight text-center leading-[0.9]"
           style={{ color: 'var(--lp-band-accent)' }}
         >
-          60 giây.
+          {c.headingAccent}
         </p>
         <p
           className="hook-fade-in text-sm md:text-base text-cta/60 text-center max-w-md leading-relaxed"
           style={{ animationDelay: '0.55s' }}
         >
-          Phân tích vùng mụn và nhận phác đồ cá nhân hóa — hoàn toàn miễn phí.
+          {c.subtext}
         </p>
         <div className="hook-fade-in" style={{ animationDelay: '0.7s' }}>
-          <CtaButton onClick={onStart} size="lg">
-            Soi da ngay →
-          </CtaButton>
+          <CtaButton onClick={onStart} size="lg">{c.cta}</CtaButton>
         </div>
       </div>
     </div>

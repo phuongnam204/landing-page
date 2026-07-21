@@ -82,7 +82,7 @@ export default function LandingFlow({ recipe }: { recipe: Recipe }) {
       )}
 
       {step === 'teaserPayoff' && TeaserPayoff && (
-        <TeaserPayoff onContinue={() => transitionTo('minigame')} />
+        <TeaserPayoff onContinue={() => transitionTo('minigame')} copy={recipe.copy?.teaserPayoff} />
       )}
 
       {step === 'minigame' && Minigame && (

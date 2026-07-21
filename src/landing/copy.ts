@@ -21,8 +21,16 @@ export type PayoffCopy = {
   };
 };
 
+export type TeaserPayoffCopy = {
+  heading?:       string;
+  headingAccent?: string;
+  subtext?:       string;
+  cta?:           string;
+};
+
 export type RecipeCopy = {
-  hook?:     HookCopy;
-  minigame?: MinigameCopy;
-  payoff?:   PayoffCopy;
+  hook?:         HookCopy;
+  minigame?:     MinigameCopy;
+  payoff?:       PayoffCopy;
+  teaserPayoff?: TeaserPayoffCopy;
 };

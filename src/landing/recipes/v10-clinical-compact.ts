@@ -12,4 +12,27 @@ export const v10ClinicalCompact: Recipe = {
     conversion: 'clinical-compact',
     done:       'clinical-compact',
   },
+  copy: {
+    hook: {
+      badge:         'Phân tích da nhanh',
+      heading:       'Vấn đề da của bạn',
+      headingAccent: 'có nguyên nhân cụ thể.',
+      subtext:       '30 giây để xác định — thay vì nhiều tháng thử sản phẩm.',
+      cta:           'Phân tích ngay',
+      hookImage:     '/face-map-v2/face-map-hook-1.svg',
+    },
+    minigame: {
+      intro: {
+        heading: 'Chọn tình trạng da của bạn',
+        subtext:  'Chọn điều gần nhất với tình trạng bạn đang gặp.',
+        cta:      'Tiếp tục',
+      },
+    },
+    payoff: {
+      resultCard: {
+        concern:  'Vấn đề đã được xác định rõ.',
+        positive: 'Có hướng điều trị cụ thể cho bạn.',
+      },
+    },
+  },
 };

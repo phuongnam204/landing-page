@@ -1,7 +1,7 @@
 import type { SkinCondition } from '../content/quiz';
 import type { ProgramId } from '../content/programs';
 import type { ScoredProgram } from '../content/recommend';
-import type { HookCopy, MinigameCopy, PayoffCopy } from './copy';
+import type { HookCopy, MinigameCopy, PayoffCopy, TeaserPayoffCopy } from './copy';
 
 export type MinigameResult = {
   conditions: SkinCondition[];
@@ -47,6 +47,7 @@ export type ExpertHandoffSlotProps = {
 
 export type TeaserPayoffSlotProps = {
   onContinue: () => void;
+  copy?: TeaserPayoffCopy;
 };
 
 export type PathChooserSlotProps = {

@@ -14,7 +14,25 @@ export const v16NaturalMinimal: Recipe = {
   },
   copy: {
     hook: {
-      hookImage: '/face-map-v1/face-map-hook-2.svg',
+      badge:         'Một ngày cùng da bạn',
+      heading:       'Hiểu đúng da bạn',
+      headingAccent: 'qua một ngày',
+      subtext:       'Chúng tôi sẽ theo bạn qua một ngày để hiểu đúng tình trạng da của bạn.',
+      cta:           'Bắt đầu hành trình',
+      hookImage:     '/face-map-v1/face-map-hook-2.svg',
+    },
+    minigame: {
+      intro: {
+        heading: 'Hôm nay da bạn thế nào?',
+        subtext:  'Chọn cảnh huống gần nhất với ngày thường của bạn.',
+        cta:      'Bắt đầu',
+      },
+    },
+    payoff: {
+      resultCard: {
+        concern:  'Chúng tôi đã thấy rõ câu chuyện da của bạn.',
+        positive: 'Và biết chính xác bước tiếp theo phù hợp cho bạn.',
+      },
     },
   },
 };

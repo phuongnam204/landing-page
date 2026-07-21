@@ -320,7 +320,7 @@ export function ElectricSoftSwipeMinigame({ onComplete, copy }: MinigameSlotProp
     <div className="h-[100dvh] flex flex-col overflow-hidden" style={{ background: 'var(--lp-bg-hero)' }}>
       {/* Phone-width constraint on desktop */}
       <div
-        className="flex-1 flex flex-col overflow-hidden w-full"
+        className="flex-1 flex flex-col overflow-hidden w-full md:max-w-[480px] md:mx-auto"
         style={{ animation: 'fade-in 350ms ease-out both' }}
       >
         <style>{`
