@@ -5,11 +5,11 @@ export const v03Facemap: Recipe = {
   label: 'Face-map tự khai + ocean',
   theme: 'opal',
   slots: {
-    hook: 'bold-single',
-    minigame: 'face-map',
-    payoff: 'confetti-card',
-    programs: 'grid-with-faq',
+    hook:       'bold-single',
+    minigame:   'skin-scan-chat',
+    payoff:     'confetti-card-why-circles-quad',
+    programs:   'grid-with-faq',
     conversion: 'short-form-with-testimonials',
-    done: 'contact-info-with-video',
+    done:       'contact-info-with-video',
   },
 };
