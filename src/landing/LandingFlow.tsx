@@ -60,7 +60,7 @@ export default function LandingFlow({ recipe }: { recipe: Recipe }) {
 
   return (
     <div className={`overflow-hidden ${themeClass} ${containerClass}`}>
-      {step === 'hook' && Hook && <Hook onStart={nextAfterHook} />}
+      {step === 'hook' && Hook && <Hook onStart={nextAfterHook} copy={recipe.copy?.hook} />}
 
       {step === 'pathChooser' && PathChooser && (
         <PathChooser
@@ -94,14 +94,14 @@ export default function LandingFlow({ recipe }: { recipe: Recipe }) {
           setSelectedProgram(ranked[0]?.program.id ?? null);
           trackEvent('minigame_complete', { resultId: result.condition.id });
           transitionTo('payoff');
-        }} />
+        }} copy={recipe.copy?.minigame} />
       )}
 
       {step === 'payoff' && Payoff && minigameResult && (
         <Payoff result={minigameResult} onContinue={() => {
           trackEvent('payoff_view', { resultId: minigameResult.condition.id });
           nextAfterPayoff();
-        }} />
+        }} copy={recipe.copy?.payoff} />
       )}
 
       {step === 'expertHandoff' && ExpertHandoff && minigameResult && (
