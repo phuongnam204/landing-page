@@ -1,6 +1,7 @@
 'use client';
 import { useState, useRef, useCallback, useEffect } from 'react';
 import type { MinigameSlotProps } from '../../../slots';
+import type { MinigameCopy } from '../../../copy';
 import { skinConditions } from '../../../../content/quiz';
 import type { ConditionId } from '../../../../content/quiz';
 import { FaceDiagram, type Zone } from '../face-map';
@@ -41,6 +42,13 @@ const CARDS: SwipeCard[] = [
   { id: 'pores',   label: 'Lỗ chân lông to, ít mụn',      description: 'Lỗ chân lông nhìn thấy rõ, da xuất hiện đầu đen', conditionId: 'lo-chan-long', zones: ['nose', 'forehead'] },
   { id: 'clear',   label: 'Da khỏe, không vấn đề rõ rệt', description: 'Da khá ổn định, không có mụn hay kích ứng thường xuyên', conditionId: 'clean-skin', zones: [] },
 ];
+
+const DEFAULT_COPY: Required<MinigameCopy> = {
+  intro:    { heading: 'Chọn tình trạng da của bạn', subtext: 'Xoay bánh xe để duyệt qua các tình trạng da phổ biến, rồi chạm vào thẻ ở giữa để chọn.', cta: 'Bắt đầu →' },
+  wheel:    { heading: 'Da của bạn dạo này thế nào?', subtext: 'Vuốt sang trái để chọn mô tả phù hợp nhất' },
+  faceMap:  { heading: 'Vùng da nào bị ảnh hưởng?', subtext: 'Chạm để chọn hoặc bỏ chọn từng vùng' },
+  scanning: { heading: 'Đang phân tích...' },
+};
 
 const MIN_ANGLE = 0;
 const MAX_ANGLE = (CARDS.length - 1) * ARC_STEP;
@@ -93,12 +101,19 @@ function clampWithDamping(angle: number): number {
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-export function ElectricSoftSwipeMinigame({ onComplete }: MinigameSlotProps) {
+export function ElectricSoftSwipeMinigame({ onComplete, copy }: MinigameSlotProps) {
   // ─── State ──────────────────────────────────────────────────────────────────
   const [phase, setPhase] = useState<Phase>('intro');
   const [selectedCardIdx, setSelectedCardIdx] = useState<number | null>(null);
   const [selectedZones, setSelectedZones] = useState<Zone[]>([]);
   const [checkCardIdx, setCheckCardIdx] = useState<number | null>(null);
+
+  const c = {
+    intro:    { ...DEFAULT_COPY.intro,    ...copy?.intro    },
+    wheel:    { ...DEFAULT_COPY.wheel,    ...copy?.wheel    },
+    faceMap:  { ...DEFAULT_COPY.faceMap,  ...copy?.faceMap  },
+    scanning: { ...DEFAULT_COPY.scanning, ...copy?.scanning },
+  };
 
   // ─── Wheel refs (no re-render during gesture) ────────────────────────────────
   const wheelAngle = useRef(0);
@@ -375,10 +390,10 @@ export function ElectricSoftSwipeMinigame({ onComplete }: MinigameSlotProps) {
 
             <div className="text-center max-w-xs">
               <h2 className="font-extrabold text-xl mb-2" style={{ color: 'var(--lp-primary)' }}>
-                Chọn tình trạng da của bạn
+                {c.intro.heading}
               </h2>
               <p className="text-sm leading-relaxed" style={{ color: 'color-mix(in srgb, var(--lp-primary) 60%, transparent)' }}>
-                Xoay bánh xe để duyệt qua các tình trạng da phổ biến, rồi chạm vào thẻ ở giữa để chọn.
+                {c.intro.subtext}
               </p>
             </div>
 
@@ -387,7 +402,7 @@ export function ElectricSoftSwipeMinigame({ onComplete }: MinigameSlotProps) {
               className="px-8 py-3.5 rounded-full font-bold text-base text-white transition-all active:scale-[0.97]"
               style={{ background: 'var(--lp-accent)', boxShadow: '0 4px 18px color-mix(in srgb, var(--lp-accent) 35%, transparent)' }}
             >
-              Bắt đầu →
+              {c.intro.cta}
             </button>
           </div>
         )}
@@ -397,10 +412,10 @@ export function ElectricSoftSwipeMinigame({ onComplete }: MinigameSlotProps) {
           <div className="flex-1 flex flex-col" style={{ position: 'relative', overflow: 'hidden' }}>
             <div className="pt-6 pb-2 px-5 text-center">
               <h2 className="font-extrabold text-2xl md:text-4xl leading-snug" style={{ color: 'var(--lp-primary)' }}>
-                Da của bạn dạo này thế nào?
+                {c.wheel.heading}
               </h2>
               <p className="text-sm md:text-base mt-1" style={{ color: 'color-mix(in srgb, var(--lp-primary) 50%, transparent)' }}>
-                Vuốt sang trái để chọn mô tả phù hợp nhất
+                {c.wheel.subtext}
               </p>
             </div>
 
@@ -525,10 +540,10 @@ export function ElectricSoftSwipeMinigame({ onComplete }: MinigameSlotProps) {
           >
             <div className="text-center">
               <h2 className="font-extrabold text-lg leading-snug" style={{ color: 'var(--lp-primary)' }}>
-                Vùng da nào bị ảnh hưởng?
+                {c.faceMap.heading}
               </h2>
               <p className="text-xs mt-1" style={{ color: 'color-mix(in srgb, var(--lp-primary) 50%, transparent)' }}>
-                Chạm để chọn hoặc bỏ chọn từng vùng
+                {c.faceMap.subtext}
               </p>
             </div>
 
@@ -590,7 +605,7 @@ export function ElectricSoftSwipeMinigame({ onComplete }: MinigameSlotProps) {
           >
             <div className="text-center mb-1">
               <h2 className="font-extrabold text-lg" style={{ color: 'var(--lp-primary)' }}>
-                Đang phân tích...
+                {c.scanning.heading}
               </h2>
             </div>
 
