@@ -30,7 +30,7 @@ interface SwipeCard {
 
 const ARC_CY_OFFSET = 60;
 const ARC_STEP = 22;
-const DRAG_SENS = 4.2;
+const DRAG_SENS = 6.5;
 const SPRING_STIFFNESS = 0.2;
 const SPRING_THRESHOLD = 0.04;
 const DAMPING = 0.22;
@@ -83,7 +83,7 @@ function cardVisual(cardAngle: number, cx: number, cy: number, baseW: number, ar
     x, y,
     w: Math.max(minW, Math.round(baseW - t * baseW * 0.18)),
     h: Math.max(minH, Math.round(baseH - t * baseH * 0.19)),
-    opacity: Math.max(0.12, 1 - t * 0.42),
+    opacity: Math.max(0.08, 1 - t * 0.55),
     tilt: -cardAngle * 0.55,
     zIndex: Math.max(1, Math.round(20 - abs)),
     bgAlpha: Math.max(0.06, 1 - t * 0.92),
@@ -132,10 +132,12 @@ export function ElectricSoftSwipeMinigame({ onComplete, copy }: MinigameSlotProp
     // Dynamic center — works on desktop and mobile
     const cx = container.offsetWidth / 2;
     const cy = container.offsetHeight + ARC_CY_OFFSET;
-    // Arc radius scales with container height — taller screens get wider arcs
-    const arcR = Math.max(280, Math.round(container.offsetHeight * 0.72));
-    // Card width: ~52% of width on mobile, ~36% on desktop, capped at 275px
     const isWide = container.offsetWidth >= 600;
+    // Arc radius: wider screens get a wider arc, tall screens get a deeper arc
+    const arcR = isWide
+      ? Math.max(350, Math.round(container.offsetWidth * 0.32))
+      : Math.max(280, Math.round(container.offsetHeight * 0.72));
+    // Card width: ~52% of width on mobile, ~36% on desktop, capped at 275px
     const baseW = Math.min(275, Math.max(200, Math.round(
       isWide ? container.offsetWidth * 0.36 : container.offsetWidth * 0.52
     )));
@@ -159,13 +161,15 @@ export function ElectricSoftSwipeMinigame({ onComplete, copy }: MinigameSlotProp
       el.style.transform = `rotate(${v.tilt}deg)`;
 
       if (v.isCenter) {
-        el.style.background = 'white';
-        el.style.boxShadow = '0 10px 36px color-mix(in srgb, var(--lp-accent) 32%, transparent), 0 0 0 2px color-mix(in srgb, var(--lp-accent) 40%, transparent)';
+        el.style.background = 'color-mix(in srgb, var(--lp-accent) 10%, var(--lp-bg-card))';
+        el.style.boxShadow = '0 8px 28px color-mix(in srgb, var(--lp-accent) 22%, transparent)';
+        el.style.border = '2px solid var(--lp-accent)';
         el.style.backdropFilter = 'none';
       } else {
-        el.style.background = `rgba(255,255,255,${v.bgAlpha})`;
+        el.style.background = 'var(--lp-bg-card)';
         el.style.boxShadow = 'none';
-        el.style.backdropFilter = v.t < 1.5 ? 'blur(6px)' : 'none';
+        el.style.border = '2px solid var(--lp-border)';
+        el.style.backdropFilter = 'none';
       }
     });
 
@@ -432,22 +436,23 @@ export function ElectricSoftSwipeMinigame({ onComplete, copy }: MinigameSlotProp
                 <div
                   key={card.id}
                   ref={el => { cardRefs.current[i] = el; }}
-                  style={{
-                    position: 'absolute',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 8,
-                    padding: '12px 10px',
-                    borderRadius: 16,
-                    cursor: 'pointer',
-                    userSelect: 'none',
-                    textAlign: 'center',
-                    border: '1px solid color-mix(in srgb, var(--lp-accent) 18%, transparent)',
-                    willChange: 'transform, opacity',
-                    transition: 'none',
-                  } as React.CSSProperties}
+                    style={{
+                      position: 'absolute',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 8,
+                      padding: '12px 10px',
+                      borderRadius: 16,
+                      cursor: 'pointer',
+                      userSelect: 'none',
+                      textAlign: 'center',
+                      border: '2px solid var(--lp-border)',
+                      background: 'var(--lp-bg-card)',
+                      willChange: 'transform, opacity',
+                      transition: 'none',
+                    } as React.CSSProperties}
                 >
                   <div style={{
                     width: 40, height: 40, borderRadius: '50%',
