@@ -5,11 +5,11 @@ export const v25PlayfulCottonCandy: Recipe = {
   label: 'v25 — Playful Cotton Candy',
   theme: 'cotton-candy',
   slots: {
-    hook: 'playful-classic',
-    minigame: 'face-map',
-    payoff: 'playful-classic',
-    programs: 'playful-classic',
+    hook:       'playful-classic',
+    minigame:   'story-day',
+    payoff:     'confetti-card-why-video-split',
+    programs:   'playful-classic',
     conversion: 'playful-classic',
-    done: 'playful-classic',
+    done:       'playful-classic',
   },
 };
