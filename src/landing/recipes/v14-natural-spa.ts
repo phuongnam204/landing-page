@@ -5,12 +5,12 @@ export const v14NaturalSpa: Recipe = {
   label: 'v14 — Natural Sage / Spa',
   theme: 'dusty-rose',
   slots: {
-    hook:       'natural-spa',
-    minigame:   'natural-spa',
-    payoff:     'natural-spa',
-    programs:   'natural-spa',
-    conversion: 'natural-spa',
-    done:       'natural-spa',
+    hook:          'natural-spa',
+    minigame:      'natural-spa',
+    payoff:        'confetti-card-why-video-split',
+    programs:      'natural-spa',
+    conversion:    'natural-spa',
+    done:          'natural-spa',
     expertHandoff: 'natural-spa',
   },
 };

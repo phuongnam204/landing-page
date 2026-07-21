@@ -5,11 +5,11 @@ export const v07PlayfulImmersive: Recipe = {
   label: 'v07 — Playful Blossom / Immersive',
   theme: 'berry',
   slots: {
-    hook: 'playful-immersive',
-    minigame: 'playful-immersive',
-    payoff: 'playful-immersive',
-    programs: 'playful-immersive',
+    hook:       'playful-immersive',
+    minigame:   'playful-immersive',
+    payoff:     'confetti-card-why-video-split',
+    programs:   'playful-immersive',
     conversion: 'playful-immersive',
-    done: 'playful-immersive',
+    done:       'playful-immersive',
   },
 };
