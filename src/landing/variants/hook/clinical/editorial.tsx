@@ -42,12 +42,12 @@ export function ClinicalEditorialHook({ onStart, copy }: HookSlotProps) {
             <CtaButton onClick={onStart} size="lg">{c.cta}</CtaButton>
           </div>
         </div>
-        <div className="hidden md:flex items-center justify-center">
+        <div className="flex justify-center pb-10 md:pb-0 md:items-center md:justify-center">
           <div className="bg-[var(--lp-bg-minigame)] p-6 shadow-md rounded-[var(--lp-radius-card)]">
             <img
               src={c.hookImage}
               alt="Phân tích vùng da mụn"
-              className="w-full max-w-[320px] h-auto object-contain"
+              className="w-full max-w-[160px] md:max-w-[320px] h-auto object-contain"
             />
           </div>
         </div>
