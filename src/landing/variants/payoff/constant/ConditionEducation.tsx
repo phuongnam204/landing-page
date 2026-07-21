@@ -10,7 +10,7 @@ export type ConditionEducation = {
 
 export const CONDITION_EDUCATION: Partial<Record<ConditionId, ConditionEducation>> = {
   'da-nhon-mun-viem': {
-    whyTitle: 'Điều gì xảy ra bên dưới làn da của bạn?',
+    whyTitle: 'Tại sao da nhờn vẫn bị mụn viêm dù rửa mặt cẩn thận?',
     steps: [
       { title: 'Tuyến bã nhờn hoạt động quá mức', body: 'Da sản xuất bã nhờn nhiều hơn cần thiết, bịt lỗ chân lông và tạo điều kiện cho vi khuẩn P.acnes phát triển bên trong — nguyên nhân trực tiếp của mụn viêm.' },
       { title: 'Viêm nhiễm hình thành dưới da', body: 'Vi khuẩn kích hoạt phản ứng miễn dịch — tạo ra nốt mụn sưng đỏ và mủ. Đây là giai đoạn gây tổn thương da và thâm nếu không can thiệp sớm.' },
@@ -20,7 +20,7 @@ export const CONDITION_EDUCATION: Partial<Record<ConditionId, ConditionEducation
     expertName: 'BS. Chuyên khoa Da liễu, o2skin',
   },
   'lo-chan-long': {
-    whyTitle: 'Điều gì xảy ra bên dưới làn da của bạn?',
+    whyTitle: 'Tại sao lỗ chân lông to ra dù dùng nhiều sản phẩm thu nhỏ?',
     steps: [
       { title: 'Bã nhờn và tế bào chết tích tụ trong lỗ chân lông', body: 'Lỗ chân lông bị nhồi đầy dần, giãn to theo thời gian và hình thành đầu đen — ngay cả khi da được rửa sạch hàng ngày.' },
       { title: 'Collagen xung quanh lỗ chân lông suy giảm', body: 'Mô da giữ thành lỗ chân lông săn chắc bị mỏng đi theo tuổi và tổn thương — khiến lỗ chân lông nhìn to hơn kể cả khi sạch.' },
@@ -30,7 +30,7 @@ export const CONDITION_EDUCATION: Partial<Record<ConditionId, ConditionEducation
     expertName: 'BS. Chuyên khoa Da liễu, o2skin',
   },
   'da-nhay-cam': {
-    whyTitle: 'Điều gì đang xảy ra với làn da của bạn?',
+    whyTitle: 'Tại sao làn da của bạn phản ứng với hầu hết mọi thứ?',
     steps: [
       { title: 'Hàng rào bảo vệ da bị suy yếu', body: 'Da nhạy cảm có lớp lipid mỏng hơn bình thường — khiến tác nhân bên ngoài như UV, khói bụi và mỹ phẩm xâm nhập sâu dễ dàng hơn mức bình thường.' },
       { title: 'Hệ miễn dịch trong da phản ứng quá mức', body: 'Khi gặp kích thích dù nhỏ, hệ miễn dịch kích hoạt phản ứng viêm — gây mẩn đỏ và ngứa ngay cả với sản phẩm được quảng cáo là nhẹ nhàng.' },
@@ -40,7 +40,7 @@ export const CONDITION_EDUCATION: Partial<Record<ConditionId, ConditionEducation
     expertName: 'BS. Chuyên khoa Da liễu, o2skin',
   },
   'mun-noi-tiet': {
-    whyTitle: 'Điều gì đang xảy ra trên da của bạn?',
+    whyTitle: 'Tại sao mụn bùng phát theo chu kỳ dù bạn chăm sóc da đúng cách?',
     steps: [
       { title: 'Hormone androgen kích thích tuyến bã nhờn tăng tiết', body: 'Sự thay đổi hormone — trước kỳ kinh, khi stress hoặc thay đổi thuốc — khiến tuyến bã nhờn ở cằm và quai hàm tiết nhiều bất thường, tạo điều kiện cho mụn bùng phát.' },
       { title: 'Mụn nội tiết không phải lỗi của việc chăm sóc da', body: 'Ngay cả với routine đúng chuẩn, mụn nội tiết vẫn tái phát — vì nguyên nhân nằm bên trong cơ thể, không phải bề mặt da. Đây không phải do bạn chăm sóc da sai.' },
@@ -70,7 +70,7 @@ export const CONDITION_EDUCATION: Partial<Record<ConditionId, ConditionEducation
     expertName: 'BS. Chuyên khoa Da liễu, o2skin',
   },
   'mun-trung-ca': {
-    whyTitle: 'Điều gì xảy ra bên dưới làn da của bạn?',
+    whyTitle: 'Tại sao mụn trứng cá cứ tái phát dù bạn đã dùng nhiều cách?',
     steps: [
       { title: 'Tuyến bã nhờn tiết quá mức', body: 'Tuyến bã nhờn sản xuất nhiều dầu hơn cần thiết, bít lỗ chân lông và tạo môi trường cho vi khuẩn P.acnes sinh sôi — đây là bước đầu tiên hình thành mụn trứng cá.' },
       { title: 'Vi khuẩn gây viêm và sưng', body: 'Vi khuẩn trong lỗ chân lông bị bít kích hoạt phản ứng viêm của cơ thể, dẫn đến mụn sưng đỏ, đau và có mủ. Nặn sai cách có thể đẩy viêm sâu hơn và gây sẹo.' },
