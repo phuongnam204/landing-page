@@ -142,7 +142,7 @@ export function ConversionOrganism({ selectedProgramId, minigameResult, onSubmit
   }
 
   return (
-    <SectionShell bgVar="--lp-bg-payoff" overflow="hidden">
+    <SectionShell bgVar="--lp-bg-payoff" overflow="auto">
       <div className="w-full max-w-5xl mx-auto px-5 py-8 md:py-12 flex flex-col md:grid md:grid-cols-2 md:gap-10 md:items-start animate-fade-in-up">
         <form
           onSubmit={handleSubmit}
