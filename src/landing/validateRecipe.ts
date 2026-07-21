@@ -1,3 +1,5 @@
+import type { RecipeCopy } from './copy';
+
 export type RecipeSlots = {
   hook: string;
   minigame: string;
@@ -17,6 +19,7 @@ export type Recipe = {
   theme?: string;
   chipColor?: { bg: string; text: string; label: string };
   slots: RecipeSlots;
+  copy?: RecipeCopy;
 };
 
 export type ValidationResult =

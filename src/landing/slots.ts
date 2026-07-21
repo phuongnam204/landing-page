@@ -1,6 +1,7 @@
 import type { SkinCondition } from '../content/quiz';
 import type { ProgramId } from '../content/programs';
 import type { ScoredProgram } from '../content/recommend';
+import type { HookCopy, MinigameCopy, PayoffCopy } from './copy';
 
 export type MinigameResult = {
   conditions: SkinCondition[];
@@ -10,15 +11,17 @@ export type MinigameResult = {
   triggerNote: string;
 };
 
-export type HookSlotProps = { onStart: () => void };
+export type HookSlotProps = { onStart: () => void; copy?: HookCopy };
 
 export type MinigameSlotProps = {
   onComplete: (result: MinigameResult) => void;
+  copy?: MinigameCopy;
 };
 
 export type PayoffSlotProps = {
   result: MinigameResult;
   onContinue: () => void;
+  copy?: PayoffCopy;
 };
 
 export type ProgramsSlotProps = {
