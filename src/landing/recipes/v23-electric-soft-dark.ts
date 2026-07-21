@@ -12,4 +12,25 @@ export const v23ElectricSoftDark: Recipe = {
     conversion: 'electric-soft-dark',
     done:       'electric-soft-dark',
   },
+  copy: {
+    hook: {
+      heading:       'Da bạn chưa khỏi hẳn?',
+      headingAccent: 'Cùng tìm hiểu nguyên nhân nhé!',
+      cta:           'Bắt đầu →',
+    },
+    minigame: {
+      intro: {
+        heading: 'Cho chúng tôi biết tình trạng da của bạn nha!',
+        subtext: 'Xoay bánh xe để duyệt, chạm vào thẻ ở giữa để chọn.',
+      },
+      wheel: {
+        heading: 'Vuốt sang phải để lựa chọn tình trạng da của bạn',
+      },
+    },
+    payoff: {
+      resultCard: {
+        concern: 'Hmm, da của bạn đang cần được chú ý...',
+      },
+    },
+  },
 };
