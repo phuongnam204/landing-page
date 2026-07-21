@@ -6,10 +6,15 @@ export const v16NaturalMinimal: Recipe = {
   theme: 'matcha',
   slots: {
     hook:       'natural-minimal',
-    minigame:   'natural-minimal',
+    minigame:   'story-day',
     payoff:     'natural-minimal',
     programs:   'natural-minimal',
     conversion: 'natural-minimal',
     done:       'natural-minimal',
+  },
+  copy: {
+    hook: {
+      hookImage: '/face-map-v1/face-map-hook-2.svg',
+    },
   },
 };
