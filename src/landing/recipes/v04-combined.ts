@@ -5,7 +5,7 @@ export const v04Combined: Recipe = {
   label: 'v04 — Programs+FAQ / Conversion+Testimonial',
   theme: 'coral',
   slots: {
-    hook:       'bold-single',
+    hook:       'playful-circle-blob',
     minigame:   'face-map',
     payoff:     'confetti-card-why-video-split',
     programs:   'grid-with-faq',
@@ -14,11 +14,12 @@ export const v04Combined: Recipe = {
   },
   copy: {
     hook: {
-      badge:         'Bản đồ vùng mụn',
-      heading:       'Mụn của bạn',
-      headingAccent: 'không phải ngẫu nhiên.',
-      subtext:       'Vị trí mụn tiết lộ nhiều hơn bạn nghĩ về nguyên nhân bên trong cơ thể.',
+      badge:         '',
+      heading:       'Hiểu đúng da,',
+      headingAccent: 'mọi thứ thay đổi.',
+      subtext:       'Bản đồ vùng mụn phân tích chính xác nguyên nhân — 60 giây để biết da bạn đang cần gì.',
       cta:           'Xem bản đồ da của tôi',
+      hookImage:     '/image-hook/Picture6.jpg',
     },
     minigame: {
       intro: {
