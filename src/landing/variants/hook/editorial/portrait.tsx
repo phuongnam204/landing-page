@@ -70,21 +70,19 @@ export function EditorialPortraitHook({ onStart, copy }: HookSlotProps) {
           )}
 
           <h1
-            className="font-serif font-bold leading-[1.06] [text-wrap:balance]"
-            style={{ fontSize: 'clamp(2.4rem, 3.8vw, 4rem)', color: 'var(--lp-primary)', margin: 0 }}
+            className="font-serif font-bold leading-[1.06]"
+            style={{ fontSize: 'clamp(2.4rem, 3.8vw, 4rem)', margin: '0 0 1.25rem 0' }}
           >
-            {c.heading}
+            <span className="block [text-wrap:balance]" style={{ color: 'var(--lp-primary)' }}>
+              {c.heading}
+            </span>
+            <span className="relative inline-block">
+              <span className="block italic" style={{ color: 'var(--lp-accent)' }}>
+                {c.headingAccent}
+              </span>
+              <Squiggle className="w-full" />
+            </span>
           </h1>
-
-          <div className="relative inline-block mb-5">
-            <h1
-              className="font-serif font-bold italic leading-[1.06]"
-              style={{ fontSize: 'clamp(2.4rem, 3.8vw, 4rem)', color: 'var(--lp-accent)', margin: 0 }}
-            >
-              {c.headingAccent}
-            </h1>
-            <Squiggle className="w-full" />
-          </div>
 
           <p
             className="text-sm leading-relaxed max-w-sm mb-7"
@@ -156,33 +154,18 @@ export function EditorialPortraitHook({ onStart, copy }: HookSlotProps) {
 
           <h1
             className="font-serif font-bold leading-[1.08]"
-            style={{ fontSize: 'clamp(2rem, 8vw, 2.4rem)', color: 'var(--lp-primary)', margin: 0 }}
+            style={{ fontSize: 'clamp(2rem, 8vw, 2.4rem)', margin: '0 0 1.25rem 0' }}
           >
-            {c.heading}
+            <span className="block [text-wrap:balance]" style={{ color: 'var(--lp-primary)' }}>
+              {c.heading}
+            </span>
+            <span className="relative inline-block">
+              <span className="block italic" style={{ color: 'var(--lp-accent)' }}>
+                {c.headingAccent}
+              </span>
+              <Squiggle className="w-full" />
+            </span>
           </h1>
-
-          <div className="relative inline-block mb-5">
-            <h1
-              className="font-serif font-bold italic leading-[1.08]"
-              style={{ fontSize: 'clamp(2rem, 8vw, 2.4rem)', color: 'var(--lp-accent)', margin: 0 }}
-            >
-              {c.headingAccent}
-            </h1>
-            <svg
-              aria-hidden="true"
-              viewBox="0 0 160 8"
-              fill="none"
-              className="w-full"
-              style={{ height: 7, display: 'block', marginTop: -1 }}
-            >
-              <path
-                d="M2 5C12 2 22 7 35 5C48 3 58 7 72 5C86 3 96 7 110 5C124 3 134 7 148 5C153 3.5 157 5 159 4"
-                stroke="var(--lp-accent)"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-            </svg>
-          </div>
 
           <p
             className="text-sm leading-relaxed max-w-[280px] mb-6"
