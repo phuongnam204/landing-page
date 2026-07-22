@@ -19,7 +19,7 @@ export const v17BoldClassic: Recipe = {
       heading:       'Da bạn',
       headingAccent: 'có bản đồ riêng.',
       subtext:       'Mỗi loại mụn có một lý do khác nhau. Tìm đúng lý do, chọn đúng cách điều trị.',
-      cta:           'Xác định nguyên nhân',
+      cta:           'Tìm hiểu ngay',
     },
     minigame: {
       intro: {
