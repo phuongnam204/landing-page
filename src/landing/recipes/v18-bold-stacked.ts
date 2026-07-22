@@ -2,7 +2,7 @@ import type { Recipe } from '../validateRecipe';
 
 export const v18BoldStacked: Recipe = {
   id: 'v18-bold-stacked',
-  label: 'v18 — Bold Golden / Stacked',
+  label: 'v18 — Bold Rose / Stacked',
   theme: 'rose-vivid',
   slots: {
     hook:       'editorial-portrait',
