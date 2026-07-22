@@ -5,7 +5,7 @@ export const v18BoldStacked: Recipe = {
   label: 'v18 — Bold Golden / Stacked',
   theme: 'rose-vivid',
   slots: {
-    hook:       'bold-stacked',
+    hook:       'editorial-portrait',
     minigame:   'bold-stacked',
     payoff:     'bold-stacked',
     programs:   'bold-stacked',
@@ -16,9 +16,9 @@ export const v18BoldStacked: Recipe = {
   copy: {
     hook: {
       badge:         'Phân tích da tức thì',
-      heading:       'Da bạn.',
-      headingAccent: 'Vấn đề thật. Giải pháp thật.',
-      subtext:       'Không quảng cáo thêm. Chỉ cần xác định đúng — và xử lý đúng.',
+      heading:       'Dùng đủ thứ',
+      headingAccent: 'vẫn nổi mụn?',
+      subtext:       'Không phải sản phẩm sai — có thể là chưa đúng nguyên nhân. Chúng tôi giúp bạn tìm ra.',
       cta:           'Bắt đầu ngay',
     },
     minigame: {
