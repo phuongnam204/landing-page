@@ -107,7 +107,7 @@ export function EditorialPortraitHook({ onStart, copy }: HookSlotProps) {
       {/* ── Tagline bar (desktop only) ── */}
       <div
         className="hidden md:flex items-center gap-4 px-10 py-3 border-t shrink-0"
-        style={{ background: '#fff', borderColor: 'var(--lp-border)' }}
+        style={{ background: 'var(--lp-bg-card)', borderColor: 'var(--lp-border)' }}
       >
         <p
           className="font-serif italic text-sm"
