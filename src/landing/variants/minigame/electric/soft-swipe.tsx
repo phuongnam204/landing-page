@@ -83,7 +83,7 @@ function cardVisual(cardAngle: number, cx: number, cy: number, baseW: number, ar
     x, y,
     w: Math.max(minW, Math.round(baseW - t * baseW * 0.18)),
     h: Math.max(minH, Math.round(baseH - t * baseH * 0.19)),
-    opacity: Math.max(0.08, 1 - t * 0.55),
+    opacity: Math.max(0.08, 1 - t * 0.65),
     tilt: -cardAngle * 0.55,
     zIndex: Math.max(1, Math.round(20 - abs)),
     bgAlpha: Math.max(0.06, 1 - t * 0.92),
@@ -135,12 +135,12 @@ export function ElectricSoftSwipeMinigame({ onComplete, copy }: MinigameSlotProp
     const isWide = container.offsetWidth >= 600;
     // Arc radius: wider screens get a wider arc, tall screens get a deeper arc
     const arcR = isWide
-      ? Math.max(350, Math.round(container.offsetWidth * 0.32))
+      ? Math.max(400, Math.round(container.offsetWidth * 0.38))
       : Math.max(280, Math.round(container.offsetHeight * 0.72));
-    // Card width: ~52% of width on mobile, ~36% on desktop, capped at 275px
-    const baseW = Math.min(275, Math.max(200, Math.round(
-      isWide ? container.offsetWidth * 0.36 : container.offsetWidth * 0.52
-    )));
+    // Card width: 19% of width on desktop (capped 190–260px), 52% on mobile (capped 190–240px)
+    const baseW = isWide
+      ? Math.min(260, Math.max(190, Math.round(container.offsetWidth * 0.19)))
+      : Math.min(240, Math.max(190, Math.round(container.offsetWidth * 0.52)));
     const centerIdx = Math.round(wheelAngle.current / ARC_STEP);
 
     CARDS.forEach((_, i) => {
@@ -320,7 +320,7 @@ export function ElectricSoftSwipeMinigame({ onComplete, copy }: MinigameSlotProp
     <div className="h-[100dvh] flex flex-col overflow-hidden" style={{ background: 'var(--lp-bg-hero)' }}>
       {/* Phone-width constraint on desktop */}
       <div
-        className="flex-1 flex flex-col overflow-hidden w-full md:max-w-[480px] md:mx-auto"
+        className="flex-1 flex flex-col overflow-hidden w-full"
         style={{ animation: 'fade-in 350ms ease-out both' }}
       >
         <style>{`
@@ -330,24 +330,26 @@ export function ElectricSoftSwipeMinigame({ onComplete, copy }: MinigameSlotProp
           @keyframes check-glow-pulse { 0%,100% { box-shadow: 0 0 18px #22c55e55, 0 6px 24px #22c55e33; } 50% { box-shadow: 0 0 40px #22c55eaa, 0 8px 40px #22c55e55; } }
         `}</style>
 
-        {/* Header bar */}
+        {/* Header bar — full width, content capped at max-w-6xl */}
         <div
-          className="sticky top-0 z-20 flex items-center justify-between px-5 md:px-10 py-3 md:py-4 border-b"
+          className="sticky top-0 z-20 border-b"
           style={{ borderColor: 'color-mix(in srgb, var(--lp-primary) 12%, transparent)', background: 'var(--lp-bg-hero)' }}
         >
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 md:w-11 md:h-11 rounded-full flex items-center justify-center flex-shrink-0"
-              style={{ background: 'var(--lp-primary)' }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
-                <circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
-              </svg>
+          <div className="flex items-center justify-between px-5 md:px-10 py-3 md:py-4 max-w-6xl mx-auto">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 md:w-11 md:h-11 rounded-full flex items-center justify-center flex-shrink-0"
+                style={{ background: 'var(--lp-primary)' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
+                  <circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+                </svg>
+              </div>
+              <div className="text-sm md:text-base font-bold" style={{ color: 'var(--lp-primary)' }}>O2skin · Kiểm tra da</div>
             </div>
-            <div className="text-sm md:text-base font-bold" style={{ color: 'var(--lp-primary)' }}>O2skin · Kiểm tra da</div>
-          </div>
-          <div className="text-xs md:text-sm font-semibold" style={{ color: 'color-mix(in srgb, var(--lp-primary) 50%, transparent)' }}>
-            {phase === 'intro' && 'Hướng dẫn'}
-            {phase === 'wheel' && `Thẻ ${Math.round(wheelAngle.current / ARC_STEP) + 1} / ${CARDS.length}`}
-            {(phase === 'face-map' || phase === 'scanning') && 'Bước 2 / 2'}
+            <div className="text-xs md:text-sm font-semibold" style={{ color: 'color-mix(in srgb, var(--lp-primary) 50%, transparent)' }}>
+              {phase === 'intro' && 'Hướng dẫn'}
+              {phase === 'wheel' && `Thẻ ${Math.round(wheelAngle.current / ARC_STEP) + 1} / ${CARDS.length}`}
+              {(phase === 'face-map' || phase === 'scanning') && 'Bước 2 / 2'}
+            </div>
           </div>
         </div>
 

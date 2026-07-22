@@ -47,11 +47,8 @@ export function PlayfulClassicPhotoHook({ onStart, copy }: HookSlotProps) {
             )}
 
             <h1
-              className="font-bold text-4xl md:text-[3rem] lg:text-[3.5rem] leading-tight [text-wrap:balance]"
-              style={{
-                color: 'var(--lp-primary)',
-                fontFamily: 'Georgia, "Times New Roman", serif',
-              }}
+              className="font-serif font-bold text-4xl md:text-[3rem] lg:text-[3.5rem] leading-tight [text-wrap:balance]"
+              style={{ color: 'var(--lp-primary)' }}
             >
               {c.heading}
               <br />
