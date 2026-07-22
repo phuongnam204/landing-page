@@ -15,9 +15,9 @@ export const v17BoldClassic: Recipe = {
   },
   copy: {
     hook: {
-      badge:         'Điều trị mụn chuyên sâu',
-      heading:       'Da bạn gặp vấn đề?',
-      headingAccent: 'Đừng đoán mò, hãy tìm hiểu nó.',
+      badge:         '',
+      heading:       'Da bạn',
+      headingAccent: 'có bản đồ riêng.',
       subtext:       'Mỗi loại mụn có một lý do khác nhau. Tìm đúng lý do, chọn đúng cách điều trị.',
       cta:           'Xác định nguyên nhân',
     },
