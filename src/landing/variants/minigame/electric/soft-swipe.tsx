@@ -1,4 +1,5 @@
 'use client';
+// arc-wheel minigame — electric soft swipe
 import { useState, useRef, useCallback, useEffect } from 'react';
 import type { MinigameSlotProps } from '../../../slots';
 import type { MinigameCopy } from '../../../copy';
@@ -131,16 +132,23 @@ export function ElectricSoftSwipeMinigame({ onComplete, copy }: MinigameSlotProp
     if (!container) return;
     // Dynamic center — works on desktop and mobile
     const cx = container.offsetWidth / 2;
-    const cy = container.offsetHeight + ARC_CY_OFFSET;
     const isWide = container.offsetWidth >= 600;
-    // Arc radius: wider screens get a wider arc, tall screens get a deeper arc
-    const arcR = isWide
-      ? Math.max(400, Math.round(container.offsetWidth * 0.38))
-      : Math.max(280, Math.round(container.offsetHeight * 0.72));
     // Card width: 19% of width on desktop (capped 190–260px), 52% on mobile (capped 190–240px)
     const baseW = isWide
       ? Math.min(260, Math.max(190, Math.round(container.offsetWidth * 0.19)))
       : Math.min(240, Math.max(190, Math.round(container.offsetWidth * 0.52)));
+    // Compute half-card height so we can prevent cards from overflowing above the canvas
+    const halfCardH = Math.round(Math.round(baseW * 1.26) / 2);
+    // On wide screens, push the arc center slightly deeper so cards stay within canvas
+    const arcCyOffset = isWide
+      ? Math.max(ARC_CY_OFFSET, Math.round(container.offsetHeight * 0.18))
+      : ARC_CY_OFFSET;
+    const arcCy = container.offsetHeight + arcCyOffset;
+    // Cap arc radius so the topmost card never clips above canvas top (8px margin)
+    const maxSafeArcR = arcCy - halfCardH - 8;
+    const arcR = isWide
+      ? Math.min(maxSafeArcR, Math.max(300, Math.round(container.offsetWidth * 0.38)))
+      : Math.max(280, Math.round(container.offsetHeight * 0.72));
     const centerIdx = Math.round(wheelAngle.current / ARC_STEP);
 
     CARDS.forEach((_, i) => {
@@ -148,7 +156,7 @@ export function ElectricSoftSwipeMinigame({ onComplete, copy }: MinigameSlotProp
       if (!el) return;
       // i * STEP - wheelAngle: positive = right of center, negative = left
       const angle = i * ARC_STEP - wheelAngle.current;
-      const v = cardVisual(angle, cx, cy, baseW, arcR);
+      const v = cardVisual(angle, cx, arcCy, baseW, arcR);
 
       if (v.hidden) { el.style.display = 'none'; return; }
       el.style.display = 'flex';

@@ -5,7 +5,7 @@ export const v21ElectricClassic: Recipe = {
   label: 'v21 — Electric Magenta / Classic',
   theme: 'magenta',
   slots: {
-    hook:       'electric-classic',
+    hook:       'editorial-sassa',
     minigame:   'face-map',
     payoff:     'confetti-card-why-circles-quad',
     programs:   'electric-classic',

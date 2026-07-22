@@ -47,7 +47,7 @@ export function PlayfulCircleBlobHook({ onStart, copy }: HookSlotProps) {
           xmlns="http://www.w3.org/2000/svg"
           aria-hidden="true"
         >
-          <path fill="var(--lp-primary)" d={BLOB_PATH} />
+          <path fill="var(--lp-accent)" d={BLOB_PATH} />
         </svg>
 
         {/* Circle photo — centered, 138px mobile / 260px desktop */}
