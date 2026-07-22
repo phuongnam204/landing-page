@@ -1,0 +1,312 @@
+# Task: Payoff UX — 3 thay đổi
+
+## Context
+
+Dự án Next.js 15 landing page cho phòng khám O2skin. File cần thay đổi chính là `src/landing/variants/payoff/ConfettiCardWhyPayoff.tsx` — đây là shared organism được dùng bởi toàn bộ payoff variants trong hệ thống multi-version. Bất kỳ thay đổi nào tại đây sẽ lan ra tất cả versions.
+
+Luồng payoff hiện tại:
+```
+Section 1: Kết quả (ResultComp)
+Section 2: Why (WhySection)
+Section 3: Benefit (BenefitComp)
+Section 4: Feature + CTA (FeatureComp)
+```
+
+Luồng sau khi thay đổi:
+```
+Section 1: Kết quả (ResultComp)
+Section 2: Why (WhySection)
+Section 2.5: Clinic Intro (ClinicIntroSection) ← MỚI
+Section 3: Benefit (BenefitComp)
+Section 4: Feature + CTA (FeatureComp)
+```
+
+---
+
+## Thay đổi 1: Thay toàn bộ nội dung `ConfettiCardWhyPayoff.tsx`
+
+Mở `src/landing/variants/payoff/ConfettiCardWhyPayoff.tsx` và **thay thế toàn bộ nội dung** bằng đoạn code dưới đây:
+
+```tsx
+'use client';
+import React, { useEffect, useRef, useState } from 'react';
+import type { PayoffSlotProps, MinigameResult } from '../../slots';
+import type { ConditionId } from '../../../content/quiz';
+import { NumberedBadgeCirclesRight, Carousel } from './feature-layouts';
+import { CONDITION_EDUCATION } from './constant/ConditionEducation';
+import { CtaButton } from '../../../components/atoms/CtaButton';
+import { ResultCard } from './result-layouts/ResultCard';
+
+// ─── WhySection ───────────────────────────────────────────────────────────────
+
+function WhySection({ conditionId, onScrollDown }: { conditionId: ConditionId; onScrollDown: () => void }) {
+  const edu = CONDITION_EDUCATION[conditionId]!;
+  return (
+    <div className="max-w-lg md:max-w-3xl mx-auto px-5 py-10 flex flex-col gap-6">
+      <h2 className="font-extrabold text-xl md:text-2xl text-cta">{edu.whyTitle}</h2>
+      <div className="flex flex-col gap-4">
+        {edu.steps.map((step, i) => (
+          <div key={i} className="flex gap-4 items-start">
+            <div className="w-8 h-8 rounded-full bg-cta text-white font-bold text-sm flex items-center justify-center shrink-0 mt-0.5">
+              {i + 1}
+            </div>
+            <div>
+              <p className="font-bold text-cta text-sm md:text-base">{step.title}</p>
+              <p className="text-sm text-cta/80 leading-relaxed mt-1">{step.body}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+      <blockquote className="relative bg-white border border-cta/10 rounded-lg px-5 pt-7 pb-4">
+        <span className="absolute top-3 left-4 text-3xl font-black text-[var(--lp-accent)] opacity-25 leading-none select-none" aria-hidden="true">&ldquo;</span>
+        <p className="text-sm md:text-base text-cta/85 italic leading-relaxed">{edu.expertQuote}</p>
+        <cite className="not-italic text-xs text-cta/75 font-semibold mt-2 block">{edu.expertName}</cite>
+      </blockquote>
+      <CtaButton
+        fullWidth
+        onClick={onScrollDown}
+        className="md:text-base"
+        style={{ animation: 'cta-nudge 1.6s ease-in-out 2.5s 3' }}
+      >
+        Tôi phải làm sao? &#8595;
+      </CtaButton>
+      <div className="h-4" />
+    </div>
+  );
+}
+
+// ─── ClinicIntroSection ───────────────────────────────────────────────────────
+
+function ClinicIntroSection({ onScrollDown }: { onScrollDown: () => void }) {
+  return (
+    <div className="relative min-h-[60dvh] flex flex-col items-center justify-center overflow-hidden px-6 py-16 bg-[var(--lp-bg-payoff)]">
+      {/* Ảnh nền — user đặt ảnh vào /public/clinic/o2skin-intro.jpg */}
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: "url('/clinic/o2skin-intro.jpg')", opacity: 0.18 }}
+        aria-hidden="true"
+      />
+      {/* Lớp màu overlay — blend ảnh vào màu nền version */}
+      <div
+        className="absolute inset-0 bg-[var(--lp-bg-payoff)]"
+        style={{ opacity: 0.55 }}
+        aria-hidden="true"
+      />
+      <div className="relative z-10 text-center max-w-lg mx-auto flex flex-col items-center gap-5">
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--lp-accent)]">
+          Hãy đến O2skin
+        </p>
+        <h2 className="font-extrabold text-2xl md:text-3xl text-cta leading-snug">
+          Tình trạng như của bạn,<br className="hidden sm:block" />
+          chúng tôi đã có giải pháp.
+        </h2>
+        <p className="text-sm md:text-base text-cta/75 leading-relaxed">
+          Tại đây chúng tôi có giải pháp toàn diện cho làn da của bạn!
+        </p>
+        <button
+          onClick={onScrollDown}
+          className="mt-3 text-sm font-semibold text-[var(--lp-accent)] hover:text-cta transition-colors flex items-center gap-1.5"
+          style={{ animation: 'cta-nudge 1.6s ease-in-out 2s 3' }}
+        >
+          Cùng tham quan một chút nhé! &#8595;
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main export ─────────────────────────────────────────────────────────────
+
+export type TopbarConfig = {
+  labels: {
+    result: string;
+    why: string;
+    clinic?: string;
+    benefit: string;
+  };
+  style?: React.CSSProperties;
+  className?: string;
+};
+
+export function ConfettiCardWhyPayoff({
+  result,
+  onContinue,
+  FeatureComponent: FeatureComp = Carousel,
+  BenefitComponent: BenefitComp = NumberedBadgeCirclesRight,
+  ResultComponent: ResultComp = ResultCard,
+  topbarConfig,
+}: PayoffSlotProps & {
+  FeatureComponent?: React.ComponentType<{ onContinue: () => void }>;
+  BenefitComponent?: React.ComponentType<{ onContinue: () => void }>;
+  ResultComponent?: React.ComponentType<{ result: MinigameResult; onScrollDown: () => void; containerRef?: React.Ref<HTMLDivElement> }>;
+  topbarConfig?: TopbarConfig;
+}) {
+  const whyRef             = useRef<HTMLDivElement>(null);
+  const clinicRef          = useRef<HTMLDivElement>(null);
+  const statsRef           = useRef<HTMLDivElement>(null);
+  const featureRef         = useRef<HTMLDivElement>(null);
+  const resultSectRef      = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [showSkipCta, setShowSkipCta] = useState(false);
+  const [activeSection, setActiveSection] = useState<'result' | 'why' | 'clinic' | 'benefit'>('result');
+  const prevSectionRef = useRef<string>('result');
+
+  // Show sticky skip CTA once Benefit section enters view
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    function onScroll() {
+      const benefitTop = statsRef.current?.offsetTop ?? Infinity;
+      setShowSkipCta(container!.scrollTop >= benefitTop - 100);
+    }
+    container.addEventListener('scroll', onScroll, { passive: true });
+    return () => container.removeEventListener('scroll', onScroll);
+  }, []);
+
+  useEffect(() => {
+    if (!topbarConfig) return;
+    const root = scrollContainerRef.current;
+    if (!root) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          let next: 'result' | 'why' | 'clinic' | 'benefit' = 'result';
+          if (entry.target === resultSectRef.current) next = 'result';
+          else if (entry.target === whyRef.current) next = 'why';
+          else if (entry.target === clinicRef.current) next = 'clinic';
+          else next = 'benefit';
+          if (next !== prevSectionRef.current) {
+            prevSectionRef.current = next;
+            setActiveSection(next);
+          }
+        }
+      },
+      { root, threshold: 0.4 },
+    );
+    [resultSectRef, whyRef, clinicRef, statsRef, featureRef].forEach((r) => { if (r.current) observer.observe(r.current); });
+    return () => observer.disconnect();
+  }, [topbarConfig]);
+
+  return (
+    <div ref={scrollContainerRef} className="h-[100dvh] w-full bg-[var(--lp-bg-payoff)] overflow-y-auto">
+      <style>{`@keyframes cta-nudge{0%,100%{transform:translateY(0)}40%{transform:translateY(-4px)}70%{transform:translateY(-2px)}}`}</style>
+
+      {topbarConfig && (
+        <div
+          className={`sticky top-0 z-50 py-3.5 px-6 text-center font-bold text-base md:text-lg tracking-widest uppercase overflow-hidden${topbarConfig.className ? ` ${topbarConfig.className}` : ''}`}
+          style={topbarConfig.style}
+        >
+          <span key={activeSection} className="topbar-label-in inline-block">
+            {topbarConfig.labels[activeSection] ?? topbarConfig.labels.benefit}
+          </span>
+        </div>
+      )}
+
+      {/* Sticky skip CTA — xuất hiện khi Benefit section vào view */}
+      {showSkipCta && (
+        <div className="fixed bottom-5 right-4 z-50 animate-fade-in-up">
+          <button
+            onClick={onContinue}
+            className="bg-cta text-white text-sm font-bold py-3 px-5 rounded-soft shadow-lg shadow-cta/30 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
+          >
+            Đặt lịch ngay &#8594;
+          </button>
+        </div>
+      )}
+
+      {/* Section 1: Kết quả (above fold) */}
+      <ResultComp
+        containerRef={resultSectRef}
+        result={result}
+        onScrollDown={() => whyRef.current?.scrollIntoView({ behavior: 'smooth' })}
+      />
+
+      {/* Section 2: Why */}
+      <div ref={whyRef} className="bg-[var(--lp-bg-payoff)]">
+        <WhySection
+          conditionId={result.condition.id as ConditionId}
+          onScrollDown={() => clinicRef.current?.scrollIntoView({ behavior: 'smooth' })}
+        />
+      </div>
+
+      {/* Section 2.5: Clinic Intro */}
+      <div ref={clinicRef}>
+        <ClinicIntroSection
+          onScrollDown={() => statsRef.current?.scrollIntoView({ behavior: 'smooth' })}
+        />
+      </div>
+
+      {/* Section 3: Benefit */}
+      <div ref={statsRef}>
+        <BenefitComp onContinue={() => featureRef.current?.scrollIntoView({ behavior: 'smooth' })} />
+      </div>
+
+      {/* Section 4: Feature + final CTA */}
+      <div ref={featureRef}>
+        <FeatureComp onContinue={onContinue} />
+      </div>
+
+    </div>
+  );
+}
+```
+
+---
+
+## Thay đổi 2: Cập nhật `bold/typographic.tsx`
+
+Mở `src/landing/variants/payoff/bold/typographic.tsx`. Tìm `topbarConfig` prop và thay thế labels:
+
+```tsx
+topbarConfig={{
+  labels: {
+    result:  'Kết quả phân tích',
+    why:     'Tìm hiểu nguyên nhân',
+    clinic:  'Hãy đến O2skin!',
+    benefit: 'Lợi ích & dịch vụ',
+  },
+  style: { background: 'var(--lp-band-bg)', color: 'var(--lp-band-text)' },
+}}
+```
+
+---
+
+## Thay đổi 3: Tạo thư mục placeholder cho ảnh
+
+```bash
+mkdir -p public/clinic
+touch public/clinic/.gitkeep
+```
+
+Đây là nơi user sẽ đặt ảnh `o2skin-intro.jpg` sau. Section hoạt động bình thường kể cả khi chưa có ảnh.
+
+---
+
+## Verify
+
+```bash
+npx tsc --noEmit
+```
+
+Expected: 0 errors.
+
+---
+
+## Commit
+
+```bash
+git add src/landing/variants/payoff/ConfettiCardWhyPayoff.tsx
+git add src/landing/variants/payoff/bold/typographic.tsx
+git add public/clinic/.gitkeep
+git commit -m "feat(payoff): CTA 'Tôi phải làm sao?', thêm ClinicIntroSection, sticky CTA từ Benefit trở xuống"
+```
+
+---
+
+## Do NOT
+
+- Không sửa bất kỳ payoff variant file nào khác (các file trong `bold/`, `clinical/`, `electric/`, `natural/`, `playful/`) — chúng đều dùng `ConfettiCardWhyPayoff` và tự nhận thay đổi
+- Không sửa `NumberedBadgeCirclesRight.tsx`, `Carousel.tsx`, hay bất kỳ feature-layout nào
+- Không thêm ảnh — user tự chọn và đặt vào `/public/clinic/`
+- Không sửa bất kỳ file CSS hay recipe file nào
