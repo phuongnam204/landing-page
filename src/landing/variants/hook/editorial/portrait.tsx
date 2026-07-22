@@ -40,7 +40,7 @@ export function EditorialPortraitHook({ onStart, copy }: HookSlotProps) {
       style={{ background: 'var(--lp-bg-hero)' }}
     >
       {/* ── Desktop: arch trái + text phải ── */}
-      <div className="hidden md:flex flex-1 items-stretch">
+      <div className="hidden md:flex flex-1 items-stretch max-w-[1200px] w-full mx-auto">
 
         {/* Arch photo — flat top bám top edge, dome rounded bottom */}
         <div
