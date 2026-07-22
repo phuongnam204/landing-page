@@ -41,27 +41,6 @@ export function EditorialSassaHook({ onStart, copy }: HookSlotProps) {
         />
       </svg>
 
-      {/* Huge outlined display text — background editorial decoration */}
-      <div
-        className="absolute pointer-events-none select-none z-0"
-        aria-hidden="true"
-        style={{
-          bottom: '-2%',
-          left: '-1%',
-          fontSize: 'clamp(110px, 20vw, 260px)',
-          fontFamily: 'var(--font-be-vietnam-pro), Inter, sans-serif',
-          fontWeight: 800,
-          color: 'transparent',
-          WebkitTextStroke: 'color-mix(in srgb, var(--lp-accent) 38%, transparent)',
-          WebkitTextStrokeWidth: '1.5px',
-          lineHeight: 0.85,
-          letterSpacing: '-0.04em',
-          whiteSpace: 'nowrap',
-        } as React.CSSProperties}
-      >
-        ĐẸP
-      </div>
-
       {/* Main layout */}
       <div className="relative z-10 h-full flex flex-col md:flex-row items-center max-w-6xl mx-auto px-6 md:px-14 pt-20 md:pt-0 pb-6 md:pb-0 gap-8 md:gap-0">
 
