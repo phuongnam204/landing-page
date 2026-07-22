@@ -9,7 +9,7 @@ const DEFAULT_COPY: Required<HookCopy> = {
   headingAccent: 'mọi thứ thay đổi.',
   subtext:       'Bản đồ vùng mụn phân tích chính xác nguyên nhân — 60 giây để biết da bạn đang cần gì.',
   cta:           'Xem bản đồ da của tôi',
-  hookImage:     '/image-hook/Picture6.jpg',
+  hookImage:     '/image-hook/Picture7.jpg',
 };
 
 // Organic blob path — 6 anchors, one concave dent on lower-left for a "pinched" feel
@@ -25,9 +25,9 @@ export function PlayfulCircleBlobHook({ onStart, copy }: HookSlotProps) {
     >
       {/* Heading — huge serif, overlaps circle via negative bottom margin */}
       <h1
-        className="relative z-20 text-center font-bold leading-[1.08] [text-wrap:balance] w-full max-w-2xl -mb-8 md:-mb-14"
+        className="relative z-20 text-center font-bold leading-[1.08] [text-wrap:balance] w-full max-w-2xl -mb-6 md:-mb-10"
         style={{
-          fontSize: 'clamp(2.4rem, 7.5vw, 6rem)',
+          fontSize: 'clamp(1.8rem, 5.6vw, 4.5rem)',
           fontFamily: 'Georgia, "Times New Roman", serif',
           color: '#ffffff',
           textShadow: '0 2px 0 rgba(0,0,0,.58), 0 0 28px rgba(0,0,0,.44)',
@@ -69,7 +69,7 @@ export function PlayfulCircleBlobHook({ onStart, copy }: HookSlotProps) {
       </div>
 
       {/* Subtext + CTA below composition */}
-      <div className="relative z-20 flex flex-col items-center text-center gap-5 mt-8 md:mt-12 max-w-sm md:max-w-md">
+      <div className="relative z-20 flex flex-col items-center text-center gap-5 mt-6 md:mt-10 max-w-sm md:max-w-md">
         <p
           className="text-sm md:text-base leading-relaxed"
           style={{ color: 'var(--lp-primary)', opacity: 0.72 }}

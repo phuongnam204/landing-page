@@ -19,7 +19,7 @@ export const v04Combined: Recipe = {
       headingAccent: 'mọi thứ thay đổi.',
       subtext:       'Bản đồ vùng mụn phân tích chính xác nguyên nhân — 60 giây để biết da bạn đang cần gì.',
       cta:           'Xem bản đồ da của tôi',
-      hookImage:     '/image-hook/Picture6.jpg',
+      hookImage:     '/image-hook/Picture7.jpg',
     },
     minigame: {
       intro: {
