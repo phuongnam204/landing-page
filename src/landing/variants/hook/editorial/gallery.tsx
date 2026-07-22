@@ -255,7 +255,7 @@ export function EditorialGalleryHook({ onStart, copy }: HookSlotProps) {
               <div
                 key={i}
                 className="w-8 h-8 rounded-full overflow-hidden ring-2"
-                style={{ ringColor: 'var(--lp-bg-hero)', opacity: op }}
+                style={{ opacity: op }}
               >
                 <img src={c.hookImage} alt="" className="w-full h-full object-cover" style={{ objectPosition: `${20 + i * 30}% 10%` }} />
               </div>
