@@ -203,70 +203,6 @@ export function ElectricSoftSwipeMinigame({ onComplete, copy }: MinigameSlotProp
     return () => ro.disconnect();
   }, [phase, renderFrame]);
 
-  // iOS Safari: setPointerCapture breaks pointermove dispatch on touch — use
-  // native Touch Events instead (requires passive:false on touchmove to allow
-  // preventDefault, which prevents page scroll competing with the drag).
-  useEffect(() => {
-    if (phase !== 'wheel') return;
-    const container = containerRef.current;
-    if (!container) return;
-
-    function onTouchStart(e: TouchEvent) {
-      if (wheelLocked.current) return;
-      if (animFrame.current !== null) { cancelAnimationFrame(animFrame.current); animFrame.current = null; }
-      isDragging.current = true;
-      dragStartX.current = e.touches[0].clientX;
-      dragStartAngle.current = wheelAngle.current;
-    }
-
-    function onTouchMove(e: TouchEvent) {
-      if (!isDragging.current || wheelLocked.current) return;
-      e.preventDefault();
-      const raw = dragStartAngle.current - (e.touches[0].clientX - dragStartX.current) / DRAG_SENS;
-      wheelAngle.current = clampWithDamping(raw);
-      renderFrame();
-    }
-
-    function onTouchEnd(e: TouchEvent) {
-      if (!isDragging.current) return;
-      const endX = e.changedTouches[0].clientX;
-      const dragDelta = Math.abs(endX - dragStartX.current);
-      isDragging.current = false;
-      const target = Math.max(MIN_ANGLE, Math.min(MAX_ANGLE, Math.round(wheelAngle.current / ARC_STEP) * ARC_STEP));
-      springTo(target);
-      if (dragDelta < 8) {
-        const rect = container.getBoundingClientRect();
-        const tapX = endX - rect.left;
-        const tapY = e.changedTouches[0].clientY - rect.top;
-        let tappedIdx = -1;
-        let highestZ = -1;
-        CARDS.forEach((_, i) => {
-          const cardEl = cardRefs.current[i];
-          if (!cardEl || cardEl.style.display === 'none') return;
-          const l = parseFloat(cardEl.style.left);
-          const t = parseFloat(cardEl.style.top);
-          const w = parseFloat(cardEl.style.width);
-          const h = parseFloat(cardEl.style.height);
-          const z = parseInt(cardEl.style.zIndex) || 0;
-          if (tapX >= l && tapX <= l + w && tapY >= t && tapY <= t + h && z > highestZ) {
-            tappedIdx = i;
-            highestZ = z;
-          }
-        });
-        if (tappedIdx >= 0) handleCardTap(tappedIdx);
-      }
-    }
-
-    container.addEventListener('touchstart', onTouchStart, { passive: true });
-    container.addEventListener('touchmove', onTouchMove, { passive: false });
-    container.addEventListener('touchend', onTouchEnd, { passive: true });
-    return () => {
-      container.removeEventListener('touchstart', onTouchStart);
-      container.removeEventListener('touchmove', onTouchMove);
-      container.removeEventListener('touchend', onTouchEnd);
-    };
-  }, [phase, renderFrame, springTo, handleCardTap]);
-
   // ─── Spring + snap ─────────────────────────────────────────────────────────
   const springTo = useCallback((target: number) => {
     if (animFrame.current !== null) cancelAnimationFrame(animFrame.current);
@@ -363,6 +299,72 @@ export function ElectricSoftSwipeMinigame({ onComplete, copy }: MinigameSlotProp
       if (tappedIdx >= 0) handleCardTap(tappedIdx);
     }
   }, [springTo, handleCardTap]);
+
+  // iOS Safari: setPointerCapture breaks pointermove dispatch on touch — use
+  // native Touch Events instead (requires passive:false on touchmove to allow
+  // preventDefault, which prevents page scroll competing with the drag).
+  useEffect(() => {
+    if (phase !== 'wheel') return;
+    const container = containerRef.current;
+    if (!container) return;
+
+    function onTouchStart(e: TouchEvent) {
+      if (wheelLocked.current) return;
+      if (animFrame.current !== null) { cancelAnimationFrame(animFrame.current); animFrame.current = null; }
+      isDragging.current = true;
+      dragStartX.current = e.touches[0].clientX;
+      dragStartAngle.current = wheelAngle.current;
+    }
+
+    function onTouchMove(e: TouchEvent) {
+      if (!isDragging.current || wheelLocked.current) return;
+      e.preventDefault();
+      const raw = dragStartAngle.current - (e.touches[0].clientX - dragStartX.current) / DRAG_SENS;
+      wheelAngle.current = clampWithDamping(raw);
+      renderFrame();
+    }
+
+    function onTouchEnd(e: TouchEvent) {
+      if (!isDragging.current) return;
+      const endX = e.changedTouches[0].clientX;
+      const dragDelta = Math.abs(endX - dragStartX.current);
+      isDragging.current = false;
+      const target = Math.max(MIN_ANGLE, Math.min(MAX_ANGLE, Math.round(wheelAngle.current / ARC_STEP) * ARC_STEP));
+      springTo(target);
+      if (dragDelta < 8) {
+        const c = containerRef.current;
+        if (!c) return;
+        const rect = c.getBoundingClientRect();
+        const tapX = endX - rect.left;
+        const tapY = e.changedTouches[0].clientY - rect.top;
+        let tappedIdx = -1;
+        let highestZ = -1;
+        CARDS.forEach((_, i) => {
+          const cardEl = cardRefs.current[i];
+          if (!cardEl || cardEl.style.display === 'none') return;
+          const l = parseFloat(cardEl.style.left);
+          const t = parseFloat(cardEl.style.top);
+          const w = parseFloat(cardEl.style.width);
+          const h = parseFloat(cardEl.style.height);
+          const z = parseInt(cardEl.style.zIndex) || 0;
+          if (tapX >= l && tapX <= l + w && tapY >= t && tapY <= t + h && z > highestZ) {
+            tappedIdx = i;
+            highestZ = z;
+          }
+        });
+        if (tappedIdx >= 0) handleCardTap(tappedIdx);
+      }
+    }
+
+    container.addEventListener('touchstart', onTouchStart, { passive: true });
+    container.addEventListener('touchmove', onTouchMove, { passive: false });
+    container.addEventListener('touchend', onTouchEnd, { passive: true });
+    return () => {
+      container.removeEventListener('touchstart', onTouchStart);
+      container.removeEventListener('touchmove', onTouchMove);
+      container.removeEventListener('touchend', onTouchEnd);
+    };
+  }, [phase, renderFrame, springTo, handleCardTap]);
 
   // ─── Face-map zone toggle ───────────────────────────────────────────────────
   const toggleZone = useCallback((zoneId: Zone) => {
