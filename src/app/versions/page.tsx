@@ -57,7 +57,7 @@ export default function VersionsPage() {
         <h1 className="text-2xl font-extrabold text-gray-800 mb-2">Landing page versions</h1>
         <p className="text-sm text-gray-500 mb-8">{allRecipes.length} version — bấm để xem</p>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {allRecipes.map(recipe => {
+          {[...allRecipes].sort((a, b) => parseInt(a.id.slice(1)) - parseInt(b.id.slice(1))).map(recipe => {
             // chipColor recipes (e.g. v08 Navy×Mint): bg = dark, text = light accent
             // → topbar uses dark bg, body uses white
             // Named themes: topbar uses accent (darker), body uses theme bg (lighter)

@@ -66,10 +66,10 @@ function runWorryParticles(canvas: HTMLCanvasElement): () => void {
 
 // ─── Inline HTML renderer (internal data — <b> and <em> only) ────────────────
 
-function SafeBody({ html, className }: { html: string; className?: string }) {
+function SafeBody({ html, className, style }: { html: string; className?: string; style?: React.CSSProperties }) {
   const parts = html.split(/(<b>.*?<\/b>|<em>.*?<\/em>)/);
   return (
-    <p className={className}>
+    <p className={className} style={style}>
       {parts.map((chunk, i) => {
         if (chunk.startsWith('<b>')) return <b key={i}>{chunk.slice(3, -4)}</b>;
         if (chunk.startsWith('<em>')) return <em key={i}>{chunk.slice(4, -5)}</em>;
@@ -161,11 +161,6 @@ export function ResultCard({ result, onScrollDown, containerRef, copy }: ResultC
                   </span>
                 </div>
               )}
-              {result.triggerNote && (
-                <p className="payoff-stat-chip text-xs md:text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 leading-relaxed" style={{ animationDelay: '0.86s' }}>
-                  {result.triggerNote}
-                </p>
-              )}
               {result.zoneIds && result.zoneIds.length > 0 && (() => {
                 const rows = getZoneInsightRows(result.zoneIds!);
                 return rows.length > 0 ? (
@@ -187,7 +182,7 @@ export function ResultCard({ result, onScrollDown, containerRef, copy }: ResultC
           )}
 
           {result.condition.body && (
-            <SafeBody html={result.condition.body} className="text-sm md:text-base text-cta/80 leading-relaxed mb-2" />
+            <SafeBody html={result.condition.body} className="payoff-stat-chip text-xs md:text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 leading-relaxed mb-2" style={{ animationDelay: '0.86s' }} />
           )}
           {result.condition.bridge && (
             <p className="text-sm md:text-base text-cta/70 leading-relaxed mb-5">{result.condition.bridge}</p>

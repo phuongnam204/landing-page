@@ -7,7 +7,7 @@ export const v18BoldStacked: Recipe = {
   slots: {
     hook:       'editorial-portrait',
     minigame:   'bold-stacked',
-    payoff:     'bold-stacked',
+    payoff:     'confetti-card-why-circles-video',
     programs:   'bold-stacked',
     conversion: 'bold-stacked',
     done:       'bold-stacked',

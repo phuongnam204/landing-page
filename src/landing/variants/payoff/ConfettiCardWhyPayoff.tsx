@@ -188,7 +188,8 @@ export function ConfettiCardWhyPayoff({
         <div className="fixed bottom-5 right-4 z-50 animate-fade-in-up">
           <button
             onClick={onContinue}
-            className="bg-cta text-white text-sm font-bold py-3 px-5 rounded-soft shadow-lg shadow-cta/30 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
+            className="text-white text-sm font-bold py-3 px-5 rounded-soft hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
+            style={{ background: 'var(--lp-accent)', boxShadow: '0 4px 14px color-mix(in srgb, var(--lp-accent) 35%, transparent)' }}
           >
             Đặt lịch ngay &#8594;
           </button>

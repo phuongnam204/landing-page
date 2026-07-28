@@ -105,6 +105,7 @@ function clampWithDamping(angle: number): number {
 export function ElectricSoftSwipeMinigame({ onComplete, copy }: MinigameSlotProps) {
   // ─── State ──────────────────────────────────────────────────────────────────
   const [phase, setPhase] = useState<Phase>('intro');
+  const [introFading, setIntroFading] = useState(false);
   const [selectedCardIdx, setSelectedCardIdx] = useState<number | null>(null);
   const [selectedZones, setSelectedZones] = useState<Zone[]>([]);
   const [checkCardIdx, setCheckCardIdx] = useState<number | null>(null);
@@ -190,6 +191,14 @@ export function ElectricSoftSwipeMinigame({ onComplete, copy }: MinigameSlotProp
       });
     }
   }, []);
+
+  // Auto-advance intro → wheel after 2 s, with fade-out animation
+  useEffect(() => {
+    if (phase !== 'intro') return;
+    const t1 = setTimeout(() => setIntroFading(true), 2000);
+    const t2 = setTimeout(() => setPhase('wheel'), 2400);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, [phase]);
 
   // Trigger initial render when wheel mounts. ResizeObserver re-fires if
   // container size changes (resize, orientation), keeping cards centered.
@@ -433,7 +442,7 @@ export function ElectricSoftSwipeMinigame({ onComplete, copy }: MinigameSlotProp
         {/* ── Intro ── */}
         {phase === 'intro' && (
           <div className="flex-1 flex flex-col items-center justify-center px-6 gap-7"
-            style={{ animation: 'fade-in 350ms ease-out both' }}>
+            style={{ animation: 'fade-in 350ms ease-out both', opacity: introFading ? 0 : 1, transform: introFading ? 'translateY(-10px)' : 'translateY(0)', transition: 'opacity 380ms ease-out, transform 380ms ease-out' }}>
             <div className="flex items-center gap-4">
               <div className="flex flex-col items-center gap-1.5">
                 <div className="w-14 h-14 rounded-2xl border-2 flex items-center justify-center"
@@ -481,7 +490,7 @@ export function ElectricSoftSwipeMinigame({ onComplete, copy }: MinigameSlotProp
             </div>
 
             <button
-              onClick={() => setPhase('wheel')}
+              onClick={() => { setIntroFading(false); setPhase('wheel'); }}
               className="px-8 py-3.5 rounded-full font-bold text-base text-white transition-all active:scale-[0.97]"
               style={{ background: 'var(--lp-accent)', boxShadow: '0 4px 18px color-mix(in srgb, var(--lp-accent) 35%, transparent)' }}
             >

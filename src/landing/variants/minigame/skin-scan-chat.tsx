@@ -4,60 +4,101 @@ import type { MinigameSlotProps, MinigameResult } from '../../slots';
 import type { ConditionId } from '../../../content/quiz';
 import { skinConditions } from '../../../content/quiz';
 
-// ─── Types ─────────────────────────────────────────────────────────────────
+// ─── Decision tree ─────────────────────────────────────────────────────────────
 
-type S1 = 'dry' | 'normal' | 'oily-mild' | 'oily-heavy';
-type S2 = 'chin-hormonal' | 'tzone' | 'cheeks' | 'no-acne';
-type S3 = 'stable' | 'sensitive-mild' | 'sensitive-strong' | 'scar-dark';
+type TreeNode = {
+  question: string;
+  options: Array<{
+    label: string;
+    next?: string;
+    result?: ConditionId;
+  }>;
+};
+
+const TREE: Record<string, TreeNode> = {
+  'q1': {
+    question: 'Buổi sáng thức dậy, da bạn thường như thế nào?',
+    options: [
+      { label: 'Khô căng, đôi khi bong tróc',           next: 'dry' },
+      { label: 'Bình thường, không có gì đặc biệt',      next: 'normal' },
+      { label: 'Hơi bóng ở vùng T, má thì ổn',           next: 'mild-oily' },
+      { label: 'Rất bóng, kể cả hai má',                  next: 'heavy-oily' },
+      { label: 'Vài chỗ da bị lõm, trông không đều',     result: 'da-seo-ro' },
+    ],
+  },
+  'dry': {
+    question: 'Da bạn hay gặp vấn đề gì?',
+    options: [
+      { label: 'Đỏ, ngứa, kích ứng dễ khi đổi sản phẩm', result: 'da-nhay-cam' },
+      { label: 'Nổi mụn ở cằm hoặc quanh miệng',          result: 'mun-noi-tiet' },
+      { label: 'Chỉ khô căng, không kích ứng gì nhiều',   result: 'da-nhay-cam' },
+    ],
+  },
+  'normal': {
+    question: 'Bạn có gặp vấn đề nào với da không?',
+    options: [
+      { label: 'Không, da đang khá ổn',                              result: 'clean-skin' },
+      { label: 'Đôi khi nổi mụn',                                    next: 'normal-acne' },
+      { label: 'Hay đỏ hoặc kích ứng với sản phẩm',                  result: 'da-nhay-cam' },
+      { label: 'Mới bắt đầu quan tâm, chưa hiểu da mình lắm',       result: 'da-moi-bat-dau' },
+    ],
+  },
+  'normal-acne': {
+    question: 'Mụn thường xuất hiện ở vùng nào?',
+    options: [
+      { label: 'Cằm và quanh miệng',        result: 'mun-noi-tiet' },
+      { label: 'Trán và mũi',               result: 'lo-chan-long' },
+      { label: 'Hai má hoặc nhiều vùng',    result: 'mun-trung-ca' },
+    ],
+  },
+  'mild-oily': {
+    question: 'Bạn có nổi mụn không?',
+    options: [
+      { label: 'Có, mọc ở một vài vùng',                                   next: 'mild-oily-acne' },
+      { label: 'Không, chủ yếu là bóng dầu và lỗ chân lông to',           result: 'lo-chan-long' },
+    ],
+  },
+  'mild-oily-acne': {
+    question: 'Mụn hay mọc ở đâu nhất?',
+    options: [
+      { label: 'Cằm và quanh miệng',     result: 'mun-noi-tiet' },
+      { label: 'Trán và mũi',            result: 'lo-chan-long' },
+      { label: 'Hai má hoặc nhiều vùng', result: 'mun-trung-ca' },
+    ],
+  },
+  'heavy-oily': {
+    question: 'Bạn có nổi mụn không?',
+    options: [
+      { label: 'Có',                                          next: 'heavy-oily-acne' },
+      { label: 'Không, da chỉ rất bóng và lỗ chân lông to', result: 'lo-chan-long' },
+    ],
+  },
+  'heavy-oily-acne': {
+    question: 'Mụn chủ yếu xuất hiện ở đâu?',
+    options: [
+      { label: 'Cằm và quanh miệng',              result: 'mun-noi-tiet' },
+      { label: 'Trán, mũi và mặt rất dầu',        result: 'da-nhon-mun-viem' },
+      { label: 'Hai má hoặc rải rác nhiều vùng',  result: 'da-nhon-mun-viem' },
+    ],
+  },
+};
+
+// ─── Zone info per condition ────────────────────────────────────────────────────
+
+const CONDITION_ZONE: Partial<Record<ConditionId, { zoneLabel: string; zoneIds: string[] }>> = {
+  'mun-noi-tiet':    { zoneLabel: 'Cằm & quanh miệng',  zoneIds: ['chin'] },
+  'lo-chan-long':    { zoneLabel: 'Vùng chữ T',          zoneIds: ['forehead', 'nose'] },
+  'da-nhon-mun-viem':{ zoneLabel: 'Vùng T và má',        zoneIds: ['forehead', 'nose', 'left-cheek', 'right-cheek'] },
+  'mun-trung-ca':    { zoneLabel: 'Hai má',              zoneIds: ['left-cheek', 'right-cheek'] },
+};
+
+// ─── Types ──────────────────────────────────────────────────────────────────────
 
 type Phase = 'intro' | 'chatting' | 'analyzing';
 
-// ─── Decision tree ─────────────────────────────────────────────────────────
+// ─── Sub-components ─────────────────────────────────────────────────────────────
 
-function resolveConditionId(s1: S1, s2: S2, s3: S3): ConditionId {
-  if (s3 === 'scar-dark')                     return 'da-seo-ro';
-  if (s2 === 'chin-hormonal')                 return 'mun-noi-tiet';
-  if (s3 === 'sensitive-strong')              return 'da-nhay-cam';
-  if (s1 === 'oily-heavy' && s2 === 'tzone')  return 'da-nhon-mun-viem';
-  if (s2 === 'tzone')                         return 'lo-chan-long';
-  if (s1 === 'dry')                            return 'da-nhay-cam';
-  if (s3 === 'sensitive-mild')                return 'da-nhay-cam';
-  if (s2 === 'no-acne' && s1 === 'normal')    return 'clean-skin';
-  if (s2 === 'cheeks')                        return 'mun-trung-ca';
-  return 'da-moi-bat-dau';
-}
-
-// ─── Constants ─────────────────────────────────────────────────────────────
-
-const ZONE_IDS: Record<S2, string[]> = {
-  'chin-hormonal': ['chin'],
-  'tzone':         ['forehead', 'nose'],
-  'cheeks':        ['left-cheek', 'right-cheek'],
-  'no-acne':       [],
-};
-
-const ZONE_LABEL: Record<S2, string> = {
-  'chin-hormonal': 'Cằm & quanh miệng',
-  'tzone':         'Vùng chữ T',
-  'cheeks':        'Hai má',
-  'no-acne':       'Không có vùng cụ thể',
-};
-
-const TRIGGER_NOTE: Record<S3, string> = {
-  'stable':           'da ổn định',
-  'sensitive-mild':   'nhạy cảm nhẹ',
-  'sensitive-strong': 'kích ứng rõ',
-  'scar-dark':        'sẹo rỗ / thâm mụn',
-};
-
-const Q1_TEXT = 'Buổi sáng thức dậy, da bạn thường như thế nào?';
-const Q2_TEXT = 'Mụn hay xuất hiện ở đâu nhất?';
-const Q3_TEXT = 'Da bạn có biểu hiện nào không?';
-
-// ─── Sub-components ────────────────────────────────────────────────────────
-
-function ChatHeader({ step, phase }: { step: 1 | 2 | 3; phase: Phase }) {
-  const counter = phase === 'intro' || phase === 'analyzing' ? null : `${step} / 3`;
+function ChatHeader({ depth }: { depth: number }) {
   return (
     <div
       className="sticky top-0 z-10 flex items-center gap-3 px-4 py-3 border-b"
@@ -72,9 +113,9 @@ function ChatHeader({ step, phase }: { step: 1 | 2 | 3; phase: Phase }) {
         <div className="text-sm font-bold" style={{ color: 'var(--lp-primary)' }}>O2skin Analyzer</div>
         <div className="text-xs" style={{ color: 'color-mix(in srgb, var(--lp-primary) 55%, transparent)' }}>Phân tích vùng da</div>
       </div>
-      {counter && (
+      {depth > 0 && (
         <div className="text-xs font-semibold" style={{ color: 'color-mix(in srgb, var(--lp-primary) 50%, transparent)' }}>
-          {counter}
+          Câu {depth}
         </div>
       )}
     </div>
@@ -147,116 +188,83 @@ function TypingIndicator({ analyzing }: { analyzing?: boolean }) {
   );
 }
 
-// ─── Chips config ──────────────────────────────────────────────────────────
-
-const CHIPS_MAP = {
-  intro: [{ label: 'Bắt đầu →', signal: 'start', type: 'start' as const }],
-  q1: [
-    { label: 'Khô căng, thỉnh thoảng bong tróc', signal: 'dry',        type: 'q1' as const },
-    { label: 'Bình thường, không có gì đặc biệt', signal: 'normal',     type: 'q1' as const },
-    { label: 'Bóng dầu nhẹ ở vùng T-zone',        signal: 'oily-mild',  type: 'q1' as const },
-    { label: 'Rất bóng, đặc biệt trán và mũi',    signal: 'oily-heavy', type: 'q1' as const },
-  ],
-  q2: [
-    { label: 'Cằm và quanh miệng',     signal: 'chin-hormonal', type: 'q2' as const },
-    { label: 'Trán, mũi, chữ T',       signal: 'tzone',         type: 'q2' as const },
-    { label: 'Hai má hoặc khắp mặt',   signal: 'cheeks',        type: 'q2' as const },
-    { label: 'Hầu như không bị mụn',   signal: 'no-acne',       type: 'q2' as const },
-  ],
-  q3: [
-    { label: 'Không, da khá ổn định',                    signal: 'stable',           type: 'q3' as const },
-    { label: 'Đôi khi đỏ ngứa khi dùng sản phẩm mới',   signal: 'sensitive-mild',   type: 'q3' as const },
-    { label: 'Hay kích ứng, rát, đỏ rõ',                 signal: 'sensitive-strong', type: 'q3' as const },
-    { label: 'Đang có sẹo rỗ hoặc thâm mụn',             signal: 'scar-dark',        type: 'q3' as const },
-  ],
-} as const;
-
-// ─── Main export ───────────────────────────────────────────────────────────
+// ─── Main export ───────────────────────────────────────────────────────────────
 
 export function SkinScanChatMinigame({ onComplete }: MinigameSlotProps) {
   const [phase, setPhase]           = useState<Phase>('intro');
-  const [step, setStep]             = useState<1 | 2 | 3>(1);
-  const [showTyping, setShowTyping] = useState(true); // starts true for async intro
-
-  const s1Ref = useRef<S1 | null>(null);
-  const s2Ref = useRef<S2 | null>(null);
-  const s3Ref = useRef<S3 | null>(null);
+  const [nodeId, setNodeId]         = useState<string>('q1');
+  const [depth, setDepth]           = useState(0);
+  const [showTyping, setShowTyping] = useState(true);
 
   const [messages, setMessages] = useState<Array<
-    { type: 'bot'; text: string } | { type: 'user'; text: string; signal: string }
-  >>([]); // starts empty — bot "types" the intro asynchronously
+    { type: 'bot'; text: string } | { type: 'user'; text: string }
+  >>([]);
 
   const bottomRef = useRef<HTMLDivElement>(null);
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages, showTyping]);
 
-  // Async intro: show typing indicator on mount, reveal opening message after delay
+  // Async intro: reveal opening message after delay
   useEffect(() => {
     const t = setTimeout(() => {
       setShowTyping(false);
-      setMessages([{ type: 'bot', text: 'Cho mình hỏi 3 câu nhanh để phân tích đúng tình trạng da của bạn nhé!' }]);
+      setMessages([{ type: 'bot', text: 'Cho mình hỏi vài câu nhanh để phân tích đúng tình trạng da của bạn nhé!' }]);
     }, 900);
     return () => clearTimeout(t);
   }, []);
 
-  function handleChipSelect(label: string, signal: string, signalType: 'start' | 'q1' | 'q2' | 'q3') {
-    if (signalType === 'start') {
-      setPhase('chatting');
-      setShowTyping(true);
-      setTimeout(() => {
-        setShowTyping(false);
-        setMessages(m => [...m, { type: 'bot', text: Q1_TEXT }]);
-        setStep(1);
-      }, 700);
-      return;
-    }
+  function startChat() {
+    setPhase('chatting');
+    setShowTyping(true);
+    setTimeout(() => {
+      setShowTyping(false);
+      setMessages(m => [...m, { type: 'bot', text: TREE['q1'].question }]);
+      setNodeId('q1');
+      setDepth(1);
+    }, 700);
+  }
 
-    setMessages(m => [...m, { type: 'user', text: label, signal }]);
+  function handleOptionSelect(label: string, next?: string, result?: ConditionId) {
+    setMessages(m => [...m, { type: 'user', text: label }]);
     setShowTyping(true);
 
-    if (signalType === 'q1') { s1Ref.current = signal as S1; }
-    if (signalType === 'q2') { s2Ref.current = signal as S2; }
-    if (signalType === 'q3') {
-      s3Ref.current = signal as S3;
+    if (result) {
       setTimeout(() => {
         setShowTyping(false);
         setPhase('analyzing');
         setTimeout(() => {
-          const s1 = s1Ref.current!;
-          const s2 = s2Ref.current!;
-          const s3 = s3Ref.current!;
-          const conditionId = resolveConditionId(s1, s2, s3);
-          const condition = skinConditions[conditionId]!;
-          const result: MinigameResult = {
+          const condition = skinConditions[result]!;
+          const zone = CONDITION_ZONE[result];
+          const minigameResult: MinigameResult = {
             conditions: [condition],
             condition,
-            zoneLabel: ZONE_LABEL[s2],
-            zoneIds: ZONE_IDS[s2],
-            triggerNote: TRIGGER_NOTE[s3],
+            zoneLabel: zone?.zoneLabel ?? '',
+            zoneIds: zone?.zoneIds ?? [],
+            triggerNote: '',
           };
-          onComplete(result);
+          onComplete(minigameResult);
         }, 1000);
       }, 500);
       return;
     }
 
-    setTimeout(() => {
-      setShowTyping(false);
-      if (signalType === 'q1') {
-        setMessages(m => [...m, { type: 'bot', text: Q2_TEXT }]);
-        setStep(2);
-      } else if (signalType === 'q2') {
-        setMessages(m => [...m, { type: 'bot', text: Q3_TEXT }]);
-        setStep(3);
-      }
-    }, 650); // natural conversation pace
+    if (next) {
+      setTimeout(() => {
+        setShowTyping(false);
+        const nextNode = TREE[next];
+        if (nextNode) {
+          setMessages(m => [...m, { type: 'bot', text: nextNode.question }]);
+          setNodeId(next);
+          setDepth(d => d + 1);
+        }
+      }, 650);
+    }
   }
 
-  const currentChips =
-    phase === 'intro'     ? CHIPS_MAP.intro :
-    phase === 'analyzing' ? [] :
-    step === 1            ? CHIPS_MAP.q1 :
-    step === 2            ? CHIPS_MAP.q2 :
-                            CHIPS_MAP.q3;
+  const currentNode = TREE[nodeId];
+  const currentOptions =
+    phase === 'intro'     ? null :
+    phase === 'analyzing' ? null :
+    currentNode?.options ?? null;
 
   return (
     <div
@@ -302,7 +310,7 @@ export function SkinScanChatMinigame({ onComplete }: MinigameSlotProps) {
         }
       `}</style>
 
-      <ChatHeader step={step} phase={phase} />
+      <ChatHeader depth={depth} />
 
       <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-3">
         {messages.map((msg, i) => (
@@ -314,12 +322,31 @@ export function SkinScanChatMinigame({ onComplete }: MinigameSlotProps) {
         <div ref={bottomRef} />
       </div>
 
-      {currentChips.length > 0 && (
-        <div key={`${phase}-${step}`} className="px-4 pb-6 pt-3 flex flex-wrap gap-2">
-          {currentChips.map((chip, i) => (
+      {/* Intro start button */}
+      {phase === 'intro' && !showTyping && (
+        <div className="px-4 pb-6 pt-3">
+          <button
+            onClick={startChat}
+            className="skin-chip w-full px-4 py-3 rounded-full text-sm font-bold border"
+            style={{
+              borderColor: 'var(--lp-accent)',
+              color: 'var(--lp-accent)',
+              background: 'color-mix(in srgb, var(--lp-accent) 6%, white)',
+              animation: 'chip-pop 240ms cubic-bezier(0.34, 1.56, 0.64, 1) both',
+            }}
+          >
+            Bắt đầu →
+          </button>
+        </div>
+      )}
+
+      {/* Answer options */}
+      {currentOptions && (
+        <div key={nodeId} className="px-4 pb-6 pt-3 flex flex-wrap gap-2">
+          {currentOptions.map((opt, i) => (
             <button
-              key={chip.signal}
-              onClick={() => handleChipSelect(chip.label, chip.signal, chip.type)}
+              key={`${nodeId}-${i}`}
+              onClick={() => handleOptionSelect(opt.label, opt.next, opt.result)}
               className="skin-chip px-4 py-2 rounded-full text-sm font-medium border"
               style={{
                 borderColor: 'var(--lp-accent)',
@@ -328,7 +355,7 @@ export function SkinScanChatMinigame({ onComplete }: MinigameSlotProps) {
                 animation: `chip-pop 240ms cubic-bezier(0.34, 1.56, 0.64, 1) ${i * 50}ms both`,
               }}
             >
-              {chip.label}
+              {opt.label}
             </button>
           ))}
         </div>

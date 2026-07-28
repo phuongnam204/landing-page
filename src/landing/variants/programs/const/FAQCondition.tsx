@@ -17,11 +17,11 @@ export const FAQ_BY_CONDITION: Partial<Record<ConditionId, FaqItem[]>> = {
     { q: 'Peel tại nhà và tại phòng khám khác nhau thế nào?', a: 'Nồng độ và loại acid peel tại phòng khám mạnh hơn nhiều và được điều chỉnh theo từng loại da. Tự peel tại nhà bằng sản phẩm nồng độ cao có rủi ro kích ứng và bỏng da.' },
   ],
   'da-nhay-cam': [
-    { q: 'Laser có an toàn với da nhạy cảm không?', a: 'Laser tại o2skin được hiệu chỉnh thông số riêng cho da nhạy cảm — năng lượng thấp hơn, tần suất điều chỉnh. Trước buổi đầu, bác sĩ sẽ test vùng nhỏ để đảm bảo da không phản ứng bất thường.' },
-    { q: 'Cảm giác trong buổi laser như thế nào?', a: 'Cảm giác như chun bắn nhẹ, thoáng qua — hầu hết khách hàng chịu được mà không cần gây tê. Da có thể ửng đỏ nhẹ trong 2–4 tiếng sau buổi trị rồi trở lại bình thường.' },
-    { q: 'Bao nhiêu buổi laser mới thấy rõ kết quả?', a: 'Cải thiện đầu tiên thường thấy sau buổi thứ 2–3. Phác đồ cho da nhạy cảm là 5–7 buổi cách nhau 4–5 tuần để kích thích collagen từ từ và bền vững.' },
-    { q: 'Laser có làm da nhạy cảm hơn về sau không?', a: 'Ngược lại — laser kích thích tái tạo collagen và củng cố hàng rào bảo vệ da. Da thường chịu đựng tốt hơn sau liệu trình hoàn chỉnh.' },
-    { q: 'Sau laser cần chăm sóc da như thế nào?', a: 'Tránh nắng trong 1 tuần (SPF50+), tạm dừng retinol và AHA/BHA 5–7 ngày, tăng cường dưỡng ẩm nhẹ nhàng. Chuyên viên o2skin sẽ hướng dẫn chi tiết sau mỗi buổi.' },
+    { q: 'Phác đồ cho da nhạy cảm có khác so với da thường không?', a: 'Có. Toàn bộ phác đồ được điều chỉnh để tránh kích thích: bước làm sạch nhẹ hơn, dưỡng ẩm chuyên sâu cho da hàng rào yếu, và tuyệt đối không dùng thành phần gây kích ứng. Bác sĩ sẽ test vùng nhỏ trước mỗi liệu pháp mới.' },
+    { q: 'Da nhạy cảm có thể cải thiện bền vững không?', a: 'Hoàn toàn có thể. Mục tiêu không chỉ là giảm kích ứng tức thời mà còn củng cố hàng rào bảo vệ da về lâu dài. Sau liệu trình hoàn chỉnh, da thường phản ứng tốt hơn với sản phẩm và môi trường xung quanh.' },
+    { q: 'Cần bao nhiêu buổi để da ổn định hơn?', a: 'Thường thấy cải thiện rõ sau buổi thứ 2–3. Phác đồ chuẩn cho da nhạy cảm là 5–6 buổi cách nhau 3–4 tuần, kết hợp routine tại nhà được cá nhân hóa.' },
+    { q: 'Trong thời gian điều trị có được dùng skincare thông thường không?', a: 'Bác sĩ sẽ đánh giá từng sản phẩm bạn đang dùng và chỉ điều chỉnh những thứ cần thiết. Không cần thay toàn bộ routine — chỉ loại bỏ những gì có thể gây kích ứng thêm.' },
+    { q: 'Da nhạy cảm có cần kiêng nắng nghiêm ngặt không?', a: 'Chống nắng SPF30+ mỗi ngày là bắt buộc, đặc biệt trong và sau liệu trình. Đây không phải kiêng cử khắt khe mà là thói quen bảo vệ da dài hạn — bác sĩ sẽ tư vấn loại chống nắng phù hợp với da nhạy cảm.' },
   ],
   'mun-noi-tiet': [
     { q: 'Phác đồ nội tiết khác gì so với điều trị mụn thông thường?', a: 'Phác đồ mụn nội tiết kết hợp IPL kiểm soát viêm tại chỗ với tư vấn điều chỉnh lối sống. Không chỉ dập tắt mụn hiện tại mà còn tấn công nguyên nhân tuyến nhờn bị kích thích từ bên trong.' },
@@ -36,6 +36,20 @@ export const FAQ_BY_CONDITION: Partial<Record<ConditionId, FaqItem[]>> = {
     { q: 'Bao nhiêu buổi là đủ cho chương trình duy trì?', a: 'Thường 3 buổi ban đầu trong 6–8 tuần, sau đó duy trì 1 buổi mỗi 6–8 tuần. Ít tốn thời gian hơn điều trị mụn hay sẹo rất nhiều.' },
     { q: 'Có cần mua thêm sản phẩm đặc biệt không?', a: 'Chuyên viên sẽ đánh giá routine hiện tại và chỉ điều chỉnh những gì cần thiết — không ép mua thêm nếu những gì đang dùng đã phù hợp.' },
     { q: 'Khi nào nên bắt đầu chương trình duy trì da?', a: 'Càng sớm càng tốt — nhưng bất kỳ thời điểm nào cũng không muộn. Bắt đầu ở tuổi 25–30, da vẫn phản ứng rất tốt với các liệu pháp phòng ngừa và duy trì.' },
+  ],
+  'mun-trung-ca': [
+    { q: 'Mụn trứng cá ở má và nhiều vùng có điều trị được không?', a: 'Có. Mụn trứng cá (comedone và mụn đầu đen lan rộng) phản ứng rất tốt với phác đồ kết hợp làm sạch sâu và kiểm soát bã nhờn. Kết quả thường thấy rõ từ buổi thứ 2.' },
+    { q: 'Phác đồ có giúp mụn không tái phát không?', a: 'Điều trị triệt để gốc rễ (tắc nghẽn lỗ chân lông, thừa bã nhờn) giúp giảm tỉ lệ tái phát đáng kể. Routine duy trì định kỳ sau liệu trình là chìa khóa để giữ da sạch lâu dài.' },
+    { q: 'Cần bao nhiêu buổi để mụn ở má giảm rõ?', a: 'Thường thấy rõ cải thiện sau 2–3 buổi. Phác đồ chuẩn là 4–6 buổi cách nhau 3–4 tuần để giải quyết triệt để và ngăn tái phát.' },
+    { q: 'Thâm mụn sau điều trị có mờ không?', a: 'Phác đồ kết hợp cũng kích thích tái tạo da mới, giúp thâm mờ dần trong quá trình điều trị. Thường thấy thâm cải thiện rõ từ tuần thứ 3–4 sau buổi đầu tiên.' },
+    { q: 'Sau buổi trị có thể đi làm bình thường không?', a: 'Có. Hầu hết liệu pháp tại o2skin không gây downtime — bạn có thể sinh hoạt bình thường ngay sau buổi. Chỉ cần tránh nắng và tạm dừng tẩy tế bào chết trong 3–5 ngày.' },
+  ],
+  'da-seo-ro': [
+    { q: 'Sẹo rỗ và da lõm có cải thiện được không?', a: 'Có thể cải thiện rõ rệt. Phác đồ tác động vào cơ chế tái tạo collagen trong da, giúp lấp đầy dần các vùng lõm và làm mịn bề mặt da theo thời gian.' },
+    { q: 'Cần bao nhiêu buổi để thấy sẹo mờ hơn?', a: 'Sẹo rỗ cần kiên nhẫn hơn mụn thông thường. Thường thấy cải thiện đầu tiên sau buổi thứ 3–4. Phác đồ tiêu chuẩn là 6–8 buổi cách nhau 4–6 tuần để collagen tái tạo đủ thời gian định hình.' },
+    { q: 'Sẹo rỗ lâu năm có điều trị được không?', a: 'Sẹo càng cũ thì cần thêm buổi hơn, nhưng vẫn cải thiện được. Bác sĩ sẽ đánh giá độ sâu và loại sẹo cụ thể để đưa ra phác đồ phù hợp và dự đoán kết quả thực tế nhất cho bạn.' },
+    { q: 'Sau điều trị sẹo có bị tái phát không?', a: 'Sẹo rỗ đã được cải thiện không tự tái phát. Tuy nhiên nếu da vẫn bị mụn viêm mới, nguy cơ tạo sẹo mới tiếp tục tồn tại — nên kiểm soát mụn song song với điều trị sẹo.' },
+    { q: 'Kết quả điều trị sẹo có thể duy trì bao lâu?', a: 'Kết quả tái tạo collagen là lâu dài vì cấu trúc da đã thay đổi thực sự. Duy trì routine chống nắng và chăm sóc da đúng cách giúp kết quả bền vững nhiều năm.' },
   ],
   'da-moi-bat-dau': [
     { q: 'Chưa biết loại da mình là gì, có cần xác định trước không?', a: 'Đây chính là điều đầu tiên bác sĩ o2skin làm trong buổi tư vấn — kiểm tra da thực tế và xác định loại da, nhu cầu và những gì đang thiếu trong routine của bạn.' },

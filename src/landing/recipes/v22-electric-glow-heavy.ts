@@ -15,7 +15,7 @@ export const v22ElectricGlowHeavy: Recipe = {
     hook: {
       badge:         'Phân tích da chuyên sâu',
       heading:       'Da bạn đang cầu cứu',
-      headingAccent: 'hay chỉ bạn không để ý?',
+      headingAccent: 'mà bạn không để ý?',
       subtext:       'Cào lên để xem điều da bạn đang thực sự cần — câu trả lời ngay phía dưới.',
       cta:           'Cào xem ngay',
     },

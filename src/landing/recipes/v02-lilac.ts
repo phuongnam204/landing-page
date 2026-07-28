@@ -2,7 +2,7 @@ import type { Recipe } from '../validateRecipe';
 
 export const vPreviewWizard: Recipe = {
   id: 'v02-lilac',
-  label: 'Lilac',
+  label: 'v02 — Lilac / Face Dual',
   theme: 'lilac',
   slots: {
     hook:         'face-dual',

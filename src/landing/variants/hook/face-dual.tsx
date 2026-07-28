@@ -139,7 +139,7 @@ export function FaceDualHook({ onStart }: HookSlotProps) {
         />
 
         <h2
-          className="absolute top-10 right-6 md:top-14 md:right-10 z-10
+          className="absolute top-24 right-6 md:top-14 md:right-10 z-10
                      font-extrabold text-[2.6rem] md:text-[3.8rem] xl:text-[4.8rem]
                      leading-[1.12] text-right [text-wrap:balance] max-w-[14ch]"
           style={{ color: 'var(--lp-primary)', fontFamily: 'var(--font-nunito)' }}
