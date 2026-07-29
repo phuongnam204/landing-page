@@ -62,22 +62,26 @@ export function ElectricGlowScratchMinigame({ onComplete, copy }: MinigameSlotPr
     setProgress(Math.min(1, newlyRevealed.size / REVEAL_ZONES.length));
   }, [revealed]);
 
+  const completeGame = useCallback(() => {
+    setPhase('done');
+    const zone = firstRevealedZone.current ?? REVEAL_ZONES[1];
+    const condition = skinConditions[zone.conditionId]!;
+    const result: MinigameResult = {
+      conditions: [condition],
+      condition,
+      zoneLabel: zone.label,
+      zoneIds: REVEAL_ZONES.map(z => z.id),
+      triggerNote: zone.label,
+    };
+    setTimeout(() => onComplete(result), 500);
+  }, [onComplete]);
+
+  // Draw mode: auto-complete after 2 zones revealed (reduces forced full-face scan friction)
   useEffect(() => {
-    if (revealed.size >= REVEAL_ZONES.length && phase === 'scratch') {
-      setPhase('done');
-      // Use the zone the user started scratching first; fall back to nose if somehow null
-      const zone = firstRevealedZone.current ?? REVEAL_ZONES[1];
-      const condition = skinConditions[zone.conditionId]!;
-      const result: MinigameResult = {
-        conditions: [condition],
-        condition,
-        zoneLabel: zone.label,
-        zoneIds: REVEAL_ZONES.map(z => z.id),
-        triggerNote: zone.label,
-      };
-      setTimeout(() => onComplete(result), 500);
+    if (revealed.size >= 2 && phase === 'scratch' && scratchMode === 'draw') {
+      completeGame();
     }
-  }, [revealed, phase, onComplete]);
+  }, [revealed, phase, scratchMode, completeGame]);
 
   return (
     <div
@@ -279,6 +283,15 @@ export function ElectricGlowScratchMinigame({ onComplete, copy }: MinigameSlotPr
               </button>
             ))}
           </div>
+
+          {revealed.size >= 1 && (
+            <button
+              onClick={completeGame}
+              className="w-full max-w-[260px] py-3.5 rounded-full font-bold text-sm text-white transition-all active:scale-[0.97]"
+              style={{ background: 'var(--lp-accent)', boxShadow: '0 4px 14px color-mix(in srgb, var(--lp-accent) 30%, transparent)' }}>
+              Phân tích ngay ({revealed.size} vùng)
+            </button>
+          )}
 
           <button
             onClick={() => setScratchMode('draw')}
