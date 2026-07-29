@@ -139,7 +139,24 @@ export function ElectricGlowScratchMinigame({ onComplete, copy }: MinigameSlotPr
           </div>
         </div>
         {phase === 'scratch' && (
-          <div className="text-xs font-bold" style={{ color: 'var(--lp-primary)' }}>{Math.round(progress * 100)}%</div>
+          <div className="flex items-center gap-3">
+            <div className="text-xs font-bold" style={{ color: 'var(--lp-primary)' }}>{Math.round(progress * 100)}%</div>
+            <button
+              onClick={() => {
+                setPhase('intro');
+                setRevealed(new Set());
+                setProgress(0);
+                setHasStartedScratch(false);
+                setScratchMode('draw');
+                firstRevealedZone.current = null;
+                pathPointCount.current = 0;
+                pathRef.current?.setAttribute('d', '');
+              }}
+              className="text-xs px-2 py-1 rounded-md transition-opacity hover:opacity-80"
+              style={{ color: 'color-mix(in srgb, var(--lp-primary) 55%, transparent)', border: '1px solid color-mix(in srgb, var(--lp-primary) 18%, transparent)' }}>
+              Làm lại
+            </button>
+          </div>
         )}
       </div>
 
@@ -147,20 +164,20 @@ export function ElectricGlowScratchMinigame({ onComplete, copy }: MinigameSlotPr
         <div className="flex-1 flex flex-col items-center justify-center px-6 gap-6"
           style={{ animation: 'fade-in 350ms ease-out both' }}>
           <div className="relative w-40 h-48 flex items-center justify-center">
-            {/* Face outline */}
-            <svg viewBox="0 0 100 120" className="w-full h-full">
-              <ellipse cx="50" cy="55" rx="34" ry="42"
+            {/* Face outline — geometry matches scratch SVG (same viewBox + ellipse) */}
+            <svg viewBox="0 0 100 100" className="w-full h-full">
+              <ellipse cx="50" cy="45" rx="30" ry="36"
                 fill="color-mix(in srgb, var(--lp-accent) 6%, white)"
                 stroke="color-mix(in srgb, var(--lp-accent) 35%, transparent)"
                 strokeWidth="2" />
-              {/* Zone highlights */}
-              <rect x="33" y="22" width="34" height="14" rx="5"
+              {/* Zone highlights matching REVEAL_ZONES positions */}
+              <rect x="50" y="20" width="36" height="14" rx="5"
                 fill="color-mix(in srgb, var(--lp-accent) 18%, white)"
                 stroke="color-mix(in srgb, var(--lp-accent) 30%, transparent)" strokeWidth="1.2" />
-              <rect x="42" y="42" width="16" height="14" rx="4"
+              <rect x="42" y="36" width="16" height="16" rx="4"
                 fill="color-mix(in srgb, var(--lp-accent) 18%, white)"
                 stroke="color-mix(in srgb, var(--lp-accent) 30%, transparent)" strokeWidth="1.2" />
-              <rect x="42" y="65" width="16" height="14" rx="4"
+              <rect x="42" y="60" width="16" height="14" rx="4"
                 fill="color-mix(in srgb, var(--lp-accent) 18%, white)"
                 stroke="color-mix(in srgb, var(--lp-accent) 30%, transparent)" strokeWidth="1.2" />
             </svg>
@@ -197,7 +214,7 @@ export function ElectricGlowScratchMinigame({ onComplete, copy }: MinigameSlotPr
       {phase === 'scratch' && scratchMode === 'draw' && (
         <div className="flex-1 flex flex-col items-center justify-center p-4"
           style={{ animation: 'fade-in 300ms ease-out both' }}>
-          <div className="relative w-full max-w-xs mx-auto">
+          <div className="relative w-full max-w-sm mx-auto">
             <svg ref={svgRef} viewBox="0 0 100 100" className="w-full h-auto"
               role="img"
               aria-label="Khuôn mặt phân tích da — cào để khám phá từng vùng"
@@ -263,7 +280,7 @@ export function ElectricGlowScratchMinigame({ onComplete, copy }: MinigameSlotPr
             </div>
 
             <p className="text-center text-xs mt-3" style={{ color: 'color-mix(in srgb, var(--lp-primary) 50%, transparent)' }}>
-              Quét ngón tay trên các vùng để khám phá
+              {copy?.scratch?.hint ?? 'Quét ngón tay trên các vùng để khám phá'}
             </p>
           </div>
           <button
@@ -362,7 +379,7 @@ export function ElectricGlowScratchMinigame({ onComplete, copy }: MinigameSlotPr
               <path d="M20 6L9 17l-5-5" />
             </svg>
           </div>
-          <p className="text-sm font-bold" style={{ color: 'var(--lp-primary)' }}>Đang phân tích...</p>
+          <p className="text-sm font-bold" style={{ color: 'var(--lp-primary)' }}>{copy?.analyzing?.label ?? 'Đang phân tích...'}</p>
         </div>
       )}
     </div>

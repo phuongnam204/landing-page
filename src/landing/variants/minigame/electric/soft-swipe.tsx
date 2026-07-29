@@ -45,10 +45,12 @@ const CARDS: SwipeCard[] = [
 ];
 
 const DEFAULT_COPY: Required<MinigameCopy> = {
-  intro:    { heading: 'Chọn tình trạng da của bạn', subtext: 'Xoay bánh xe để duyệt qua các tình trạng da phổ biến, rồi chạm vào thẻ ở giữa để chọn.', cta: 'Bắt đầu →' },
-  wheel:    { heading: 'Da của bạn dạo này thế nào?', subtext: 'Vuốt sang trái để chọn mô tả phù hợp nhất' },
-  faceMap:  { heading: 'Vùng da nào bị ảnh hưởng?', subtext: 'Chạm để chọn hoặc bỏ chọn từng vùng' },
-  scanning: { heading: 'Đang phân tích...' },
+  intro:     { heading: 'Chọn tình trạng da của bạn', subtext: 'Xoay bánh xe để duyệt qua các tình trạng da phổ biến, rồi chạm vào thẻ ở giữa để chọn.', cta: 'Bắt đầu →' },
+  scratch:   { hint: 'Quét ngón tay trên các vùng để khám phá' },
+  analyzing: { label: 'Đang phân tích...' },
+  wheel:     { heading: 'Da của bạn dạo này thế nào?', subtext: 'Vuốt sang trái để chọn mô tả phù hợp nhất' },
+  faceMap:   { heading: 'Vùng da nào bị ảnh hưởng?', subtext: 'Chạm để chọn hoặc bỏ chọn từng vùng' },
+  scanning:  { heading: 'Đang phân tích...' },
 };
 
 const MIN_ANGLE = 0;

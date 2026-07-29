@@ -8,10 +8,12 @@ export type HookCopy = {
 };
 
 export type MinigameCopy = {
-  intro?:    { heading?: string; subtext?: string; cta?: string };
-  wheel?:    { heading?: string; subtext?: string };
-  faceMap?:  { heading?: string; subtext?: string };
-  scanning?: { heading?: string };
+  intro?:     { heading?: string; subtext?: string; cta?: string };
+  scratch?:   { hint?: string };
+  analyzing?: { label?: string };
+  wheel?:     { heading?: string; subtext?: string };
+  faceMap?:   { heading?: string; subtext?: string };
+  scanning?:  { heading?: string };
 };
 
 export type PayoffCopy = {
