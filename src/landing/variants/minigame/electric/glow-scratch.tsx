@@ -21,10 +21,14 @@ export function ElectricGlowScratchMinigame({ onComplete, copy }: MinigameSlotPr
   const firstRevealedZone = useRef<typeof REVEAL_ZONES[number] | null>(null);
   const [scratchMode, setScratchMode] = useState<'draw' | 'manual'>('draw');
   const pathPointCount = useRef(0);
+  const [hasStartedScratch, setHasStartedScratch] = useState(false);
 
   const maskId = 'scratch-mask';
 
-  const handlePointerDown = useCallback(() => { isDrawing.current = true; }, []);
+  const handlePointerDown = useCallback(() => {
+    isDrawing.current = true;
+    setHasStartedScratch(true);
+  }, []);
   const handlePointerUp = useCallback(() => { isDrawing.current = false; }, []);
 
   // Keyboard/click fallback for manual zone selection (WCAG 2.1.1)
@@ -232,6 +236,21 @@ export function ElectricGlowScratchMinigame({ onComplete, copy }: MinigameSlotPr
                 )
               ))}
             </svg>
+
+            {/* Finger hint — fades out on first drag, pointer-events:none so it doesn't block scratch */}
+            <div aria-hidden="true" className="absolute inset-0 pointer-events-none flex items-start justify-center"
+              style={{ opacity: hasStartedScratch ? 0 : 1, transition: 'opacity 400ms ease' }}>
+              <div className="scan-hint mt-6">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
+                  stroke="var(--lp-accent)" strokeWidth="2" strokeLinecap="round">
+                  <path d="M18 11V6a2 2 0 0 0-4 0v5" />
+                  <path d="M14 10V4a2 2 0 0 0-4 0v6" />
+                  <path d="M10 10.5V6a2 2 0 0 0-4 0v8" />
+                  <path d="M6 14a4 4 0 0 0 4 4h4a6 6 0 0 0 6-6v-2a2 2 0 0 0-4 0" />
+                </svg>
+              </div>
+            </div>
+
             <p className="text-center text-xs mt-3" style={{ color: 'color-mix(in srgb, var(--lp-primary) 50%, transparent)' }}>
               Quét ngón tay trên các vùng để khám phá
             </p>
