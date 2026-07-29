@@ -53,13 +53,15 @@ export function ElectricGlowScratchMinigame({ onComplete, copy }: MinigameSlotPr
         const cy = zone.y + zone.h / 2;
         if (Math.abs(x - cx) < zone.w / 2 + 5 && Math.abs(y - cy) < zone.h / 2 + 5) {
           newlyRevealed.add(zone.id);
-          // Record first zone only — determines the final condition
           if (!firstRevealedZone.current) firstRevealedZone.current = zone;
         }
       }
     });
-    setRevealed(newlyRevealed);
-    setProgress(Math.min(1, newlyRevealed.size / REVEAL_ZONES.length));
+    // Only re-render when a new zone was actually revealed — avoids 60fps setState calls
+    if (newlyRevealed.size > revealed.size) {
+      setRevealed(newlyRevealed);
+      setProgress(Math.min(1, newlyRevealed.size / REVEAL_ZONES.length));
+    }
   }, [revealed]);
 
   const completeGame = useCallback(() => {
