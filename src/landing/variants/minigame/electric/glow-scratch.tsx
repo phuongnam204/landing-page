@@ -20,6 +20,7 @@ export function ElectricGlowScratchMinigame({ onComplete, copy }: MinigameSlotPr
   // Capture the first zone the user scratches — its conditionId becomes the result
   const firstRevealedZone = useRef<typeof REVEAL_ZONES[number] | null>(null);
   const [scratchMode, setScratchMode] = useState<'draw' | 'manual'>('draw');
+  const pathPointCount = useRef(0);
 
   const maskId = 'scratch-mask';
 
@@ -42,6 +43,12 @@ export function ElectricGlowScratchMinigame({ onComplete, copy }: MinigameSlotPr
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
 
+    // Reset path every 80 points to prevent unbounded string growth
+    pathPointCount.current++;
+    if (pathPointCount.current > 80) {
+      pathRef.current.setAttribute('d', '');
+      pathPointCount.current = 0;
+    }
     const d = pathRef.current.getAttribute('d') || '';
     const newD = d ? `${d} M ${x} ${y} L ${x} ${y}` : `M ${x} ${y} L ${x} ${y}`;
     pathRef.current.setAttribute('d', newD);
@@ -188,6 +195,10 @@ export function ElectricGlowScratchMinigame({ onComplete, copy }: MinigameSlotPr
               <defs>
                 <mask id={maskId}>
                   <rect width="100" height="100" fill="black" />
+                  {/* Permanently keep revealed zones white so path resets don't erase them */}
+                  {REVEAL_ZONES.filter(z => revealed.has(z.id)).map(z => (
+                    <rect key={z.id} x={z.x} y={z.y} width={z.w} height={z.h} fill="white" />
+                  ))}
                   <path ref={pathRef} fill="none" stroke="white" strokeWidth="8"
                     strokeLinecap="round" strokeLinejoin="round" />
                 </mask>
