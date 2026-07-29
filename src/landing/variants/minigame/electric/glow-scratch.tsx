@@ -17,6 +17,8 @@ export function ElectricGlowScratchMinigame({ onComplete, copy }: MinigameSlotPr
   const pathRef = useRef<SVGPathElement>(null);
   const isDrawing = useRef(false);
   const [progress, setProgress] = useState(0);
+  // Capture the first zone the user scratches — its conditionId becomes the result
+  const firstRevealedZone = useRef<typeof REVEAL_ZONES[number] | null>(null);
 
   const maskId = 'scratch-mask';
 
@@ -40,6 +42,8 @@ export function ElectricGlowScratchMinigame({ onComplete, copy }: MinigameSlotPr
         const cy = zone.y + zone.h / 2;
         if (Math.abs(x - cx) < zone.w / 2 + 5 && Math.abs(y - cy) < zone.h / 2 + 5) {
           newlyRevealed.add(zone.id);
+          // Record first zone only — determines the final condition
+          if (!firstRevealedZone.current) firstRevealedZone.current = zone;
         }
       }
     });
@@ -50,13 +54,15 @@ export function ElectricGlowScratchMinigame({ onComplete, copy }: MinigameSlotPr
   useEffect(() => {
     if (revealed.size >= REVEAL_ZONES.length && phase === 'scratch') {
       setPhase('done');
-      const condition = skinConditions['da-nhon-mun-viem']!;
+      // Use the zone the user started scratching first; fall back to nose if somehow null
+      const zone = firstRevealedZone.current ?? REVEAL_ZONES[1];
+      const condition = skinConditions[zone.conditionId]!;
       const result: MinigameResult = {
         conditions: [condition],
         condition,
-        zoneLabel: 'Nhiều vùng',
+        zoneLabel: zone.label,
         zoneIds: REVEAL_ZONES.map(z => z.id),
-        triggerNote: 'quét da phát hiện',
+        triggerNote: zone.label,
       };
       setTimeout(() => onComplete(result), 500);
     }
