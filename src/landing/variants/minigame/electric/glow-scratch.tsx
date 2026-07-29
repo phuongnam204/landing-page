@@ -96,6 +96,17 @@ export function ElectricGlowScratchMinigame({ onComplete, copy }: MinigameSlotPr
     }
   }, [revealed, phase, scratchMode, completeGame]);
 
+  // iOS Safari: touchAction:none CSS is not always respected — preventDefault on touchmove
+  // stops the page from scrolling while the user is scratching (requires passive:false)
+  useEffect(() => {
+    if (phase !== 'scratch' || scratchMode !== 'draw') return;
+    const svg = svgRef.current;
+    if (!svg) return;
+    const prevent = (e: TouchEvent) => e.preventDefault();
+    svg.addEventListener('touchmove', prevent, { passive: false });
+    return () => svg.removeEventListener('touchmove', prevent);
+  }, [phase, scratchMode]);
+
   return (
     <div
       className="h-[100dvh] flex flex-col bg-[var(--lp-bg-hero)] overflow-hidden"
