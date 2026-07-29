@@ -19,11 +19,22 @@ export function ElectricGlowScratchMinigame({ onComplete, copy }: MinigameSlotPr
   const [progress, setProgress] = useState(0);
   // Capture the first zone the user scratches — its conditionId becomes the result
   const firstRevealedZone = useRef<typeof REVEAL_ZONES[number] | null>(null);
+  const [scratchMode, setScratchMode] = useState<'draw' | 'manual'>('draw');
 
   const maskId = 'scratch-mask';
 
   const handlePointerDown = useCallback(() => { isDrawing.current = true; }, []);
   const handlePointerUp = useCallback(() => { isDrawing.current = false; }, []);
+
+  // Keyboard/click fallback for manual zone selection (WCAG 2.1.1)
+  const handleZoneClick = useCallback((zone: typeof REVEAL_ZONES[number]) => {
+    if (revealed.has(zone.id)) return;
+    const next = new Set(revealed);
+    next.add(zone.id);
+    if (!firstRevealedZone.current) firstRevealedZone.current = zone;
+    setRevealed(next);
+    setProgress(Math.min(1, next.size / REVEAL_ZONES.length));
+  }, [revealed]);
 
   const handlePointerMove = useCallback((e: React.PointerEvent<SVGSVGElement>) => {
     if (!isDrawing.current || !svgRef.current || !pathRef.current) return;
@@ -96,7 +107,7 @@ export function ElectricGlowScratchMinigame({ onComplete, copy }: MinigameSlotPr
         <div className="flex-1">
           <div className="text-sm font-bold" style={{ color: 'var(--lp-primary)' }}>O2skin Glow Scan</div>
           <div className="text-xs" style={{ color: 'color-mix(in srgb, var(--lp-primary) 55%, transparent)' }}>
-            {phase === 'intro' ? 'Hướng dẫn' : phase === 'scratch' ? 'Quét ngón tay lên khuôn mặt' : 'Đang phân tích...'}
+            {phase === 'intro' ? 'Hướng dẫn' : phase === 'scratch' ? (scratchMode === 'manual' ? 'Chọn vùng bằng tay' : 'Quét ngón tay lên khuôn mặt') : 'Đang phân tích...'}
           </div>
         </div>
         {phase === 'scratch' && (
@@ -155,11 +166,13 @@ export function ElectricGlowScratchMinigame({ onComplete, copy }: MinigameSlotPr
         </div>
       )}
 
-      {phase === 'scratch' && (
-        <div className="flex-1 flex items-center justify-center p-4"
+      {phase === 'scratch' && scratchMode === 'draw' && (
+        <div className="flex-1 flex flex-col items-center justify-center p-4"
           style={{ animation: 'fade-in 300ms ease-out both' }}>
           <div className="relative w-full max-w-xs mx-auto">
             <svg ref={svgRef} viewBox="0 0 100 100" className="w-full h-auto"
+              role="img"
+              aria-label="Khuôn mặt phân tích da — cào để khám phá từng vùng"
               onPointerDown={handlePointerDown}
               onPointerUp={handlePointerUp}
               onPointerMove={handlePointerMove}
@@ -198,6 +211,81 @@ export function ElectricGlowScratchMinigame({ onComplete, copy }: MinigameSlotPr
               Quét ngón tay trên các vùng để khám phá
             </p>
           </div>
+          <button
+            onClick={() => setScratchMode('manual')}
+            className="mt-5 text-xs underline-offset-2 underline transition-opacity hover:opacity-100"
+            style={{ color: 'color-mix(in srgb, var(--lp-primary) 45%, transparent)' }}>
+            Gặp khó khăn? Chọn vùng bằng tay
+          </button>
+        </div>
+      )}
+
+      {phase === 'scratch' && scratchMode === 'manual' && (
+        <div className="flex-1 flex flex-col items-center justify-center px-6 gap-5"
+          style={{ animation: 'fade-in 280ms ease-out both' }}>
+          <div className="text-center">
+            <p className="text-sm font-semibold" style={{ color: 'var(--lp-primary)' }}>
+              Nhấn vào từng vùng da để phân tích
+            </p>
+            <p className="text-xs mt-1" style={{ color: 'color-mix(in srgb, var(--lp-primary) 45%, transparent)' }}>
+              {revealed.size}/{REVEAL_ZONES.length} vùng đã chọn
+            </p>
+          </div>
+
+          {/* Face-topology zone buttons */}
+          <div className="w-full max-w-[260px] flex flex-col gap-2" role="group" aria-label="Chọn vùng da">
+            {/* Trán — top */}
+            {[REVEAL_ZONES[0]].map(zone => (
+              <button key={zone.id} onClick={() => handleZoneClick(zone)}
+                aria-pressed={revealed.has(zone.id)}
+                aria-label={`Vùng ${zone.label}${revealed.has(zone.id) ? ' — đã chọn' : ''}`}
+                className="w-full py-3 rounded-xl font-semibold text-sm transition-all duration-150 active:scale-[0.97]"
+                style={{
+                  background: revealed.has(zone.id) ? 'var(--lp-accent)' : 'color-mix(in srgb, var(--lp-accent) 9%, white)',
+                  color: revealed.has(zone.id) ? 'white' : 'var(--lp-primary)',
+                  border: revealed.has(zone.id) ? '2px solid var(--lp-primary)' : '2px solid color-mix(in srgb, var(--lp-accent) 20%, transparent)',
+                }}>
+                {zone.label}{revealed.has(zone.id) ? ' — ok' : ''}
+              </button>
+            ))}
+            {/* Má + Mũi — middle row */}
+            <div className="flex gap-2">
+              {[REVEAL_ZONES[3], REVEAL_ZONES[1]].map(zone => (
+                <button key={zone.id} onClick={() => handleZoneClick(zone)}
+                  aria-pressed={revealed.has(zone.id)}
+                  aria-label={`Vùng ${zone.label}${revealed.has(zone.id) ? ' — đã chọn' : ''}`}
+                  className="flex-1 py-3 rounded-xl font-semibold text-sm transition-all duration-150 active:scale-[0.97]"
+                  style={{
+                    background: revealed.has(zone.id) ? 'var(--lp-accent)' : 'color-mix(in srgb, var(--lp-accent) 9%, white)',
+                    color: revealed.has(zone.id) ? 'white' : 'var(--lp-primary)',
+                    border: revealed.has(zone.id) ? '2px solid var(--lp-primary)' : '2px solid color-mix(in srgb, var(--lp-accent) 20%, transparent)',
+                  }}>
+                  {zone.label}{revealed.has(zone.id) ? ' — ok' : ''}
+                </button>
+              ))}
+            </div>
+            {/* Cằm — bottom */}
+            {[REVEAL_ZONES[2]].map(zone => (
+              <button key={zone.id} onClick={() => handleZoneClick(zone)}
+                aria-pressed={revealed.has(zone.id)}
+                aria-label={`Vùng ${zone.label}${revealed.has(zone.id) ? ' — đã chọn' : ''}`}
+                className="w-full py-3 rounded-xl font-semibold text-sm transition-all duration-150 active:scale-[0.97]"
+                style={{
+                  background: revealed.has(zone.id) ? 'var(--lp-accent)' : 'color-mix(in srgb, var(--lp-accent) 9%, white)',
+                  color: revealed.has(zone.id) ? 'white' : 'var(--lp-primary)',
+                  border: revealed.has(zone.id) ? '2px solid var(--lp-primary)' : '2px solid color-mix(in srgb, var(--lp-accent) 20%, transparent)',
+                }}>
+                {zone.label}{revealed.has(zone.id) ? ' — ok' : ''}
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={() => setScratchMode('draw')}
+            className="text-xs underline-offset-2 underline transition-opacity hover:opacity-100"
+            style={{ color: 'color-mix(in srgb, var(--lp-primary) 45%, transparent)' }}>
+            Quay lại quét tay
+          </button>
         </div>
       )}
 
