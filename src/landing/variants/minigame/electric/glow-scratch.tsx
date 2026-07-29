@@ -203,11 +203,19 @@ export function ElectricGlowScratchMinigame({ onComplete, copy }: MinigameSlotPr
               ))}
               {REVEAL_ZONES.map(zone => (
                 revealed.has(zone.id) && (
-                  <text key={`label-${zone.id}`}
-                    x={zone.x + zone.w / 2} y={zone.y + zone.h / 2 + 1}
-                    textAnchor="middle" fontSize="5" fill="white" fontWeight="bold">
-                    {zone.label}
-                  </text>
+                  // White pill behind label → dark-on-white contrast ~9.3:1 (WCAG 1.4.3)
+                  <g key={`label-${zone.id}`}>
+                    <rect
+                      x={zone.x + zone.w / 2 - 7} y={zone.y + zone.h / 2 - 2.5}
+                      width={14} height={6} rx={1.5}
+                      fill="white" fillOpacity={0.93}
+                    />
+                    <text
+                      x={zone.x + zone.w / 2} y={zone.y + zone.h / 2 + 1.5}
+                      textAnchor="middle" fontSize="5" fill="var(--lp-primary)" fontWeight="bold">
+                      {zone.label}
+                    </text>
+                  </g>
                 )
               ))}
             </svg>
