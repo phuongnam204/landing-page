@@ -15,11 +15,10 @@ export const v14NaturalSpa: Recipe = {
   },
   copy: {
     hook: {
-      badge:         'Liệu trình spa tại nhà',
-      heading:       'Da bạn xứng đáng',
-      headingAccent: 'được chăm sóc đúng cách.',
-      subtext:       'Không phải hy sinh — là tìm ra liệu trình phù hợp nhất với làn da của bạn.',
-      cta:           'Tìm liệu trình của tôi',
+      heading:       'Da bạn nhạy cảm ?',
+      headingAccent: 'không cần sống chung mãi với nó.',
+      subtext:       'Chỉ cần lớp bảo vệ được phục hồi đúng cách, da sẽ ngừng phản ứng quá mức — và bạn không còn phải lo lắng nữa.',
+      cta:           'Tìm giải pháp cho da tôi',
     },
     minigame: {
       intro: {
