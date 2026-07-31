@@ -22,8 +22,6 @@ import { v22ElectricGlowHeavy } from './v22-electric-glow-heavy';
 import { v23ElectricSoftDark } from './v23-electric-soft-dark';
 import { v24ElectricLightPop } from './v24-electric-light-pop';
 import { v25PlayfulCottonCandy } from './v25-playful-cotton-candy';
-import { v26PlayfulClay } from './v26-playful-clay';
-import { v27PlayfulStory } from './v27-playful-story';
 import { vPreviewWizard } from './v02-lilac';
 import type { Recipe } from '../validateRecipe';
 
@@ -52,8 +50,6 @@ export const allRecipes: Recipe[] = [
   v23ElectricSoftDark,
   v24ElectricLightPop,
   v25PlayfulCottonCandy,
-  v26PlayfulClay,
-  v27PlayfulStory,
   vPreviewWizard,
 ];
 export function getRecipeById(id: string): Recipe | undefined {
