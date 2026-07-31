@@ -5,6 +5,7 @@ export type ConditionEducation = {
   steps: { title: string; body: string }[];
   expertQuote: string;
   expertName: string;
+  perTrigger?: Record<string, { body?: string; whyTitle?: string; steps?: { title: string; body: string }[] }>;
 };
 
 
@@ -38,6 +39,44 @@ export const CONDITION_EDUCATION: Partial<Record<ConditionId, ConditionEducation
     ],
     expertQuote: 'Da nhạy cảm cần được phục hồi hàng rào bảo vệ, không phải đè nén triệu chứng. Khi hàng rào mạnh lên, da tự điều chỉnh được nhiều hơn và ít kích ứng hơn đáng kể.',
     expertName: 'BS. Chuyên khoa Da liễu, o2skin',
+    perTrigger: {
+      'Da ửng đỏ': {
+        body: 'Da bạn nhạy cảm, hay <b>ửng đỏ</b> khi tiếp xúc nắng hoặc nhiệt độ cao — hàng rào bảo vệ yếu khiến mạch máu bề mặt giãn đột ngột.',
+        whyTitle: 'Tại sao da bạn đỏ ửng khi gặp nắng hoặc nhiệt độ cao?',
+        steps: [
+          { title: 'Mạch máu bề mặt giãn đột ngột', body: 'Khi da nhạy cảm tiếp xúc với nhiệt hoặc UV, mạch máu bề mặt giãn ra tức thì và gây ửng đỏ — phản ứng nhanh hơn nhiều so với da bình thường do hàng rào bảo vệ kém.' },
+          { title: 'Hàng rào lipid không lọc được UV và nhiệt', body: 'Da bình thường có lớp lipid dày hơn giúp hạn chế nhiệt xâm nhập. Da nhạy cảm thiếu lớp bảo vệ này, khiến phản ứng viêm xảy ra với cường độ thấp hơn bình thường.' },
+          { title: 'Ửng đỏ lâu dài có thể trở thành mãn tính', body: 'Nếu không được xử lý đúng, tình trạng giãn mạch tái diễn nhiều lần dần ổn định thành đỏ mặt thường xuyên — đặc biệt vùng má và mũi.' },
+        ],
+      },
+      'Phát ban và sưng đỏ': {
+        body: 'Da bạn nhạy cảm, hay <b>phát ban và sưng đỏ</b> sau khi dùng mỹ phẩm — hệ miễn dịch da phản ứng với thành phần không phù hợp dù sản phẩm được quảng cáo là nhẹ dịu.',
+        whyTitle: 'Tại sao da bạn phát ban sau khi dùng mỹ phẩm?',
+        steps: [
+          { title: 'Thành phần mỹ phẩm kích hoạt phản ứng miễn dịch trong da', body: 'Dù sản phẩm được quảng cáo nhẹ dịu, chất bảo quản, hương liệu và một số hoạt chất vẫn đủ để kích hoạt phản ứng viêm ở da nhạy cảm.' },
+          { title: 'Phản ứng tiếp xúc tích lũy theo thời gian', body: 'Một số trường hợp không phản ứng ngay mà sau nhiều lần tiếp xúc mới phát ban — khiến việc xác định nguyên nhân trở nên khó hơn.' },
+          { title: 'Thay sản phẩm liên tục làm tình trạng nặng hơn', body: 'Thử nhiều sản phẩm khác nhau để "tìm ra cái phù hợp" thực ra đang gia tăng tần suất tiếp xúc với kích ứng — vòng lặp này khó thoát nếu không phục hồi hàng rào bảo vệ trước.' },
+        ],
+      },
+      'Ngứa rát, nóng bừng hoặc căng da': {
+        body: 'Da bạn nhạy cảm, hay <b>ngứa rát và căng cứng</b> khi tiếp xúc môi trường — thiếu ceramide khiến da mất nước liên tục, đầu thần kinh phản ứng với kích thích rất nhỏ.',
+        whyTitle: 'Tại sao da bạn ngứa rát và căng cứng khi tiếp xúc môi trường?',
+        steps: [
+          { title: 'Đầu thần kinh cảm giác bị kích thích quá mức', body: 'Da nhạy cảm có mật độ đầu thần kinh phản ứng cao hơn bình thường — ngay cả gió nhẹ, thay đổi nhiệt độ hay tiếp xúc vải cũng đủ gây ngứa và rát tức thì.' },
+          { title: 'Thiếu ceramide khiến da mất nước liên tục', body: 'Hàng rào lipid thiếu hụt không giữ được nước trong da — da co rút và gây cảm giác căng cứng đặc biệt sau rửa mặt hoặc sau khi ra ngoài trời.' },
+          { title: 'Gãi hoặc chà mạnh kéo dài vòng lặp kích ứng', body: 'Mỗi lần gãi khi ngứa lại phá thêm hàng rào bảo vệ — khiến da nhạy cảm hơn với lần tiếp xúc sau, vòng lặp kích ứng không tự dừng lại được.' },
+        ],
+      },
+      'Bong tróc và khô da': {
+        body: 'Da bạn nhạy cảm, hay <b>bong tróc và khô</b> dù dưỡng ẩm đủ cách — hàng rào lipid bị phá vỡ khiến nước bốc hơi liên tục, kem dưỡng thông thường không thể vá lại được.',
+        whyTitle: 'Tại sao da bạn bong tróc dù đã dưỡng ẩm đủ cách?',
+        steps: [
+          { title: 'Hàng rào lipid bị phá vỡ — nước bốc hơi liên tục', body: 'Thiếu ceramide và lipid cần thiết khiến nước thoát ra ngoài da không ngừng — dù bôi kem dưỡng ẩm thường xuyên nhưng nước vẫn không được giữ lại.' },
+          { title: 'Kem dưỡng thông thường không sửa được hàng rào bảo vệ', body: 'Phần lớn sản phẩm chỉ bổ sung nước tạm thời lên bề mặt da, không tái tạo được lớp lipid bị thiếu hụt — nên sau vài giờ da lại khô và bong tróc như cũ.' },
+          { title: 'Tẩy tế bào chết nhiều hơn càng làm hàng rào yếu thêm', body: 'Bong tróc là triệu chứng, không phải nguyên nhân — tẩy da chết để xử lý bong tróc thực ra đang lấy đi thêm lớp lipid bảo vệ vốn đã thiếu, khiến tình trạng trầm trọng hơn.' },
+        ],
+      },
+    },
   },
   'mun-noi-tiet': {
     whyTitle: 'Tại sao mụn bùng phát theo chu kỳ dù bạn chăm sóc da đúng cách?',

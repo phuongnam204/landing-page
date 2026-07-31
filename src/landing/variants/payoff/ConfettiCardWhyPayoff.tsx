@@ -10,12 +10,19 @@ import { ResultCard } from './result-layouts/ResultCard';
 
 // ─── WhySection ───────────────────────────────────────────────────────────────
 
-function WhySection({ conditionId, tone, onScrollDown }: {
+function WhySection({ conditionId, tone, triggerNote, onScrollDown }: {
   conditionId: ConditionId;
   tone: 'positive' | 'concern';
+  triggerNote?: string;
   onScrollDown: () => void;
 }) {
-  const edu = CONDITION_EDUCATION[conditionId]!;
+  const base = CONDITION_EDUCATION[conditionId]!;
+  const override = triggerNote ? base.perTrigger?.[triggerNote] : undefined;
+  const edu = {
+    ...base,
+    ...(override?.whyTitle ? { whyTitle: override.whyTitle } : {}),
+    ...(override?.steps    ? { steps: override.steps }         : {}),
+  };
   return (
     <div className="max-w-lg md:max-w-3xl mx-auto px-5 py-10 flex flex-col gap-6">
       <h2 className="font-extrabold text-xl md:text-2xl text-cta">{edu.whyTitle}</h2>
@@ -197,18 +204,30 @@ export function ConfettiCardWhyPayoff({
       )}
 
       {/* Section 1: Kết quả (above fold) */}
-      <ResultComp
-        containerRef={resultSectRef}
-        result={result}
-        onScrollDown={() => whyRef.current?.scrollIntoView({ behavior: 'smooth' })}
-        copy={copy?.resultCard}
-      />
+      {(() => {
+        const condId = result.condition.id as ConditionId;
+        const triggerBody = result.triggerNote
+          ? CONDITION_EDUCATION[condId]?.perTrigger?.[result.triggerNote]?.body
+          : undefined;
+        const displayResult = triggerBody
+          ? { ...result, condition: { ...result.condition, body: triggerBody } }
+          : result;
+        return (
+          <ResultComp
+            containerRef={resultSectRef}
+            result={displayResult}
+            onScrollDown={() => whyRef.current?.scrollIntoView({ behavior: 'smooth' })}
+            copy={copy?.resultCard}
+          />
+        );
+      })()}
 
       {/* Section 2: Why */}
       <div ref={whyRef} className="bg-[var(--lp-bg-payoff)]">
         <WhySection
           conditionId={result.condition.id as ConditionId}
           tone={result.condition.tone}
+          triggerNote={result.triggerNote || undefined}
           onScrollDown={() => clinicRef.current?.scrollIntoView({ behavior: 'smooth' })}
         />
       </div>

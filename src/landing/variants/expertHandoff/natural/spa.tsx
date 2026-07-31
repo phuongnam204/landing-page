@@ -3,14 +3,27 @@ import { useState, useEffect, useRef } from 'react';
 import type { ExpertHandoffSlotProps } from '../../../slots';
 import { trackEvent } from '../../../../lib/trackEvent';
 
-const BUBBLES = [
-  { text: 'Cảm ơn bạn đã chia sẻ thông tin!', delay: 300 },
-  { text: 'Dưới đây là nhận xét sơ bộ về tình trạng da của bạn...', delay: 1800 },
-  { text: 'Chúng tôi sẽ liên hệ trong vòng 24h để tư vấn chi tiết hơn.', delay: 3200 },
-  { text: 'Bạn cũng có thể đặt lịch ngay bên dưới.', delay: 4600 },
-];
+const TRIGGER_ASSESSMENT: Record<string, string> = {
+  'Da ửng đỏ':                          'Da dễ ửng đỏ như của bạn thường là dấu hiệu hàng rào bảo vệ chưa đủ mạnh — không chỉ là vấn đề thẩm mỹ, mà cần được phục hồi đúng hướng.',
+  'Phát ban và sưng đỏ':                 'Phát ban sau khi dùng mỹ phẩm là phản ứng miễn dịch của da — không phải da bạn "kém", mà là da đang thiếu lớp bảo vệ để lọc kích thích bên ngoài.',
+  'Ngứa rát, nóng bừng hoặc căng da':   'Ngứa rát và căng da khi tiếp xúc môi trường thường do thiếu ceramide — da mất nước liên tục dù đã dưỡng ẩm, cần phục hồi hàng rào lipid từ bên trong.',
+  'Bong tróc và khô da':                 'Bong tróc dù dưỡng ẩm nhiều là dấu hiệu hàng rào lipid bị phá vỡ — kem dưỡng thông thường không đủ, cần phương pháp tái tạo đúng tầng.',
+};
+
+function getBubbles(triggerNote?: string) {
+  const assessment = (triggerNote && TRIGGER_ASSESSMENT[triggerNote])
+    ?? 'Da nhạy cảm của bạn cần được phục hồi hàng rào bảo vệ đúng cách — không phải tránh hóa chất, mà là củng cố từ bên trong.';
+  return [
+    { text: 'Cảm ơn bạn đã chia sẻ với chúng tôi!', delay: 300 },
+    { text: assessment, delay: 1800 },
+    { text: 'Để có phác đồ phù hợp nhất, chúng tôi cần trao đổi trực tiếp với bạn một chút.', delay: 4000 },
+    { text: 'Đặt lịch ngay bên dưới — hoàn toàn miễn phí, không cam kết.', delay: 5600 },
+  ];
+}
 
 export function NaturalSpaExpertHandoff({ result, programId, onContinue }: ExpertHandoffSlotProps) {
+  const bubblesRef = useRef(getBubbles(result.triggerNote ?? undefined));
+  const BUBBLES = bubblesRef.current;
   const [visibleBubbles, setVisibleBubbles] = useState<number[]>([]);
   const [showCta, setShowCta] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -24,7 +37,7 @@ export function NaturalSpaExpertHandoff({ result, programId, onContinue }: Exper
         }
       }, b.delay);
     });
-  }, []);
+  }, [BUBBLES]);
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [visibleBubbles]);
 
