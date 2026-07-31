@@ -16,7 +16,24 @@ export function ElectricLightPopHook({ onStart, copy }: HookSlotProps) {
   return (
     <div className="h-[100dvh] w-full relative flex items-center justify-center overflow-hidden" style={{ background: 'var(--lp-bg-hero)' }}>
 
-      {/* ── Decorative figures — visible only on xl+ where side space is wide enough ── */}
+      {/* ── Mobile: figures peek from bottom corners on < xl ── */}
+      <div
+        className="absolute left-0 bottom-0 z-0 pointer-events-none select-none flex items-end xl:hidden"
+        style={{ width: '38vw' }}
+      >
+        <img src="/face-map-v1/face-map-hook-1.svg" alt="" aria-hidden="true"
+          className="w-auto max-w-full" style={{ maxHeight: '52dvh' }} />
+      </div>
+
+      <div
+        className="absolute right-0 bottom-0 z-0 pointer-events-none select-none flex items-end justify-end xl:hidden"
+        style={{ width: '38vw' }}
+      >
+        <img src="/face-map-v1/face-map-hook-2.svg" alt="" aria-hidden="true"
+          className="w-auto max-w-full" style={{ maxHeight: '52dvh' }} />
+      </div>
+
+      {/* ── Desktop: figures fill side zones on xl+ ── */}
       <div
         className="absolute left-0 bottom-0 top-0 z-0 pointer-events-none select-none hidden xl:flex items-end"
         style={{ right: 'calc(50% + 21rem)' }}
@@ -33,7 +50,7 @@ export function ElectricLightPopHook({ onStart, copy }: HookSlotProps) {
           className="w-auto max-w-full" style={{ maxHeight: '75dvh' }} />
       </div>
 
-      <div className="max-w-2xl mx-auto w-full px-5 relative z-10 text-center animate-fade-in-up">
+      <div className="max-w-2xl mx-auto w-full px-5 relative z-10 text-center animate-fade-in-up pb-[32vw] xl:pb-0">
         {c.badge && (
           <div className="inline-block mb-6 px-4 py-1.5 rounded-full" style={{ background: 'color-mix(in srgb, var(--lp-accent) 12%, transparent)', border: '1px solid color-mix(in srgb, var(--lp-accent) 25%, transparent)' }}>
             <span className="text-sm font-medium" style={{ color: 'var(--lp-accent)' }}>{c.badge}</span>
