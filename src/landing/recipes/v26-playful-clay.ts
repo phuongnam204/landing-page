@@ -1,16 +1,16 @@
 import type { Recipe } from '../validateRecipe';
 
-export const v06PlayfulMinimal: Recipe = {
-  id: 'v06-playful-minimal',
-  label: 'v06 — Playful Blossom / Minimal',
+export const v26PlayfulClay: Recipe = {
+  id: 'v26-playful-clay',
+  label: 'v26 — Playful Clay (Claymorphism)',
   theme: 'lilac',
   slots: {
-    hook: 'playful-minimal',
-    minigame: 'playful-clay',
-    payoff: 'playful-minimal',
-    programs: 'playful-minimal',
+    hook:       'playful-minimal',
+    minigame:   'playful-clay',
+    payoff:     'playful-minimal',
+    programs:   'playful-minimal',
     conversion: 'playful-minimal',
-    done: 'playful-minimal',
+    done:       'playful-minimal',
   },
   copy: {
     hook: {

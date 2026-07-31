@@ -7,12 +7,12 @@ import type { ConditionId } from '../../../content/quiz';
 export type Zone = 'forehead' | 'left-cheek' | 'right-cheek' | 'nose' | 'chin-jaw';
 export type AcneType = 'inflamed' | 'blackhead' | 'sensitive' | 'pore' | 'none' | 'scar';
 
-const ZONE_LABELS: Record<Zone, string> = {
-  forehead:      'vùng trán',
-  nose:          'vùng mũi / chữ T',
-  'left-cheek':  'má trái',
-  'right-cheek': 'má phải',
-  'chin-jaw':    'cằm & quai hàm',
+export const ZONE_LABELS: Record<Zone, string> = {
+  forehead:       'vùng trán',
+  nose:           'vùng mũi / chữ T',
+  'left-cheek':   'má trái',
+  'right-cheek':  'má phải',
+  'chin-jaw':     'cằm & quai hàm',
 };
 
 type ZoneDef = {
@@ -427,10 +427,11 @@ function IntroScreen({ heading, subtext, cta, onStart }: {
 // ─── Steps ────────────────────────────────────────────────────────────────────
 
 export function Step1({
-  selectedZones, onToggle, onNext, isScanning,
+  selectedZones, onToggle, onNext, isScanning, onBack,
   heading, subtext,
 }: {
   selectedZones: Zone[]; onToggle: (z: Zone) => void; onNext: () => void; isScanning: boolean;
+  onBack?: () => void;
   heading?: string; subtext?: string;
 }) {
   const h = heading || 'Bạn hay bị mụn ở đâu?';
@@ -452,12 +453,23 @@ export function Step1({
       )}
       <FaceDiagram selectedZones={selectedZones} onToggle={onToggle} isScanning={isScanning} />
       <SelectedZoneTags selectedZones={selectedZones} />
-      <button
-        onClick={onNext}
-        className="w-full bg-cta text-white font-bold py-3.5 rounded-soft text-sm hover:opacity-90 transition-opacity"
-      >
-        Tiếp theo &#8594;
-      </button>
+      <div className="flex gap-2 w-full">
+        {onBack && (
+          <button
+            onClick={onBack}
+            disabled={isScanning}
+            className="px-5 py-3.5 rounded-soft border-2 border-cta/20 text-cta/60 text-sm font-semibold disabled:opacity-40"
+          >
+            &#8592; Quay lại
+          </button>
+        )}
+        <button
+          onClick={onNext}
+          className="flex-1 bg-cta text-white font-bold py-3.5 rounded-soft text-sm hover:opacity-90 transition-opacity"
+        >
+          Tiếp theo &#8594;
+        </button>
+      </div>
     </div>
   );
 }
@@ -588,6 +600,7 @@ export function FaceMapMinigame({ onComplete, copy }: MinigameSlotProps) {
                   selectedZones={selectedZones}
                   onToggle={toggleZone}
                   onNext={handleSubmit}
+                  onBack={() => { setStep(1); setAcneType(null); setSelectedZones([]); }}
                   isScanning={false}
                   heading={faceH}
                   subtext={faceS}
@@ -599,46 +612,52 @@ export function FaceMapMinigame({ onComplete, copy }: MinigameSlotProps) {
       </div>
 
       {/* Desktop: 2 cột song song — col 1: acne type, col 2: zone map */}
-      <div className="hidden md:flex md:items-start md:gap-10 w-full max-w-4xl">
-        <div className="flex-1 flex flex-col gap-3">
-          <div className="text-center mb-1">
-            <p className="font-extrabold text-2xl text-cta">Mụn của bạn thường trông như thế nào?</p>
-            <p className="text-sm text-cta/50 mt-1">Chọn loại gần nhất với da bạn</p>
+      <div className="hidden md:flex md:flex-col md:gap-5 w-full max-w-4xl">
+        <StepProgress step={acneType && acneType !== 'none' ? 2 : 1} />
+        <div className="flex items-start gap-10">
+          <div className="flex-1 flex flex-col gap-3">
+            <div className="text-center mb-1">
+              <p className="font-extrabold text-2xl text-cta">Mụn của bạn thường trông như thế nào?</p>
+              <p className="text-sm text-cta/50 mt-1">Chọn loại gần nhất với da bạn</p>
+            </div>
+            <div className="grid grid-cols-2 gap-2.5">
+              {ACNE_TYPES.map(t => (
+                <AcneCard key={t.id} type={t} selected={acneType === t.id} onSelect={() => pickAcneType(t.id)} />
+              ))}
+            </div>
           </div>
-          <div className="grid grid-cols-2 gap-2.5">
-            {ACNE_TYPES.map(t => (
-              <AcneCard key={t.id} type={t} selected={acneType === t.id} onSelect={() => pickAcneType(t.id)} />
-            ))}
+
+          <div className="w-px bg-cta/10 self-stretch" />
+
+          <div className="flex-1 flex flex-col items-center gap-4">
+            {isScanning ? (
+              <ScanningScreen selectedZones={selectedZones} />
+            ) : acneType && acneType !== 'none' ? (
+              <div className="w-full flex flex-col items-center gap-4 animate-fade-in-up">
+                <div className="text-center">
+                  <p className="font-extrabold text-2xl text-cta">{faceH || 'Mụn xuất hiện ở đâu?'}</p>
+                  <p className="text-sm text-cta/50 mt-1">{faceS || 'Chạm vào vùng da bạn hay có mụn nhất'}</p>
+                </div>
+                <FaceDiagram selectedZones={selectedZones} onToggle={toggleZone} isScanning={false} />
+                <SelectedZoneTags selectedZones={selectedZones} />
+                <button
+                  onClick={handleSubmit}
+                  className="mt-1 w-full bg-cta text-white font-bold py-3.5 rounded-soft text-sm hover:opacity-90 transition-opacity"
+                >
+                  Xem kết quả của tôi
+                </button>
+              </div>
+            ) : (
+              <div className="w-full flex flex-col items-center gap-4 opacity-30 pointer-events-none select-none">
+                <div className="text-center">
+                  <p className="font-extrabold text-2xl text-cta">Mụn xuất hiện ở đâu?</p>
+                  <p className="text-sm text-cta/50 mt-1">Chọn loại mụn bên trái để tiếp tục</p>
+                </div>
+                <FaceDiagram selectedZones={[]} onToggle={() => {}} isScanning={false} />
+              </div>
+            )}
           </div>
         </div>
-
-        {/* Zone map column — only visible when a non-clean type is selected */}
-        {acneType && acneType !== 'none' && !isScanning && (
-          <>
-            <div className="w-px bg-cta/10 self-stretch" />
-            <div className="flex-1 flex flex-col items-center gap-4 animate-fade-in-up">
-              <div className="text-center">
-                <p className="font-extrabold text-2xl text-cta">{faceH || 'Mụn xuất hiện ở đâu?'}</p>
-                <p className="text-sm text-cta/50 mt-1">{faceS || 'Chạm vào vùng da bạn hay có mụn nhất'}</p>
-              </div>
-              <FaceDiagram selectedZones={selectedZones} onToggle={toggleZone} isScanning={isScanning} />
-              <SelectedZoneTags selectedZones={selectedZones} />
-              <button
-                onClick={handleSubmit}
-                disabled={isScanning}
-                className="mt-1 w-full bg-cta text-white font-bold py-3.5 rounded-soft text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
-              >
-                {isScanning ? 'Đang phân tích...' : 'Xem kết quả của tôi'}
-              </button>
-            </div>
-          </>
-        )}
-
-        {isScanning && (
-          <div className="flex-1 flex items-center justify-center">
-            <ScanningScreen selectedZones={selectedZones} />
-          </div>
-        )}
       </div>
 
     </div>
