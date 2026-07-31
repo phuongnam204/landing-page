@@ -35,7 +35,7 @@ export function NumberedBadgeCirclesRight({
 
             <div className="relative">
               <h2 className="font-extrabold text-2xl md:text-3xl text-cta leading-tight">
-                Lợi ích khi chọn<br className="hidden md:block" /> trị mụn ở O2skin
+                Lợi ích khi chọn<br className="hidden md:block" /> trị mụn ở O2 Skin
               </h2>
             </div>
 
@@ -63,14 +63,14 @@ export function NumberedBadgeCirclesRight({
             <div className="absolute top-0 right-0 w-56 h-56 md:w-72 md:h-72 rounded-full overflow-hidden border-4 border-white shadow-2xl">
               <img
                 src={accentImages[0]}
-                alt="Điều trị theo phác đồ chuẩn tại O2skin"
+                alt="Điều trị theo phác đồ chuẩn tại O2 Skin"
                 className="w-full h-full object-cover"
               />
             </div>
             <div className="absolute bottom-0 right-20 md:right-28 w-40 h-40 md:w-52 md:h-52 rounded-full overflow-hidden border-4 border-[var(--lp-border)] shadow-2xl">
               <img
                 src={accentImages[1]}
-                alt="Soi da cùng chuyên viên O2skin"
+                alt="Soi da cùng chuyên viên O2 Skin"
                 className="w-full h-full object-cover"
               />
             </div>

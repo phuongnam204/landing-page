@@ -121,7 +121,7 @@ export function CarouselGrid({
           Đảm bảo chất lượng chuyên sâu
         </p>
         <h2 className="font-black text-3xl md:text-4xl text-white leading-tight">
-          Những gì O2skin có
+          Những gì O2 Skin có
         </h2>
       </div>
 

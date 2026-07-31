@@ -20,7 +20,7 @@ export function ContactInfoWithVideoDone({ selectedProgramId: _ }: DoneSlotProps
           </div>
           <h1 className="font-extrabold text-2xl md:text-3xl text-cta mb-2">Đã nhận thông tin của bạn!</h1>
           <p className="text-sm md:text-base text-cta/70 max-w-sm mx-auto">
-            Chuyên viên O2skin sẽ liên hệ trong vòng <b className="text-cta">24 giờ</b> để tư vấn và đặt lịch phù hợp.
+            Chuyên viên O2 Skin sẽ liên hệ trong vòng <b className="text-cta">24 giờ</b> để tư vấn và đặt lịch phù hợp.
           </p>
         </div>
 

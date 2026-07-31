@@ -374,9 +374,36 @@ export function FaceMapWizardMinigame({ onComplete }: MinigameSlotProps) {
     setZones(prev => prev.includes(z) ? prev.filter(x => x !== z) : [...prev, z]);
   }
 
-  function goToStep2() {
-    setZones([]);
-    setStep(2);
+  function handleSubmitWithType(type: AcneType, zoneList: Zone[]) {
+    if (isScanning) return;
+    const conditionIds = mapToConditions(zoneList, type);
+    const resolved = conditionIds
+      .map(id => skinConditions[id])
+      .filter((c): c is NonNullable<typeof c> => c != null);
+    const conditions = resolved.length > 0
+      ? resolved
+      : ([skinConditions['da-moi-bat-dau']].filter(Boolean) as NonNullable<typeof skinConditions[keyof typeof skinConditions]>[]);
+    const condition = conditions[0];
+    if (!condition) return;
+    const cardInfo = ACNE_CARDS.find(c => c.id === type);
+    const zoneLabel = type !== 'none' && zoneList.length > 0
+      ? zoneList.map(z => ZONE_LABELS[z]).join(', ')
+      : '';
+    const zoneIds = type !== 'none' ? [...zoneList] : [];
+    setIsScanning(true);
+    setTimeout(() => {
+      onComplete({ conditions, condition, zoneLabel, zoneIds, triggerNote: type !== 'none' ? `Loại mụn chủ yếu: ${cardInfo?.label ?? ''}` : '' });
+    }, 1500);
+  }
+
+  function goToStep2OrSubmit(type: AcneType) {
+    setAcneType(type);
+    if (type === 'none') {
+      handleSubmitWithType('none', []);
+    } else {
+      setZones([]);
+      setStep(2);
+    }
   }
 
   function handleSubmit() {
@@ -392,22 +419,7 @@ export function FaceMapWizardMinigame({ onComplete }: MinigameSlotProps) {
     const condition = conditions[0];
     if (!condition) return;
 
-    const cardInfo = ACNE_CARDS.find(c => c.id === type);
-    const zoneLabel = type !== 'none' && zones.length > 0
-      ? zones.map(z => ZONE_LABELS[z]).join(', ')
-      : '';
-    const zoneIds = type !== 'none' ? [...zones] : [];
-
-    setIsScanning(true);
-    setTimeout(() => {
-      onComplete({
-        conditions,
-        condition,
-        zoneLabel,
-        zoneIds,
-        triggerNote: type !== 'none' ? `Loại mụn chủ yếu: ${cardInfo?.label ?? ''}` : '',
-      });
-    }, 1500);
+    handleSubmitWithType(type, zones);
   }
 
   return (
@@ -419,7 +431,7 @@ export function FaceMapWizardMinigame({ onComplete }: MinigameSlotProps) {
           <>
             <ProgressBar step={step} total={2} />
             {step === 1 ? (
-              <Step1 acneType={acneType} onSelect={setAcneType} onNext={goToStep2} />
+              <Step1 acneType={acneType} onSelect={setAcneType} onNext={() => goToStep2OrSubmit(acneType ?? 'none')} />
             ) : (
               <Step2
                 zones={zones}

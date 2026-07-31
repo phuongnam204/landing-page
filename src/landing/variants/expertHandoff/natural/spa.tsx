@@ -58,7 +58,7 @@ export function NaturalSpaExpertHandoff({ result, programId, onContinue }: Exper
           </svg>
         </div>
         <div>
-          <div className="text-sm font-bold" style={{ color: 'var(--lp-primary)' }}>Chuyên viên O2skin</div>
+          <div className="text-sm font-bold" style={{ color: 'var(--lp-primary)' }}>Chuyên viên O2 Skin</div>
           <div className="text-xs" style={{ color: 'color-mix(in srgb, var(--lp-primary) 55%, transparent)' }}>Đang trả lời...</div>
         </div>
       </div>

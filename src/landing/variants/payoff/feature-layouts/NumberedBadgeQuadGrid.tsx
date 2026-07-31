@@ -38,7 +38,7 @@ export function NumberedBadgeQuadGrid({
           Tại sao chọn chúng tôi
         </p>
         <h2 className="font-extrabold text-2xl md:text-3xl text-white leading-tight tracking-tight">
-          Lợi ích khi chọn<br className="hidden md:block" /> trị mụn ở O2skin
+          Lợi ích khi chọn<br className="hidden md:block" /> trị mụn ở O2 Skin
         </h2>
       </div>
 
@@ -126,7 +126,7 @@ export function NumberedBadgeQuadGrid({
       {/* CTA — inverse variant (white bg) để nổi trên nền tối */}
       <div className="mt-10 px-6">
         <CtaButton variant="inverse" onClick={onContinue}>
-          O2skin có gì đặc biệt ?
+          O2 Skin có gì đặc biệt ?
         </CtaButton>
       </div>
     </div>

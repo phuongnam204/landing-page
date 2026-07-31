@@ -17,7 +17,7 @@ export const v19BoldDiagonal: Recipe = {
       badge:         'Chẩn đoán vùng da',
       heading:       'Làn da của bạn',
       headingAccent: 'xứng đáng hơn thế này.',
-      subtext:       'Tìm đúng vấn đề — xử lý đúng cách. Bắt đầu bằng 30 giây phân tích.',
+      subtext:       'Bắt đầu bằng 30 giây phân tích.',
       cta:           'Phân tích da tôi',
     },
     minigame: {

@@ -27,6 +27,8 @@ export type PayoffSlotProps = {
 export type ProgramsSlotProps = {
   suggestedPrograms: ScoredProgram[];
   onContinue: (programId: ProgramId) => void;
+  onBrowse?: () => void;
+  onBack?: () => void;
 };
 
 export type ConversionSlotProps = {

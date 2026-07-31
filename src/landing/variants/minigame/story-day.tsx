@@ -254,9 +254,9 @@ const S4_CHOICES: ChoiceItem[] = [
 
 // ─── Scene config ─────────────────────────────────────────────────────────────
 const SCENES = {
-  s1: { iconKey: 1 as const, narrative: '07:00 Sáng — Bạn vào nhà vệ sinh, soi gương trước khi ra ngoài...', choices: S1_CHOICES },
+  s1: { iconKey: 1 as const, narrative: '07:00 Sáng — Bạn vào nhà vệ sinh, soi gương trước khi ra ngoài. Bạn nhìn thấy...', choices: S1_CHOICES },
   s2: { iconKey: 2 as const, narrative: 'Nhìn lại — mụn của bạn thường bùng sau chuyện gì?', choices: S2_CHOICES },
-  s3: { iconKey: 3 as const, narrative: '12:00 Trưa — Giữa ca làm, bạn vô tình nhìn qua gương điện thoại...', choices: S3_CHOICES },
+  s3: { iconKey: 3 as const, narrative: '12:00 Trưa — Giữa ca làm, bạn vô tình nhìn qua gương điện thoại và phát hiện...', choices: S3_CHOICES },
   s4: { iconKey: 4 as const, narrative: 'Tối — Cuối ngày, trước khi ngủ...', choices: S4_CHOICES },
 } satisfies Record<NonNullable<ActiveScene>, { iconKey: 1|2|3|4; narrative: string; choices: ChoiceItem[] }>;
 

@@ -27,7 +27,7 @@ export function BoldStackedPathChooser({ options, onChoose }: PathChooserSlotPro
       <div className="w-full max-w-sm mx-auto text-center flex flex-col gap-5">
         <div>
           <h2 className="text-lg font-extrabold" style={{ color: 'var(--lp-primary)' }}>
-            Dựa vào kết quả vừa phân tích, bạn muốn đi theo hướng nào?
+            Bạn muốn đi theo hướng nào?
           </h2>
           <p className="text-sm mt-2" style={{ color: 'color-mix(in srgb, var(--lp-primary) 55%, transparent)' }}>
             Chọn điều phù hợp nhất với bạn ngay lúc này.

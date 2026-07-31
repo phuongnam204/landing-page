@@ -30,7 +30,7 @@ export function ProgramsOrganism({ suggestedPrograms, onContinue, layout, faqIte
           <div className="flex items-center justify-center gap-3 md:gap-5">
             <img src="/mascots/nurse-cheer.png" alt="" className="ps-popCheer ps-floaty w-16 md:w-24 h-auto object-contain" style={{ zIndex: 20 }} />
             <h2 className="ps-fadeDown text-xl md:text-2xl font-extrabold text-cta text-center [animation-delay:0.1s]">
-              Các gói dịch vụ tại O2Skin
+              Các gói dịch vụ tại O2 Skin
             </h2>
             <img src="/mascots/nurse-review.png" alt="" className="ps-popCheer ps-floaty hidden sm:block w-16 md:w-24 h-auto object-contain" style={{ animationDelay: '0.2s', zIndex: 20 }} />
           </div>

@@ -1,13 +1,17 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { ProgramId } from '../content/programs';
 import { recommendPrograms, type ScoredProgram } from '../content/recommend';
 import { trackEvent } from '../lib/trackEvent';
 import { registry } from './registry';
 import type { MinigameResult } from './slots';
 import type { Recipe } from './validateRecipe';
+import { SuggestedProgramScreen } from './variants/suggestedProgram/SuggestedProgramScreen';
+import { CarouselPrograms } from './variants/programs/CarouselPrograms';
 
-type Step = 'hook' | 'minigame' | 'payoff' | 'expertHandoff' | 'programs' | 'pathChooser' | 'conversion' | 'teaserPayoff' | 'socialProof' | 'done';
+type Step = 'hook' | 'minigame' | 'payoff' | 'expertHandoff' | 'programs' | 'suggested-program' | 'browse-programs' | 'pathChooser' | 'conversion' | 'teaserPayoff' | 'socialProof' | 'done';
+
+const FLOW_SESSION_KEY = 'o2skin_flow';
 
 export default function LandingFlow({ recipe }: { recipe: Recipe }) {
   const [step, setStep] = useState<Step>('hook');
@@ -22,6 +26,34 @@ export default function LandingFlow({ recipe }: { recipe: Recipe }) {
     setTimeout(() => { setStep(next); setTransitioning(false); }, 300);
   }
 
+  // Restore flow state when user returns via browser back button
+  useEffect(() => {
+    const saved = sessionStorage.getItem(FLOW_SESSION_KEY);
+    if (!saved) return;
+    const navEntry = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined;
+    if (navEntry?.type !== 'back_forward') return;
+    try {
+      const { result, programs, program } = JSON.parse(saved);
+      setMinigameResult(result);
+      setSuggestedPrograms(programs ?? []);
+      setSelectedProgram(program ?? null);
+      transitionTo('conversion');
+    } catch {}
+  }, []);
+
+  // Persist state while user is at programs/conversion so back-navigation can restore it
+  useEffect(() => {
+    if (step === 'programs' || step === 'conversion') {
+      sessionStorage.setItem(FLOW_SESSION_KEY, JSON.stringify({
+        result: minigameResult,
+        programs: suggestedPrograms,
+        program: selectedProgram,
+      }));
+    } else if (step === 'done') {
+      sessionStorage.removeItem(FLOW_SESSION_KEY);
+    }
+  }, [step, minigameResult, suggestedPrograms, selectedProgram]);
+
   function nextAfterHook() {
     if (recipe.slots.pathChooser) return transitionTo('pathChooser');
     if (recipe.slots.teaserPayoff) return transitionTo('teaserPayoff');
@@ -31,7 +63,7 @@ export default function LandingFlow({ recipe }: { recipe: Recipe }) {
   function nextAfterPayoff() {
     if (recipe.slots.expertHandoff) return transitionTo('expertHandoff');
     if (recipe.slots.programs) return transitionTo('programs');
-    return transitionTo('conversion');
+    return transitionTo('suggested-program');
   }
 
   function nextAfterPrograms(programId: ProgramId) {
@@ -45,6 +77,7 @@ export default function LandingFlow({ recipe }: { recipe: Recipe }) {
   }
 
   const themeClass = `theme-${recipe.theme ?? 'blossom'}`;
+  const fontScopeId = recipe.font ? `lp-hf-${recipe.id}` : null;
   const containerClass = `transition-opacity duration-300 ${transitioning ? 'opacity-0' : 'opacity-100'}`;
 
   const Hook          = registry.hook[recipe.slots.hook];
@@ -59,7 +92,10 @@ export default function LandingFlow({ recipe }: { recipe: Recipe }) {
   const Done          = recipe.slots.done            ? registry.done[recipe.slots.done]                       : null;
 
   return (
-    <div className={`overflow-hidden ${themeClass} ${containerClass}`}>
+    <div className={`${themeClass}${fontScopeId ? ` ${fontScopeId}` : ''} ${containerClass}`} style={{ overflowX: 'clip' }}>
+      {fontScopeId && (
+        <style>{`.${fontScopeId} h1,.${fontScopeId} h1 span,.${fontScopeId} h1 em,.${fontScopeId} h2{font-family:${recipe.font}}`}</style>
+      )}
       {step === 'hook' && Hook && <Hook onStart={nextAfterHook} copy={recipe.copy?.hook} />}
 
       {step === 'pathChooser' && PathChooser && (
@@ -73,6 +109,9 @@ export default function LandingFlow({ recipe }: { recipe: Recipe }) {
               setIsFastTrack(true);
               trackEvent('path_chosen', { path: 'fast_track' });
               transitionTo('conversion');
+            } else if (optionId === 'browse') {
+              trackEvent('path_chosen', { path: 'browse_programs' });
+              transitionTo('browse-programs');
             } else {
               trackEvent('path_chosen', { path: 'full_flow' });
               transitionTo('minigame');
@@ -110,9 +149,7 @@ export default function LandingFlow({ recipe }: { recipe: Recipe }) {
           programId={selectedProgram}
           onContinue={() => {
             if (recipe.slots.programs) return transitionTo('programs');
-            if (recipe.slots.pathChooser) return transitionTo('pathChooser');
-            if (recipe.slots.teaserPayoff) return transitionTo('teaserPayoff');
-            transitionTo('conversion');
+            transitionTo('suggested-program');
           }}
         />
       )}
@@ -122,7 +159,28 @@ export default function LandingFlow({ recipe }: { recipe: Recipe }) {
           onContinue={(programId) => {
             trackEvent('program_selected', { programId });
             nextAfterPrograms(programId);
-          }} />
+          }}
+          onBrowse={() => transitionTo('browse-programs')} />
+      )}
+
+      {step === 'suggested-program' && (
+        <SuggestedProgramScreen
+          suggestedPrograms={suggestedPrograms}
+          onConfirm={() => transitionTo('conversion')}
+          onBrowse={() => transitionTo('browse-programs')}
+        />
+      )}
+
+      {step === 'browse-programs' && (
+        <CarouselPrograms
+          suggestedPrograms={suggestedPrograms}
+          onContinue={(programId) => {
+            trackEvent('program_selected', { programId });
+            setSelectedProgram(programId);
+            transitionTo('conversion');
+          }}
+          onBack={() => transitionTo(recipe.slots.programs ? 'programs' : 'suggested-program')}
+        />
       )}
 
       {step === 'conversion' && Conversion && (

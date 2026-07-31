@@ -431,7 +431,7 @@ export function ElectricSoftSwipeMinigame({ onComplete, copy }: MinigameSlotProp
                   <circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
                 </svg>
               </div>
-              <div className="text-sm md:text-base font-bold" style={{ color: 'var(--lp-primary)' }}>O2skin · Kiểm tra da</div>
+              <div className="text-sm md:text-base font-bold" style={{ color: 'var(--lp-primary)' }}>O2 Skin · Kiểm tra da</div>
             </div>
             <div className="text-xs md:text-sm font-semibold" style={{ color: 'color-mix(in srgb, var(--lp-primary) 50%, transparent)' }}>
               {phase === 'intro' && 'Hướng dẫn'}

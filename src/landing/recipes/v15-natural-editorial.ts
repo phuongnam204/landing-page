@@ -4,13 +4,15 @@ export const v15NaturalEditorial: Recipe = {
   id: 'v15-natural-editorial',
   label: 'v15 — Natural Sage / Editorial',
   theme: 'cherry-jp',
+  font: 'var(--font-lora), Georgia, serif',
   slots: {
-    hook:       'natural-editorial',
-    minigame:   'natural-editorial',
-    payoff:     'natural-editorial',
-    programs:   'natural-editorial-journey',
-    conversion: 'natural-editorial',
-    done:       'natural-editorial',
+    hook:        'natural-editorial',
+    pathChooser: 'natural-editorial',
+    minigame:    'skin-scan-chat',
+    payoff:      'natural-editorial',
+    programs:    'natural-editorial-journey',
+    conversion:  'natural-editorial',
+    done:        'natural-editorial',
   },
   copy: {
     hook: {
@@ -19,13 +21,6 @@ export const v15NaturalEditorial: Recipe = {
       headingAccent: 'cần được biên tập lại.',
       subtext:       'Ít bước hơn, đúng bước hơn — bắt đầu từ việc hiểu đúng tình trạng da.',
       cta:           'Biên tập quy trình của tôi',
-    },
-    minigame: {
-      intro: {
-        heading: 'Tình trạng da chính của bạn là gì?',
-        subtext:  'Chọn đúng — để chúng tôi biên tập lại quy trình phù hợp nhất.',
-        cta:      'Tiếp tục',
-      },
     },
     payoff: {
       resultCard: {

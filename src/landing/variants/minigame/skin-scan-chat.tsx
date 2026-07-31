@@ -110,7 +110,7 @@ function ChatHeader({ depth }: { depth: number }) {
         </svg>
       </div>
       <div className="flex-1">
-        <div className="text-sm font-bold" style={{ color: 'var(--lp-primary)' }}>O2skin Analyzer</div>
+        <div className="text-sm font-bold" style={{ color: 'var(--lp-primary)' }}>O2 Skin Analyzer</div>
         <div className="text-xs" style={{ color: 'color-mix(in srgb, var(--lp-primary) 55%, transparent)' }}>Phân tích vùng da</div>
       </div>
       {depth > 0 && (

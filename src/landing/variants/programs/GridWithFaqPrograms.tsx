@@ -336,7 +336,7 @@ function FaqSection({ items }: { items: FaqItem[] }) {
   );
 }
 
-export function GridWithFaqPrograms({ suggestedPrograms, onContinue, ctaVariant = 'dark' }: ProgramsSlotProps & { ctaVariant?: 'golden' | 'dark' }) {
+export function GridWithFaqPrograms({ suggestedPrograms, onContinue, onBrowse, ctaVariant = 'dark' }: ProgramsSlotProps & { ctaVariant?: 'golden' | 'dark' }) {
   useEffect(() => { trackEvent('programs_faq_view'); }, []);
   const [openDrawerIdx, setOpenDrawerIdx] = useState<number | null>(null);
 
@@ -377,10 +377,19 @@ export function GridWithFaqPrograms({ suggestedPrograms, onContinue, ctaVariant 
             )}
             <FaqSection items={faqItems} />
           </div>
-          <div className="mt-6">
+          <div className="mt-6 flex flex-col items-center gap-3">
             <CtaButton variant={ctaVariant} fullWidth onClick={() => onContinue(topProgramId)}>
               Đặt lịch với liệu trình này
             </CtaButton>
+            {onBrowse && (
+              <button
+                onClick={onBrowse}
+                className="text-sm font-semibold underline underline-offset-2 transition-opacity hover:opacity-70"
+                style={{ color: 'var(--lp-accent)' }}
+              >
+                Khám phá các liệu trình khác
+              </button>
+            )}
           </div>
           <div className="h-4" />
         </div>

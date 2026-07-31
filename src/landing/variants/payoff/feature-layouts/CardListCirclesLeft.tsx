@@ -32,14 +32,14 @@ export function CardListCirclesLeft({
             <div className="absolute top-0 left-0 w-56 h-56 md:w-72 md:h-72 rounded-full overflow-hidden border-4 border-white/20 shadow-2xl">
               <img
                 src={accentImages[0]}
-                alt="Điều trị IPL tại O2Skin"
+                alt="Điều trị IPL tại O2 Skin"
                 className="w-full h-full object-cover"
               />
             </div>
             <div className="absolute bottom-0 left-20 md:left-28 w-40 h-40 md:w-52 md:h-52 rounded-full overflow-hidden border-4 border-white/10 shadow-xl">
               <img
                 src={accentImages[1]}
-                alt="Cơ sở vật chất hiện đại tại O2skin"
+                alt="Cơ sở vật chất hiện đại tại O2 Skin"
                 className="w-full h-full object-cover"
               />
             </div>
@@ -53,7 +53,7 @@ export function CardListCirclesLeft({
           {/* ─── Right: title + feature cards + CTA ─── */}
           <div className="flex flex-col gap-7">
             <h2 className="font-extrabold text-2xl md:text-3xl text-white leading-tight">
-              Những gì O2skin có
+              Những gì O2 Skin có
             </h2>
 
             <div className="flex flex-col gap-4">

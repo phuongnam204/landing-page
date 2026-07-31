@@ -160,6 +160,7 @@ import { BoldTypographicCommitmentPrograms } from './variants/programs/bold/typo
 import { NaturalSpaExpertHandoff } from './variants/expertHandoff/natural/spa';
 import { BoldClassicTeaserPayoff } from './variants/teaserPayoff/bold/classic';
 import { BoldStackedPathChooser } from './variants/pathChooser/bold/stacked';
+import { NaturalEditorialPathChooser } from './variants/pathChooser/natural/editorial';
 import { ConfettiCardWhyVideoSplitPayoff } from './variants/payoff/confetti-card-why-video-split';
 import { ConfettiCardWhyCirclesQuadPayoff } from './variants/payoff/confetti-card-why-circles-quad';
 import { ConfettiCardWhyCirclesVideoPayoff } from './variants/payoff/confetti-card-why-circles-video';
@@ -178,5 +179,5 @@ export const registry = {
   done:        { 'contact-info': ContactInfoDone, 'contact-info-with-video': ContactInfoWithVideoDone, 'playful-classic': PlayfulClassicDone, 'playful-minimal': PlayfulMinimalDone, 'playful-immersive': PlayfulImmersiveDone, 'playful-dark-accent': PlayfulDarkAccentDone, 'clinical-classic': ClinicalClassicDone, 'clinical-compact': ClinicalCompactDone, 'clinical-dashboard': ClinicalDashboardDone, 'clinical-editorial': ClinicalEditorialDone, 'natural-classic': NaturalClassicDone, 'natural-spa': NaturalSpaDone, 'natural-editorial': NaturalEditorialDone, 'natural-minimal': NaturalMinimalDone, 'bold-classic': BoldClassicDone, 'bold-stacked': BoldStackedDone, 'bold-diagonal': BoldDiagonalDone, 'bold-typographic': BoldTypographicDone, 'electric-classic': ElectricClassicDone, 'electric-glow-heavy': ElectricGlowHeavyDone, 'electric-soft-dark': ElectricSoftDarkDone, 'electric-light-pop': ElectricLightPopDone } as Record<string, ComponentType<DoneSlotProps>>,
   expertHandoff: { 'natural-spa': NaturalSpaExpertHandoff } as Record<string, ComponentType<ExpertHandoffSlotProps>>,
   teaserPayoff:  { 'bold-classic': BoldClassicTeaserPayoff } as Record<string, ComponentType<TeaserPayoffSlotProps>>,
-  pathChooser:   { 'bold-stacked': BoldStackedPathChooser } as Record<string, ComponentType<PathChooserSlotProps>>,
+  pathChooser:   { 'bold-stacked': BoldStackedPathChooser, 'natural-editorial': NaturalEditorialPathChooser } as Record<string, ComponentType<PathChooserSlotProps>>,
 };

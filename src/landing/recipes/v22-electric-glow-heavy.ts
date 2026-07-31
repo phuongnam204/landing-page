@@ -8,6 +8,7 @@ export const v22ElectricGlowHeavy: Recipe = {
     hook:       'electric-glow-heavy',
     minigame:   'electric-glow-scratch',
     payoff:     'electric-glow-heavy',
+    programs:   'electric-glow-heavy',
     conversion: 'electric-glow-heavy',
     done:       'electric-glow-heavy',
   },

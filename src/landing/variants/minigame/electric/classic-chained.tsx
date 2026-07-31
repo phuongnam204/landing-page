@@ -84,7 +84,7 @@ export function ElectricClassicChainedMinigame({ onComplete }: MinigameSlotProps
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" /></svg>
         </div>
         <div>
-          <div className="text-sm font-bold" style={{ color: 'var(--lp-primary)' }}>O2skin Skin Scan</div>
+          <div className="text-sm font-bold" style={{ color: 'var(--lp-primary)' }}>O2 Skin Skin Scan</div>
           <div className="text-xs" style={{ color: 'color-mix(in srgb, var(--lp-primary) 55%, transparent)' }}>{phase === 'zone' ? 'Chạm vào vùng da có mụn' : phase === 'severity' ? 'Đánh giá mức độ' : 'Đang phân tích...'}</div>
         </div>
       </div>

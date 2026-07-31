@@ -93,7 +93,7 @@ function ClinicIntroSection({ tone, onScrollDown }: { tone: 'positive' | 'concer
       <div className="flex-1 order-1 md:order-2">
         <img
           src="/clinic/hinh-banner-about-us-desktop-update.png"
-          alt="Phòng khám da liễu O2skin"
+          alt="Phòng khám da liễu O2 Skin"
           className="w-full h-auto rounded-soft"
         />
       </div>

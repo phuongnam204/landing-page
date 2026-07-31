@@ -54,7 +54,7 @@ export function NumberedBadgeVideoSplit({
         </div>
 
         <h2 className="font-extrabold text-2xl md:text-3xl text-cta leading-tight">
-          Lợi ích khi chọn<br className="hidden md:block" /> trị mụn ở O2skin
+          Lợi ích khi chọn<br className="hidden md:block" /> trị mụn ở O2 Skin
         </h2>
 
         <div className="flex flex-col gap-5">
