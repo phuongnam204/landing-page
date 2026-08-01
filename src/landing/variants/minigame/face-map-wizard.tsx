@@ -36,11 +36,18 @@ const ACNE_CARDS: {
     subtitle: 'Đỏ, đau, có mủ',
     accent: '#EF4444',
     icon: (
-      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
-        <circle cx="18" cy="18" r="10" fill="#EF4444" opacity="0.18" />
-        <circle cx="18" cy="18" r="5"  fill="#EF4444" opacity="0.85" />
-        <circle cx="11" cy="13" r="3"  fill="#EF4444" opacity="0.55" />
-        <circle cx="25" cy="23" r="2.5" fill="#EF4444" opacity="0.45" />
+      <svg width="44" height="44" viewBox="0 0 52 52" fill="none" aria-hidden="true">
+        <circle cx="26" cy="26" r="22" fill="#EF4444" opacity="0.07" />
+        <circle cx="26" cy="28" r="12" fill="#EF4444" opacity="0.16" />
+        <circle cx="26" cy="26" r="9"  fill="#EF4444" opacity="0.88" />
+        <circle cx="26" cy="22" r="3.2" fill="white" opacity="0.90" />
+        <circle cx="13" cy="17" r="4.2" fill="#EF4444" opacity="0.48" />
+        <circle cx="38" cy="34" r="3.3" fill="#EF4444" opacity="0.38" />
+        <path d="M26 4 L26 8"   stroke="#EF4444" strokeWidth="1.8" strokeLinecap="round" opacity="0.45" />
+        <path d="M38 8 L36 11"  stroke="#EF4444" strokeWidth="1.8" strokeLinecap="round" opacity="0.38" />
+        <path d="M14 8 L16 11"  stroke="#EF4444" strokeWidth="1.8" strokeLinecap="round" opacity="0.38" />
+        <path d="M44 20 L41 21.5" stroke="#EF4444" strokeWidth="1.8" strokeLinecap="round" opacity="0.30" />
+        <path d="M8 20 L11 21.5"  stroke="#EF4444" strokeWidth="1.8" strokeLinecap="round" opacity="0.30" />
       </svg>
     ),
   },
@@ -50,12 +57,18 @@ const ACNE_CARDS: {
     subtitle: 'Nốt nhỏ, không đau',
     accent: '#374151',
     icon: (
-      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
-        <circle cx="18" cy="18" r="3" fill="#374151" opacity="0.9" />
-        <circle cx="12" cy="14" r="2" fill="#374151" opacity="0.7" />
-        <circle cx="24" cy="14" r="2" fill="#374151" opacity="0.7" />
-        <circle cx="15" cy="23" r="2" fill="#374151" opacity="0.6" />
-        <circle cx="23" cy="22" r="1.5" fill="#374151" opacity="0.5" />
+      <svg width="44" height="44" viewBox="0 0 52 52" fill="none" aria-hidden="true">
+        <circle cx="26" cy="26" r="20" fill="#374151" opacity="0.06" />
+        <circle cx="26" cy="26" r="6"   fill="#374151" opacity="0.88" />
+        <circle cx="24.5" cy="24.5" r="1.8" fill="white" opacity="0.55" />
+        <circle cx="14" cy="16" r="3.8" fill="#374151" opacity="0.72" />
+        <circle cx="13.5" cy="15.5" r="1.2" fill="white" opacity="0.40" />
+        <circle cx="38" cy="16" r="3"   fill="#374151" opacity="0.62" />
+        <circle cx="16" cy="36" r="3.3" fill="#374151" opacity="0.65" />
+        <circle cx="36" cy="36" r="2.5" fill="#374151" opacity="0.55" />
+        <circle cx="40" cy="26" r="2"   fill="#374151" opacity="0.42" />
+        <circle cx="12" cy="27" r="1.6" fill="#374151" opacity="0.35" />
+        <circle cx="30" cy="12" r="1.5" fill="#374151" opacity="0.40" />
       </svg>
     ),
   },
@@ -65,10 +78,17 @@ const ACNE_CARDS: {
     subtitle: 'Kích ứng, đổi thời tiết',
     accent: '#F472B6',
     icon: (
-      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
-        <path d="M8 18 Q13 12 18 18 Q23 24 28 18" stroke="#F472B6" strokeWidth="2.5" strokeLinecap="round" fill="none" opacity="0.9" />
-        <path d="M8 23 Q13 17 18 23 Q23 29 28 23" stroke="#F472B6" strokeWidth="2" strokeLinecap="round" fill="none" opacity="0.55" />
-        <path d="M8 13 Q13 7 18 13 Q23 19 28 13"  stroke="#F472B6" strokeWidth="1.5" strokeLinecap="round" fill="none" opacity="0.35" />
+      <svg width="44" height="44" viewBox="0 0 52 52" fill="none" aria-hidden="true">
+        <ellipse cx="26" cy="26" rx="21" ry="17" fill="#F472B6" opacity="0.08" />
+        <path d="M6 19 Q12 12 18 19 Q24 26 30 19 Q36 12 46 19"
+          stroke="#F472B6" strokeWidth="3" strokeLinecap="round" fill="none" opacity="0.88" />
+        <path d="M6 26 Q12 19 18 26 Q24 33 30 26 Q36 19 46 26"
+          stroke="#F472B6" strokeWidth="2.3" strokeLinecap="round" fill="none" opacity="0.58" />
+        <path d="M6 33 Q12 26 18 33 Q24 40 30 33 Q36 26 46 33"
+          stroke="#F472B6" strokeWidth="1.6" strokeLinecap="round" fill="none" opacity="0.32" />
+        <circle cx="18" cy="19" r="3"   fill="#F472B6" opacity="0.55" />
+        <circle cx="32" cy="26" r="2.3" fill="#F472B6" opacity="0.42" />
+        <circle cx="12" cy="34" r="1.6" fill="#F472B6" opacity="0.30" />
       </svg>
     ),
   },
@@ -78,11 +98,17 @@ const ACNE_CARDS: {
     subtitle: 'Ít mụn, lỗ chân lông rõ',
     accent: '#8B5CF6',
     icon: (
-      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
-        <circle cx="18" cy="18" r="5" stroke="#8B5CF6" strokeWidth="2" opacity="0.85" />
-        <circle cx="18" cy="18" r="2" stroke="#8B5CF6" strokeWidth="1.5" opacity="0.6" />
-        <circle cx="11" cy="14" r="3" stroke="#8B5CF6" strokeWidth="1.5" opacity="0.55" />
-        <circle cx="25" cy="22" r="2.5" stroke="#8B5CF6" strokeWidth="1.5" opacity="0.45" />
+      <svg width="44" height="44" viewBox="0 0 52 52" fill="none" aria-hidden="true">
+        <circle cx="26" cy="26" r="20" fill="#8B5CF6" opacity="0.07" />
+        <circle cx="26" cy="26" r="14"  stroke="#8B5CF6" strokeWidth="1.4" opacity="0.30" fill="none" />
+        <circle cx="26" cy="26" r="9.5" stroke="#8B5CF6" strokeWidth="2"   opacity="0.58" fill="none" />
+        <circle cx="26" cy="26" r="5"   stroke="#8B5CF6" strokeWidth="2.8" opacity="0.85" fill="none" />
+        <circle cx="26" cy="26" r="1.8" fill="#8B5CF6" opacity="0.95" />
+        <circle cx="13" cy="14" r="5.5" stroke="#8B5CF6" strokeWidth="1.4" opacity="0.38" fill="none" />
+        <circle cx="13" cy="14" r="2.5" stroke="#8B5CF6" strokeWidth="1.8" opacity="0.58" fill="none" />
+        <circle cx="13" cy="14" r="0.8" fill="#8B5CF6" opacity="0.75" />
+        <circle cx="39" cy="37" r="4.5" stroke="#8B5CF6" strokeWidth="1.4" opacity="0.32" fill="none" />
+        <circle cx="39" cy="37" r="1.8" stroke="#8B5CF6" strokeWidth="1.8" opacity="0.50" fill="none" />
       </svg>
     ),
   },
@@ -92,9 +118,16 @@ const ACNE_CARDS: {
     subtitle: 'Không có vấn đề rõ',
     accent: '#10B981',
     icon: (
-      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
-        <circle cx="18" cy="18" r="12" fill="#10B981" opacity="0.12" />
-        <path d="M12 18l4 4 8-8" stroke="#10B981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      <svg width="44" height="44" viewBox="0 0 52 52" fill="none" aria-hidden="true">
+        <circle cx="26" cy="26" r="21" fill="#10B981" opacity="0.10" />
+        <circle cx="26" cy="26" r="15" fill="#10B981" opacity="0.18" />
+        <path d="M15 26 L22 33 L37 17" stroke="#10B981" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.92" />
+        <circle cx="9"  cy="11" r="1.8" fill="#10B981" opacity="0.52" />
+        <circle cx="42" cy="14" r="1.4" fill="#10B981" opacity="0.42" />
+        <circle cx="40" cy="40" r="1.8" fill="#10B981" opacity="0.38" />
+        <circle cx="11" cy="40" r="1.3" fill="#10B981" opacity="0.32" />
+        <path d="M42 9 L44 7 M44 9 L42 7" stroke="#10B981" strokeWidth="1.5" strokeLinecap="round" opacity="0.45" />
+        <path d="M10 43 L12 41 M12 43 L10 41" stroke="#10B981" strokeWidth="1.5" strokeLinecap="round" opacity="0.35" />
       </svg>
     ),
   },
@@ -104,12 +137,18 @@ const ACNE_CARDS: {
     subtitle: 'Lỗ nhỏ lõm sau mụn',
     accent: '#9C7A5F',
     icon: (
-      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
-        <circle cx="18" cy="18" r="3.5" stroke="#9C7A5F" strokeWidth="1.6" opacity="0.85" />
-        <circle cx="11" cy="13" r="2.5" stroke="#9C7A5F" strokeWidth="1.4" opacity="0.65" />
-        <circle cx="25" cy="13" r="2.5" stroke="#9C7A5F" strokeWidth="1.4" opacity="0.65" />
-        <circle cx="13" cy="25" r="2"   stroke="#9C7A5F" strokeWidth="1.3" opacity="0.5"  />
-        <circle cx="24" cy="24" r="2"   stroke="#9C7A5F" strokeWidth="1.3" opacity="0.5"  />
+      <svg width="44" height="44" viewBox="0 0 52 52" fill="none" aria-hidden="true">
+        <circle cx="26" cy="26" r="20" fill="#9C7A5F" opacity="0.07" />
+        <ellipse cx="26" cy="27"   rx="7.5"  ry="6"    stroke="#9C7A5F" strokeWidth="2"   opacity="0.85" fill="none" />
+        <ellipse cx="26" cy="28"   rx="11.5" ry="9"    stroke="#9C7A5F" strokeWidth="1.2" opacity="0.48" fill="none" />
+        <ellipse cx="26" cy="29"   rx="15"   ry="11.5" stroke="#9C7A5F" strokeWidth="0.8" opacity="0.25" fill="none" />
+        <circle  cx="26" cy="26"   r="2"     fill="#9C7A5F" opacity="0.65" />
+        <ellipse cx="13" cy="15"   rx="4.5"  ry="3.8"  stroke="#9C7A5F" strokeWidth="1.8" opacity="0.72" fill="none" />
+        <ellipse cx="13" cy="15.8" rx="7"    ry="5.5"  stroke="#9C7A5F" strokeWidth="1"   opacity="0.36" fill="none" />
+        <circle  cx="13" cy="15"   r="1.3"   fill="#9C7A5F" opacity="0.55" />
+        <ellipse cx="38" cy="36"   rx="3.8"  ry="3.2"  stroke="#9C7A5F" strokeWidth="1.6" opacity="0.65" fill="none" />
+        <ellipse cx="38" cy="36.5" rx="6"    ry="4.8"  stroke="#9C7A5F" strokeWidth="0.9" opacity="0.32" fill="none" />
+        <circle  cx="38" cy="36"   r="1"     fill="#9C7A5F" opacity="0.50" />
       </svg>
     ),
   },
