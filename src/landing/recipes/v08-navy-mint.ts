@@ -7,7 +7,8 @@ export const v08NavyMint: Recipe = {
   chipColor: { bg: '#2D2640', text: '#8FE3BC', label: 'Navy × Mint' },
   slots: {
     hook: 'playful-dark-accent',
-    minigame: 'playful-dark-accent',
+    pathChooser: 'natural-editorial',
+    minigame: 'skin-scan-chat',
     payoff: 'playful-dark-accent',
     programs: 'playful-dark-accent',
     conversion: 'playful-dark-accent',
@@ -22,13 +23,7 @@ export const v08NavyMint: Recipe = {
       cta:           'Tìm giải pháp của tôi',
       hookImage:     '/face-map-v1/face-map-hook-2.svg',
     },
-    minigame: {
-      intro: {
-        heading: 'Tình trạng da của bạn là gì?',
-        subtext:  'Câu trả lời của bạn quyết định phác đồ điều trị.',
-        cta:      'Bắt đầu phân tích',
-      },
-    },
+    minigame: {},
     payoff: {
       resultCard: {
         concern:  'Chúng tôi đã xác định được vấn đề cốt lõi.',

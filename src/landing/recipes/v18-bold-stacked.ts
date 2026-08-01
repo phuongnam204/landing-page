@@ -15,11 +15,11 @@ export const v18BoldStacked: Recipe = {
   },
   copy: {
     hook: {
-      badge:         'Phân tích da tức thì',
-      heading:       'Dùng đủ thứ',
-      headingAccent: 'vẫn nổi mụn?',
-      subtext:       'Không phải sản phẩm sai — có thể là chưa đúng nguyên nhân. Chúng tôi giúp bạn tìm ra.',
-      cta:           'Bắt đầu ngay',
+      badge:         'Phân tích da cá nhân',
+      heading:       'Da bạn xứng đáng',
+      headingAccent: 'được hiểu đúng hơn.',
+      subtext:       'Không cần thêm sản phẩm — cần đúng hướng. Chúng tôi giúp bạn tìm ra điều da mình thực sự cần.',
+      cta:           'Tìm hiểu ngay',
     },
     minigame: {
       intro: {

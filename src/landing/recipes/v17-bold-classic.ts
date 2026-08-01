@@ -21,13 +21,7 @@ export const v17BoldClassic: Recipe = {
       subtext:       'Mỗi loại mụn có một lý do khác nhau. Tìm đúng lý do, chọn đúng cách điều trị.',
       cta:           'Tìm hiểu ngay',
     },
-    minigame: {
-      intro: {
-        heading: 'Mụn đang xuất hiện ở vùng nào?',
-        subtext:  'Chỉ ra vùng da trên bản đồ — chúng tôi phân tích và đưa ra hướng xử lý phù hợp.',
-        cta:      'Chọn vùng da',
-      },
-    },
+    minigame: {},
     payoff: {
       resultCard: {
         concern:  'Chúng tôi đã xác định được nguyên nhân cụ thể.',
