@@ -1,6 +1,6 @@
 'use client';
 // arc-wheel minigame — electric soft swipe
-import { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import type { MinigameSlotProps } from '../../../slots';
 import type { MinigameCopy } from '../../../copy';
 import { skinConditions } from '../../../../content/quiz';
@@ -25,6 +25,8 @@ interface SwipeCard {
   description: string;
   conditionId: ConditionId;
   zones: Zone[];
+  icon: React.ReactNode;
+  accent: string;
 }
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -37,11 +39,92 @@ const SPRING_THRESHOLD = 0.04;
 const DAMPING = 0.22;
 
 const CARDS: SwipeCard[] = [
-  { id: 'oily',    label: 'Da nhờn, bóng dầu',           description: 'Mặt hay bóng dầu, đặc biệt vùng trán và mũi', conditionId: 'da-nhon-mun-viem', zones: ['forehead', 'nose'] },
-  { id: 'acne',    label: 'Mụn viêm, mụn bọc',            description: 'Xuất hiện nốt đỏ, đau, có mủ hoặc sưng to',   conditionId: 'mun-trung-ca',     zones: ['left-cheek', 'right-cheek'] },
-  { id: 'dry-red', label: 'Da khô, đỏ, dễ kích ứng',      description: 'Da căng rát sau rửa mặt, dễ bong tróc',       conditionId: 'da-nhay-cam',      zones: ['left-cheek', 'right-cheek', 'forehead'] },
-  { id: 'pores',   label: 'Lỗ chân lông to, ít mụn',      description: 'Lỗ chân lông nhìn thấy rõ, da xuất hiện đầu đen', conditionId: 'lo-chan-long', zones: ['nose', 'forehead'] },
-  { id: 'clear',   label: 'Da khỏe, không vấn đề rõ rệt', description: 'Da khá ổn định, không có mụn hay kích ứng thường xuyên', conditionId: 'clean-skin', zones: [] },
+  {
+    id: 'oily', label: 'Da nhờn, bóng dầu', description: 'Mặt hay bóng dầu, đặc biệt vùng trán và mũi',
+    conditionId: 'da-nhon-mun-viem', zones: ['forehead', 'nose'], accent: '#F59E0B',
+    icon: (
+      <svg width="44" height="44" viewBox="0 0 52 52" fill="none" aria-hidden="true">
+        <circle cx="26" cy="26" r="20" fill="#F59E0B" opacity="0.07"/>
+        <path d="M26 9 C26 9 15 22 15 30 C15 37 20 42 26 42 C32 42 37 37 37 30 C37 22 26 9 26 9Z" fill="#F59E0B" opacity="0.80"/>
+        <path d="M21 25 C21 25 19 28.5 19 31.5" stroke="white" strokeWidth="2.8" strokeLinecap="round" opacity="0.60"/>
+        <path d="M13 20 C13 20 10.5 23 10.5 25.5 C10.5 27.5 11.5 29 13 29 C14.5 29 15.5 27.5 15.5 25.5 C15.5 23 13 20 13 20Z" fill="#F59E0B" opacity="0.45"/>
+        <path d="M39 15 C39 15 37 18.5 37 20.5 C37 22.5 38 23.5 39 23.5 C40 23.5 41 22.5 41 20.5 C41 18.5 39 15 39 15Z" fill="#F59E0B" opacity="0.38"/>
+      </svg>
+    ),
+  },
+  {
+    id: 'acne', label: 'Mụn viêm, mụn bọc', description: 'Xuất hiện nốt đỏ, đau, có mủ hoặc sưng to',
+    conditionId: 'mun-trung-ca', zones: ['left-cheek', 'right-cheek'], accent: '#EF4444',
+    icon: (
+      <svg width="44" height="44" viewBox="0 0 52 52" fill="none" aria-hidden="true">
+        <circle cx="26" cy="26" r="22" fill="#EF4444" opacity="0.07"/>
+        <circle cx="26" cy="28" r="12" fill="#EF4444" opacity="0.16"/>
+        <circle cx="26" cy="26" r="9"  fill="#EF4444" opacity="0.88"/>
+        <circle cx="26" cy="22" r="3.2" fill="white" opacity="0.90"/>
+        <circle cx="13" cy="17" r="4.2" fill="#EF4444" opacity="0.48"/>
+        <circle cx="38" cy="34" r="3.3" fill="#EF4444" opacity="0.38"/>
+        <path d="M26 4 L26 8"     stroke="#EF4444" strokeWidth="1.8" strokeLinecap="round" opacity="0.45"/>
+        <path d="M38 8 L36 11"    stroke="#EF4444" strokeWidth="1.8" strokeLinecap="round" opacity="0.38"/>
+        <path d="M14 8 L16 11"    stroke="#EF4444" strokeWidth="1.8" strokeLinecap="round" opacity="0.38"/>
+        <path d="M44 20 L41 21.5" stroke="#EF4444" strokeWidth="1.8" strokeLinecap="round" opacity="0.30"/>
+        <path d="M8 20 L11 21.5"  stroke="#EF4444" strokeWidth="1.8" strokeLinecap="round" opacity="0.30"/>
+      </svg>
+    ),
+  },
+  {
+    id: 'dry-red', label: 'Da khô, đỏ, dễ kích ứng', description: 'Da căng rát sau rửa mặt, dễ bong tróc',
+    conditionId: 'da-nhay-cam', zones: ['left-cheek', 'right-cheek', 'forehead'], accent: '#F97316',
+    icon: (
+      <svg width="44" height="44" viewBox="0 0 52 52" fill="none" aria-hidden="true">
+        <circle cx="26" cy="26" r="20" fill="#F97316" opacity="0.07"/>
+        <path d="M26 9 L26 19"  stroke="#F97316" strokeWidth="2.8" strokeLinecap="round" opacity="0.75"/>
+        <path d="M26 19 L18 26" stroke="#F97316" strokeWidth="2.8" strokeLinecap="round" opacity="0.75"/>
+        <path d="M18 26 L21 34" stroke="#F97316" strokeWidth="2.5" strokeLinecap="round" opacity="0.70"/>
+        <path d="M26 19 L34 23" stroke="#F97316" strokeWidth="2.2" strokeLinecap="round" opacity="0.60"/>
+        <path d="M34 23 L31 31" stroke="#F97316" strokeWidth="2.2" strokeLinecap="round" opacity="0.60"/>
+        <path d="M18 26 L11 27" stroke="#F97316" strokeWidth="1.6" strokeLinecap="round" opacity="0.40"/>
+        <path d="M31 31 L38 36" stroke="#F97316" strokeWidth="1.6" strokeLinecap="round" opacity="0.38"/>
+        <circle cx="21" cy="37" r="2.5" fill="#EF4444" opacity="0.48"/>
+        <circle cx="35" cy="29" r="2"   fill="#EF4444" opacity="0.38"/>
+        <circle cx="14" cy="33" r="1.5" fill="#EF4444" opacity="0.30"/>
+      </svg>
+    ),
+  },
+  {
+    id: 'pores', label: 'Lỗ chân lông to, ít mụn', description: 'Lỗ chân lông nhìn thấy rõ, da xuất hiện đầu đen',
+    conditionId: 'lo-chan-long', zones: ['nose', 'forehead'], accent: '#8B5CF6',
+    icon: (
+      <svg width="44" height="44" viewBox="0 0 52 52" fill="none" aria-hidden="true">
+        <circle cx="26" cy="26" r="20" fill="#8B5CF6" opacity="0.07"/>
+        <circle cx="26" cy="26" r="14"  stroke="#8B5CF6" strokeWidth="1.4" opacity="0.30" fill="none"/>
+        <circle cx="26" cy="26" r="9.5" stroke="#8B5CF6" strokeWidth="2"   opacity="0.58" fill="none"/>
+        <circle cx="26" cy="26" r="5"   stroke="#8B5CF6" strokeWidth="2.8" opacity="0.85" fill="none"/>
+        <circle cx="26" cy="26" r="1.8" fill="#8B5CF6" opacity="0.95"/>
+        <circle cx="13" cy="14" r="5.5" stroke="#8B5CF6" strokeWidth="1.4" opacity="0.38" fill="none"/>
+        <circle cx="13" cy="14" r="2.5" stroke="#8B5CF6" strokeWidth="1.8" opacity="0.58" fill="none"/>
+        <circle cx="13" cy="14" r="0.8" fill="#8B5CF6" opacity="0.75"/>
+        <circle cx="39" cy="37" r="4.5" stroke="#8B5CF6" strokeWidth="1.4" opacity="0.32" fill="none"/>
+        <circle cx="39" cy="37" r="1.8" stroke="#8B5CF6" strokeWidth="1.8" opacity="0.50" fill="none"/>
+      </svg>
+    ),
+  },
+  {
+    id: 'clear', label: 'Da khỏe, không vấn đề rõ rệt', description: 'Da khá ổn định, không có mụn hay kích ứng thường xuyên',
+    conditionId: 'clean-skin', zones: [], accent: '#10B981',
+    icon: (
+      <svg width="44" height="44" viewBox="0 0 52 52" fill="none" aria-hidden="true">
+        <circle cx="26" cy="26" r="21" fill="#10B981" opacity="0.10"/>
+        <circle cx="26" cy="26" r="15" fill="#10B981" opacity="0.18"/>
+        <path d="M15 26 L22 33 L37 17" stroke="#10B981" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.92"/>
+        <circle cx="9"  cy="11" r="1.8" fill="#10B981" opacity="0.52"/>
+        <circle cx="42" cy="14" r="1.4" fill="#10B981" opacity="0.42"/>
+        <circle cx="40" cy="40" r="1.8" fill="#10B981" opacity="0.38"/>
+        <circle cx="11" cy="40" r="1.3" fill="#10B981" opacity="0.32"/>
+        <path d="M42 9 L44 7 M44 9 L42 7" stroke="#10B981" strokeWidth="1.5" strokeLinecap="round" opacity="0.45"/>
+        <path d="M10 43 L12 41 M12 43 L10 41" stroke="#10B981" strokeWidth="1.5" strokeLinecap="round" opacity="0.35"/>
+      </svg>
+    ),
+  },
 ];
 
 const DEFAULT_COPY: Required<MinigameCopy> = {
@@ -545,14 +628,12 @@ export function ElectricSoftSwipeMinigame({ onComplete, copy }: MinigameSlotProp
                     } as React.CSSProperties}
                 >
                   <div style={{
-                    width: 40, height: 40, borderRadius: '50%',
-                    background: 'color-mix(in srgb, var(--lp-accent) 10%, white)',
+                    width: 56, height: 56, borderRadius: '50%',
+                    background: `color-mix(in srgb, ${card.accent} 12%, var(--lp-bg-card, white))`,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     flexShrink: 0,
                   }}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--lp-accent)" strokeWidth="2">
-                      <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18" />
-                    </svg>
+                    {card.icon}
                   </div>
                   <div style={{ fontWeight: 800, fontSize: 13, lineHeight: 1.3, color: 'var(--lp-primary)' }}>
                     {card.label}
