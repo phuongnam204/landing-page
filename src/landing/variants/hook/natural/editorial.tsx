@@ -25,7 +25,7 @@ export function NaturalEditorialHook({ onStart, copy }: HookSlotProps) {
           )}
           <h1 className="font-serif font-bold text-4xl md:text-6xl text-cta leading-snug md:leading-snug [text-wrap:balance] italic">
             {c.heading}<br />
-            <span className="text-[var(--lp-accent)] not-italic">{c.headingAccent}</span>
+            <span className="text-[var(--lp-accent)]">{c.headingAccent}</span>
           </h1>
           <p className="font-serif italic text-base md:text-lg text-cta/55 max-w-sm leading-relaxed">{c.subtext}</p>
           <CtaButton onClick={onStart} size="lg">{c.cta}</CtaButton>

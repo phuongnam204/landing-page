@@ -28,7 +28,7 @@ export function NaturalEditorialPathChooser({ onChoose }: PathChooserSlotProps) 
             animation: 'pc-item-in 420ms ease-out 60ms both',
           }}
         >
-          Trước khi biên tập, chúng tôi mong muốn hiểu hơn về da của bạn.
+          Trước khi bắt đầu, chúng tôi mong muốn hiểu hơn về da của bạn.
         </h2>
 
         <div className="w-full flex flex-col items-center gap-5">
