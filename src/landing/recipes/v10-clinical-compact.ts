@@ -5,12 +5,13 @@ export const v10ClinicalCompact: Recipe = {
   label: 'v10 — Clinical Ocean / Compact',
   theme: 'ice',
   slots: {
-    hook:       'clinical-compact',
-    minigame:   'clinical-compact',
-    payoff:     'confetti-card-why-circles-quad',
-    programs:   'clinical-compact',
-    conversion: 'clinical-compact',
-    done:       'clinical-compact',
+    hook:        'clinical-compact',
+    pathChooser: 'natural-editorial',
+    minigame:    'clinical-compact',
+    payoff:      'confetti-card-why-circles-quad',
+    programs:    'clinical-compact',
+    conversion:  'clinical-compact',
+    done:        'clinical-compact',
   },
   copy: {
     hook: {
@@ -21,13 +22,7 @@ export const v10ClinicalCompact: Recipe = {
       cta:           'Phân tích ngay',
       hookImage:     '/face-map-v2/face-map-hook-1.svg',
     },
-    minigame: {
-      intro: {
-        heading: 'Chọn tình trạng da của bạn',
-        subtext:  'Chọn điều gần nhất với tình trạng bạn đang gặp.',
-        cta:      'Tiếp tục',
-      },
-    },
+    minigame: {},
     payoff: {
       resultCard: {
         concern:  'Vấn đề đã được xác định rõ.',

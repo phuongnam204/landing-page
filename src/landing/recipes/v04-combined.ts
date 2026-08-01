@@ -5,12 +5,13 @@ export const v04Combined: Recipe = {
   label: 'v04 — Programs+FAQ / Conversion+Testimonial',
   theme: 'coral',
   slots: {
-    hook:       'playful-circle-blob',
-    minigame:   'face-map',
-    payoff:     'confetti-card-why-video-split',
-    programs:   'grid-with-faq',
-    conversion: 'short-form-with-testimonials',
-    done:       'contact-info-with-video',
+    hook:        'playful-circle-blob',
+    pathChooser: 'natural-editorial',
+    minigame:    'face-map',
+    payoff:      'confetti-card-why-video-split',
+    programs:    'grid-with-faq',
+    conversion:  'short-form-with-testimonials',
+    done:        'contact-info-with-video',
   },
   copy: {
     hook: {
@@ -22,11 +23,6 @@ export const v04Combined: Recipe = {
       hookImage:     '/image-hook/Picture7.jpg',
     },
     minigame: {
-      intro: {
-        heading: 'Mụn của bạn hay mọc ở vùng nào?',
-        subtext:  'Chỉ vào vùng da trên bản đồ — chúng tôi sẽ giải mã nguyên nhân.',
-        cta:      'Bắt đầu chỉ',
-      },
       faceMap: {
         heading: 'Chọn vùng da đang có vấn đề',
         subtext:  'Có thể chọn nhiều vùng cùng lúc',
