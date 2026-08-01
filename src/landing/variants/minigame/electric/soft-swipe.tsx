@@ -355,7 +355,7 @@ export function ElectricSoftSwipeMinigame({ onComplete, copy }: MinigameSlotProp
     setTimeout(() => {
       setCheckCardIdx(null);
       setSelectedZones(CARDS[cardIdx].zones);
-      setPhase('face-map');
+      setPhase(CARDS[cardIdx].conditionId === 'clean-skin' ? 'scanning' : 'face-map');
     }, 900);
   }, [springTo]);
 
