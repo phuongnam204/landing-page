@@ -100,7 +100,7 @@ export const programs: Program[] = [
       'Quy trình giúp trẻ hóa và thu nhỏ lỗ chân lông đảm bảo an toàn',
       'Chi phí điều trị tiết kiệm, phù hợp mọi đối tượng khách hàng'
     ],
-    primaryConditionIds: ['da-seo-ro'],
+    primaryConditionIds: ['da-seo-ro', 'da-seo-ro-nan-mun', 'da-seo-ro-khong-nan'],
     // secondaryConditionIds: [''],
     sessions: 7,
     o2skinComboRef: '',

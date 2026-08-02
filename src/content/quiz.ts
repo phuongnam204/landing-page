@@ -8,6 +8,7 @@ export type ConditionId =
   | 'lan-da-xin-mau'
   | 'da-nhon-mun-viem'
   | 'da-nhay-cam'
+  | 'da-nhay-cam-san-pham'
   | 'tan-nhang'
   | 'da-tham-do'
   | 'da-tho-rap'
@@ -17,7 +18,9 @@ export type ConditionId =
   | 'clean-skin'
   | 'sau-dieu-tri'
   | 'da-moi-bat-dau'
-  | 'da-seo-ro';
+  | 'da-seo-ro'
+  | 'da-seo-ro-nan-mun'
+  | 'da-seo-ro-khong-nan';
 
 export interface SkinCondition {
   id: ConditionId;
@@ -51,11 +54,20 @@ export const skinConditions: Partial<Record<ConditionId, SkinCondition>> = {
   },
   'da-nhay-cam': {
     id: 'da-nhay-cam',
-    label: 'Da nhạy cảm',
+    label: 'Da nhạy cảm (thời tiết)',
     tone: 'concern',
     color: '#7DD9C0',
-    body: 'Da bạn <b>nhạy cảm, dễ kích ứng</b> — dễ nổi mẩn đỏ, ửng đỏ từng mảng khi thay đổi thời tiết hoặc dùng sản phẩm không phù hợp.',
-    bridge: 'Da nhạy cảm cần cách tiếp cận nhẹ nhàng và đúng bước — không phải cứ tránh hóa chất là xong.',
+    body: 'Da bạn <b>nhạy cảm với môi trường</b> — dễ ửng đỏ, ngứa rát khi thay đổi thời tiết hoặc tiếp xúc khói bụi, không liên quan đến sản phẩm chăm sóc.',
+    bridge: 'Da nhạy cảm kiểu này cần củng cố hàng rào bảo vệ — chọn đúng sản phẩm sẽ giúp da ổn định hơn rõ rệt.',
+    o2skinRef: 'o2skin SkinType (đối chiếu tên thật)',
+  },
+  'da-nhay-cam-san-pham': {
+    id: 'da-nhay-cam-san-pham',
+    label: 'Da nhạy cảm (sản phẩm)',
+    tone: 'concern',
+    color: '#5BC4B0',
+    body: 'Da bạn <b>nhạy cảm với thành phần mỹ phẩm</b> — tình trạng đỏ rát, kích ứng xuất hiện sau khi dùng sản phẩm chăm sóc, cho thấy hàng rào da đang yếu hoặc sản phẩm chưa phù hợp.',
+    bridge: 'Kích ứng do sản phẩm thường cải thiện nhanh khi xác định đúng thành phần gây vấn đề và chuyển sang routine phù hợp hơn.',
     o2skinRef: 'o2skin SkinType (đối chiếu tên thật)',
   },
   'lo-chan-long': {
@@ -166,6 +178,24 @@ export const skinConditions: Partial<Record<ConditionId, SkinCondition>> = {
     color: '#9C7A5F',
     body: 'Da bạn có <b>sẹo rỗ</b> — tổn thương sau khi mụn viêm mạnh để lại các lỗ nhỏ lõm trên bề mặt, khiến da không đều và thiếu mịn màng dù mụn đã hết.',
     bridge: 'Sẹo rỗ có thể cải thiện rõ rệt với công nghệ laser — không cần phải sống chung với nó mãi.',
+  },
+  'da-seo-ro-nan-mun': {
+    id: 'da-seo-ro-nan-mun',
+    label: 'Sẹo rỗ (do nặn mụn)',
+    tone: 'concern',
+    color: '#A0705A',
+    body: 'Da bạn có <b>sẹo rỗ do nặn mụn</b> — khi nặn không đúng cách, da bị tổn thương nghiêm trọng làm đứt gãy collagen và elastin, khiến bề mặt lõm sâu và mất đi sự mịn màng vốn có. Mụn trứng cá, mụn bọc và mụn mủ đều có thể gây sẹo nếu can thiệp sai cách.',
+    bridge: 'Sẹo do nặn mụn có thể cải thiện tốt với laser và microneedling — quan trọng hơn là dừng nặn từ bây giờ để ngăn sẹo mới tiếp tục hình thành.',
+    o2skinRef: 'o2skin SkinType (đối chiếu tên thật)',
+  },
+  'da-seo-ro-khong-nan': {
+    id: 'da-seo-ro-khong-nan',
+    label: 'Sẹo rỗ (viêm sâu)',
+    tone: 'concern',
+    color: '#8A6A50',
+    body: 'Da bạn có <b>sẹo rỗ do viêm sâu</b> — dù không nặn mụn, các ổ viêm từ mụn bọc và mụn nang kéo dài vẫn có thể phá hủy collagen và elastin bên trong, khiến da không kịp tái tạo sau khi mụn lành và để lại lỗ lõm. Nguy cơ này cao hơn ở người bị mụn nặng hoặc mụn viêm kéo dài.',
+    bridge: 'Sẹo hình thành từ viêm sâu thường cần can thiệp chuyên sâu — nên thăm khám da liễu để được tư vấn phác đồ phù hợp thay vì tự xử lý tại nhà.',
+    o2skinRef: 'o2skin SkinType (đối chiếu tên thật)',
   },
 
 };

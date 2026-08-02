@@ -78,6 +78,16 @@ export const CONDITION_EDUCATION: Partial<Record<ConditionId, ConditionEducation
       },
     },
   },
+  'da-nhay-cam-san-pham': {
+    whyTitle: 'Tại sao da bạn phản ứng với sản phẩm dù đã chọn loại nhẹ nhàng?',
+    steps: [
+      { title: 'Hàng rào bảo vệ bị tổn thương — thành phần thấm sâu hơn bình thường', body: 'Khi ceramide và lipid tầng sừng thiếu hụt, các hoạt chất trong mỹ phẩm không được lọc đúng cách mà xâm nhập trực tiếp vào tầng da nhạy cảm bên dưới — kể cả sản phẩm được quảng cáo là nhẹ dịu.' },
+      { title: 'Hệ miễn dịch da kích hoạt phản ứng viêm với thành phần vô hại', body: 'Chất bảo quản, hương liệu và một số hoạt chất có thể kích hoạt tế bào mast trong da, gây giải phóng histamine và phản ứng viêm dù ở nồng độ rất thấp — phản ứng này tích lũy theo thời gian dùng liên tục.' },
+      { title: 'Thay sản phẩm liên tục làm hàng rào yếu thêm, không mạnh hơn', body: 'Mỗi lần thử sản phẩm mới là một lần tiếp xúc thành phần lạ — da bị kích ứng liên tục không đủ thời gian phục hồi. Giải pháp là tối giản routine và phục hồi hàng rào, không phải tiếp tục tìm sản phẩm "phù hợp hơn".' },
+    ],
+    expertQuote: 'Da nhạy cảm với sản phẩm cần được phục hồi hàng rào trước, không phải thử thêm sản phẩm. Khi ceramide và lipid đủ, da tự điều chỉnh dung nạp được nhiều thành phần hơn mà không cần đổi routine liên tục.',
+    expertName: 'BS. Chuyên khoa Da liễu, o2skin',
+  },
   'mun-noi-tiet': {
     whyTitle: 'Tại sao mụn bùng phát theo chu kỳ dù bạn chăm sóc da đúng cách?',
     steps: [
@@ -176,6 +186,26 @@ export const CONDITION_EDUCATION: Partial<Record<ConditionId, ConditionEducation
       { title: 'Can thiệp sớm cho kết quả tốt hơn rõ rệt', body: 'Công nghệ tái tạo da hiện đại có thể cải thiện sẹo rỗ đáng kể — nhưng hiệu quả phụ thuộc nhiều vào việc can thiệp sớm trước khi cấu trúc da bị tổn thương quá sâu.' },
     ],
     expertQuote: 'Sẹo rỗ là tổn thương cấu trúc collagen — không phải vấn đề bề mặt. Điều trị hiệu quả cần tác động đến tầng collagen dưới da, không chỉ làm mờ bề mặt.',
+    expertName: 'BS. Chuyên khoa Da liễu, o2skin',
+  },
+  'da-seo-ro-nan-mun': {
+    whyTitle: 'Điều gì xảy ra khi nặn mụn không đúng cách?',
+    steps: [
+      { title: 'Lực nặn đẩy vi khuẩn lan sâu vào mô da', body: 'Nặn mụn tạo áp lực đẩy ngược vi khuẩn và dịch viêm xuống sâu hơn, gây tổn thương tầng collagen bên dưới thay vì thoát ra ngoài như mục đích ban đầu.' },
+      { title: 'Collagen và elastin bị đứt gãy tức thời', body: 'Tổn thương cơ học từ nặn làm đứt gãy sợi collagen và elastin — hai thành phần tạo độ đàn hồi của da. Một khi bị phá hủy, da không tự tái tạo đủ để lấp đầy hoàn toàn khoảng trống này.' },
+      { title: 'Hố lõm hình thành khi da lành mà thiếu mô', body: 'Khi vùng viêm lành, da co lại và kéo xuống chỗ collagen đã mất — tạo ra hố rỗ đặc trưng. Đây khác hoàn toàn với thâm mụn có thể tự mờ theo thời gian.' },
+    ],
+    expertQuote: 'Mỗi lần nặn sai cách là một lần đánh cược với sẹo vĩnh viễn. Điều trị mụn đúng hướng từ sớm tiết kiệm chi phí và thời gian gấp nhiều lần so với điều trị sẹo sau này.',
+    expertName: 'BS. Chuyên khoa Da liễu, o2skin',
+  },
+  'da-seo-ro-khong-nan': {
+    whyTitle: 'Tại sao không nặn mụn mà vẫn có sẹo rỗ?',
+    steps: [
+      { title: 'Mụn bọc và mụn nang tạo ổ viêm sâu trong da', body: 'Mụn bọc không có đầu nổi — ổ viêm nằm hoàn toàn bên trong, nơi vi khuẩn P.acnes kết hợp với phản ứng miễn dịch tạo ra tổn thương nghiêm trọng ở tầng trung bì.' },
+      { title: 'Enzyme vi khuẩn phá hủy collagen từ bên trong', body: 'Độc tố từ P.acnes kích hoạt phản ứng viêm cục bộ, dần phân hủy sợi collagen ngay trong vùng bị viêm — quá trình này diễn ra ngầm dù bên ngoài không thấy dấu hiệu rõ ràng.' },
+      { title: 'Da không kịp tái tạo sau khi ổ viêm kéo dài', body: 'Khi mụn nang kéo dài hoặc tái phát nhiều lần, collagen bị mất nhanh hơn tốc độ tái tạo. Da tổng hợp mô sợi thay thế nhưng không đủ để lấp đầy — để lại hố lõm sau khi mụn lành.' },
+    ],
+    expertQuote: 'Sẹo rỗ do viêm sâu cần can thiệp chuyên sâu hơn — nhưng vẫn cải thiện rõ rệt với phác đồ đúng. Thăm khám sớm để bác sĩ đánh giá độ sâu và chỉ định phương pháp phù hợp nhất.',
     expertName: 'BS. Chuyên khoa Da liễu, o2skin',
   },
   'da-san-sui': {

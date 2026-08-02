@@ -7,21 +7,20 @@ import type { ConditionId } from '../../../content/quiz';
 // ─── Signal types ─────────────────────────────────────────────────────────────
 type S1 = 'acne-chin' | 'oily-tzone' | 'scar-dark' | 'clean';
 type S2 = 'hormonal' | 'diet' | 'unknown';
-type S3 = 'oily-inflamed' | 'sensitive' | 'neutral';
+type S3 = 'oily-inflamed' | 'sensitive' | 'neutral' | 'scar-visible';
 type Phase = 'intro' | 'chatting' | 'analyzing';
 type ActiveScene = 's1' | 's2' | 's3' | 's4' | null;
 
 // ─── Condition resolution ─────────────────────────────────────────────────────
 function resolveConditionId(s1: S1, s2: S2 | null, s3: S3 | null): ConditionId {
   if (s1 === 'clean')                                return 'clean-skin';
-  if (s3 === 'sensitive')                            return 'da-nhay-cam';
   if (s1 === 'scar-dark')                            return 'da-seo-ro';
   if (s1 === 'acne-chin' && s2 === 'hormonal')       return 'mun-noi-tiet';
   if (s1 === 'acne-chin' && s2 === 'diet')           return 'da-nhon-mun-viem';
   if (s1 === 'acne-chin')                            return 'mun-trung-ca';
+  if (s3 === 'sensitive')                            return 'da-nhay-cam';
   if (s1 === 'oily-tzone' && s3 === 'oily-inflamed') return 'da-nhon-mun-viem';
   if (s1 === 'oily-tzone')                           return 'lo-chan-long';
-  if (s3 === 'neutral')                              return 'clean-skin';
   return 'da-moi-bat-dau';
 }
 
@@ -228,36 +227,37 @@ function AnalyzingScreen() {
 
 // ─── Scene data ───────────────────────────────────────────────────────────────
 const S1_CHOICES: ChoiceItem[] = [
-  { id: 'acne-chin',  label: 'Thấy 2-3 nốt đỏ mới trên cằm',                 continuation: 'Không phải lần đầu. Bạn thoa nhẹ kem chấm mụn lên, tự nhủ hôm nay cố đừng đụng vào.' },
-  { id: 'oily-tzone', label: 'Vùng mũi-trán bóng nhớn, lỗ chân lông hơi rõ', continuation: 'Bạn rửa mặt thêm một lần nữa. Sạch — nhưng biết đến trưa mọi thứ sẽ quay lại.' },
-  { id: 'scar-dark',  label: 'Mụn đã đỡ, nhưng vết thâm và sẹo vẫn còn',    continuation: 'Mụn đã đi. Nhưng những vết đó thì chưa. Bạn nhìn một lúc rồi thôi — còn phải đi làm.' },
-  { id: 'clean',      label: 'Da nhìn ổn, không có gì đặc biệt',              continuation: 'Hôm nay da ổn. Bạn hài lòng — nhưng vẫn tự hỏi liệu mình có đang chăm sóc đúng cách không, và điều đó có đủ không.' },
+  { id: 'acne-chin',  label: 'Thấy 2-3 nốt đỏ mới trên cằm',                 continuation: 'Bạn dùng đầu ngón tay ấn nhẹ — nhọn chưa? Chưa. Bạn lấy kem chấm mụn ra, chấm từng nốt một, rồi bước đi. Không phải lần đầu. Bạn cũng biết quy tắc rồi: đừng đụng vào. Nhưng tay bao giờ cũng có ý riêng của nó — nhất là khi ngứa tay.' },
+  { id: 'oily-tzone', label: 'Vùng mũi-trán bóng nhớn, lỗ chân lông hơi rõ', continuation: 'Bạn vỗ nhẹ mặt bằng khăn sạch, ngón tay lướt qua sống mũi — bóng ngay. Bạn rửa thêm một lần nữa, lần này mạnh hơn một chút. Sạch. Nhưng bạn biết thừa — đến trưa mọi thứ sẽ quay lại y như cũ, và rửa mặt lần thứ hai không phải câu trả lời.' },
+  { id: 'scar-dark',  label: 'Mụn đã đỡ, nhưng vết thâm và sẹo vẫn còn',    continuation: 'Mụn đã đi từ lâu, nhưng vết thâm thì ở lại. Bạn nhìn vào gương — vài chấm nâu, một chỗ lõm nhỏ nếu để ý kỹ. Không đau. Không rõ ràng như hồi còn mụn. Nhưng mỗi sáng vẫn thấy. Bạn nhìn thêm vài giây rồi thôi — còn phải đi làm.' },
+  { id: 'clean',      label: 'Da nhìn ổn, không có gì đặc biệt',              continuation: 'Bạn nhìn lần nữa để chắc chắn. Ừ, ổn thật. Không đỏ, không bóng, không nốt mụn mới. Bạn hài lòng một chút — nhưng cái cảm giác "đang chăm đúng cách chưa?" thì vẫn còn đó. Hôm nay ổn, nhưng không biết ngày mai thế nào.' },
 ];
 
 const S2_CHOICES: ChoiceItem[] = [
-  { id: 'hormonal', label: 'Đúng trước kỳ kinh, hoặc khi deadline kéo dài',  continuation: 'Như đồng hồ sinh học. Cứ căng thẳng là biết chắc sẽ có khách không mời.' },
-  { id: 'diet',     label: 'Sau mấy ngày ăn nhiều đồ ngọt hoặc đồ chiên',   continuation: 'Bạn đã test điều này nhiều lần rồi — ăn gì là da trả lời bằng mụn.' },
-  { id: 'unknown',  label: 'Không rõ, mụn cứ mọc không theo quy luật gì',   continuation: 'Không đoán được — đó mới là phần khó chịu nhất.' },
+  { id: 'hormonal', label: 'Đúng trước kỳ kinh, hoặc khi deadline kéo dài',  continuation: 'Bạn đã thấy điều này đủ lần để không còn nghi ngờ nữa. Cứ căng thẳng kéo dài hoặc gần kỳ là bắt đầu cảm thấy căng căng ở vùng cằm — và biết chắc vài ngày nữa sẽ có khách không mời. Như đồng hồ sinh học. Bạn không thể tắt nó đi, nhưng ít nhất giờ đã biết chờ đợi gì.' },
+  { id: 'diet',     label: 'Sau mấy ngày ăn nhiều đồ ngọt hoặc đồ chiên',   continuation: 'Đây không phải lý thuyết — đây là kết quả của nhiều lần quan sát. Ăn nhiều đồ ngọt: 2-3 ngày sau thấy ngay. Một bữa nhậu nhiều dầu mỡ: hôm sau da ửng lên. Bạn đã vẽ được cái bản đồ nhân quả đó trong đầu, dù không ai dạy. Chỉ là thỉnh thoảng vẫn cứ ăn — vì cưỡng lại không nổi.' },
+  { id: 'unknown',  label: 'Không rõ, mụn cứ mọc không theo quy luật gì',   continuation: 'Không có quy luật nào rõ ràng cả. Có tuần chăm sóc cẩn thận nhưng da vẫn nổi. Có tuần ăn uống lung tung lại ổn. Bạn đã cố lần ngược từng bước — sản phẩm, đồ ăn, giấc ngủ, nước uống — nhưng vẫn không ghim được nguyên nhân. Không đoán được. Đó mới là phần khó chịu nhất.' },
 ];
 
 const S3_CHOICES: ChoiceItem[] = [
-  { id: 'oily-inflamed', label: 'Mặt đã bóng, vùng cằm bắt đầu ửng đỏ hơn', continuation: 'Mới sáng còn ổn. Buổi trưa đã thế này. Bạn lấy giấy thấm dầu ra.' },
-  { id: 'sensitive',     label: 'Má hơi đỏ sau khi ra nắng lúc ăn trưa',     continuation: 'Da bạn phản ứng nhanh với nắng và nhiệt hơn người khác — điều đó bạn đã biết từ lâu.' },
-  { id: 'neutral',       label: 'Da vẫn ổn, chưa có gì thay đổi nhiều',       continuation: 'Hôm nay có vẻ ổn. Nhưng bạn vẫn e ngại — không biết khi nào thì bùng lại.' },
+  { id: 'oily-inflamed',  label: 'Mặt đã bóng, vùng cằm bắt đầu ửng đỏ hơn',                     continuation: 'Mới sáng rửa xong còn sạch. Giờ vùng cằm đã hơi ửng lên — không rõ vì dầu hay vì nóng. Bạn lấy giấy thấm dầu ra, ấn nhẹ, nhìn cái vết loang màu vàng trên giấy. Không khó chịu vì mặt bóng — khó chịu vì đã rửa mặt cẩn thận từ sáng mà đến trưa vẫn thế này.' },
+  { id: 'sensitive',      label: 'Má hơi đỏ sau khi ra nắng lúc ăn trưa',                         continuation: 'Chỉ ra ngoài mười lăm phút mà hai má đã hồng lên như vừa tập thể dục. Bạn vào phòng lạnh, mấy phút sau thì dịu — nhưng cảm giác ngứa rát ở da vẫn còn lơ lửng đó một lúc. Da bạn phản ứng với nắng và nhiệt nhanh hơn người khác — điều này bạn đã nhận ra từ lâu, chỉ chưa biết phải làm gì với nó.' },
+  { id: 'scar-visible',   label: 'Thấy vết thâm và chỗ lõm trên da rõ hơn dưới ánh đèn văn phòng', continuation: 'Ánh đèn phòng họp chiếu thẳng — khác hẳn ánh đèn nhà. Bạn thấy rõ hơn những chỗ da không đều, vết thâm nâu, một vài chỗ lõm nhỏ. Bạn quay màn hình đi. Không phải vì xấu hổ — chỉ vì không muốn nhìn tiếp.' },
+  { id: 'neutral',        label: 'Da vẫn ổn, chưa có gì thay đổi nhiều',                           continuation: 'Ổn. Không bóng quá, không đỏ lên, không có nốt mụn mới. Bạn nhìn thêm vài giây rồi khóa màn hình lại. Không phải vì lo — chỉ là thói quen kiểm tra. Hôm nay tốt. Nhưng bạn cũng biết rằng cái "hôm nay tốt" này không phải lúc nào cũng kéo dài.' },
 ];
 
 const S4_CHOICES: ChoiceItem[] = [
-  { id: 'full-routine', label: 'Tẩy trang + rửa mặt + dưỡng đủ bước',        continuation: 'Bạn chăm da như một thói quen tự nhiên. Nếu còn mụn — thì không phải do lười.' },
-  { id: 'rinse-only',   label: 'Chỉ rửa mặt cho xong rồi lên giường',         continuation: 'Đủ sức đến đó là tốt lắm rồi. Nhưng da thì cần nhiều hơn thế một chút.' },
-  { id: 'skip',         label: 'Mệt quá, nằm xuống và ngủ luôn',              continuation: 'Ai cũng có những ngày như vậy. Da thì ghi chép lại tất cả.' },
+  { id: 'full-routine', label: 'Tẩy trang + rửa mặt + dưỡng đủ bước',        continuation: 'Bạn lấy tẩy trang ra, xoa đều theo vòng tròn rồi rửa lại — cảm nhận lớp bụi và dầu trôi đi. Tiếp tục với sữa rửa mặt, toner, serum, kem dưỡng — từng bước theo thứ tự quen thuộc, không cần nhắc nhở. Bạn chăm da như thói quen tự nhiên. Nếu vẫn còn mụn — thì không phải do lười. Có điều gì đó khác đang xảy ra bên trong.' },
+  { id: 'rinse-only',   label: 'Chỉ rửa mặt cho xong rồi lên giường',         continuation: 'Bạn rửa mặt qua loa dưới vòi nước, sờ tay lên kiểm tra — sạch là đủ. Hôm nay không còn sức để làm gì nhiều hơn. Nằm xuống, nhắm mắt. Da không được làm sạch đúng nghĩa, không được dưỡng ẩm — nhưng hôm nay bạn cần nghỉ ngơi hơn là cần skincare. Ai cũng có những ngày như vậy. Chỉ là da thì ghi chép lại tất cả.' },
+  { id: 'skip',         label: 'Mệt quá, nằm xuống và ngủ luôn',              continuation: 'Đầu chạm gối là mắt díp lại. Bạn không có ký ức rõ ràng về lúc tắt đèn — chỉ biết sáng hôm sau thức dậy, phấn và kem lót vẫn còn. Ai cũng có những ngày như vậy. Da không phán xét — nhưng nó ghi chép lại tất cả, từng đêm một, im lặng và kiên nhẫn hơn mình nghĩ.' },
 ];
 
 // ─── Scene config ─────────────────────────────────────────────────────────────
 const SCENES = {
-  s1: { iconKey: 1 as const, narrative: '07:00 Sáng — Bạn vào nhà vệ sinh, soi gương trước khi ra ngoài. Bạn nhìn thấy...', choices: S1_CHOICES },
-  s2: { iconKey: 2 as const, narrative: 'Nhìn lại — mụn của bạn thường bùng sau chuyện gì?', choices: S2_CHOICES },
-  s3: { iconKey: 3 as const, narrative: '12:00 Trưa — Giữa ca làm, bạn vô tình nhìn qua gương điện thoại và phát hiện...', choices: S3_CHOICES },
-  s4: { iconKey: 4 as const, narrative: 'Tối — Cuối ngày, trước khi ngủ...', choices: S4_CHOICES },
+  s1: { iconKey: 1 as const, narrative: '07:00 Sáng — Bạn bật đèn nhà vệ sinh, ánh sáng trắng đập thẳng vào mặt. Bạn soi gương trước khi ra ngoài, và thấy...', choices: S1_CHOICES },
+  s2: { iconKey: 2 as const, narrative: 'Ngồi trên xe, hoặc giữa lúc chờ thang máy — bạn bắt đầu nhớ lại. Mụn của bạn thường nổi lên sau...', choices: S2_CHOICES },
+  s3: { iconKey: 3 as const, narrative: '12:00 Trưa — Giữa ca làm việc, bạn cầm điện thoại lên và tình cờ thấy mặt mình trong màn hình phản chiếu. Bạn để ý thấy...', choices: S3_CHOICES },
+  s4: { iconKey: 4 as const, narrative: '22:30 Tối — Bạn vào phòng tắm lần cuối trong ngày. Ánh đèn dịu hơn sáng. Trước khi nằm xuống, bạn...', choices: S4_CHOICES },
 } satisfies Record<NonNullable<ActiveScene>, { iconKey: 1|2|3|4; narrative: string; choices: ChoiceItem[] }>;
 
 const ICON_MAP: Record<1|2|3|4, React.ReactNode> = {

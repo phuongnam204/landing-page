@@ -17,21 +17,37 @@ type TreeNode = {
 
 const TREE: Record<string, TreeNode> = {
   'q1': {
-    question: 'Buổi sáng thức dậy, da bạn thường như thế nào?',
+    question: 'Sáng nay thức dậy, da bạn như thế nào?',
     options: [
-      { label: 'Khô căng, đôi khi bong tróc',           next: 'dry' },
+      { label: 'Hơi khô, đôi khi bong tróc',           next: 'dry' },
       { label: 'Bình thường, không có gì đặc biệt',      next: 'normal' },
       { label: 'Hơi bóng ở vùng T, má thì ổn',           next: 'mild-oily' },
       { label: 'Rất bóng, kể cả hai má',                  next: 'heavy-oily' },
-      { label: 'Vài chỗ da bị lõm, trông không đều',     result: 'da-seo-ro' },
+      { label: 'Vài chỗ da bị lõm, trông không đều',     next: 'skin-scar' },
     ],
   },
   'dry': {
-    question: 'Da bạn hay gặp vấn đề gì?',
+    question: 'Da bạn còn hay gặp vấn đề gì nữa không?',
     options: [
-      { label: 'Đỏ, ngứa, kích ứng dễ khi đổi sản phẩm', result: 'da-nhay-cam' },
+      { label: 'Đỏ, ngứa', next: 'product-used' },
       { label: 'Nổi mụn ở cằm hoặc quanh miệng',          result: 'mun-noi-tiet' },
       { label: 'Chỉ khô căng, không kích ứng gì nhiều',   result: 'da-nhay-cam' },
+    ],
+  },
+
+  'product-used': {
+    question: 'Bạn có hay sử dụng các sản phẩm chăm sóc da không?',
+    options: [
+      { label: 'Có',    next: 'frequency' },
+      { label: 'Không', result: 'da-nhay-cam' },
+    ],
+  },
+  'frequency': {
+    question: 'Tần suất sử dụng thế nào?',
+    options: [
+      { label: 'Khoảng 2–3 lần một ngày',                              result: 'da-nhay-cam-san-pham' },
+      { label: 'Thường chỉ dùng sữa rửa mặt vào mỗi buổi sáng',       result: 'da-nhay-cam-san-pham' },
+      { label: 'Rất ít khi dùng, khi nào cảm thấy da khô mới dùng',   result: 'da-nhay-cam' },
     ],
   },
   'normal': {
@@ -39,16 +55,40 @@ const TREE: Record<string, TreeNode> = {
     options: [
       { label: 'Không, da đang khá ổn',                              result: 'clean-skin' },
       { label: 'Đôi khi nổi mụn',                                    next: 'normal-acne' },
-      { label: 'Hay đỏ hoặc kích ứng với sản phẩm',                  result: 'da-nhay-cam' },
+      { label: 'Hay đỏ hoặc kích ứng với sản phẩm',                  result: 'da-nhay-cam-san-pham' },
       { label: 'Mới bắt đầu quan tâm, chưa hiểu da mình lắm',       result: 'da-moi-bat-dau' },
     ],
   },
   'normal-acne': {
     question: 'Mụn thường xuất hiện ở vùng nào?',
     options: [
-      { label: 'Cằm và quanh miệng',        result: 'mun-noi-tiet' },
-      { label: 'Trán và mũi',               result: 'lo-chan-long' },
-      { label: 'Hai má hoặc nhiều vùng',    result: 'mun-trung-ca' },
+      { label: 'Cằm và quanh miệng',        next: 'normal-acne-chin' },
+      { label: 'Trán và mũi',               next: 'normal-acne-tzone' },
+      { label: 'Hai má hoặc nhiều vùng',    next: 'normal-acne-cheek' },
+    ],
+  },
+  'normal-acne-chin': {
+    question: 'Mụn ở cằm có xu hướng như thế nào?',
+    options: [
+      { label: 'Nặng hơn trước kỳ kinh, sau đó tự bớt',    result: 'mun-noi-tiet' },
+      { label: 'Sưng sâu dưới da, đau nhức khi chạm vào',  result: 'mun-noi-tiet' },
+      { label: 'Nổi rải rác, không theo chu kỳ rõ ràng',   result: 'mun-trung-ca' },
+    ],
+  },
+  'normal-acne-tzone': {
+    question: 'Mụn ở trán và mũi chủ yếu là loại nào?',
+    options: [
+      { label: 'Mụn đầu đen, lỗ chân lông to rõ, ít sưng viêm', result: 'lo-chan-long' },
+      { label: 'Mụn đỏ có mủ, thỉnh thoảng sưng đau',            result: 'mun-trung-ca' },
+      { label: 'Cả đầu đen lẫn mụn đỏ xen kẽ',                   result: 'mun-trung-ca' },
+    ],
+  },
+  'normal-acne-cheek': {
+    question: 'Khi mụn ở má hết, da thường để lại gì?',
+    options: [
+      { label: 'Vết thâm đỏ hoặc nâu, lâu mờ',          result: 'da-mun-tham-seo' },
+      { label: 'Da trở về bình thường, ít để lại dấu',   result: 'mun-trung-ca' },
+      { label: 'Lỗ nhỏ lõm trên bề mặt da',              result: 'da-seo-ro' },
     ],
   },
   'mild-oily': {
@@ -61,9 +101,9 @@ const TREE: Record<string, TreeNode> = {
   'mild-oily-acne': {
     question: 'Mụn hay mọc ở đâu nhất?',
     options: [
-      { label: 'Cằm và quanh miệng',     result: 'mun-noi-tiet' },
-      { label: 'Trán và mũi',            result: 'lo-chan-long' },
-      { label: 'Hai má hoặc nhiều vùng', result: 'mun-trung-ca' },
+      { label: 'Cằm và quanh miệng',     next: 'normal-acne-chin' },
+      { label: 'Trán và mũi',            next: 'normal-acne-tzone' },
+      { label: 'Hai má hoặc nhiều vùng', next: 'normal-acne-cheek' },
     ],
   },
   'heavy-oily': {
@@ -76,9 +116,42 @@ const TREE: Record<string, TreeNode> = {
   'heavy-oily-acne': {
     question: 'Mụn chủ yếu xuất hiện ở đâu?',
     options: [
-      { label: 'Cằm và quanh miệng',              result: 'mun-noi-tiet' },
-      { label: 'Trán, mũi và mặt rất dầu',        result: 'da-nhon-mun-viem' },
-      { label: 'Hai má hoặc rải rác nhiều vùng',  result: 'da-nhon-mun-viem' },
+      { label: 'Cằm và quanh miệng',              next: 'heavy-oily-acne-chin' },
+      { label: 'Trán, mũi và mặt rất dầu',        next: 'heavy-oily-acne-tzone' },
+      { label: 'Hai má hoặc rải rác nhiều vùng',  next: 'heavy-oily-acne-cheek' },
+    ],
+  },
+  'heavy-oily-acne-chin': {
+    question: 'Mụn ở cằm có xu hướng như thế nào?',
+    options: [
+      { label: 'Nặng hơn trước kỳ kinh, sau đó tự bớt',    result: 'mun-noi-tiet' },
+      { label: 'Sưng sâu dưới da, đau nhức khi chạm vào',  result: 'mun-noi-tiet' },
+      { label: 'Viêm đỏ liên tục, không theo chu kỳ',       result: 'da-nhon-mun-viem' },
+    ],
+  },
+  'heavy-oily-acne-tzone': {
+    question: 'Mụn ở trán và mũi trông như thế nào?',
+    options: [
+      { label: 'Chủ yếu đầu đen, lỗ chân lông rất to, ít sưng', result: 'lo-chan-long' },
+      { label: 'Mụn đỏ viêm nhiều, mặt luôn bóng nhờn',          result: 'da-nhon-mun-viem' },
+      { label: 'Cả tắc nghẽn lẫn viêm đỏ, rất khó kiểm soát',   result: 'da-nhon-mun-viem' },
+    ],
+  },
+  'heavy-oily-acne-cheek': {
+    question: 'Mụn ở má thường như thế nào?',
+    options: [
+      { label: 'Viêm đỏ liên tục, mặt bóng nhờn cả ở vùng má',  result: 'da-nhon-mun-viem' },
+      { label: 'Mụn không nhiều nhưng hay để lại thâm hoặc sẹo', result: 'da-mun-tham-seo' },
+      { label: 'Mụn vừa phải, lỗ chân lông to rõ',               result: 'mun-trung-ca' },
+    ],
+  },
+
+  'skin-scar': {
+    question: 'Trước đó bạn có thường xuyên nặn mụn không?',
+    options: [
+      { label: 'Có',                       result: 'da-seo-ro-nan-mun' },
+      { label: 'Thi thoảng nặn do ngứa',  result: 'da-seo-ro-nan-mun' },
+      { label: 'Gần như không',            result: 'da-seo-ro-khong-nan' },
     ],
   },
 };
