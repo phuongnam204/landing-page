@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import type { MinigameSlotProps } from '../../../slots';
 import {
-  ACNE_TYPES, type Zone, type AcneType,
+  ACNE_TYPES, type Zone, type AcneType, type Severity,
   FaceDiagram, mapToConditions,
   SelectedZoneTags, ScanningScreen,
 } from '../face-map';
@@ -202,7 +202,7 @@ export function PlayfulClayMinigame({ onComplete, copy }: MinigameSlotProps) {
       style={{ background: '#F4F1FA' }}
     >
       {isScanning ? (
-        <ScanningScreen selectedZones={selectedZones} />
+        <ScanningScreen zoneSeverity={Object.fromEntries(selectedZones.map(z => [z, 'nhieu' as Severity])) as Partial<Record<Zone, Severity>>} />
       ) : (
         <>
           {/* Mobile: sequential steps */}
@@ -226,7 +226,7 @@ export function PlayfulClayMinigame({ onComplete, copy }: MinigameSlotProps) {
                   <p className="font-extrabold text-xl text-cta">{faceH || 'Mụn xuất hiện ở đâu?'}</p>
                   <p className="text-sm text-cta/50 mt-1">{faceS || 'Chạm vào vùng da bạn hay có mụn nhất'}</p>
                 </div>
-                <FaceDiagram selectedZones={selectedZones} onToggle={toggleZone} isScanning={false} />
+                <FaceDiagram zoneSeverity={Object.fromEntries(selectedZones.map(z => [z, 'nhieu' as Severity])) as Partial<Record<Zone, Severity>>} onZoneTap={(z) => toggleZone(z)} isScanning={false} />
                 <SelectedZoneTags selectedZones={selectedZones} />
                 <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
                   <ClayBtn variant="ghost" onClick={() => { setStep(1); setAcneType(null); setSelectedZones([]); }}>
@@ -269,7 +269,7 @@ export function PlayfulClayMinigame({ onComplete, copy }: MinigameSlotProps) {
                       <p className="font-extrabold text-2xl text-cta">{faceH || 'Mụn xuất hiện ở đâu?'}</p>
                       <p className="text-sm text-cta/50 mt-1">{faceS || 'Chạm vào vùng da bạn hay có mụn nhất'}</p>
                     </div>
-                    <FaceDiagram selectedZones={selectedZones} onToggle={toggleZone} isScanning={false} />
+                    <FaceDiagram zoneSeverity={Object.fromEntries(selectedZones.map(z => [z, 'nhieu' as Severity])) as Partial<Record<Zone, Severity>>} onZoneTap={(z) => toggleZone(z)} isScanning={false} />
                     <SelectedZoneTags selectedZones={selectedZones} />
                     <ClayBtn onClick={() => submit(acneType, selectedZones)}>
                       Xem kết quả của tôi &#8594;
@@ -281,7 +281,7 @@ export function PlayfulClayMinigame({ onComplete, copy }: MinigameSlotProps) {
                       <p className="font-extrabold text-2xl text-cta">Mụn xuất hiện ở đâu?</p>
                       <p className="text-sm text-cta/50 mt-1">Chọn loại mụn bên trái để tiếp tục</p>
                     </div>
-                    <FaceDiagram selectedZones={[]} onToggle={() => {}} isScanning={false} />
+                    <FaceDiagram zoneSeverity={{}} onZoneTap={() => {}} isScanning={false} />
                   </div>
                 )}
               </div>

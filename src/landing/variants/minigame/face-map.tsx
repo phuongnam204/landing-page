@@ -196,16 +196,16 @@ const SVG_KEYFRAMES = `
 // ─── Face diagram (fully SVG-based interaction) ───────────────────────────────
 
 export function FaceDiagram({
-  selectedZones,
-  onToggle,
+  zoneSeverity,
+  onZoneTap,
   isScanning,
 }: {
-  selectedZones: Zone[];
-  onToggle: (z: Zone) => void;
+  zoneSeverity: Partial<Record<Zone, Severity>>;
+  onZoneTap: (z: Zone, cx: number, cy: number) => void;
   isScanning: boolean;
 }) {
   const [hovered, setHovered] = useState<Zone | null>(null);
-  const hasInteracted = selectedZones.length > 0;
+  const hasInteracted = Object.keys(zoneSeverity).length > 0;
 
   return (
     <div className="select-none w-full max-w-[240px] md:max-w-[320px]" style={{ filter: 'drop-shadow(0 4px 16px color-mix(in srgb, var(--lp-accent) 28%, transparent))' }}>
@@ -223,7 +223,7 @@ export function FaceDiagram({
           <style>{SVG_KEYFRAMES}</style>
         </defs>
 
-        {/* Illustrated face base — zoomed by FACE_SCALE */}
+        {/* Illustrated face base */}
         <image
           href="/face-map-minigame.svg"
           x={FACE_OFFSET_X} y="0"
@@ -231,15 +231,26 @@ export function FaceDiagram({
           preserveAspectRatio="xMidYMin meet"
         />
 
-        {/* Zone fills + acne dots (clipped to face silhouette) */}
         <g clipPath="url(#fc-clip)">
           {ZONES_SVG.map(z => {
-            const active = selectedZones.includes(z.id);
-            const isHov  = hovered === z.id && !isScanning;
+            const severity = zoneSeverity[z.id];
+            const active   = severity === 'nhieu' || severity === 'it';
+            const isHov    = hovered === z.id && !isScanning;
+            const fillColor =
+              severity === 'nhieu' ? '#EF4444'
+              : severity === 'it'  ? '#F97316'
+              : 'var(--lp-accent)';
+            const dotColor = severity === 'nhieu' ? '#EF4444' : '#F97316';
             return (
               <g
                 key={z.id}
-                onClick={() => !isScanning && onToggle(z.id)}
+                onClick={(e) => {
+                  if (isScanning) return;
+                  const rect = (e.currentTarget as SVGGElement).getBoundingClientRect();
+                  const cx = rect.left + rect.width  / 2;
+                  const cy = rect.top  + rect.height / 2;
+                  onZoneTap(z.id, cx, cy);
+                }}
                 onMouseEnter={() => setHovered(z.id)}
                 onMouseLeave={() => setHovered(null)}
                 style={{ cursor: isScanning ? 'default' : 'pointer' }}
@@ -247,10 +258,10 @@ export function FaceDiagram({
                 aria-label={z.label}
                 aria-pressed={active}
               >
-                {/* Zone fill + hint pulse when no zone selected yet */}
+                {/* Zone fill */}
                 <ellipse
                   cx={z.cx} cy={z.cy} rx={z.rx} ry={z.ry}
-                  fill="var(--lp-accent)"
+                  fill={fillColor}
                   opacity={active ? 0.22 : isHov ? 0.14 : 0.06}
                   style={{
                     transition: 'opacity 0.15s ease',
@@ -259,7 +270,7 @@ export function FaceDiagram({
                       : undefined,
                   }}
                 />
-                {/* Dashed border — always visible in idle, guides user to tap */}
+                {/* Dashed border when idle */}
                 {!active && (
                   <ellipse
                     cx={z.cx} cy={z.cy} rx={z.rx} ry={z.ry}
@@ -271,20 +282,20 @@ export function FaceDiagram({
                     style={{ transition: 'opacity 0.15s ease', pointerEvents: 'none' }}
                   />
                 )}
-                {/* Expanding ring on select */}
+                {/* Solid border + ring when active */}
                 {active && (
                   <ellipse
                     cx={z.cx} cy={z.cy} rx={z.rx + 3} ry={z.ry + 3}
-                    stroke="var(--lp-accent)" fill="none"
+                    stroke={fillColor} fill="none" opacity={0.7}
                     style={{ animation: 'zone-ring 1.6s ease-out infinite' }}
                   />
                 )}
-                {/* Animated acne dots */}
+                {/* Animated acne dots — colored by severity */}
                 {active && z.dots.map((d, i) => (
                   <circle
                     key={i}
                     cx={d.x} cy={d.y} r="3.5"
-                    fill="#EF4444"
+                    fill={dotColor}
                     style={{
                       animation: [
                         `acne-pop 0.25s ease-out ${i * 0.07}s both`,
@@ -297,7 +308,7 @@ export function FaceDiagram({
             );
           })}
 
-          {/* Scan line inside clip — sweeps along face silhouette */}
+          {/* Scan line */}
           {isScanning && (
             <>
               <rect
@@ -313,8 +324,6 @@ export function FaceDiagram({
             </>
           )}
         </g>
-
-
       </svg>
     </div>
   );
@@ -429,14 +438,14 @@ function AcneCard({ type, selected, onSelect }: {
 
 // ─── Mobile scan screen ───────────────────────────────────────────────────────
 
-export function ScanningScreen({ selectedZones }: { selectedZones: Zone[] }) {
+export function ScanningScreen({ zoneSeverity }: { zoneSeverity: Partial<Record<Zone, Severity>> }) {
   return (
     <div className="w-full max-w-sm flex flex-col items-center gap-5 animate-fade-in-up">
       <div className="text-center">
         <p className="font-extrabold text-xl text-cta">Đang phân tích da của bạn...</p>
         <p className="text-sm text-cta/50 mt-1">Chỉ mất vài giây</p>
       </div>
-      <FaceDiagram selectedZones={selectedZones} onToggle={() => {}} isScanning={true} />
+      <FaceDiagram zoneSeverity={zoneSeverity} onZoneTap={() => {}} isScanning={true} />
       <div className="flex items-center gap-2">
         {[0, 1, 2].map(i => (
           <div
@@ -483,6 +492,12 @@ export function Step1({
 }) {
   const h = heading || 'Bạn hay bị mụn ở đâu?';
   const s = subtext  || 'Chạm vào vùng da bạn hay có mụn nhất';
+
+  // Bridge: selectedZones → zoneSeverity (all selected zones = 'nhieu')
+  const zoneSeverity: Partial<Record<Zone, Severity>> = Object.fromEntries(
+    selectedZones.map(z => [z, 'nhieu' as Severity])
+  );
+
   return (
     <div className="w-full max-w-sm flex flex-col items-center gap-3 md:gap-4 animate-fade-in-up">
       <div className="text-center">
@@ -498,7 +513,11 @@ export function Step1({
           </svg>
         </div>
       )}
-      <FaceDiagram selectedZones={selectedZones} onToggle={onToggle} isScanning={isScanning} />
+      <FaceDiagram
+        zoneSeverity={zoneSeverity}
+        onZoneTap={(z) => !isScanning && onToggle(z)}
+        isScanning={isScanning}
+      />
       <SelectedZoneTags selectedZones={selectedZones} />
       <div className="flex gap-2 w-full">
         {onBack && (
@@ -626,7 +645,7 @@ export function FaceMapMinigame({ onComplete, copy }: MinigameSlotProps) {
       {/* Mobile: 2 bước tuần tự — step 1: acne type, step 2: zone map */}
       <div className="md:hidden w-full flex flex-col items-center gap-4">
         {isScanning
-          ? <ScanningScreen selectedZones={selectedZones} />
+          ? <ScanningScreen zoneSeverity={{}} />
           : (
             <>
               <StepProgress step={step} />
@@ -678,14 +697,14 @@ export function FaceMapMinigame({ onComplete, copy }: MinigameSlotProps) {
 
           <div className="flex-1 flex flex-col items-center gap-4">
             {isScanning ? (
-              <ScanningScreen selectedZones={selectedZones} />
+              <ScanningScreen zoneSeverity={{}} />
             ) : acneType && acneType !== 'none' ? (
               <div className="w-full flex flex-col items-center gap-4 animate-fade-in-up">
                 <div className="text-center">
                   <p className="font-extrabold text-2xl text-cta">{faceH || 'Mụn xuất hiện ở đâu?'}</p>
                   <p className="text-sm text-cta/50 mt-1">{faceS || 'Chạm vào vùng da bạn hay có mụn nhất'}</p>
                 </div>
-                <FaceDiagram selectedZones={selectedZones} onToggle={toggleZone} isScanning={false} />
+                <FaceDiagram zoneSeverity={{}} onZoneTap={() => {}} isScanning={false} />
                 <SelectedZoneTags selectedZones={selectedZones} />
                 <button
                   onClick={handleSubmit}
@@ -700,7 +719,7 @@ export function FaceMapMinigame({ onComplete, copy }: MinigameSlotProps) {
                   <p className="font-extrabold text-2xl text-cta">Mụn xuất hiện ở đâu?</p>
                   <p className="text-sm text-cta/50 mt-1">Chọn loại mụn bên trái để tiếp tục</p>
                 </div>
-                <FaceDiagram selectedZones={[]} onToggle={() => {}} isScanning={false} />
+                <FaceDiagram zoneSeverity={{}} onZoneTap={() => {}} isScanning={false} />
               </div>
             )}
           </div>

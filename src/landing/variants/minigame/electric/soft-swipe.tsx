@@ -5,7 +5,7 @@ import type { MinigameSlotProps } from '../../../slots';
 import type { MinigameCopy } from '../../../copy';
 import { skinConditions } from '../../../../content/quiz';
 import type { ConditionId } from '../../../../content/quiz';
-import { FaceDiagram, type Zone } from '../face-map';
+import { FaceDiagram, type Zone, type Severity } from '../face-map';
 
 const ZONE_LABEL: Record<Zone, string> = {
   forehead:      'Trán',
@@ -724,8 +724,8 @@ export function ElectricSoftSwipeMinigame({ onComplete, copy }: MinigameSlotProp
             </div>
 
             <FaceDiagram
-              selectedZones={selectedZones}
-              onToggle={toggleZone}
+              zoneSeverity={Object.fromEntries(selectedZones.map(z => [z, 'nhieu' as Severity])) as Partial<Record<Zone, Severity>>}
+              onZoneTap={(z) => toggleZone(z)}
               isScanning={false}
             />
 
@@ -786,8 +786,8 @@ export function ElectricSoftSwipeMinigame({ onComplete, copy }: MinigameSlotProp
             </div>
 
             <FaceDiagram
-              selectedZones={selectedZones}
-              onToggle={() => {}}
+              zoneSeverity={Object.fromEntries(selectedZones.map(z => [z, 'nhieu' as Severity])) as Partial<Record<Zone, Severity>>}
+              onZoneTap={() => {}}
               isScanning={true}
             />
           </div>

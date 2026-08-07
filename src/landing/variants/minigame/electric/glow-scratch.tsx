@@ -4,7 +4,7 @@ import type { MinigameSlotProps, MinigameResult } from '../../../slots';
 import { skinConditions } from '../../../../content/quiz';
 import type { ConditionId } from '../../../../content/quiz';
 import { FaceDiagram, SelectedZoneTags, ZONES_SVG } from '../face-map';
-import type { Zone } from '../face-map';
+import type { Zone, Severity } from '../face-map';
 
 // ─── Constants (face image layout mirrors face-map.tsx) ────────────────────────
 const FACE_SCALE = 2;
@@ -875,7 +875,7 @@ export function ElectricGlowScratchMinigame({ onComplete, copy }: MinigameSlotPr
             <h2 className="text-base font-bold text-center" style={{ color: 'var(--lp-primary)' }}>
               {relocatingCondition.label} nằm ở vùng nào?
             </h2>
-            <FaceDiagram selectedZones={selectedZones} onToggle={toggleZone} isScanning={false} />
+            <FaceDiagram zoneSeverity={Object.fromEntries(selectedZones.map(z => [z, 'nhieu' as Severity])) as Partial<Record<Zone, Severity>>} onZoneTap={(z) => toggleZone(z)} isScanning={false} />
             <SelectedZoneTags selectedZones={selectedZones} />
             {selectedZones.length > 0 && (
               <button onClick={handleRelocateConfirm}
@@ -896,7 +896,7 @@ export function ElectricGlowScratchMinigame({ onComplete, copy }: MinigameSlotPr
                 {relocatingCondition.label} nằm ở vùng nào?
               </h2>
               <div className="md:max-w-[400px]">
-                <FaceDiagram selectedZones={selectedZones} onToggle={toggleZone} isScanning={false} />
+                <FaceDiagram zoneSeverity={Object.fromEntries(selectedZones.map(z => [z, 'nhieu' as Severity])) as Partial<Record<Zone, Severity>>} onZoneTap={(z) => toggleZone(z)} isScanning={false} />
               </div>
             </div>
 
