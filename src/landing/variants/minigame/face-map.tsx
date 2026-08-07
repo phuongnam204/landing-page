@@ -7,6 +7,33 @@ import type { ConditionId } from '../../../content/quiz';
 export type Zone = 'forehead' | 'left-cheek' | 'right-cheek' | 'nose' | 'chin-jaw';
 export type AcneType = 'inflamed' | 'blackhead' | 'sensitive' | 'pore' | 'none' | 'scar';
 
+export type Severity = 'nhieu' | 'it' | 'khong';
+
+export interface ConditionAssessment {
+  acneType: AcneType;
+  zones: Partial<Record<Zone, Severity>>;
+}
+
+const SEVERITY_WEIGHT: Record<Severity, number> = { nhieu: 2, it: 1, khong: 0 };
+
+function _totalScore(assessment: ConditionAssessment): number {
+  return (Object.values(assessment.zones) as Severity[])
+    .reduce((s, v) => s + SEVERITY_WEIGHT[v], 0);
+}
+
+function _getCombinedZoneSeverity(
+  assessments: ConditionAssessment[]
+): Partial<Record<Zone, Severity>> {
+  const result: Partial<Record<Zone, Severity>> = {};
+  for (const { zones } of assessments) {
+    for (const [zone, sev] of Object.entries(zones) as [Zone, Severity][]) {
+      if (sev === 'nhieu') result[zone] = 'nhieu';
+      else if (sev === 'it' && result[zone] !== 'nhieu') result[zone] = 'it';
+    }
+  }
+  return result;
+}
+
 export const ZONE_LABELS: Record<Zone, string> = {
   forehead:       'vùng trán',
   nose:           'vùng mũi / chữ T',
@@ -110,6 +137,26 @@ export function mapToConditions(zones: Zone[], acneType: AcneType): ConditionId[
   if (zones.length > 0 && (acneType === 'inflamed' || acneType === 'blackhead')) result.add('da-nhon-mun-viem');
   if (acneType === 'scar') result.add('da-seo-ro');
   return result.size > 0 ? [...result] : ['da-moi-bat-dau'];
+}
+
+export function assessToConditions(assessments: ConditionAssessment[]): ConditionId[] {
+  const ranked = assessments
+    .map(a => ({ a, score: _totalScore(a) }))
+    .filter(({ score }) => score >= 1)
+    .sort((a, b) => b.score - a.score);
+
+  if (ranked.length === 0) return ['clean-skin'];
+
+  const result = new Set<ConditionId>();
+  for (const { a } of ranked) {
+    const activeZones = (Object.entries(a.zones) as [Zone, Severity][])
+      .filter(([, s]) => s !== 'khong')
+      .map(([z]) => z);
+    for (const id of mapToConditions(activeZones, a.acneType)) {
+      result.add(id);
+    }
+  }
+  return result.size > 0 ? [...result] : ['clean-skin'];
 }
 
 // ─── SVG keyframes (injected once) ───────────────────────────────────────────
