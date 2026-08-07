@@ -752,92 +752,90 @@ export function Step1({
   );
 }
 
-function Step2({
-  acneType, onSelect, onBack, onSubmit, isScanning,
-}: {
-  acneType: AcneType | null; onSelect: (t: AcneType) => void;
-  onBack: () => void; onSubmit: () => void; isScanning: boolean;
-}) {
-  return (
-    <div className="w-full max-w-sm flex flex-col gap-3 animate-fade-in-up">
-      <div className="text-center mb-1">
-        <p className="font-extrabold text-xl text-cta">Mụn thường trông như thế nào?</p>
-        <p className="text-sm text-cta/50 mt-1">Chọn loại gần nhất với da bạn</p>
-      </div>
-      <div className="grid grid-cols-2 gap-2.5">
-        {ACNE_TYPES.map(t => (
-          <AcneCard key={t.id} type={t} selected={acneType === t.id} onSelect={() => onSelect(t.id)} />
-        ))}
-      </div>
-      <div className="flex gap-2">
-        <button
-          onClick={onBack}
-          disabled={isScanning}
-          className="px-5 py-3.5 rounded-soft border-2 border-cta/20 text-cta/60 text-sm font-semibold disabled:opacity-40"
-        >
-          &#8592; Quay lại
-        </button>
-        <button
-          onClick={onSubmit}
-          disabled={!acneType || isScanning}
-          className="flex-1 bg-cta text-white font-bold py-3.5 rounded-soft text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
-        >
-          {isScanning ? 'Đang phân tích...' : 'Xem kết quả của tôi'}
-        </button>
-      </div>
-    </div>
-  );
-}
-
 // ─── Main export ──────────────────────────────────────────────────────────────
 
 export function FaceMapMinigame({ onComplete, copy }: MinigameSlotProps) {
   const hasIntro = !!(copy?.intro?.heading);
-  const [showIntro, setShowIntro]         = useState(hasIntro);
-  // step 1 = acne type selection; step 2 = zone map (only when acneType != 'none')
-  const [step, setStep]                   = useState<1 | 2>(1);
-  const [selectedZones, setSelectedZones] = useState<Zone[]>([]);
-  const [acneType, setAcneType]           = useState<AcneType | null>(null);
-  const [isScanning, setIsScanning]       = useState(false);
+  const [showIntro, setShowIntro]               = useState(hasIntro);
+  const [pendingTypes, setPendingTypes]          = useState<AcneType[]>([]);
+  const [selectedAcneTypes, setSelectedAcneTypes] = useState<AcneType[]>([]);
+  const [assessments, setAssessments]            = useState<ConditionAssessment[]>([]);
+  const [wizardStep, setWizardStep]              = useState(0);
+  const [activeBubble, setActiveBubble]          = useState<{ zone: Zone; cx: number; cy: number } | null>(null);
+  const [isScanning, setIsScanning]              = useState(false);
 
-  const faceH = copy?.faceMap?.heading;
-  const faceS = copy?.faceMap?.subtext;
-
-  function toggleZone(z: Zone) {
-    setSelectedZones(prev => prev.includes(z) ? prev.filter(x => x !== z) : [...prev, z]);
+  function handleConditionsSelected(types: AcneType[]) {
+    if (types.includes('none') || types.length === 0) {
+      triggerSubmit([]);
+      return;
+    }
+    const ordered = types.filter(t => t !== 'none');
+    setSelectedAcneTypes(ordered);
+    setAssessments(ordered.map(t => ({ acneType: t, zones: {} })));
+    setWizardStep(1);
   }
 
-  function handleSubmitWithType(type: AcneType, zones: Zone[]) {
+  function handleZoneTap(zone: Zone, cx: number, cy: number) {
+    setActiveBubble({ zone, cx, cy });
+  }
+
+  function handleSeveritySelect(severity: Severity) {
+    if (!activeBubble) return;
+    const idx = wizardStep - 1;
+    setAssessments(prev => prev.map((a, i) =>
+      i !== idx ? a : { ...a, zones: { ...a.zones, [activeBubble.zone]: severity } }
+    ));
+    setActiveBubble(null);
+  }
+
+  function handleWizardNext() {
+    setActiveBubble(null);
+    if (wizardStep < selectedAcneTypes.length) {
+      setWizardStep(wizardStep + 1);
+    } else {
+      triggerSubmit(assessments);
+    }
+  }
+
+  function handleWizardBack() {
+    setActiveBubble(null);
+    if (wizardStep <= 1) {
+      setWizardStep(0);
+      setAssessments([]);
+    } else {
+      setWizardStep(wizardStep - 1);
+    }
+  }
+
+  function triggerSubmit(finalAssessments: ConditionAssessment[]) {
     if (isScanning) return;
-    const conditionIds = mapToConditions(zones, type);
-    const resolved = conditionIds.map(id => skinConditions[id]).filter((c): c is NonNullable<typeof c> => c != null);
-    const conditions = resolved.length > 0 ? resolved : [skinConditions['da-moi-bat-dau']].filter((c): c is NonNullable<typeof c> => c != null);
+    const conditionIds = assessToConditions(finalAssessments);
+    const resolved = conditionIds
+      .map(id => skinConditions[id])
+      .filter((c): c is NonNullable<typeof c> => c != null);
+    const conditions = resolved.length > 0
+      ? resolved
+      : [skinConditions['da-moi-bat-dau']].filter((c): c is NonNullable<typeof c> => c != null);
     const condition = conditions[0];
     if (!condition) return;
-    const zoneLabel = type !== 'none' && zones.length > 0
-      ? zones.map(z => ZONE_LABELS[z]).join(', ')
-      : '';
-    const zoneIds = type !== 'none' ? [...zones] : [];
-    const typeInfo = ACNE_TYPES.find(t => t.id === type);
+
+    const allPairs = finalAssessments.flatMap(
+      a => (Object.entries(a.zones) as [Zone, Severity][])
+    );
+    const activeZones = [...new Set(
+      allPairs.filter(([, s]) => s !== 'khong').map(([z]) => z)
+    )];
+    const zoneLabel = activeZones.map(z => ZONE_LABELS[z]).join(', ');
+    const triggerNote = finalAssessments
+      .filter(a => _totalScore(a) > 0)
+      .map(a => ACNE_TYPES.find(t => t.id === a.acneType)?.label)
+      .filter(Boolean)
+      .join(', ');
+
     setIsScanning(true);
     setTimeout(() => {
-      onComplete({ conditions, condition, zoneLabel, zoneIds, triggerNote: type !== 'none' ? `Loại mụn chủ yếu: ${typeInfo?.label ?? ''}` : '' });
+      onComplete({ conditions, condition, zoneLabel, zoneIds: activeZones, triggerNote });
     }, 1150);
-  }
-
-  function handleSubmit() {
-    handleSubmitWithType(acneType ?? 'none', selectedZones);
-  }
-
-  // Called when user picks an acne type card (mobile step 1 or desktop column 1)
-  function pickAcneType(type: AcneType) {
-    setAcneType(type);
-    if (type === 'none') {
-      handleSubmitWithType('none', []); // skip zone map entirely
-    } else {
-      setSelectedZones([]);
-      setStep(2); // mobile: advance to zone map step
-    }
   }
 
   if (showIntro && copy?.intro) {
@@ -851,93 +849,56 @@ export function FaceMapMinigame({ onComplete, copy }: MinigameSlotProps) {
     );
   }
 
+  const totalWizardSteps = selectedAcneTypes.length;
+
+  function renderContent() {
+    if (isScanning) {
+      return <ScanningScreen zoneSeverity={_getCombinedZoneSeverity(assessments)} />;
+    }
+    if (wizardStep === 0) {
+      return (
+        <ConditionSelectStep
+          selected={pendingTypes}
+          onToggle={(t) => setPendingTypes(prev =>
+            prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t]
+          )}
+          onNext={handleConditionsSelected}
+        />
+      );
+    }
+    const idx = wizardStep - 1;
+    return (
+      <ConditionFaceMapStep
+        acneType={selectedAcneTypes[idx]}
+        assessment={assessments[idx]}
+        currentStep={wizardStep}
+        totalSteps={totalWizardSteps}
+        onZoneTap={handleZoneTap}
+        onNext={handleWizardNext}
+        onBack={handleWizardBack}
+        isLast={wizardStep === totalWizardSteps}
+      />
+    );
+  }
+
   return (
     <div className="h-[100dvh] w-full bg-[var(--lp-bg-minigame)] flex items-center justify-center px-5 overflow-hidden">
-
-      {/* Mobile: 2 bước tuần tự — step 1: acne type, step 2: zone map */}
-      <div className="md:hidden w-full flex flex-col items-center gap-4">
-        {isScanning
-          ? <ScanningScreen zoneSeverity={{}} />
-          : (
-            <>
-              <StepProgress current={step} total={2} />
-              {step === 1 ? (
-                <div className="w-full max-w-sm flex flex-col gap-4 animate-fade-in-up">
-                  <div className="text-center">
-                    <p className="font-extrabold text-xl text-cta">Mụn của bạn thường trông như thế nào?</p>
-                    <p className="text-sm text-cta/50 mt-1">Chọn loại gần nhất với da bạn</p>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2.5">
-                    {ACNE_TYPES.map(t => (
-                      <AcneCard key={t.id} type={t} selected={acneType === t.id} onSelect={() => pickAcneType(t.id)} />
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <Step1
-                  selectedZones={selectedZones}
-                  onToggle={toggleZone}
-                  onNext={handleSubmit}
-                  onBack={() => { setStep(1); setAcneType(null); setSelectedZones([]); }}
-                  isScanning={false}
-                  heading={faceH}
-                  subtext={faceS}
-                />
-              )}
-            </>
-          )
-        }
+      <div className="w-full flex flex-col items-center gap-4">
+        {!isScanning && wizardStep > 0 && (
+          <StepProgress current={wizardStep} total={totalWizardSteps} />
+        )}
+        {renderContent()}
       </div>
 
-      {/* Desktop: 2 cột song song — col 1: acne type, col 2: zone map */}
-      <div className="hidden md:flex md:flex-col md:gap-5 w-full max-w-4xl">
-        <StepProgress current={acneType && acneType !== 'none' ? 2 : 1} total={2} />
-        <div className="flex items-start gap-10">
-          <div className="flex-1 flex flex-col gap-3">
-            <div className="text-center mb-1">
-              <p className="font-extrabold text-2xl text-cta">Mụn của bạn thường trông như thế nào?</p>
-              <p className="text-sm text-cta/50 mt-1">Chọn loại gần nhất với da bạn</p>
-            </div>
-            <div className="grid grid-cols-2 gap-2.5">
-              {ACNE_TYPES.map(t => (
-                <AcneCard key={t.id} type={t} selected={acneType === t.id} onSelect={() => pickAcneType(t.id)} />
-              ))}
-            </div>
-          </div>
-
-          <div className="w-px bg-cta/10 self-stretch" />
-
-          <div className="flex-1 flex flex-col items-center gap-4">
-            {isScanning ? (
-              <ScanningScreen zoneSeverity={{}} />
-            ) : acneType && acneType !== 'none' ? (
-              <div className="w-full flex flex-col items-center gap-4 animate-fade-in-up">
-                <div className="text-center">
-                  <p className="font-extrabold text-2xl text-cta">{faceH || 'Mụn xuất hiện ở đâu?'}</p>
-                  <p className="text-sm text-cta/50 mt-1">{faceS || 'Chạm vào vùng da bạn hay có mụn nhất'}</p>
-                </div>
-                <FaceDiagram zoneSeverity={{}} onZoneTap={() => {}} isScanning={false} />
-                <SelectedZoneTags selectedZones={selectedZones} />
-                <button
-                  onClick={handleSubmit}
-                  className="mt-1 w-full bg-cta text-white font-bold py-3.5 rounded-soft text-sm hover:opacity-90 transition-opacity"
-                >
-                  Xem kết quả của tôi
-                </button>
-              </div>
-            ) : (
-              <div className="w-full flex flex-col items-center gap-4 opacity-30 pointer-events-none select-none">
-                <div className="text-center">
-                  <p className="font-extrabold text-2xl text-cta">Mụn xuất hiện ở đâu?</p>
-                  <p className="text-sm text-cta/50 mt-1">Chọn loại mụn bên trái để tiếp tục</p>
-                </div>
-                <FaceDiagram zoneSeverity={{}} onZoneTap={() => {}} isScanning={false} />
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
+      {/* Bubble severity picker — rendered at root level for z-index */}
+      {activeBubble && (
+        <BubbleSeverityPicker
+          cx={activeBubble.cx}
+          cy={activeBubble.cy}
+          onSelect={handleSeveritySelect}
+          onClose={() => setActiveBubble(null)}
+        />
+      )}
     </div>
   );
 }
