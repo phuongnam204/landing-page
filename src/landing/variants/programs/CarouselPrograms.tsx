@@ -302,46 +302,50 @@ export function CarouselPrograms({ suggestedPrograms, onContinue, onBack }: Prog
                 }
               }}
             >
-              <div className="rounded-2xl overflow-hidden">
-                {/* Colored header */}
-                <div className="px-5 pt-5 pb-4" style={{ background: color }}>
-                  {prog.isVip && (
-                    <span className="inline-block mb-2 px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-white/25 text-white">VIP</span>
-                  )}
-                  <h3 className="font-extrabold text-[17px] text-white leading-snug">{prog.name}</h3>
-                  {prog.sessions && (
-                    <p className="text-white/65 text-xs mt-0.5 font-semibold">{prog.sessions} buổi</p>
+              {/* Inner visual card — CSS hover on this element, RAF controls outer div */}
+              <div
+                className="carousel-card"
+                style={{
+                  '--card-color': color,
+                  borderRadius: '14px',
+                  overflow: 'hidden',
+                } as React.CSSProperties}
+              >
+                {/* Image area: 40% of CARD_HEIGHT */}
+                <div
+                  style={{
+                    position: 'relative',
+                    height: `${CARD_HEIGHT * 0.4}px`,
+                    background: prog.images?.[0]
+                      ? `linear-gradient(to bottom,rgba(0,0,0,0) 30%,rgba(0,0,0,0.52) 100%),url('${prog.images[0]}') center top/cover no-repeat`
+                      : color,
+                  }}
+                >
+                  {(prog.sessions || prog.isVip) && (
+                    <span
+                      style={{
+                        position: 'absolute',
+                        bottom: 8,
+                        left: 8,
+                        background: `rgba(${hexToRgb(color)},0.78)`,
+                        backdropFilter: 'blur(6px)',
+                        border: '1px solid rgba(255,255,255,0.25)',
+                        borderRadius: 20,
+                        padding: '3px 10px',
+                        fontSize: 11,
+                        fontWeight: 700,
+                        color: 'white',
+                        lineHeight: 1.4,
+                      }}
+                    >
+                      {prog.isVip && 'VIP'}
+                      {prog.isVip && prog.sessions ? ' · ' : ''}
+                      {prog.sessions ? `${prog.sessions} buổi` : ''}
+                    </span>
                   )}
                 </div>
 
-                {/* Bullet summary */}
-                <div className="px-5 py-4 flex flex-col gap-2" style={{ background: 'var(--lp-bg-card)' }}>
-                  {(prog.summary ?? []).slice(0, 3).map((s, i) => (
-                    <div key={i} className="flex items-start gap-2 text-sm text-cta/75">
-                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="shrink-0 mt-0.5" aria-hidden="true">
-                        <path d="M2.5 7l3 3 6-6" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                      <span>{s}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* CTA */}
-                <div className="px-5 pb-5 pt-3" style={{ background: 'var(--lp-bg-card)' }}>
-                  <button
-                    onPointerDown={e => e.stopPropagation()}
-                    onClick={e => {
-                      e.stopPropagation();
-                      const isActive = idx === activeIdxRef.current;
-                      if (isActive) openDetail(prog.id as ProgramId);
-                      else goTo(idx);
-                    }}
-                    className="w-full py-2.5 rounded-xl font-bold text-sm text-white transition-opacity hover:opacity-90 active:scale-[0.97]"
-                    style={{ background: color }}
-                  >
-                    Xem chi tiết liệu trình
-                  </button>
-                </div>
+                {/* TEXT AREA — Task 4 */}
               </div>
             </div>
           );
