@@ -153,7 +153,7 @@ export function FaceMapV3Minigame({ onComplete }: MinigameSlotProps) {
           <ScanningScreen zoneSeverity={Object.fromEntries(selectedZones.map(z => [z, 'nhieu' as Severity])) as Partial<Record<Zone, Severity>>} />
         ) : (
           <>
-            <StepProgress step={step} />
+            <StepProgress current={step} total={2} />
             {step === 1 ? (
               <Step1 selectedZones={selectedZones} onToggle={toggleZone} onNext={() => setStep(2)} isScanning={false} />
             ) : (

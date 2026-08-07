@@ -420,16 +420,16 @@ export function FaceDiagram({
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-export function StepProgress({ step }: { step: 1 | 2 }) {
+export function StepProgress({ current, total }: { current: number; total: number }) {
   return (
     <div className="w-full max-w-sm mb-5 flex items-center gap-3">
       <div className="flex-1 h-1.5 rounded-full bg-cta/10 overflow-hidden">
         <div
           className="h-full bg-cta/50 rounded-full transition-all duration-500"
-          style={{ width: step === 1 ? '50%' : '100%' }}
+          style={{ width: `${(current / total) * 100}%` }}
         />
       </div>
-      <span className="text-xs text-cta/40 font-semibold shrink-0">{step} / 2</span>
+      <span className="text-xs text-cta/40 font-semibold shrink-0">{current} / {total}</span>
     </div>
   );
 }
@@ -522,6 +522,53 @@ function AcneCard({ type, selected, onSelect }: {
       <p className="text-xs font-bold text-cta leading-tight">{type.label}</p>
       <p className="text-[10px] text-cta/50 leading-tight">{type.desc}</p>
     </button>
+  );
+}
+
+function ConditionSelectStep({
+  selected,
+  onToggle,
+  onNext,
+}: {
+  selected: AcneType[];
+  onToggle: (t: AcneType) => void;
+  onNext: (types: AcneType[]) => void;
+}) {
+  const anySelected = selected.length > 0;
+
+  function handleSelect(t: AcneType) {
+    if (t === 'none') {
+      // "Da ổn" → skip wizard entirely
+      onNext(['none']);
+      return;
+    }
+    onToggle(t);
+  }
+
+  return (
+    <div className="w-full max-w-sm flex flex-col gap-4 animate-fade-in-up">
+      <div className="text-center">
+        <p className="font-extrabold text-xl text-cta">Da bạn đang gặp tình trạng nào?</p>
+        <p className="text-sm text-cta/50 mt-1">Chọn tất cả những gì bạn đang có</p>
+      </div>
+      <div className="grid grid-cols-2 gap-2.5">
+        {ACNE_TYPES.map(t => (
+          <AcneCard
+            key={t.id}
+            type={t}
+            selected={selected.includes(t.id)}
+            onSelect={() => handleSelect(t.id)}
+          />
+        ))}
+      </div>
+      <button
+        onClick={() => onNext(selected)}
+        disabled={!anySelected}
+        className="w-full bg-cta text-white font-bold py-3.5 rounded-soft text-sm disabled:opacity-40 hover:opacity-90 transition-opacity"
+      >
+        Tiếp theo &rarr;
+      </button>
+    </div>
   );
 }
 
@@ -737,7 +784,7 @@ export function FaceMapMinigame({ onComplete, copy }: MinigameSlotProps) {
           ? <ScanningScreen zoneSeverity={{}} />
           : (
             <>
-              <StepProgress step={step} />
+              <StepProgress current={step} total={2} />
               {step === 1 ? (
                 <div className="w-full max-w-sm flex flex-col gap-4 animate-fade-in-up">
                   <div className="text-center">
@@ -768,7 +815,7 @@ export function FaceMapMinigame({ onComplete, copy }: MinigameSlotProps) {
 
       {/* Desktop: 2 cột song song — col 1: acne type, col 2: zone map */}
       <div className="hidden md:flex md:flex-col md:gap-5 w-full max-w-4xl">
-        <StepProgress step={acneType && acneType !== 'none' ? 2 : 1} />
+        <StepProgress current={acneType && acneType !== 'none' ? 2 : 1} total={2} />
         <div className="flex items-start gap-10">
           <div className="flex-1 flex flex-col gap-3">
             <div className="text-center mb-1">
