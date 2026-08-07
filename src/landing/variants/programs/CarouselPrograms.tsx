@@ -345,7 +345,77 @@ export function CarouselPrograms({ suggestedPrograms, onContinue, onBack }: Prog
                   )}
                 </div>
 
-                {/* TEXT AREA — Task 4 */}
+                {/* Text area: 60% of CARD_HEIGHT */}
+                <div
+                  style={{
+                    padding: '14px 14px 13px',
+                    background: 'var(--lp-bg-card)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 7,
+                  }}
+                >
+                  <h3
+                    style={{
+                      fontSize: 15,
+                      fontWeight: 700,
+                      color: 'var(--lp-cta)',
+                      lineHeight: 1.3,
+                      margin: 0,
+                      overflow: 'hidden',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                    }}
+                  >
+                    {prog.name}
+                  </h3>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                    {(prog.summary ?? []).slice(0, 3).map((s, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+                        <svg
+                          width="13" height="13" viewBox="0 0 14 14" fill="none"
+                          style={{ flexShrink: 0, marginTop: 2 }}
+                          aria-hidden="true"
+                        >
+                          <path d="M2.5 7l3 3 6-6" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                        <span style={{ fontSize: 11, lineHeight: 1.45, color: 'var(--lp-cta)', opacity: 0.65 }}>
+                          {s}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <button
+                    onPointerDown={e => e.stopPropagation()}
+                    onClick={e => {
+                      e.stopPropagation();
+                      const isActive = idx === activeIdxRef.current;
+                      if (isActive) openDetail(prog.id as ProgramId);
+                      else goTo(idx);
+                    }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 5,
+                      background: 'none',
+                      border: 'none',
+                      padding: 0,
+                      cursor: 'pointer',
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color,
+                      marginTop: 2,
+                    }}
+                  >
+                    Xem chi tiết liệu trình
+                    <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                      <path d="M5 3l5 4-5 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </button>
+                </div>
               </div>
             </div>
           );
