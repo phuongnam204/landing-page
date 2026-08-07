@@ -33,12 +33,12 @@ function TestimonialsBlock({ programIds }: { programIds: string[] }) {
   return (
     <div className="w-full flex flex-col gap-3 md:mt-0 animate-fade-in-up">
       <div className="hidden md:block mb-2">
-        <p className="text-sm font-bold text-cta/60 uppercase whitespace-nowrap">Khách hàng nói gì về chương trình ?</p>
+        <p className="text-sm font-bold uppercase whitespace-nowrap" style={{ color: 'rgba(255,255,255,0.8)' }}>Khách hàng nói gì về chương trình ?</p>
       </div>
       <div className="flex items-center gap-3 md:hidden">
-        <hr className="flex-1 border-[var(--lp-border)]" />
-        <span className="text-sm font-bold text-cta/60 whitespace-nowrap">Khách hàng nói gì về chương trình ?</span>
-        <hr className="flex-1 border-[var(--lp-border)]" />
+        <hr className="flex-1 border-white/20" />
+        <span className="text-sm font-bold whitespace-nowrap" style={{ color: 'rgba(255,255,255,0.8)' }}>Khách hàng nói gì về chương trình ?</span>
+        <hr className="flex-1 border-white/20" />
       </div>
       <div className="flex flex-col gap-3">
         {testimonials.map((t, i) => <TestimonialCard key={i} {...t} />)}

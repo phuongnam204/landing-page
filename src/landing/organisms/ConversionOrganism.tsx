@@ -3,7 +3,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import type { ConversionSlotProps } from '../slots';
 import { getPrograms } from '../../content/catalog';
 import { branches } from '../../content/branches';
-import { SectionShell } from '../../components/atoms/SectionShell';
 import { CtaButton } from '../../components/atoms/CtaButton';
 
 const PHONE_RE = /(^0[0-9]{9}$)|(^\+84[0-9]{9}$)/;
@@ -142,8 +141,15 @@ export function ConversionOrganism({ selectedProgramId, minigameResult, onSubmit
   }
 
   return (
-    <SectionShell bgVar="--lp-bg-payoff" overflow="auto">
-      <div className="w-full max-w-5xl mx-auto px-5 py-8 md:py-12 flex flex-col md:grid md:grid-cols-2 md:gap-10 md:items-start animate-fade-in-up">
+    <div
+      className="h-[100dvh] w-full relative px-5 overflow-y-auto"
+      style={{
+        backgroundImage: `linear-gradient(rgba(0,0,0,0.40),rgba(0,0,0,0.40)),url('/background/hinh-co-so-vat-chat-home.jpg')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center top',
+      }}
+    >
+      <div className="w-full max-w-5xl mx-auto px-0 py-8 md:py-12 flex flex-col md:grid md:grid-cols-2 md:gap-10 md:items-start animate-fade-in-up">
         <form
           onSubmit={handleSubmit}
           className="w-full bg-[var(--lp-bg-card)] rounded-soft px-5 py-6 md:px-8 md:py-8 shadow-lg shadow-cta/10 flex flex-col gap-4"
@@ -208,6 +214,6 @@ export function ConversionOrganism({ selectedProgramId, minigameResult, onSubmit
 
         {showTestimonials && testimonialsSlot}
       </div>
-    </SectionShell>
+    </div>
   );
 }
