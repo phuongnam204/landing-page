@@ -11,6 +11,7 @@ import { GridWithFaqPrograms } from './GridWithFaqPrograms';
 
 const CARD_STEP      = 240;   // px between card centers
 const CARD_WIDTH     = 260;   // px card width
+const CARD_HEIGHT    = 360;   // px card total height (40% image + 60% text)
 const SPRING_K       = 0.22;  // spring stiffness (0–1, higher = snappier)
 const SPRING_THRESH  = 0.4;   // px — stop spring below this
 const SNAP_THRESHOLD = CARD_STEP * 0.3; // drag distance to trigger snap
@@ -31,6 +32,13 @@ const PALETTE = [
 
 function cardColor(_program: ReturnType<typeof getPrograms>[number], idx: number): string {
   return PALETTE[idx % PALETTE.length];
+}
+
+function hexToRgb(hex: string): string {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `${r},${g},${b}`;
 }
 
 // ─── CarouselPrograms ────────────────────────────────────────────────────────
@@ -257,7 +265,7 @@ export function CarouselPrograms({ suggestedPrograms, onContinue, onBack }: Prog
       <div
         ref={containerRef}
         className="relative w-full shrink-0"
-        style={{ height: '320px', overflow: 'visible' }}
+        style={{ height: `${CARD_HEIGHT + 20}px`, overflow: 'visible' }}
       >
         {allPrograms.map((prog, idx) => {
           const color = cardColor(prog, idx);
