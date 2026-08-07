@@ -193,6 +193,95 @@ const SVG_KEYFRAMES = `
   }
 `;
 
+const BUBBLE_KEYFRAMES = `
+  @keyframes bubArc {
+    0%   { opacity: 0; transform: translate(-50%, -50%) scale(0) translateY(10px); }
+    55%  { opacity: 1; transform: translate(-50%, -50%) scale(1.08) translateY(-4px); }
+    100% { opacity: 1; transform: translate(-50%, -50%) scale(1)    translateY(0); }
+  }
+  @keyframes bubSelect {
+    0%   { transform: translate(-50%, -50%) scale(1); }
+    40%  { transform: translate(-50%, -50%) scale(1.35); }
+    70%  { transform: translate(-50%, -50%) scale(0.88); }
+    100% { transform: translate(-50%, -50%) scale(1); }
+  }
+`;
+
+const ARC_CONFIG = [
+  { severity: 'khong' as Severity, label: 'Không\nbị',   angleDeg: 225, bg: 'rgba(50,60,80,0.90)',   border: '#64748b', color: '#cbd5e1' },
+  { severity: 'it'    as Severity, label: 'Ít\nmụn',     angleDeg: 315, bg: 'rgba(155,68,5,0.90)',   border: '#ea8c2a', color: '#fef3c7' },
+  { severity: 'nhieu' as Severity, label: 'Nhiều\nmụn',  angleDeg:  30, bg: 'rgba(180,25,25,0.90)',  border: '#f87171', color: '#ffe4e4' },
+] as const;
+
+const BUBBLE_R = 60;
+
+function calcBubblePos(cx: number, cy: number, angleDeg: number) {
+  const rad = angleDeg * Math.PI / 180;
+  return {
+    left: Math.max(37, Math.min(window.innerWidth  - 37, cx + BUBBLE_R * Math.sin(rad))),
+    top:  Math.max(37, Math.min(window.innerHeight - 37, cy - BUBBLE_R * Math.cos(rad))),
+  };
+}
+
+function BubbleSeverityPicker({
+  cx,
+  cy,
+  onSelect,
+  onClose,
+}: {
+  cx: number;
+  cy: number;
+  onSelect: (s: Severity) => void;
+  onClose: () => void;
+}) {
+  const [selecting, setSelecting] = useState<Severity | null>(null);
+
+  function pick(s: Severity) {
+    setSelecting(s);
+    setTimeout(() => { onSelect(s); }, 280);
+  }
+
+  return (
+    <>
+      <style>{BUBBLE_KEYFRAMES}</style>
+      {/* Backdrop — tap outside to close */}
+      <div
+        className="fixed inset-0 z-40"
+        style={{ background: 'rgba(160,205,230,0.18)' }}
+        onClick={onClose}
+      />
+      {/* 3 arc-positioned bubbles */}
+      {ARC_CONFIG.map((cfg, i) => {
+        const pos = calcBubblePos(cx, cy, cfg.angleDeg);
+        const isSelecting = selecting === cfg.severity;
+        return (
+          <button
+            key={cfg.severity}
+            className="fixed z-50 flex items-center justify-center rounded-full text-center"
+            onClick={(e) => { e.stopPropagation(); pick(cfg.severity); }}
+            aria-label={cfg.label.replace('\n', ' ')}
+            style={{
+              width: 54, height: 54,
+              left: pos.left, top: pos.top,
+              background: cfg.bg,
+              border: `2.5px solid ${cfg.border}`,
+              color: cfg.color,
+              fontSize: 11, fontWeight: 800, lineHeight: 1.25,
+              boxShadow: '0 5px 20px rgba(0,0,0,0.30)',
+              whiteSpace: 'pre-line',
+              animation: isSelecting
+                ? 'bubSelect 0.22s ease both'
+                : `bubArc 0.32s cubic-bezier(0.34,1.56,0.64,1) ${i * 0.09}s both`,
+            }}
+          >
+            {cfg.label}
+          </button>
+        );
+      })}
+    </>
+  );
+}
+
 // ─── Face diagram (fully SVG-based interaction) ───────────────────────────────
 
 export function FaceDiagram({
