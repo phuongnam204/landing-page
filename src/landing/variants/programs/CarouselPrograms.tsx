@@ -233,13 +233,25 @@ export function CarouselPrograms({ suggestedPrograms, onContinue, onBack }: Prog
           from { transform: translateY(0);    border-radius: 0 0 0 0; }
           to   { transform: translateY(105%); border-radius: 24px 24px 0 0; }
         }
+        @media (hover: hover) {
+          .carousel-card {
+            border-bottom: 3px solid transparent;
+            transition: transform 200ms ease, border-bottom-color 200ms ease;
+          }
+          .carousel-card:hover {
+            transform: translateY(-5px);
+            border-bottom-color: var(--card-color);
+          }
+        }
       `}</style>
 
       {/* ── Carousel (scales back when sheet opens — iOS modal push) ── */}
       <div
         className="h-[100dvh] w-full flex flex-col items-center justify-center gap-5 select-none"
         style={{
-          background: 'var(--lp-bg-programs)',
+          backgroundImage: `linear-gradient(rgba(0,0,0,0.58),rgba(0,0,0,0.58)),url('/background/nha-thuoc-3-new.jpg')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center center',
           cursor: 'grab',
           transition: 'transform 420ms cubic-bezier(0.32, 0.72, 0, 1), opacity 380ms ease',
           transform: sheetOpen ? 'scale(0.91) translateY(-18px)' : 'scale(1) translateY(0)',
@@ -254,11 +266,11 @@ export function CarouselPrograms({ suggestedPrograms, onContinue, onBack }: Prog
       >
       {/* Header */}
       <div className="text-center px-5 shrink-0 pointer-events-none">
-        <p className="text-xs font-bold uppercase tracking-widest mb-1.5" style={{ color: 'var(--lp-accent)' }}>
+        <p className="text-xs font-bold uppercase tracking-widest mb-1.5" style={{ color: 'rgba(255,255,255,0.7)' }}>
           Tất cả liệu trình
         </p>
-        <h2 className="font-extrabold text-2xl text-cta leading-snug">Chọn liệu trình phù hợp</h2>
-        <p className="text-sm text-cta/45 mt-1">Vuốt hoặc kéo để xem thêm</p>
+        <h2 className="font-extrabold text-2xl leading-snug" style={{ color: 'white' }}>Chọn liệu trình phù hợp</h2>
+        <p className="text-sm mt-1" style={{ color: 'rgba(255,255,255,0.5)' }}>Vuốt hoặc kéo để xem thêm</p>
       </div>
 
       {/* Card stage */}
@@ -346,10 +358,9 @@ export function CarouselPrograms({ suggestedPrograms, onContinue, onBack }: Prog
             aria-label={`Liệu trình ${idx + 1}`}
             className="rounded-full transition-all duration-300"
             style={{
-              width:   idx === activeIdx ? '20px' : '8px',
-              height:  '8px',
-              background: 'var(--lp-accent)',
-              opacity: idx === activeIdx ? 1 : 0.25,
+              width:      idx === activeIdx ? '20px' : '8px',
+              height:     '8px',
+              background: idx === activeIdx ? 'white' : 'rgba(255,255,255,0.3)',
             }}
           />
         ))}
@@ -363,22 +374,23 @@ export function CarouselPrograms({ suggestedPrograms, onContinue, onBack }: Prog
           disabled={activeIdx === 0}
           aria-label="Trước"
           className="w-10 h-10 rounded-full border-2 flex items-center justify-center transition-opacity disabled:opacity-25"
-          style={{ borderColor: 'var(--lp-accent)', color: 'var(--lp-accent)' }}
+          style={{ borderColor: 'rgba(255,255,255,0.55)', color: 'rgba(255,255,255,0.55)' }}
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
-        <span className="text-sm text-cta/40 font-semibold tabular-nums min-w-[48px] text-center">
+        <span className="text-sm font-semibold tabular-nums min-w-[48px] text-center" style={{ color: 'rgba(255,255,255,0.45)' }}>
           {activeIdx + 1} / {allPrograms.length}
         </span>
+
         <button
           onPointerDown={e => e.stopPropagation()}
           onClick={() => goTo(activeIdx + 1)}
           disabled={activeIdx === allPrograms.length - 1}
           aria-label="Tiếp"
           className="w-10 h-10 rounded-full border-2 flex items-center justify-center transition-opacity disabled:opacity-25"
-          style={{ borderColor: 'var(--lp-accent)', color: 'var(--lp-accent)' }}
+          style={{ borderColor: 'rgba(255,255,255,0.55)', color: 'rgba(255,255,255,0.55)' }}
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path d="M6 3l5 5-5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -392,7 +404,7 @@ export function CarouselPrograms({ suggestedPrograms, onContinue, onBack }: Prog
           onPointerDown={e => e.stopPropagation()}
           onClick={onBack}
           className="shrink-0 flex items-center gap-1.5 text-sm font-semibold transition-opacity hover:opacity-70"
-          style={{ color: 'var(--lp-accent)' }}
+          style={{ color: 'rgba(255,255,255,0.65)' }}
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
             <path d="M9 2L4 7l5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
