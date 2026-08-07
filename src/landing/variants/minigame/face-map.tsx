@@ -595,6 +595,82 @@ export function ScanningScreen({ zoneSeverity }: { zoneSeverity: Partial<Record<
   );
 }
 
+function ConditionFaceMapStep({
+  acneType,
+  assessment,
+  currentStep,
+  totalSteps,
+  onZoneTap,
+  onNext,
+  onBack,
+  isLast,
+}: {
+  acneType: AcneType;
+  assessment: ConditionAssessment;
+  currentStep: number;
+  totalSteps: number;
+  onZoneTap: (zone: Zone, cx: number, cy: number) => void;
+  onNext: () => void;
+  onBack: () => void;
+  isLast: boolean;
+}) {
+  const typeInfo = ACNE_TYPES.find(t => t.id === acneType)!;
+  const severityEntries = (Object.entries(assessment.zones) as [Zone, Severity][])
+    .filter(([, s]) => s !== 'khong');
+  const hasAnyZone = severityEntries.length > 0;
+
+  return (
+    <div className="w-full max-w-sm flex flex-col items-center gap-3 animate-fade-in-up">
+      <div className="text-center">
+        <p className="text-xs text-cta/40 font-semibold mb-1">
+          Tình trạng {currentStep} / {totalSteps}
+        </p>
+        <p className="font-extrabold text-xl text-cta">
+          {typeInfo.label} xuất hiện ở đâu?
+        </p>
+        <p className="text-sm text-cta/50 mt-1">Chạm vào vùng da để chọn mức độ</p>
+      </div>
+      <FaceDiagram
+        zoneSeverity={assessment.zones}
+        onZoneTap={onZoneTap}
+        isScanning={false}
+      />
+      {/* Severity summary tags */}
+      <div className="min-h-7 flex flex-wrap gap-1.5 justify-center">
+        {hasAnyZone
+          ? severityEntries.map(([z, s]) => (
+              <span
+                key={z}
+                className="text-xs rounded-full px-2.5 py-1 font-semibold"
+                style={{
+                  background: s === 'nhieu' ? '#EF444420' : '#F9731620',
+                  color: s === 'nhieu' ? '#EF4444' : '#F97316',
+                }}
+              >
+                {ZONE_LABELS[z]} &mdash; {s === 'nhieu' ? 'nhiều' : 'ít'}
+              </span>
+            ))
+          : <p className="text-sm text-cta/50 mt-1">Chạm vào vùng da để chọn mức độ</p>
+        }
+      </div>
+      <div className="flex gap-2 w-full">
+        <button
+          onClick={onBack}
+          className="px-5 py-3.5 rounded-soft border-2 border-cta/20 text-cta/60 text-sm font-semibold"
+        >
+          &#8592; Quay lại
+        </button>
+        <button
+          onClick={onNext}
+          className="flex-1 bg-cta text-white font-bold py-3.5 rounded-soft text-sm hover:opacity-90 transition-opacity"
+        >
+          {isLast ? 'Xem kết quả' : 'Tiếp theo →'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ─── Intro screen (shown when copy.intro is present) ─────────────────────────
 
 function IntroScreen({ heading, subtext, cta, onStart }: {
