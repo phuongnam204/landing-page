@@ -7,6 +7,33 @@ import type { ConditionId } from '../../../content/quiz';
 export type Zone = 'forehead' | 'left-cheek' | 'right-cheek' | 'nose' | 'chin-jaw';
 export type AcneType = 'inflamed' | 'blackhead' | 'sensitive' | 'pore' | 'none' | 'scar';
 
+export type Severity = 'nhieu' | 'it' | 'khong';
+
+export interface ConditionAssessment {
+  acneType: AcneType;
+  zones: Partial<Record<Zone, Severity>>;
+}
+
+const SEVERITY_WEIGHT: Record<Severity, number> = { nhieu: 2, it: 1, khong: 0 };
+
+function _totalScore(assessment: ConditionAssessment): number {
+  return (Object.values(assessment.zones) as Severity[])
+    .reduce((s, v) => s + SEVERITY_WEIGHT[v], 0);
+}
+
+function _getCombinedZoneSeverity(
+  assessments: ConditionAssessment[]
+): Partial<Record<Zone, Severity>> {
+  const result: Partial<Record<Zone, Severity>> = {};
+  for (const { zones } of assessments) {
+    for (const [zone, sev] of Object.entries(zones) as [Zone, Severity][]) {
+      if (sev === 'nhieu') result[zone] = 'nhieu';
+      else if (sev === 'it' && result[zone] !== 'nhieu') result[zone] = 'it';
+    }
+  }
+  return result;
+}
+
 export const ZONE_LABELS: Record<Zone, string> = {
   forehead:       'vùng trán',
   nose:           'vùng mũi / chữ T',
@@ -112,6 +139,26 @@ export function mapToConditions(zones: Zone[], acneType: AcneType): ConditionId[
   return result.size > 0 ? [...result] : ['da-moi-bat-dau'];
 }
 
+export function assessToConditions(assessments: ConditionAssessment[]): ConditionId[] {
+  const ranked = assessments
+    .map(a => ({ a, score: _totalScore(a) }))
+    .filter(({ score }) => score >= 1)
+    .sort((a, b) => b.score - a.score);
+
+  if (ranked.length === 0) return ['clean-skin'];
+
+  const result = new Set<ConditionId>();
+  for (const { a } of ranked) {
+    const activeZones = (Object.entries(a.zones) as [Zone, Severity][])
+      .filter(([, s]) => s !== 'khong')
+      .map(([z]) => z);
+    for (const id of mapToConditions(activeZones, a.acneType)) {
+      result.add(id);
+    }
+  }
+  return result.size > 0 ? [...result] : ['clean-skin'];
+}
+
 // ─── SVG keyframes (injected once) ───────────────────────────────────────────
 
 const SVG_KEYFRAMES = `
@@ -146,19 +193,108 @@ const SVG_KEYFRAMES = `
   }
 `;
 
+const BUBBLE_KEYFRAMES = `
+  @keyframes bubArc {
+    0%   { opacity: 0; transform: translate(-50%, -50%) scale(0) translateY(10px); }
+    55%  { opacity: 1; transform: translate(-50%, -50%) scale(1.08) translateY(-4px); }
+    100% { opacity: 1; transform: translate(-50%, -50%) scale(1)    translateY(0); }
+  }
+  @keyframes bubSelect {
+    0%   { transform: translate(-50%, -50%) scale(1); }
+    40%  { transform: translate(-50%, -50%) scale(1.35); }
+    70%  { transform: translate(-50%, -50%) scale(0.88); }
+    100% { transform: translate(-50%, -50%) scale(1); }
+  }
+`;
+
+const ARC_CONFIG = [
+  { severity: 'khong' as Severity, label: 'Không\nbị',   angleDeg: 225, bg: 'rgba(50,60,80,0.90)',   border: '#64748b', color: '#cbd5e1' },
+  { severity: 'it'    as Severity, label: 'Ít\nmụn',     angleDeg: 315, bg: 'rgba(155,68,5,0.90)',   border: '#ea8c2a', color: '#fef3c7' },
+  { severity: 'nhieu' as Severity, label: 'Nhiều\nmụn',  angleDeg:  30, bg: 'rgba(180,25,25,0.90)',  border: '#f87171', color: '#ffe4e4' },
+] as const;
+
+const BUBBLE_R = 60;
+
+function calcBubblePos(cx: number, cy: number, angleDeg: number) {
+  const rad = angleDeg * Math.PI / 180;
+  return {
+    left: Math.max(37, Math.min(window.innerWidth  - 37, cx + BUBBLE_R * Math.sin(rad))),
+    top:  Math.max(37, Math.min(window.innerHeight - 37, cy - BUBBLE_R * Math.cos(rad))),
+  };
+}
+
+function BubbleSeverityPicker({
+  cx,
+  cy,
+  onSelect,
+  onClose,
+}: {
+  cx: number;
+  cy: number;
+  onSelect: (s: Severity) => void;
+  onClose: () => void;
+}) {
+  const [selecting, setSelecting] = useState<Severity | null>(null);
+
+  function pick(s: Severity) {
+    setSelecting(s);
+    setTimeout(() => { onSelect(s); }, 280);
+  }
+
+  return (
+    <>
+      <style>{BUBBLE_KEYFRAMES}</style>
+      {/* Backdrop — tap outside to close */}
+      <div
+        className="fixed inset-0 z-40"
+        style={{ background: 'rgba(160,205,230,0.18)' }}
+        onClick={onClose}
+      />
+      {/* 3 arc-positioned bubbles */}
+      {ARC_CONFIG.map((cfg, i) => {
+        const pos = calcBubblePos(cx, cy, cfg.angleDeg);
+        const isSelecting = selecting === cfg.severity;
+        return (
+          <button
+            key={cfg.severity}
+            className="fixed z-50 flex items-center justify-center rounded-full text-center"
+            onClick={(e) => { e.stopPropagation(); pick(cfg.severity); }}
+            aria-label={cfg.label.replace('\n', ' ')}
+            style={{
+              width: 54, height: 54,
+              left: pos.left, top: pos.top,
+              background: cfg.bg,
+              border: `2.5px solid ${cfg.border}`,
+              color: cfg.color,
+              fontSize: 11, fontWeight: 800, lineHeight: 1.25,
+              boxShadow: '0 5px 20px rgba(0,0,0,0.30)',
+              whiteSpace: 'pre-line',
+              animation: isSelecting
+                ? 'bubSelect 0.22s ease both'
+                : `bubArc 0.32s cubic-bezier(0.34,1.56,0.64,1) ${i * 0.09}s both`,
+            }}
+          >
+            {cfg.label}
+          </button>
+        );
+      })}
+    </>
+  );
+}
+
 // ─── Face diagram (fully SVG-based interaction) ───────────────────────────────
 
 export function FaceDiagram({
-  selectedZones,
-  onToggle,
+  zoneSeverity,
+  onZoneTap,
   isScanning,
 }: {
-  selectedZones: Zone[];
-  onToggle: (z: Zone) => void;
+  zoneSeverity: Partial<Record<Zone, Severity>>;
+  onZoneTap: (z: Zone, cx: number, cy: number) => void;
   isScanning: boolean;
 }) {
   const [hovered, setHovered] = useState<Zone | null>(null);
-  const hasInteracted = selectedZones.length > 0;
+  const hasInteracted = Object.keys(zoneSeverity).length > 0;
 
   return (
     <div className="select-none w-full max-w-[240px] md:max-w-[320px]" style={{ filter: 'drop-shadow(0 4px 16px color-mix(in srgb, var(--lp-accent) 28%, transparent))' }}>
@@ -176,7 +312,7 @@ export function FaceDiagram({
           <style>{SVG_KEYFRAMES}</style>
         </defs>
 
-        {/* Illustrated face base — zoomed by FACE_SCALE */}
+        {/* Illustrated face base */}
         <image
           href="/face-map-minigame.svg"
           x={FACE_OFFSET_X} y="0"
@@ -184,15 +320,26 @@ export function FaceDiagram({
           preserveAspectRatio="xMidYMin meet"
         />
 
-        {/* Zone fills + acne dots (clipped to face silhouette) */}
         <g clipPath="url(#fc-clip)">
           {ZONES_SVG.map(z => {
-            const active = selectedZones.includes(z.id);
-            const isHov  = hovered === z.id && !isScanning;
+            const severity = zoneSeverity[z.id];
+            const active   = severity === 'nhieu' || severity === 'it';
+            const isHov    = hovered === z.id && !isScanning;
+            const fillColor =
+              severity === 'nhieu' ? '#EF4444'
+              : severity === 'it'  ? '#F97316'
+              : 'var(--lp-accent)';
+            const dotColor = severity === 'nhieu' ? '#EF4444' : '#F97316';
             return (
               <g
                 key={z.id}
-                onClick={() => !isScanning && onToggle(z.id)}
+                onClick={(e) => {
+                  if (isScanning) return;
+                  const rect = (e.currentTarget as SVGGElement).getBoundingClientRect();
+                  const cx = rect.left + rect.width  / 2;
+                  const cy = rect.top  + rect.height / 2;
+                  onZoneTap(z.id, cx, cy);
+                }}
                 onMouseEnter={() => setHovered(z.id)}
                 onMouseLeave={() => setHovered(null)}
                 style={{ cursor: isScanning ? 'default' : 'pointer' }}
@@ -200,10 +347,10 @@ export function FaceDiagram({
                 aria-label={z.label}
                 aria-pressed={active}
               >
-                {/* Zone fill + hint pulse when no zone selected yet */}
+                {/* Zone fill */}
                 <ellipse
                   cx={z.cx} cy={z.cy} rx={z.rx} ry={z.ry}
-                  fill="var(--lp-accent)"
+                  fill={fillColor}
                   opacity={active ? 0.22 : isHov ? 0.14 : 0.06}
                   style={{
                     transition: 'opacity 0.15s ease',
@@ -212,7 +359,7 @@ export function FaceDiagram({
                       : undefined,
                   }}
                 />
-                {/* Dashed border — always visible in idle, guides user to tap */}
+                {/* Dashed border when idle */}
                 {!active && (
                   <ellipse
                     cx={z.cx} cy={z.cy} rx={z.rx} ry={z.ry}
@@ -224,20 +371,20 @@ export function FaceDiagram({
                     style={{ transition: 'opacity 0.15s ease', pointerEvents: 'none' }}
                   />
                 )}
-                {/* Expanding ring on select */}
+                {/* Solid border + ring when active */}
                 {active && (
                   <ellipse
                     cx={z.cx} cy={z.cy} rx={z.rx + 3} ry={z.ry + 3}
-                    stroke="var(--lp-accent)" fill="none"
+                    stroke={fillColor} fill="none" opacity={0.7}
                     style={{ animation: 'zone-ring 1.6s ease-out infinite' }}
                   />
                 )}
-                {/* Animated acne dots */}
+                {/* Animated acne dots — colored by severity */}
                 {active && z.dots.map((d, i) => (
                   <circle
                     key={i}
                     cx={d.x} cy={d.y} r="3.5"
-                    fill="#EF4444"
+                    fill={dotColor}
                     style={{
                       animation: [
                         `acne-pop 0.25s ease-out ${i * 0.07}s both`,
@@ -250,7 +397,7 @@ export function FaceDiagram({
             );
           })}
 
-          {/* Scan line inside clip — sweeps along face silhouette */}
+          {/* Scan line */}
           {isScanning && (
             <>
               <rect
@@ -266,8 +413,6 @@ export function FaceDiagram({
             </>
           )}
         </g>
-
-
       </svg>
     </div>
   );
@@ -275,16 +420,16 @@ export function FaceDiagram({
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-export function StepProgress({ step }: { step: 1 | 2 }) {
+export function StepProgress({ current, total }: { current: number; total: number }) {
   return (
     <div className="w-full max-w-sm mb-5 flex items-center gap-3">
       <div className="flex-1 h-1.5 rounded-full bg-cta/10 overflow-hidden">
         <div
           className="h-full bg-cta/50 rounded-full transition-all duration-500"
-          style={{ width: step === 1 ? '50%' : '100%' }}
+          style={{ width: `${(current / total) * 100}%` }}
         />
       </div>
-      <span className="text-xs text-cta/40 font-semibold shrink-0">{step} / 2</span>
+      <span className="text-xs text-cta/40 font-semibold shrink-0">{current} / {total}</span>
     </div>
   );
 }
@@ -380,16 +525,63 @@ function AcneCard({ type, selected, onSelect }: {
   );
 }
 
+function ConditionSelectStep({
+  selected,
+  onToggle,
+  onNext,
+}: {
+  selected: AcneType[];
+  onToggle: (t: AcneType) => void;
+  onNext: (types: AcneType[]) => void;
+}) {
+  const anySelected = selected.length > 0;
+
+  function handleSelect(t: AcneType) {
+    if (t === 'none') {
+      // "Da ổn" → skip wizard entirely
+      onNext(['none']);
+      return;
+    }
+    onToggle(t);
+  }
+
+  return (
+    <div className="w-full max-w-sm flex flex-col gap-4 animate-fade-in-up">
+      <div className="text-center">
+        <p className="font-extrabold text-xl text-cta">Da bạn đang gặp tình trạng nào?</p>
+        <p className="text-sm text-cta/50 mt-1">Chọn tất cả những gì bạn đang có</p>
+      </div>
+      <div className="grid grid-cols-2 gap-2.5">
+        {ACNE_TYPES.map(t => (
+          <AcneCard
+            key={t.id}
+            type={t}
+            selected={selected.includes(t.id)}
+            onSelect={() => handleSelect(t.id)}
+          />
+        ))}
+      </div>
+      <button
+        onClick={() => onNext(selected)}
+        disabled={!anySelected}
+        className="w-full bg-cta text-white font-bold py-3.5 rounded-soft text-sm disabled:opacity-40 hover:opacity-90 transition-opacity"
+      >
+        Tiếp theo &rarr;
+      </button>
+    </div>
+  );
+}
+
 // ─── Mobile scan screen ───────────────────────────────────────────────────────
 
-export function ScanningScreen({ selectedZones }: { selectedZones: Zone[] }) {
+export function ScanningScreen({ zoneSeverity }: { zoneSeverity: Partial<Record<Zone, Severity>> }) {
   return (
     <div className="w-full max-w-sm flex flex-col items-center gap-5 animate-fade-in-up">
       <div className="text-center">
         <p className="font-extrabold text-xl text-cta">Đang phân tích da của bạn...</p>
         <p className="text-sm text-cta/50 mt-1">Chỉ mất vài giây</p>
       </div>
-      <FaceDiagram selectedZones={selectedZones} onToggle={() => {}} isScanning={true} />
+      <FaceDiagram zoneSeverity={zoneSeverity} onZoneTap={() => {}} isScanning={true} />
       <div className="flex items-center gap-2">
         {[0, 1, 2].map(i => (
           <div
@@ -398,6 +590,82 @@ export function ScanningScreen({ selectedZones }: { selectedZones: Zone[] }) {
             style={{ animation: `acne-pulse 0.9s ease-in-out ${i * 0.2}s infinite` }}
           />
         ))}
+      </div>
+    </div>
+  );
+}
+
+function ConditionFaceMapStep({
+  acneType,
+  assessment,
+  currentStep,
+  totalSteps,
+  onZoneTap,
+  onNext,
+  onBack,
+  isLast,
+}: {
+  acneType: AcneType;
+  assessment: ConditionAssessment;
+  currentStep: number;
+  totalSteps: number;
+  onZoneTap: (zone: Zone, cx: number, cy: number) => void;
+  onNext: () => void;
+  onBack: () => void;
+  isLast: boolean;
+}) {
+  const typeInfo = ACNE_TYPES.find(t => t.id === acneType)!;
+  const severityEntries = (Object.entries(assessment.zones) as [Zone, Severity][])
+    .filter(([, s]) => s !== 'khong');
+  const hasAnyZone = severityEntries.length > 0;
+
+  return (
+    <div className="w-full max-w-sm flex flex-col items-center gap-3 animate-fade-in-up">
+      <div className="text-center">
+        <p className="text-xs text-cta/40 font-semibold mb-1">
+          Tình trạng {currentStep} / {totalSteps}
+        </p>
+        <p className="font-extrabold text-xl text-cta">
+          {typeInfo.label} xuất hiện ở đâu?
+        </p>
+        <p className="text-sm text-cta/50 mt-1">Chạm vào vùng da để chọn mức độ</p>
+      </div>
+      <FaceDiagram
+        zoneSeverity={assessment.zones}
+        onZoneTap={onZoneTap}
+        isScanning={false}
+      />
+      {/* Severity summary tags */}
+      <div className="min-h-7 flex flex-wrap gap-1.5 justify-center">
+        {hasAnyZone
+          ? severityEntries.map(([z, s]) => (
+              <span
+                key={z}
+                className="text-xs rounded-full px-2.5 py-1 font-semibold"
+                style={{
+                  background: s === 'nhieu' ? '#EF444420' : '#F9731620',
+                  color: s === 'nhieu' ? '#EF4444' : '#F97316',
+                }}
+              >
+                {ZONE_LABELS[z]} &mdash; {s === 'nhieu' ? 'nhiều' : 'ít'}
+              </span>
+            ))
+          : <p className="text-sm text-cta/50 mt-1">Chạm vào vùng da để chọn mức độ</p>
+        }
+      </div>
+      <div className="flex gap-2 w-full">
+        <button
+          onClick={onBack}
+          className="px-5 py-3.5 rounded-soft border-2 border-cta/20 text-cta/60 text-sm font-semibold"
+        >
+          &#8592; Quay lại
+        </button>
+        <button
+          onClick={onNext}
+          className="flex-1 bg-cta text-white font-bold py-3.5 rounded-soft text-sm hover:opacity-90 transition-opacity"
+        >
+          {isLast ? 'Xem kết quả' : 'Tiếp theo →'}
+        </button>
       </div>
     </div>
   );
@@ -436,6 +704,12 @@ export function Step1({
 }) {
   const h = heading || 'Bạn hay bị mụn ở đâu?';
   const s = subtext  || 'Chạm vào vùng da bạn hay có mụn nhất';
+
+  // Bridge: selectedZones → zoneSeverity (all selected zones = 'nhieu')
+  const zoneSeverity: Partial<Record<Zone, Severity>> = Object.fromEntries(
+    selectedZones.map(z => [z, 'nhieu' as Severity])
+  );
+
   return (
     <div className="w-full max-w-sm flex flex-col items-center gap-3 md:gap-4 animate-fade-in-up">
       <div className="text-center">
@@ -451,7 +725,11 @@ export function Step1({
           </svg>
         </div>
       )}
-      <FaceDiagram selectedZones={selectedZones} onToggle={onToggle} isScanning={isScanning} />
+      <FaceDiagram
+        zoneSeverity={zoneSeverity}
+        onZoneTap={(z) => !isScanning && onToggle(z)}
+        isScanning={isScanning}
+      />
       <SelectedZoneTags selectedZones={selectedZones} />
       <div className="flex gap-2 w-full">
         {onBack && (
@@ -474,92 +752,90 @@ export function Step1({
   );
 }
 
-function Step2({
-  acneType, onSelect, onBack, onSubmit, isScanning,
-}: {
-  acneType: AcneType | null; onSelect: (t: AcneType) => void;
-  onBack: () => void; onSubmit: () => void; isScanning: boolean;
-}) {
-  return (
-    <div className="w-full max-w-sm flex flex-col gap-3 animate-fade-in-up">
-      <div className="text-center mb-1">
-        <p className="font-extrabold text-xl text-cta">Mụn thường trông như thế nào?</p>
-        <p className="text-sm text-cta/50 mt-1">Chọn loại gần nhất với da bạn</p>
-      </div>
-      <div className="grid grid-cols-2 gap-2.5">
-        {ACNE_TYPES.map(t => (
-          <AcneCard key={t.id} type={t} selected={acneType === t.id} onSelect={() => onSelect(t.id)} />
-        ))}
-      </div>
-      <div className="flex gap-2">
-        <button
-          onClick={onBack}
-          disabled={isScanning}
-          className="px-5 py-3.5 rounded-soft border-2 border-cta/20 text-cta/60 text-sm font-semibold disabled:opacity-40"
-        >
-          &#8592; Quay lại
-        </button>
-        <button
-          onClick={onSubmit}
-          disabled={!acneType || isScanning}
-          className="flex-1 bg-cta text-white font-bold py-3.5 rounded-soft text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
-        >
-          {isScanning ? 'Đang phân tích...' : 'Xem kết quả của tôi'}
-        </button>
-      </div>
-    </div>
-  );
-}
-
 // ─── Main export ──────────────────────────────────────────────────────────────
 
 export function FaceMapMinigame({ onComplete, copy }: MinigameSlotProps) {
   const hasIntro = !!(copy?.intro?.heading);
-  const [showIntro, setShowIntro]         = useState(hasIntro);
-  // step 1 = acne type selection; step 2 = zone map (only when acneType != 'none')
-  const [step, setStep]                   = useState<1 | 2>(1);
-  const [selectedZones, setSelectedZones] = useState<Zone[]>([]);
-  const [acneType, setAcneType]           = useState<AcneType | null>(null);
-  const [isScanning, setIsScanning]       = useState(false);
+  const [showIntro, setShowIntro]               = useState(hasIntro);
+  const [pendingTypes, setPendingTypes]          = useState<AcneType[]>([]);
+  const [selectedAcneTypes, setSelectedAcneTypes] = useState<AcneType[]>([]);
+  const [assessments, setAssessments]            = useState<ConditionAssessment[]>([]);
+  const [wizardStep, setWizardStep]              = useState(0);
+  const [activeBubble, setActiveBubble]          = useState<{ zone: Zone; cx: number; cy: number } | null>(null);
+  const [isScanning, setIsScanning]              = useState(false);
 
-  const faceH = copy?.faceMap?.heading;
-  const faceS = copy?.faceMap?.subtext;
-
-  function toggleZone(z: Zone) {
-    setSelectedZones(prev => prev.includes(z) ? prev.filter(x => x !== z) : [...prev, z]);
+  function handleConditionsSelected(types: AcneType[]) {
+    if (types.includes('none') || types.length === 0) {
+      triggerSubmit([]);
+      return;
+    }
+    const ordered = types.filter(t => t !== 'none');
+    setSelectedAcneTypes(ordered);
+    setAssessments(ordered.map(t => ({ acneType: t, zones: {} })));
+    setWizardStep(1);
   }
 
-  function handleSubmitWithType(type: AcneType, zones: Zone[]) {
+  function handleZoneTap(zone: Zone, cx: number, cy: number) {
+    setActiveBubble({ zone, cx, cy });
+  }
+
+  function handleSeveritySelect(severity: Severity) {
+    if (!activeBubble) return;
+    const idx = wizardStep - 1;
+    setAssessments(prev => prev.map((a, i) =>
+      i !== idx ? a : { ...a, zones: { ...a.zones, [activeBubble.zone]: severity } }
+    ));
+    setActiveBubble(null);
+  }
+
+  function handleWizardNext() {
+    setActiveBubble(null);
+    if (wizardStep < selectedAcneTypes.length) {
+      setWizardStep(wizardStep + 1);
+    } else {
+      triggerSubmit(assessments);
+    }
+  }
+
+  function handleWizardBack() {
+    setActiveBubble(null);
+    if (wizardStep <= 1) {
+      setWizardStep(0);
+      setAssessments([]);
+    } else {
+      setWizardStep(wizardStep - 1);
+    }
+  }
+
+  function triggerSubmit(finalAssessments: ConditionAssessment[]) {
     if (isScanning) return;
-    const conditionIds = mapToConditions(zones, type);
-    const resolved = conditionIds.map(id => skinConditions[id]).filter((c): c is NonNullable<typeof c> => c != null);
-    const conditions = resolved.length > 0 ? resolved : [skinConditions['da-moi-bat-dau']].filter((c): c is NonNullable<typeof c> => c != null);
+    const conditionIds = assessToConditions(finalAssessments);
+    const resolved = conditionIds
+      .map(id => skinConditions[id])
+      .filter((c): c is NonNullable<typeof c> => c != null);
+    const conditions = resolved.length > 0
+      ? resolved
+      : [skinConditions['da-moi-bat-dau']].filter((c): c is NonNullable<typeof c> => c != null);
     const condition = conditions[0];
     if (!condition) return;
-    const zoneLabel = type !== 'none' && zones.length > 0
-      ? zones.map(z => ZONE_LABELS[z]).join(', ')
-      : '';
-    const zoneIds = type !== 'none' ? [...zones] : [];
-    const typeInfo = ACNE_TYPES.find(t => t.id === type);
+
+    const allPairs = finalAssessments.flatMap(
+      a => (Object.entries(a.zones) as [Zone, Severity][])
+    );
+    const activeZones = [...new Set(
+      allPairs.filter(([, s]) => s !== 'khong').map(([z]) => z)
+    )];
+    const zoneLabel = activeZones.map(z => ZONE_LABELS[z]).join(', ');
+    const triggerNote = finalAssessments
+      .filter(a => _totalScore(a) > 0)
+      .map(a => ACNE_TYPES.find(t => t.id === a.acneType)?.label)
+      .filter(Boolean)
+      .join(', ');
+
     setIsScanning(true);
     setTimeout(() => {
-      onComplete({ conditions, condition, zoneLabel, zoneIds, triggerNote: type !== 'none' ? `Loại mụn chủ yếu: ${typeInfo?.label ?? ''}` : '' });
+      onComplete({ conditions, condition, zoneLabel, zoneIds: activeZones, triggerNote });
     }, 1150);
-  }
-
-  function handleSubmit() {
-    handleSubmitWithType(acneType ?? 'none', selectedZones);
-  }
-
-  // Called when user picks an acne type card (mobile step 1 or desktop column 1)
-  function pickAcneType(type: AcneType) {
-    setAcneType(type);
-    if (type === 'none') {
-      handleSubmitWithType('none', []); // skip zone map entirely
-    } else {
-      setSelectedZones([]);
-      setStep(2); // mobile: advance to zone map step
-    }
   }
 
   if (showIntro && copy?.intro) {
@@ -573,93 +849,56 @@ export function FaceMapMinigame({ onComplete, copy }: MinigameSlotProps) {
     );
   }
 
+  const totalWizardSteps = selectedAcneTypes.length;
+
+  function renderContent() {
+    if (isScanning) {
+      return <ScanningScreen zoneSeverity={_getCombinedZoneSeverity(assessments)} />;
+    }
+    if (wizardStep === 0) {
+      return (
+        <ConditionSelectStep
+          selected={pendingTypes}
+          onToggle={(t) => setPendingTypes(prev =>
+            prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t]
+          )}
+          onNext={handleConditionsSelected}
+        />
+      );
+    }
+    const idx = wizardStep - 1;
+    return (
+      <ConditionFaceMapStep
+        acneType={selectedAcneTypes[idx]}
+        assessment={assessments[idx]}
+        currentStep={wizardStep}
+        totalSteps={totalWizardSteps}
+        onZoneTap={handleZoneTap}
+        onNext={handleWizardNext}
+        onBack={handleWizardBack}
+        isLast={wizardStep === totalWizardSteps}
+      />
+    );
+  }
+
   return (
     <div className="h-[100dvh] w-full bg-[var(--lp-bg-minigame)] flex items-center justify-center px-5 overflow-hidden">
-
-      {/* Mobile: 2 bước tuần tự — step 1: acne type, step 2: zone map */}
-      <div className="md:hidden w-full flex flex-col items-center gap-4">
-        {isScanning
-          ? <ScanningScreen selectedZones={selectedZones} />
-          : (
-            <>
-              <StepProgress step={step} />
-              {step === 1 ? (
-                <div className="w-full max-w-sm flex flex-col gap-4 animate-fade-in-up">
-                  <div className="text-center">
-                    <p className="font-extrabold text-xl text-cta">Mụn của bạn thường trông như thế nào?</p>
-                    <p className="text-sm text-cta/50 mt-1">Chọn loại gần nhất với da bạn</p>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2.5">
-                    {ACNE_TYPES.map(t => (
-                      <AcneCard key={t.id} type={t} selected={acneType === t.id} onSelect={() => pickAcneType(t.id)} />
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <Step1
-                  selectedZones={selectedZones}
-                  onToggle={toggleZone}
-                  onNext={handleSubmit}
-                  onBack={() => { setStep(1); setAcneType(null); setSelectedZones([]); }}
-                  isScanning={false}
-                  heading={faceH}
-                  subtext={faceS}
-                />
-              )}
-            </>
-          )
-        }
+      <div className="w-full flex flex-col items-center gap-4">
+        {!isScanning && wizardStep > 0 && (
+          <StepProgress current={wizardStep} total={totalWizardSteps} />
+        )}
+        {renderContent()}
       </div>
 
-      {/* Desktop: 2 cột song song — col 1: acne type, col 2: zone map */}
-      <div className="hidden md:flex md:flex-col md:gap-5 w-full max-w-4xl">
-        <StepProgress step={acneType && acneType !== 'none' ? 2 : 1} />
-        <div className="flex items-start gap-10">
-          <div className="flex-1 flex flex-col gap-3">
-            <div className="text-center mb-1">
-              <p className="font-extrabold text-2xl text-cta">Mụn của bạn thường trông như thế nào?</p>
-              <p className="text-sm text-cta/50 mt-1">Chọn loại gần nhất với da bạn</p>
-            </div>
-            <div className="grid grid-cols-2 gap-2.5">
-              {ACNE_TYPES.map(t => (
-                <AcneCard key={t.id} type={t} selected={acneType === t.id} onSelect={() => pickAcneType(t.id)} />
-              ))}
-            </div>
-          </div>
-
-          <div className="w-px bg-cta/10 self-stretch" />
-
-          <div className="flex-1 flex flex-col items-center gap-4">
-            {isScanning ? (
-              <ScanningScreen selectedZones={selectedZones} />
-            ) : acneType && acneType !== 'none' ? (
-              <div className="w-full flex flex-col items-center gap-4 animate-fade-in-up">
-                <div className="text-center">
-                  <p className="font-extrabold text-2xl text-cta">{faceH || 'Mụn xuất hiện ở đâu?'}</p>
-                  <p className="text-sm text-cta/50 mt-1">{faceS || 'Chạm vào vùng da bạn hay có mụn nhất'}</p>
-                </div>
-                <FaceDiagram selectedZones={selectedZones} onToggle={toggleZone} isScanning={false} />
-                <SelectedZoneTags selectedZones={selectedZones} />
-                <button
-                  onClick={handleSubmit}
-                  className="mt-1 w-full bg-cta text-white font-bold py-3.5 rounded-soft text-sm hover:opacity-90 transition-opacity"
-                >
-                  Xem kết quả của tôi
-                </button>
-              </div>
-            ) : (
-              <div className="w-full flex flex-col items-center gap-4 opacity-30 pointer-events-none select-none">
-                <div className="text-center">
-                  <p className="font-extrabold text-2xl text-cta">Mụn xuất hiện ở đâu?</p>
-                  <p className="text-sm text-cta/50 mt-1">Chọn loại mụn bên trái để tiếp tục</p>
-                </div>
-                <FaceDiagram selectedZones={[]} onToggle={() => {}} isScanning={false} />
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
+      {/* Bubble severity picker — rendered at root level for z-index */}
+      {activeBubble && (
+        <BubbleSeverityPicker
+          cx={activeBubble.cx}
+          cy={activeBubble.cy}
+          onSelect={handleSeveritySelect}
+          onClose={() => setActiveBubble(null)}
+        />
+      )}
     </div>
   );
 }

@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import type { MinigameSlotProps } from '../../slots';
 import { skinConditions } from '../../../content/quiz';
 import {
-  type Zone, type AcneType,
+  type Zone, type AcneType, type Severity,
   ACNE_TYPES, mapToConditions,
   FaceDiagram, StepProgress, SelectedZoneTags, ScanningScreen, Step1,
 } from './face-map';
@@ -150,10 +150,10 @@ export function FaceMapV3Minigame({ onComplete }: MinigameSlotProps) {
     <div className="h-[100dvh] w-full bg-[var(--lp-bg-minigame)] flex items-center justify-center px-5 overflow-hidden">
       <div className="md:hidden w-full flex flex-col items-center gap-4">
         {isScanning ? (
-          <ScanningScreen selectedZones={selectedZones} />
+          <ScanningScreen zoneSeverity={Object.fromEntries(selectedZones.map(z => [z, 'nhieu' as Severity])) as Partial<Record<Zone, Severity>>} />
         ) : (
           <>
-            <StepProgress step={step} />
+            <StepProgress current={step} total={2} />
             {step === 1 ? (
               <Step1 selectedZones={selectedZones} onToggle={toggleZone} onNext={() => setStep(2)} isScanning={false} />
             ) : (
@@ -170,7 +170,7 @@ export function FaceMapV3Minigame({ onComplete }: MinigameSlotProps) {
             <p className="font-extrabold text-2xl text-cta">Bạn hay bị mụn ở đâu?</p>
             <p className="text-sm text-cta/50 mt-1">Chạm vào vùng da bạn hay có mụn nhất</p>
           </div>
-          <FaceDiagram selectedZones={selectedZones} onToggle={toggleZone} isScanning={isScanning} />
+          <FaceDiagram zoneSeverity={Object.fromEntries(selectedZones.map(z => [z, 'nhieu' as Severity])) as Partial<Record<Zone, Severity>>} onZoneTap={(z) => toggleZone(z)} isScanning={isScanning} />
           <SelectedZoneTags selectedZones={selectedZones} />
         </div>
         <div className="w-px bg-cta/10 self-stretch" />
