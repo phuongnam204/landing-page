@@ -291,7 +291,7 @@ function ProgramHighlight({ program, onOpenDrawer }: {
 }) {
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-sm font-bold text-cta/60 uppercase tracking-widest text-center md:text-left">
+      <p className="text-sm font-bold uppercase tracking-widest text-center md:text-left" style={{ color: 'rgba(255,255,255,0.8)' }}>
         Gợi ý liệu trình cho bạn
       </p>
       <ProgramCard program={program} onOpenDrawer={onOpenDrawer} />
@@ -305,7 +305,7 @@ function ComboHighlight({ programs, onOpenDrawer }: {
 }) {
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-sm font-bold text-cta/60 uppercase tracking-widest text-center md:text-left">
+      <p className="text-sm font-bold uppercase tracking-widest text-center md:text-left" style={{ color: 'rgba(255,255,255,0.8)' }}>
         Combo gợi ý cho bạn
       </p>
       <div className="flex flex-col md:flex-row gap-3">
@@ -326,11 +326,11 @@ function FaqSection({ items }: { items: FaqItem[] }) {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-3">
-        <hr className="flex-1 border-[var(--lp-border)]" />
-        <span className="text-sm font-bold text-cta/60 whitespace-nowrap">Câu hỏi thường gặp</span>
-        <hr className="flex-1 border-[var(--lp-border)]" />
+        <hr className="flex-1 border-white/20" />
+        <span className="text-sm font-bold whitespace-nowrap" style={{ color: 'rgba(255,255,255,0.8)' }}>Câu hỏi thường gặp</span>
+        <hr className="flex-1 border-white/20" />
       </div>
-      <p className="text-xs text-cta/40 text-center md:hidden">&#8595; Kéo xuống để đọc</p>
+      <p className="text-xs text-center md:hidden" style={{ color: 'rgba(255,255,255,0.55)' }}>&#8595; Kéo xuống để đọc</p>
       <FaqAccordion items={items} />
     </div>
   );
@@ -366,7 +366,7 @@ export function GridWithFaqPrograms({ suggestedPrograms, onContinue, onBrowse, c
   };
 
   return (
-    <div className="h-[100dvh] w-full bg-[var(--lp-bg-payoff)] overflow-y-auto">
+    <div className="h-[100dvh] w-full overflow-y-auto" style={{ backgroundImage: `linear-gradient(rgba(0,0,0,0.40),rgba(0,0,0,0.40)),url('/background/nha-thuoc-3-new.jpg')`, backgroundSize: 'cover', backgroundPosition: 'center top' }}>
       <div className="min-h-full flex items-center justify-center">
         <div className="max-w-5xl w-full mx-auto px-5 py-8">
           <div className="flex flex-col gap-5 md:grid md:grid-cols-2 md:gap-8 md:items-start">
@@ -385,7 +385,7 @@ export function GridWithFaqPrograms({ suggestedPrograms, onContinue, onBrowse, c
               <button
                 onClick={onBrowse}
                 className="text-sm font-semibold underline underline-offset-2 transition-opacity hover:opacity-70"
-                style={{ color: 'var(--lp-accent)' }}
+                style={{ color: 'rgba(255,255,255,0.8)' }}
               >
                 Khám phá các liệu trình khác
               </button>
