@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import type { ProgramsSlotProps } from '../../slots';
+import type { ScoredProgram } from '../../../content/recommend';
 import type { ProgramId } from '../../../content/programs';
 import type { ConditionId } from '../../../content/quiz';
 import { getPrograms, getConditionById, getAllConditionIds } from '../../../content/catalog';
@@ -60,14 +61,57 @@ function ConditionTagSmall({ conditionId }: { conditionId: string }) {
   );
 }
 
-function ProgramDetailDrawer({ program, tint, open, onClose, onBook, ctaVariant = 'golden' }: {
+function ConditionMatchRow({ conditionId, variant }: {
+  conditionId: ConditionId;
+  variant: 'primary' | 'secondary' | 'unmatched';
+}) {
+  const c = getConditionById(conditionId);
+  const iconBg    = variant === 'primary'   ? '#D1FAE5'
+                  : variant === 'secondary' ? '#FEF3C7'
+                  : '#F3F4F6';
+  const iconColor = variant === 'primary'   ? '#059669'
+                  : variant === 'secondary' ? '#D97706'
+                  : '#9CA3AF';
+  return (
+    <div className="flex items-center gap-2 text-sm">
+      <span
+        className="w-4 h-4 rounded-full flex items-center justify-center shrink-0"
+        style={{ background: iconBg }}
+      >
+        {variant === 'unmatched' ? (
+          <svg width="8" height="8" viewBox="0 0 14 14" fill="none"
+            stroke={iconColor} strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+            <path d="M2 2l10 10M12 2L2 12" />
+          </svg>
+        ) : (
+          <svg width="8" height="8" viewBox="0 0 14 14" fill="none"
+            stroke={iconColor} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M2 7l3.5 3.5 6.5-7" />
+          </svg>
+        )}
+      </span>
+      <span className={variant === 'unmatched' ? 'text-cta/40' : 'text-cta/75'}>
+        {c?.label ?? conditionId}
+      </span>
+    </div>
+  );
+}
+
+function ProgramDetailDrawer({ program, tint, open, onClose, onBook, ctaVariant = 'golden', scoredProgram }: {
   program: ReturnType<typeof getPrograms>[number];
   tint: string;
   open: boolean;
   onClose: () => void;
   onBook: () => void;
   ctaVariant?: 'golden' | 'dark';
+  scoredProgram?: ScoredProgram;
 }) {
+  const primarySet   = new Set(scoredProgram?.matchedPrimary ?? []);
+  const secondarySet = new Set(scoredProgram?.matchedSecondary ?? []);
+  const unmatchedIds = scoredProgram
+    ? getAllConditionIds(program).filter(id => !primarySet.has(id) && !secondarySet.has(id))
+    : [];
+
   const drawerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -163,10 +207,26 @@ function ProgramDetailDrawer({ program, tint, open, onClose, onBook, ctaVariant 
                 </div>
               )}
               <div>
-                <p className="text-xs font-bold uppercase tracking-widest text-cta/40 mb-2">Phù hợp với</p>
-                <div className="flex flex-wrap gap-2">
-                  {getAllConditionIds(program).map(cid => <ConditionTagSmall key={cid} conditionId={cid} />)}
-                </div>
+                <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: tint }}>
+                  {scoredProgram ? 'Phù hợp với tình trạng của bạn' : 'Phù hợp với'}
+                </p>
+                {scoredProgram ? (
+                  <div className="flex flex-col gap-2">
+                    {scoredProgram.matchedPrimary.map(id => (
+                      <ConditionMatchRow key={id} conditionId={id as ConditionId} variant="primary" />
+                    ))}
+                    {scoredProgram.matchedSecondary.map(id => (
+                      <ConditionMatchRow key={id} conditionId={id as ConditionId} variant="secondary" />
+                    ))}
+                    {unmatchedIds.map(id => (
+                      <ConditionMatchRow key={id} conditionId={id as ConditionId} variant="unmatched" />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {getAllConditionIds(program).map(cid => <ConditionTagSmall key={cid} conditionId={cid} />)}
+                  </div>
+                )}
               </div>
               {program.referenceLink && (
                 <a
@@ -358,6 +418,7 @@ export function GridWithFaqPrograms({ suggestedPrograms, onContinue, onBrowse, c
     ? (isCombo ? comboPrograms[openDrawerIdx] : program)
     : null;
   const drawerProgramId = drawerProgram?.id as ProgramId | undefined;
+  const drawerScored = suggestedPrograms.find(sp => sp.program.id === drawerProgram?.id);
 
   const handleOpenDrawer = (idx = 0) => {
     setOpenDrawerIdx(idx);
@@ -401,6 +462,7 @@ export function GridWithFaqPrograms({ suggestedPrograms, onContinue, onBrowse, c
         onClose={() => setOpenDrawerIdx(null)}
         onBook={() => onContinue(drawerProgramId ?? topProgramId)}
         ctaVariant={ctaVariant}
+        scoredProgram={drawerScored}
       />
     </div>
   );
