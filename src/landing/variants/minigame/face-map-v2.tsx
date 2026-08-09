@@ -30,6 +30,16 @@ const CARD_ICONS: Record<AcneType, React.ReactNode> = {
       <circle cx="22" cy="32" r="1.5" fill="#374151" opacity="0.5" />
     </svg>
   ),
+  whitehead: (
+    <svg width="44" height="44" viewBox="0 0 44 44" fill="none" aria-hidden="true">
+      <circle cx="22" cy="22" r="4"   fill="#e5e7eb" stroke="#6b7280" strokeWidth="1.5" opacity="0.95" />
+      <circle cx="14" cy="16" r="2.5" fill="#e5e7eb" stroke="#6b7280" strokeWidth="1.2" opacity="0.75" />
+      <circle cx="30" cy="16" r="2.5" fill="#e5e7eb" stroke="#6b7280" strokeWidth="1.2" opacity="0.75" />
+      <circle cx="16" cy="29" r="2"   fill="#e5e7eb" stroke="#6b7280" strokeWidth="1.1" opacity="0.6" />
+      <circle cx="28" cy="27" r="2"   fill="#e5e7eb" stroke="#6b7280" strokeWidth="1.1" opacity="0.6" />
+      <circle cx="22" cy="32" r="1.5" fill="#e5e7eb" stroke="#6b7280" strokeWidth="1"   opacity="0.5" />
+    </svg>
+  ),
   sensitive: (
     <svg width="44" height="44" viewBox="0 0 44 44" fill="none" aria-hidden="true">
       <path d="M8 22 Q14 15 22 22 Q30 29 36 22" stroke="#F472B6" strokeWidth="3"   strokeLinecap="round" fill="none" opacity="0.9" />

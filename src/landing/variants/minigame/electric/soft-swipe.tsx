@@ -5,7 +5,14 @@ import type { MinigameSlotProps } from '../../../slots';
 import type { MinigameCopy } from '../../../copy';
 import { skinConditions } from '../../../../content/quiz';
 import type { ConditionId } from '../../../../content/quiz';
-import { FaceDiagram, type Zone, type Severity } from '../face-map';
+import {
+  FaceDiagram,
+  BubbleTwoLayerPicker,
+  type Zone,
+  type Severity,
+  type ZoneMap,
+  type ConditionOption,
+} from '../face-map';
 
 const ZONE_LABEL: Record<Zone, string> = {
   forehead:      'Trán',
@@ -17,7 +24,7 @@ const ZONE_LABEL: Record<Zone, string> = {
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-type Phase = 'intro' | 'wheel' | 'face-map' | 'scanning' | 'done';
+type Phase = 'intro' | 'wheel' | 'wizard' | 'scanning' | 'done';
 
 interface SwipeCard {
   id: string;
@@ -27,6 +34,7 @@ interface SwipeCard {
   zones: Zone[];
   icon: React.ReactNode;
   accent: string;
+  image?: string;
 }
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -37,6 +45,8 @@ const DRAG_SENS = 6.5;
 const SPRING_STIFFNESS = 0.2;
 const SPRING_THRESHOLD = 0.04;
 const DAMPING = 0.22;
+
+// Shelf layout — responsive, computed from container width at runtime
 
 const CARDS: SwipeCard[] = [
   {
@@ -55,6 +65,7 @@ const CARDS: SwipeCard[] = [
   {
     id: 'acne', label: 'Mụn viêm, mụn bọc', description: 'Xuất hiện nốt đỏ, đau, có mủ hoặc sưng to',
     conditionId: 'mun-trung-ca', zones: ['left-cheek', 'right-cheek'], accent: '#EF4444',
+    image: '/condition/mun-viem-do.jpg',
     icon: (
       <svg width="44" height="44" viewBox="0 0 52 52" fill="none" aria-hidden="true">
         <circle cx="26" cy="26" r="22" fill="#EF4444" opacity="0.07"/>
@@ -74,6 +85,7 @@ const CARDS: SwipeCard[] = [
   {
     id: 'dry-red', label: 'Da khô, đỏ, dễ kích ứng', description: 'Da căng rát sau rửa mặt, dễ bong tróc',
     conditionId: 'da-nhay-cam', zones: ['left-cheek', 'right-cheek', 'forehead'], accent: '#F97316',
+    image: '/condition/man-do-kich-ung.jpg',
     icon: (
       <svg width="44" height="44" viewBox="0 0 52 52" fill="none" aria-hidden="true">
         <circle cx="26" cy="26" r="20" fill="#F97316" opacity="0.07"/>
@@ -93,6 +105,7 @@ const CARDS: SwipeCard[] = [
   {
     id: 'pores', label: 'Lỗ chân lông to, ít mụn', description: 'Lỗ chân lông nhìn thấy rõ, da xuất hiện đầu đen',
     conditionId: 'lo-chan-long', zones: ['nose', 'forehead'], accent: '#8B5CF6',
+    image: '/condition/lo-chan-long.jpg',
     icon: (
       <svg width="44" height="44" viewBox="0 0 52 52" fill="none" aria-hidden="true">
         <circle cx="26" cy="26" r="20" fill="#8B5CF6" opacity="0.07"/>
@@ -128,12 +141,13 @@ const CARDS: SwipeCard[] = [
 ];
 
 const DEFAULT_COPY: Required<MinigameCopy> = {
-  intro:     { heading: 'Chọn tình trạng da của bạn', subtext: 'Xoay bánh xe để duyệt qua các tình trạng da phổ biến, rồi chạm vào thẻ ở giữa để chọn.', cta: 'Bắt đầu →' },
-  scratch:   { hint: 'Quét ngón tay trên các vùng để khám phá' },
-  analyzing: { label: 'Đang phân tích...' },
-  wheel:     { heading: 'Da của bạn dạo này thế nào?', subtext: 'Vuốt sang trái để chọn mô tả phù hợp nhất' },
-  faceMap:   { heading: 'Vùng da nào bị ảnh hưởng?', subtext: 'Chạm để chọn hoặc bỏ chọn từng vùng' },
-  scanning:  { heading: 'Đang phân tích...' },
+  intro:            { heading: 'Chọn tình trạng da của bạn', subtext: 'Xoay bánh xe để duyệt qua các tình trạng, chạm vào thẻ để chọn — có thể chọn nhiều.', cta: 'Bắt đầu →' },
+  scratch:          { hint: 'Quét ngón tay trên các vùng để khám phá' },
+  analyzing:        { label: 'Đang phân tích...' },
+  wheel:            { heading: 'Da của bạn dạo này thế nào?', subtext: 'Chạm vào thẻ để chọn - có thể chọn nhiều tình trạng' },
+  faceMap:          { heading: 'Vùng da nào bị ảnh hưởng?', subtext: 'Chạm vào vùng da để chọn mức độ' },
+  scanning:         { heading: 'Đang phân tích...' },
+  conditionVariant: 'a',
 };
 
 const MIN_ANGLE = 0;
@@ -185,15 +199,35 @@ function clampWithDamping(angle: number): number {
   return angle;
 }
 
+function getShelfCardSize(containerWidth: number) {
+  const isWide = containerWidth >= 600;
+  return {
+    sw: isWide ? 90 : 62,
+    sh: isWide ? 70 : 58,
+    gap: isWide ? 10 : 6,
+    top: isWide ? 14 : 10,
+    padding: isWide ? '6px 4px' : '4px',
+  };
+}
+
+function getShelfLeft(containerWidth: number, sw: number, gap: number, numCards: number, slotIdx: number): number {
+  const n = Math.max(1, numCards);
+  const totalW = n * (sw + gap) - gap;
+  const leftStart = Math.max(8, Math.round((containerWidth - totalW) / 2));
+  return leftStart + slotIdx * (sw + gap);
+}
+
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export function ElectricSoftSwipeMinigame({ onComplete, copy }: MinigameSlotProps) {
   // ─── State ──────────────────────────────────────────────────────────────────
   const [phase, setPhase] = useState<Phase>('intro');
   const [introFading, setIntroFading] = useState(false);
-  const [selectedCardIdx, setSelectedCardIdx] = useState<number | null>(null);
-  const [selectedZones, setSelectedZones] = useState<Zone[]>([]);
-  const [checkCardIdx, setCheckCardIdx] = useState<number | null>(null);
+  const [selectedCardIds, setSelectedCardIds] = useState<string[]>([]);
+  const [zoneMap, setZoneMap] = useState<ZoneMap>({});
+  const [activeBubble, setActiveBubble] = useState<{
+    zone: Zone; cx: number; cy: number; conditions: ConditionOption[];
+  } | null>(null);
 
   const c = {
     intro:    { ...DEFAULT_COPY.intro,    ...copy?.intro    },
@@ -211,40 +245,114 @@ export function ElectricSoftSwipeMinigame({ onComplete, copy }: MinigameSlotProp
   const wheelLocked = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const ghostRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const shelfZoneRef = useRef<HTMLDivElement>(null);
 
-  // ─── Imperative render (60fps, no React re-render) ───────────────────────────
-  const renderFrame = useCallback(() => {
+  // selectedCardIds mirror for imperative code (avoids stale closure in renderFrame)
+  const selectedCardIdsRef = useRef<string[]>([]);
+  // Cards currently mid-animation — renderFrame skips them
+  const animatingCards = useRef<Set<number>>(new Set());
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    selectedCardIdsRef.current = selectedCardIds;
+  }, [selectedCardIds]);
+
+  // ─── Arc params helper (used by renderFrame + animation helpers) ─────────────
+  const getArcParams = useCallback(() => {
     const container = containerRef.current;
-    if (!container) return;
-    // Dynamic center — works on desktop and mobile
+    if (!container) return null;
     const cx = container.offsetWidth / 2;
     const isWide = container.offsetWidth >= 600;
-    // Card width: 19% of width on desktop (capped 190–260px), 52% on mobile (capped 190–240px)
     const baseW = isWide
       ? Math.min(260, Math.max(190, Math.round(container.offsetWidth * 0.19)))
       : Math.min(240, Math.max(190, Math.round(container.offsetWidth * 0.52)));
-    // Compute half-card height so we can prevent cards from overflowing above the canvas
-    const halfCardH = Math.round(Math.round(baseW * 1.26) / 2);
-    // On wide screens, push the arc center slightly deeper so cards stay within canvas
     const arcCyOffset = isWide
       ? Math.max(ARC_CY_OFFSET, Math.round(container.offsetHeight * 0.18))
       : ARC_CY_OFFSET;
     const arcCy = container.offsetHeight + arcCyOffset;
-    // Cap arc radius so the topmost card never clips above canvas top (8px margin)
-    const maxSafeArcR = arcCy - halfCardH - 8;
+    const maxSafeArcR = arcCy - Math.round(Math.round(baseW * 1.26) / 2) - 8;
     const arcR = isWide
       ? Math.min(maxSafeArcR, Math.max(300, Math.round(container.offsetWidth * 0.38)))
       : Math.max(280, Math.round(container.offsetHeight * 0.72));
+    return { cx, baseW, arcCy, arcR };
+  }, []);
+
+  // ─── Imperative render (60fps, no React re-render) ───────────────────────────
+  const renderFrame = useCallback(() => {
+    const params = getArcParams();
+    if (!params) return;
+    const { cx, baseW, arcCy, arcR } = params;
+    const containerWidth = cx * 2;
     const centerIdx = Math.round(wheelAngle.current / ARC_STEP);
 
-    CARDS.forEach((_, i) => {
+    CARDS.forEach((card, i) => {
       const el = cardRefs.current[i];
+      const ghost = ghostRefs.current[i];
       if (!el) return;
-      // i * STEP - wheelAngle: positive = right of center, negative = left
+
       const angle = i * ARC_STEP - wheelAngle.current;
       const v = cardVisual(angle, cx, arcCy, baseW, arcR);
 
+      // Skip cards mid-animation (CSS transition owns them)
+      if (animatingCards.current.has(i)) {
+        if (ghost) ghost.style.display = 'none';
+        return;
+      }
+
+      const isSelected = selectedCardIdsRef.current.includes(card.id);
+
+      if (isSelected) {
+        const { sw, sh, gap, top, padding } = getShelfCardSize(containerWidth);
+        const shelfIdx = selectedCardIdsRef.current.indexOf(card.id);
+        const numSelected = selectedCardIdsRef.current.length;
+        const shelfLeft = getShelfLeft(containerWidth, sw, gap, numSelected, shelfIdx);
+
+        el.style.transition = '';
+        el.style.display = 'flex';
+        el.style.left = `${shelfLeft}px`;
+        el.style.top = `${top}px`;
+        el.style.width = `${sw}px`;
+        el.style.height = `${sh}px`;
+        el.style.padding = padding;
+        el.style.opacity = '1';
+        el.style.zIndex = '25';
+        el.style.transform = 'rotate(0deg)';
+        el.style.borderRadius = '14px';
+        el.style.background = `color-mix(in srgb, ${card.accent} 12%, var(--lp-bg-card))`;
+        el.style.border = `2px solid ${card.accent}`;
+        el.style.boxShadow = `0 2px 12px color-mix(in srgb, ${card.accent} 25%, transparent)`;
+
+        // Icon-only in shelf — hide label
+        const labelEl = el.querySelector<HTMLElement>('[data-role="card-lbl"]');
+        if (labelEl) labelEl.style.display = 'none';
+
+        // Ghost at arc position (dashed placeholder)
+        if (ghost) {
+          if (v.hidden) {
+            ghost.style.display = 'none';
+          } else {
+            ghost.style.display = 'block';
+            ghost.style.left = `${v.x - v.w / 2}px`;
+            ghost.style.top = `${v.y - v.h / 2}px`;
+            ghost.style.width = `${v.w}px`;
+            ghost.style.height = `${v.h}px`;
+            ghost.style.opacity = `${Math.max(0.1, v.opacity * 0.35)}`;
+            ghost.style.zIndex = `${v.zIndex}`;
+            ghost.style.transform = `rotate(${v.tilt}deg)`;
+          }
+        }
+        return;
+      }
+
+      // Not selected — normal arc render, restore from possible shelf state
+      if (ghost) ghost.style.display = 'none';
+      const labelEl = el.querySelector<HTMLElement>('[data-role="card-lbl"]');
+      if (labelEl) labelEl.style.display = '';
+      el.style.padding = '10px 8px';
+
       if (v.hidden) { el.style.display = 'none'; return; }
+      el.style.transition = '';
       el.style.display = 'flex';
       el.style.left = `${v.x - v.w / 2}px`;
       el.style.top = `${v.y - v.h / 2}px`;
@@ -253,19 +361,35 @@ export function ElectricSoftSwipeMinigame({ onComplete, copy }: MinigameSlotProp
       el.style.opacity = `${v.opacity}`;
       el.style.zIndex = `${v.zIndex}`;
       el.style.transform = `rotate(${v.tilt}deg)`;
+      el.style.borderRadius = '16px';
 
       if (v.isCenter) {
         el.style.background = 'color-mix(in srgb, var(--lp-accent) 10%, var(--lp-bg-card))';
         el.style.boxShadow = '0 8px 28px color-mix(in srgb, var(--lp-accent) 22%, transparent)';
         el.style.border = '2px solid var(--lp-accent)';
-        el.style.backdropFilter = 'none';
       } else {
         el.style.background = 'var(--lp-bg-card)';
         el.style.boxShadow = 'none';
         el.style.border = '2px solid var(--lp-border)';
-        el.style.backdropFilter = 'none';
       }
     });
+
+    // Update shelf zone position and size responsively
+    const zone = shelfZoneRef.current;
+    if (zone) {
+      const { sw, sh, gap, top } = getShelfCardSize(containerWidth);
+      const numSelected = selectedCardIdsRef.current.length;
+      const n = Math.max(1, numSelected);
+      const totalW = n * (sw + gap) - gap;
+      const leftStart = Math.max(8, Math.round((containerWidth - totalW) / 2));
+      zone.style.left = `${leftStart - 4}px`;
+      zone.style.top = `${top - 4}px`;
+      zone.style.width = `${totalW + 8}px`;
+      zone.style.height = `${sh + 8}px`;
+      const hasSel = numSelected > 0;
+      zone.style.borderColor = `color-mix(in srgb, var(--lp-accent) ${hasSel ? 35 : 18}%, transparent)`;
+      zone.style.background = `color-mix(in srgb, var(--lp-accent) ${hasSel ? 5 : 2}%, transparent)`;
+    }
 
     const dotsEl = document.getElementById('wh-dots');
     if (dotsEl) {
@@ -275,7 +399,7 @@ export function ElectricSoftSwipeMinigame({ onComplete, copy }: MinigameSlotProp
         dot.style.width = active ? '18px' : '6px';
       });
     }
-  }, []);
+  }, [getArcParams]);
 
   // Auto-advance intro → wheel after 2 s, with fade-out animation
   useEffect(() => {
@@ -285,8 +409,6 @@ export function ElectricSoftSwipeMinigame({ onComplete, copy }: MinigameSlotProp
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, [phase]);
 
-  // Trigger initial render when wheel mounts. ResizeObserver re-fires if
-  // container size changes (resize, orientation), keeping cards centered.
   useEffect(() => {
     if (phase !== 'wheel') return;
     const container = containerRef.current;
@@ -321,7 +443,108 @@ export function ElectricSoftSwipeMinigame({ onComplete, copy }: MinigameSlotProp
     springTo(next * ARC_STEP);
   }, [springTo]);
 
-  // ─── Pointer handlers (mouse/stylus only — touch is handled by Touch Events below) ────
+  // ─── Shelf animation helpers ─────────────────────────────────────────────────
+
+  const animateCardToShelf = useCallback((cardIdx: number, shelfIdx: number) => {
+    const el = cardRefs.current[cardIdx];
+    if (!el) return;
+    const card = CARDS[cardIdx];
+    const containerWidth = containerRef.current?.offsetWidth ?? 375;
+    const { sw, sh, gap, top, padding } = getShelfCardSize(containerWidth);
+    const numCards = shelfIdx + 1;
+    const targetLeft = getShelfLeft(containerWidth, sw, gap, numCards, shelfIdx);
+
+    animatingCards.current.add(cardIdx);
+    const ghost = ghostRefs.current[cardIdx];
+    if (ghost) ghost.style.display = 'none';
+
+    // Hide label immediately so it doesn't show during the fly animation
+    const labelEl = el.querySelector<HTMLElement>('[data-role="card-lbl"]');
+    if (labelEl) labelEl.style.display = 'none';
+
+    el.style.transition = [
+      'left 0.46s cubic-bezier(0.34,1.56,0.64,1)',
+      'top 0.46s cubic-bezier(0.34,1.56,0.64,1)',
+      'width 0.32s ease',
+      'height 0.32s ease',
+      'border-radius 0.28s ease',
+      'padding 0.32s ease',
+      'opacity 0.2s ease',
+    ].join(', ');
+
+    el.style.left = `${targetLeft}px`;
+    el.style.top = `${top}px`;
+    el.style.width = `${sw}px`;
+    el.style.height = `${sh}px`;
+    el.style.padding = padding;
+    el.style.opacity = '1';
+    el.style.zIndex = '25';
+    el.style.transform = 'rotate(0deg)';
+    el.style.borderRadius = '14px';
+    el.style.background = `color-mix(in srgb, ${card.accent} 12%, var(--lp-bg-card))`;
+    el.style.border = `2px solid ${card.accent}`;
+    el.style.boxShadow = `0 2px 12px color-mix(in srgb, ${card.accent} 25%, transparent)`;
+
+    setTimeout(() => {
+      animatingCards.current.delete(cardIdx);
+      el.style.transition = '';
+    }, 520);
+  }, []);
+
+  const animateCardToArc = useCallback((cardIdx: number) => {
+    const el = cardRefs.current[cardIdx];
+    const params = getArcParams();
+    if (!el || !params) return;
+    const { cx, baseW, arcCy, arcR } = params;
+
+    // Restore label and padding before the return flight begins
+    const labelEl = el.querySelector<HTMLElement>('[data-role="card-lbl"]');
+    if (labelEl) labelEl.style.display = '';
+    el.style.padding = '10px 8px';
+
+    const angle = cardIdx * ARC_STEP - wheelAngle.current;
+    const v = cardVisual(angle, cx, arcCy, baseW, arcR);
+
+    animatingCards.current.add(cardIdx);
+    const ghost = ghostRefs.current[cardIdx];
+    if (ghost) ghost.style.display = 'none';
+
+    el.style.transition = [
+      'left 0.42s cubic-bezier(0.34,1.56,0.64,1)',
+      'top 0.42s cubic-bezier(0.34,1.56,0.64,1)',
+      'width 0.28s ease',
+      'height 0.28s ease',
+      'border-radius 0.28s ease',
+      'opacity 0.22s ease',
+    ].join(', ');
+
+    if (v.hidden) {
+      el.style.opacity = '0';
+    } else {
+      el.style.left = `${v.x - v.w / 2}px`;
+      el.style.top = `${v.y - v.h / 2}px`;
+      el.style.width = `${v.w}px`;
+      el.style.height = `${v.h}px`;
+      el.style.opacity = `${v.opacity}`;
+      el.style.zIndex = `${v.zIndex}`;
+      el.style.transform = `rotate(${v.tilt}deg)`;
+      el.style.borderRadius = '16px';
+      el.style.background = v.isCenter
+        ? 'color-mix(in srgb, var(--lp-accent) 10%, var(--lp-bg-card))'
+        : 'var(--lp-bg-card)';
+      el.style.border = v.isCenter ? '2px solid var(--lp-accent)' : '2px solid var(--lp-border)';
+      el.style.boxShadow = v.isCenter
+        ? '0 8px 28px color-mix(in srgb, var(--lp-accent) 22%, transparent)'
+        : 'none';
+    }
+
+    setTimeout(() => {
+      animatingCards.current.delete(cardIdx);
+      el.style.transition = '';
+    }, 470);
+  }, [getArcParams]);
+
+  // ─── Pointer handlers ────────────────────────────────────────────────────────
   const handlePointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     if (e.pointerType === 'touch') return;
     if (wheelLocked.current) return;
@@ -340,24 +563,52 @@ export function ElectricSoftSwipeMinigame({ onComplete, copy }: MinigameSlotProp
     renderFrame();
   }, [renderFrame]);
 
-  // ─── Card tap → select center / spring to flanking ──────────────────────────
+  // ─── Card tap → toggle selection / spring to center ─────────────────────────
   const handleCardTap = useCallback((cardIdx: number) => {
     if (wheelLocked.current) return;
+    const cardId = CARDS[cardIdx].id;
+
+    // Tapping a shelf card → recall it back to arc
+    if (selectedCardIdsRef.current.includes(cardId)) {
+      animateCardToArc(cardIdx);
+      const newIds = selectedCardIdsRef.current.filter(id => id !== cardId);
+      selectedCardIdsRef.current = newIds;
+      setSelectedCardIds(newIds);
+      return;
+    }
+
+    // Not selected — if not at center, spring to it
     const centerIdx = Math.round(wheelAngle.current / ARC_STEP);
     if (cardIdx !== centerIdx) {
       springTo(cardIdx * ARC_STEP);
       return;
     }
-    wheelLocked.current = true;
-    if (animFrame.current !== null) { cancelAnimationFrame(animFrame.current); animFrame.current = null; }
-    setSelectedCardIdx(cardIdx);
-    setCheckCardIdx(cardIdx);
-    setTimeout(() => {
-      setCheckCardIdx(null);
-      setSelectedZones(CARDS[cardIdx].zones);
-      setPhase(CARDS[cardIdx].conditionId === 'clean-skin' ? 'scanning' : 'face-map');
-    }, 900);
-  }, [springTo]);
+
+    // Selecting the center card
+    if (cardId === 'clear') {
+      // Recall all non-clear cards currently on shelf
+      selectedCardIdsRef.current
+        .filter(id => id !== 'clear')
+        .forEach(id => {
+          const i = CARDS.findIndex(c => c.id === id);
+          if (i >= 0) animateCardToArc(i);
+        });
+      // 'clear' flies to shelf position 0
+      animateCardToShelf(cardIdx, 0);
+      selectedCardIdsRef.current = ['clear'];
+      setSelectedCardIds(['clear']);
+    } else {
+      // If 'clear' was on shelf, recall it first
+      if (selectedCardIdsRef.current.includes('clear')) {
+        const clearIdx = CARDS.findIndex(c => c.id === 'clear');
+        if (clearIdx >= 0) animateCardToArc(clearIdx);
+      }
+      const newIds = [...selectedCardIdsRef.current.filter(id => id !== 'clear'), cardId];
+      animateCardToShelf(cardIdx, newIds.length - 1);
+      selectedCardIdsRef.current = newIds;
+      setSelectedCardIds(newIds);
+    }
+  }, [springTo, animateCardToShelf, animateCardToArc]);
 
   const handlePointerUp = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     if (e.pointerType === 'touch') return;
@@ -367,8 +618,6 @@ export function ElectricSoftSwipeMinigame({ onComplete, copy }: MinigameSlotProp
     const target = Math.max(MIN_ANGLE, Math.min(MAX_ANGLE, Math.round(wheelAngle.current / ARC_STEP) * ARC_STEP));
     springTo(target);
 
-    // Tap detection (setPointerCapture redirects pointerup to container, so onClick on
-    // card children doesn't fire reliably on desktop — we hit-test manually instead).
     if (e.type === 'pointerup' && dragDelta < 8) {
       const container = containerRef.current;
       if (!container) return;
@@ -394,9 +643,7 @@ export function ElectricSoftSwipeMinigame({ onComplete, copy }: MinigameSlotProp
     }
   }, [springTo, handleCardTap]);
 
-  // iOS Safari: setPointerCapture breaks pointermove dispatch on touch — use
-  // native Touch Events instead (requires passive:false on touchmove to allow
-  // preventDefault, which prevents page scroll competing with the drag).
+  // iOS Safari: native Touch Events
   useEffect(() => {
     if (phase !== 'wheel') return;
     const container = containerRef.current;
@@ -460,48 +707,109 @@ export function ElectricSoftSwipeMinigame({ onComplete, copy }: MinigameSlotProp
     };
   }, [phase, renderFrame, springTo, handleCardTap]);
 
-  // ─── Face-map zone toggle ───────────────────────────────────────────────────
-  const toggleZone = useCallback((zoneId: Zone) => {
-    setSelectedZones(prev =>
-      prev.includes(zoneId) ? prev.filter(z => z !== zoneId) : [...prev, zoneId]
-    );
+  // ─── Wheel confirm → wizard or scanning ────────────────────────────────────
+  function handleWheelConfirm() {
+    if (selectedCardIds.length === 0) return;
+    wheelLocked.current = true;
+    const nonClearIds = selectedCardIds.filter(id => id !== 'clear');
+    if (nonClearIds.length === 0) {
+      setPhase('scanning');
+      return;
+    }
+    setZoneMap({});
+    setPhase('wizard');
+  }
+
+  // ─── Wizard handlers ────────────────────────────────────────────────────────
+  const handleZoneTap = useCallback((zone: Zone, cx: number, cy: number) => {
+    const nonClearIds = selectedCardIdsRef.current.filter(id => id !== 'clear');
+    const conditionOptions: ConditionOption[] = CARDS
+      .filter(c => nonClearIds.includes(c.id))
+      .map(c => ({ id: c.id, label: c.label, image: c.image, color: c.accent }));
+    setActiveBubble({ zone, cx, cy, conditions: conditionOptions });
   }, []);
+
+  function handleTwoLayerComplete(conditionIds: string[], severity: Severity) {
+    if (!activeBubble) return;
+    setZoneMap(prev => ({
+      ...prev,
+      [activeBubble.zone]: { conditions: conditionIds, severity },
+    }));
+    setActiveBubble(null);
+  }
+
+  function handleWizardNext() {
+    setActiveBubble(null);
+    setPhase('scanning');
+  }
+
+  function handleWizardBack() {
+    setActiveBubble(null);
+    wheelLocked.current = false;
+    setZoneMap({});
+    setPhase('wheel');
+  }
 
   // ─── Scanning → onComplete ──────────────────────────────────────────────────
   useEffect(() => {
     if (phase !== 'scanning') return;
-    // FaceDiagram handles the 1.2s scan animation internally via isScanning prop
     const timeout = setTimeout(() => {
-      if (selectedCardIdx === null) return;
-      const card = CARDS[selectedCardIdx];
-      const condition = skinConditions[card.conditionId]!;
+      const nonClearIds = selectedCardIds.filter(id => id !== 'clear');
+
+      if (nonClearIds.length === 0) {
+        const condition = skinConditions['clean-skin']!;
+        onComplete({
+          condition,
+          conditions: [condition],
+          zoneIds: [],
+          zoneLabel: 'Không có vùng cụ thể',
+          triggerNote: 'Da khỏe',
+        });
+        return;
+      }
+
+      const conditions = nonClearIds
+        .map(id => CARDS.find(c => c.id === id)!)
+        .map(card => skinConditions[card.conditionId])
+        .filter((c): c is NonNullable<typeof c> => c != null);
+
+      const allActiveZones = Object.keys(zoneMap) as Zone[];
+
+      const zoneLabel = allActiveZones.map(z => ZONE_LABEL[z]).join(', ') || 'Không có vùng cụ thể';
+      const triggerNote = nonClearIds
+        .map(id => CARDS.find(c => c.id === id)?.label ?? '')
+        .filter(Boolean)
+        .join(', ');
+
       onComplete({
-        condition,
-        conditions: [condition],
-        zoneIds: selectedZones,
-        zoneLabel: selectedZones.map(z => ZONE_LABEL[z]).join(', ') || 'Không có vùng cụ thể',
-        triggerNote: card.label,
+        conditions,
+        condition: conditions[0],
+        zoneIds: allActiveZones,
+        zoneLabel,
+        triggerNote,
       });
     }, 1800);
     return () => clearTimeout(timeout);
-  }, [phase, selectedCardIdx, selectedZones, onComplete]);
+  }, [phase, selectedCardIds, zoneMap, onComplete]);
+
+  // ─── Combined zone severity for scanning display ────────────────────────────
+  const scanZoneSeverity = Object.fromEntries(
+    Object.entries(zoneMap).map(([z, v]) => [z, v!.severity])
+  ) as Partial<Record<Zone, Severity>>;
 
   // ─── Render ─────────────────────────────────────────────────────────────────
   return (
     <div className="h-[100dvh] flex flex-col overflow-hidden" style={{ background: 'var(--lp-bg-hero)' }}>
-      {/* Phone-width constraint on desktop */}
       <div
         className="flex-1 flex flex-col overflow-hidden w-full"
         style={{ animation: 'fade-in 350ms ease-out both' }}
       >
         <style>{`
           @keyframes fade-in { from { opacity:0; transform:translateY(12px) } to { opacity:1; transform:translateY(0) } }
-          @keyframes check-draw { to { stroke-dashoffset: 0 } }
-          @keyframes check-pop { 0% { transform:scale(0.3); opacity:0; } 65% { transform:scale(1.18); opacity:1; } 100% { transform:scale(1); opacity:1; } }
-          @keyframes check-glow-pulse { 0%,100% { box-shadow: 0 0 18px #22c55e55, 0 6px 24px #22c55e33; } 50% { box-shadow: 0 0 40px #22c55eaa, 0 8px 40px #22c55e55; } }
+          @keyframes shelf-in { 0% { transform:scaleX(0.6); opacity:0; } 70% { transform:scaleX(1.06); opacity:1; } 100% { transform:scaleX(1); opacity:1; } }
         `}</style>
 
-        {/* Header bar — full width, content capped at max-w-6xl */}
+        {/* Header bar */}
         <div
           className="sticky top-0 z-20 border-b"
           style={{ borderColor: 'color-mix(in srgb, var(--lp-primary) 12%, transparent)', background: 'var(--lp-bg-hero)' }}
@@ -518,8 +826,11 @@ export function ElectricSoftSwipeMinigame({ onComplete, copy }: MinigameSlotProp
             </div>
             <div className="text-xs md:text-sm font-semibold" style={{ color: 'color-mix(in srgb, var(--lp-primary) 50%, transparent)' }}>
               {phase === 'intro' && 'Hướng dẫn'}
-              {phase === 'wheel' && `Thẻ ${Math.round(wheelAngle.current / ARC_STEP) + 1} / ${CARDS.length}`}
-              {(phase === 'face-map' || phase === 'scanning') && 'Bước 2 / 2'}
+              {phase === 'wheel' && (selectedCardIds.length > 0
+                ? `Đã chọn ${selectedCardIds.length}`
+                : `Thẻ ${Math.round(wheelAngle.current / ARC_STEP) + 1} / ${CARDS.length}`)}
+              {phase === 'wizard' && 'Đánh dấu vùng da'}
+              {phase === 'scanning' && 'Đang phân tích...'}
             </div>
           </div>
         </div>
@@ -605,65 +916,78 @@ export function ElectricSoftSwipeMinigame({ onComplete, copy }: MinigameSlotProp
               onPointerUp={handlePointerUp}
               onPointerLeave={handlePointerUp}
             >
+              {/* Shelf zone — position/size driven imperatively by renderFrame */}
+              <div
+                ref={shelfZoneRef}
+                style={{
+                  position: 'absolute',
+                  top: 6,
+                  left: 4,
+                  height: 66,
+                  width: 200,
+                  borderRadius: 14,
+                  border: '1.5px dashed color-mix(in srgb, var(--lp-accent) 18%, transparent)',
+                  background: 'color-mix(in srgb, var(--lp-accent) 2%, transparent)',
+                  zIndex: 10,
+                  pointerEvents: 'none',
+                  transition: 'border-color 0.3s ease, background 0.3s ease',
+                }}
+              />
+
+              {/* Ghost placeholders — positioned by renderFrame at arc positions */}
+              {CARDS.map((card, i) => (
+                <div
+                  key={`ghost-${card.id}`}
+                  ref={el => { ghostRefs.current[i] = el; }}
+                  style={{
+                    position: 'absolute',
+                    display: 'none',
+                    borderRadius: 16,
+                    border: `2px dashed color-mix(in srgb, ${card.accent} 45%, transparent)`,
+                    background: `color-mix(in srgb, ${card.accent} 4%, transparent)`,
+                    pointerEvents: 'none',
+                    willChange: 'transform, opacity',
+                  }}
+                />
+              ))}
+
+              {/* Arc cards — managed imperatively by renderFrame */}
               {CARDS.map((card, i) => (
                 <div
                   key={card.id}
                   ref={el => { cardRefs.current[i] = el; }}
-                    style={{
-                      position: 'absolute',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: 8,
-                      padding: '12px 10px',
-                      borderRadius: 16,
-                      cursor: 'pointer',
-                      userSelect: 'none',
-                      textAlign: 'center',
-                      border: '2px solid var(--lp-border)',
-                      background: 'var(--lp-bg-card)',
-                      willChange: 'transform, opacity',
-                      transition: 'none',
-                    } as React.CSSProperties}
+                  style={{
+                    position: 'absolute',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 6,
+                    padding: '10px 8px',
+                    borderRadius: 16,
+                    cursor: 'pointer',
+                    userSelect: 'none',
+                    textAlign: 'center',
+                    border: '2px solid var(--lp-border)',
+                    background: 'var(--lp-bg-card)',
+                    willChange: 'transform, left, top, width, height, opacity',
+                    overflow: 'hidden',
+                  } as React.CSSProperties}
                 >
-                  <div style={{
-                    width: 56, height: 56, borderRadius: '50%',
+                  <div data-role="icon-wrap" style={{
+                    width: 48, height: 48, borderRadius: '50%',
+                    overflow: 'hidden',
                     background: `color-mix(in srgb, ${card.accent} 12%, var(--lp-bg-card, white))`,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     flexShrink: 0,
                   }}>
-                    {card.icon}
+                    {card.image ? (
+                      <img src={card.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                    ) : card.icon}
                   </div>
-                  <div style={{ fontWeight: 800, fontSize: 13, lineHeight: 1.3, color: 'var(--lp-primary)' }}>
+                  <div data-role="card-lbl" style={{ fontWeight: 800, fontSize: 12, lineHeight: 1.25, color: 'var(--lp-primary)' }}>
                     {card.label}
                   </div>
-
-                  {/* Check overlay on selection */}
-                  {checkCardIdx === i && (
-                    <div style={{
-                      position: 'absolute', inset: 0, borderRadius: 16,
-                      background: 'rgba(34,197,94,0.10)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      zIndex: 30,
-                    }}>
-                      <div style={{
-                        width: 68, height: 68, borderRadius: '50%',
-                        background: '#22c55e',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        animation: 'check-pop 420ms cubic-bezier(0.34,1.56,0.64,1) both, check-glow-pulse 1.4s ease-in-out 420ms infinite',
-                      }}>
-                        <svg width="34" height="34" viewBox="0 0 28 28" fill="none">
-                          <path
-                            d="M 5 14 L 12 21 L 23 9"
-                            stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"
-                            strokeDasharray="40" strokeDashoffset="40"
-                            style={{ animation: 'check-draw 450ms ease forwards 300ms' }}
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                  )}
                 </div>
               ))}
             </div>
@@ -705,73 +1029,88 @@ export function ElectricSoftSwipeMinigame({ onComplete, copy }: MinigameSlotProp
                 </svg>
               </button>
             </div>
-          </div>
-        )}
 
-        {/* ── Face-map ── */}
-        {phase === 'face-map' && (
-          <div
-            className="flex-1 flex flex-col items-center px-5 pt-5 pb-24 gap-3 overflow-y-auto"
-            style={{ animation: 'fade-in 350ms ease-out both' }}
-          >
-            <div className="text-center">
-              <h2 className="font-extrabold text-lg leading-snug" style={{ color: 'var(--lp-primary)' }}>
-                {c.faceMap.heading}
-              </h2>
-              <p className="text-xs mt-1" style={{ color: 'color-mix(in srgb, var(--lp-primary) 50%, transparent)' }}>
-                {c.faceMap.subtext}
-              </p>
-            </div>
-
-            <FaceDiagram
-              zoneSeverity={Object.fromEntries(selectedZones.map(z => [z, 'nhieu' as Severity])) as Partial<Record<Zone, Severity>>}
-              onZoneTap={(z) => toggleZone(z)}
-              isScanning={false}
-            />
-
-            {/* Selected zone chips */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, justifyContent: 'center', minHeight: 28 }}>
-              {selectedZones.length === 0
-                ? <p className="text-sm" style={{ color: 'color-mix(in srgb, var(--lp-primary) 40%, transparent)' }}>
-                    Chạm vào vùng da bạn hay có mụn nhất
-                  </p>
-                : selectedZones.map(zoneId => (
-                  <div key={zoneId} style={{
-                    padding: '4px 12px', borderRadius: 999, fontSize: 12, fontWeight: 600,
-                    background: 'color-mix(in srgb, var(--lp-accent) 12%, white)',
-                    color: 'var(--lp-accent)',
-                    border: '1px solid color-mix(in srgb, var(--lp-accent) 30%, transparent)',
-                  }}>
-                    {ZONE_LABEL[zoneId]}
-                  </div>
-                ))
-              }
-            </div>
-
-            {/* Continue button — slides up after ≥1 zone */}
+            {/* Sticky "Tiếp theo" CTA — slides up when ≥1 card selected */}
             <div style={{
               position: 'fixed', bottom: 24, left: 0, right: 0,
               display: 'flex', justifyContent: 'center',
-              transform: selectedZones.length >= 1 ? 'translateY(0)' : 'translateY(80px)',
-              opacity: selectedZones.length >= 1 ? 1 : 0,
+              transform: selectedCardIds.length > 0 ? 'translateY(0)' : 'translateY(80px)',
+              opacity: selectedCardIds.length > 0 ? 1 : 0,
               transition: 'transform 350ms cubic-bezier(0.34,1.56,0.64,1), opacity 250ms ease',
-              pointerEvents: selectedZones.length >= 1 ? 'auto' : 'none',
-              zIndex: 30,
+              pointerEvents: selectedCardIds.length > 0 ? 'auto' : 'none',
+              zIndex: 40,
             }}>
               <button
-                onClick={() => setPhase('scanning')}
+                onClick={handleWheelConfirm}
                 style={{
-                  padding: '14px 40px', borderRadius: 999, fontWeight: 700, fontSize: 16,
+                  padding: '14px 48px', borderRadius: 999, fontWeight: 700, fontSize: 16,
                   color: 'white', background: 'var(--lp-accent)',
-                  boxShadow: '0 4px 18px color-mix(in srgb, var(--lp-accent) 35%, transparent)',
+                  boxShadow: '0 4px 24px color-mix(in srgb, var(--lp-accent) 40%, transparent)',
                   border: 'none', cursor: 'pointer',
                 }}
               >
-                Tiếp tục →
+                Tiếp theo →
               </button>
             </div>
           </div>
         )}
+
+        {/* ── Wizard (single face-map) ── */}
+        {phase === 'wizard' && (() => {
+          const nonClearIds = selectedCardIds.filter(id => id !== 'clear');
+          const isMulti = nonClearIds.length > 1;
+          const firstCard = CARDS.find(c => c.id === nonClearIds[0]);
+          const zoneSeverity = Object.fromEntries(
+            Object.entries(zoneMap).map(([z, v]) => [z, v!.severity])
+          ) as Partial<Record<Zone, Severity>>;
+          return (
+            <div
+              className="flex-1 flex flex-col items-center px-5 pt-5 pb-40 gap-3 overflow-y-auto"
+              style={{ animation: 'fade-in 350ms ease-out both' }}
+            >
+              <div className="text-center">
+                <h2 className="font-extrabold text-lg leading-snug" style={{ color: 'var(--lp-primary)' }}>
+                  {isMulti
+                    ? 'Da bạn có nhiều tuýp — hãy đánh dấu từng vùng!'
+                    : `${firstCard?.label ?? ''} xuất hiện ở đâu?`}
+                </h2>
+                <p className="text-base mt-1" style={{ color: 'color-mix(in srgb, var(--lp-primary) 50%, transparent)' }}>
+                  Chạm vào vùng da để chọn mức độ
+                </p>
+              </div>
+              <FaceDiagram zoneSeverity={zoneSeverity} onZoneTap={handleZoneTap} isScanning={false} />
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, justifyContent: 'center', minHeight: 28 }}>
+                {Object.entries(zoneMap).length > 0
+                  ? (Object.entries(zoneMap) as [Zone, NonNullable<ZoneMap[Zone]>][]).map(([z, data]) => (
+                      <div key={z} style={{
+                        padding: '4px 12px', borderRadius: 999, fontSize: 12, fontWeight: 600,
+                        background: data.severity === 'nhieu' ? '#EF444420' : data.severity === 'vua' ? '#F59E0B20' : '#F9731620',
+                        color:      data.severity === 'nhieu' ? '#EF4444'   : data.severity === 'vua' ? '#D97706'   : '#F97316',
+                        border: `1px solid ${data.severity === 'nhieu' ? '#EF444440' : data.severity === 'vua' ? '#F59E0B40' : '#F9731640'}`,
+                      }}>
+                        {ZONE_LABEL[z]} — {data.severity === 'nhieu' ? 'nhiều' : data.severity === 'vua' ? 'vừa' : 'ít'}
+                      </div>
+                    ))
+                  : <p className="text-sm" style={{ color: 'color-mix(in srgb, var(--lp-primary) 40%, transparent)' }}>Chạm vào vùng da để bắt đầu</p>
+                }
+              </div>
+              <div style={{ position: 'fixed', bottom: 24, left: 0, right: 0, display: 'flex', justifyContent: 'center', gap: 12, padding: '0 20px', zIndex: 30 }}>
+                <button
+                  onClick={handleWizardBack}
+                  style={{ padding: '14px 24px', borderRadius: 999, fontWeight: 600, fontSize: 14, color: 'color-mix(in srgb, var(--lp-primary) 55%, transparent)', background: 'color-mix(in srgb, var(--lp-primary) 8%, var(--lp-bg-hero))', border: '1.5px solid color-mix(in srgb, var(--lp-primary) 15%, transparent)', cursor: 'pointer' }}
+                >
+                  ← Quay lại
+                </button>
+                <button
+                  onClick={handleWizardNext}
+                  style={{ flex: 1, maxWidth: 240, padding: '14px 32px', borderRadius: 999, fontWeight: 700, fontSize: 16, color: 'white', background: 'var(--lp-accent)', boxShadow: '0 4px 18px color-mix(in srgb, var(--lp-accent) 35%, transparent)', border: 'none', cursor: 'pointer' }}
+                >
+                  Xem kết quả
+                </button>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* ── Scanning ── */}
         {phase === 'scanning' && (
@@ -784,15 +1123,24 @@ export function ElectricSoftSwipeMinigame({ onComplete, copy }: MinigameSlotProp
                 {c.scanning.heading}
               </h2>
             </div>
-
             <FaceDiagram
-              zoneSeverity={Object.fromEntries(selectedZones.map(z => [z, 'nhieu' as Severity])) as Partial<Record<Zone, Severity>>}
+              zoneSeverity={scanZoneSeverity}
               onZoneTap={() => {}}
               isScanning={true}
             />
           </div>
         )}
       </div>
+
+      {activeBubble && (
+        <BubbleTwoLayerPicker
+          cx={activeBubble.cx}
+          cy={activeBubble.cy}
+          conditions={activeBubble.conditions}
+          onComplete={handleTwoLayerComplete}
+          onClose={() => setActiveBubble(null)}
+        />
+      )}
     </div>
   );
 }

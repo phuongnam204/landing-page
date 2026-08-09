@@ -5,16 +5,17 @@ import { skinConditions } from '../../../content/quiz';
 import type { ConditionId } from '../../../content/quiz';
 
 export type Zone = 'forehead' | 'left-cheek' | 'right-cheek' | 'nose' | 'chin-jaw';
-export type AcneType = 'inflamed' | 'blackhead' | 'sensitive' | 'pore' | 'none' | 'scar';
+export type AcneType = 'inflamed' | 'blackhead' | 'whitehead' | 'sensitive' | 'pore' | 'none' | 'scar';
 
-export type Severity = 'nhieu' | 'it' | 'khong';
+export type Severity = 'nhieu' | 'vua' | 'it' | 'khong';
 
 export interface ConditionAssessment {
   acneType: AcneType;
   zones: Partial<Record<Zone, Severity>>;
 }
 
-const SEVERITY_WEIGHT: Record<Severity, number> = { nhieu: 2, it: 1, khong: 0 };
+const SEVERITY_WEIGHT: Record<Severity, number> = { nhieu: 2, vua: 1.5, it: 1, khong: 0 };
+const SEV_RANK: Record<Severity, number> = { nhieu: 3, vua: 2, it: 1, khong: 0 };
 
 function _totalScore(assessment: ConditionAssessment): number {
   return (Object.values(assessment.zones) as Severity[])
@@ -27,8 +28,8 @@ function _getCombinedZoneSeverity(
   const result: Partial<Record<Zone, Severity>> = {};
   for (const { zones } of assessments) {
     for (const [zone, sev] of Object.entries(zones) as [Zone, Severity][]) {
-      if (sev === 'nhieu') result[zone] = 'nhieu';
-      else if (sev === 'it' && result[zone] !== 'nhieu') result[zone] = 'it';
+      const existing = result[zone];
+      if (!existing || SEV_RANK[sev] > SEV_RANK[existing]) result[zone] = sev;
     }
   }
   return result;
@@ -41,6 +42,33 @@ export const ZONE_LABELS: Record<Zone, string> = {
   'right-cheek':  'má phải',
   'chin-jaw':     'cằm & quai hàm',
 };
+
+export type ZoneMap = Partial<Record<Zone, {
+  conditions: string[];
+  severity: Severity;
+}>>;
+
+export interface ConditionOption {
+  id: string;
+  label: string;
+  image?: string;
+  color: string;
+}
+
+export function zoneMapToAssessments(
+  zoneMap: ZoneMap,
+  idToAcneType: (id: string) => AcneType = id => id as AcneType
+): ConditionAssessment[] {
+  const byType = new Map<AcneType, Partial<Record<Zone, Severity>>>();
+  for (const [zone, data] of Object.entries(zoneMap) as [Zone, NonNullable<ZoneMap[Zone]>][]) {
+    for (const condId of data.conditions) {
+      const acneType = idToAcneType(condId);
+      if (!byType.has(acneType)) byType.set(acneType, {});
+      byType.get(acneType)![zone] = data.severity;
+    }
+  }
+  return Array.from(byType.entries()).map(([acneType, zones]) => ({ acneType, zones }));
+}
 
 type ZoneDef = {
   id: Zone;
@@ -110,13 +138,30 @@ const FACE_CLIP = {
 };
 
 export const ACNE_TYPES: { id: AcneType; label: string; desc: string; color: string }[] = [
-  { id: 'inflamed',  label: 'Mụn viêm đỏ',         desc: 'Đau, có mủ, đỏ',                    color: '#EF4444' },
-  { id: 'blackhead', label: 'Đầu đen / đầu trắng',  desc: 'Nốt nhỏ, không viêm',              color: '#374151' },
-  { id: 'sensitive', label: 'Mẩn đỏ kích ứng',      desc: 'Nổi khi đổi thời tiết, mỹ phẩm',  color: '#F472B6' },
-  { id: 'pore',      label: 'Lỗ chân lông to',      desc: 'Ít mụn nhưng lỗ chân lông rõ',     color: '#8B5CF6' },
-  { id: 'none',      label: 'Da ổn, ít mụn',         desc: 'Không có vấn đề rõ rệt',           color: '#10B981' },
-  { id: 'scar',      label: 'Sẹo rỗ',               desc: 'Lỗ nhỏ lõm sau mụn viêm',          color: '#9C7A5F' },
+  { id: 'inflamed',  label: 'Mụn viêm đỏ',      desc: 'Đau, có mủ, đỏ sưng',                color: '#EF4444' },
+  { id: 'blackhead', label: 'Mụn đầu đen',        desc: 'Nốt đen nhỏ trong lỗ chân lông',    color: '#374151' },
+  { id: 'whitehead', label: 'Mụn đầu trắng',      desc: 'Nốt trắng kín, không viêm',          color: '#6b7280' },
+  { id: 'sensitive', label: 'Mẩn đỏ kích ứng',   desc: 'Nổi khi đổi thời tiết, mỹ phẩm',    color: '#F472B6' },
+  { id: 'pore',      label: 'Lỗ chân lông to',   desc: 'Ít mụn nhưng lỗ chân lông rõ',       color: '#8B5CF6' },
+  { id: 'scar',      label: 'Sẹo rỗ',            desc: 'Lỗ nhỏ lõm sau mụn viêm',            color: '#9C7A5F' },
+  { id: 'none',      label: 'Da ổn, ít mụn',      desc: 'Không có vấn đề rõ rệt',             color: '#10B981' },
 ];
+
+export const CONDITION_IMAGES: Partial<Record<AcneType, string>> = {
+  inflamed:  '/condition/mun-viem-do.jpg',
+  blackhead: '/condition/mun-dau-den.png',
+  whitehead: '/condition/mun-dau-trang.jpg',
+  sensitive: '/condition/man-do-kich-ung.jpg',
+  pore:      '/condition/lo-chan-long.jpg',
+  scar:      '/condition/seo-ro.jpg',
+};
+
+// Change this constant to switch the ConditionSelectStep UI layout:
+// 'a' = Pill cloud with animated image preview
+// 'b' = Row list with circle thumbnails
+// 'c' = Card deck (one condition at a time, swipe-style)
+// 'card' = Original 2x3 card grid (legacy)
+const CONDITION_SELECT_VARIANT: 'a' | 'b' | 'c' | 'card' = 'a';
 
 export function mapToConditions(zones: Zone[], acneType: AcneType): ConditionId[] {
   if (acneType === 'none') return ['clean-skin'];
@@ -124,7 +169,7 @@ export function mapToConditions(zones: Zone[], acneType: AcneType): ConditionId[
     // User selected an acne type but skipped zone step — map type directly
     if (acneType === 'sensitive') return ['da-nhay-cam'];
     if (acneType === 'pore')      return ['lo-chan-long'];
-    if (acneType === 'blackhead') return ['lo-chan-long'];
+    if (acneType === 'blackhead' || acneType === 'whitehead') return ['lo-chan-long'];
     if (acneType === 'inflamed')  return ['da-nhon-mun-viem'];
     if (acneType === 'scar')      return ['da-seo-ro'];
     return ['da-moi-bat-dau'];
@@ -133,8 +178,8 @@ export function mapToConditions(zones: Zone[], acneType: AcneType): ConditionId[
   if (zones.includes('chin-jaw')) result.add('mun-noi-tiet');
   if (acneType === 'sensitive') result.add('da-nhay-cam');
   if (acneType === 'pore') result.add('lo-chan-long');
-  if (zones.includes('nose') && acneType === 'blackhead') result.add('lo-chan-long');
-  if (zones.length > 0 && (acneType === 'inflamed' || acneType === 'blackhead')) result.add('da-nhon-mun-viem');
+  if (zones.includes('nose') && (acneType === 'blackhead' || acneType === 'whitehead')) result.add('lo-chan-long');
+  if (zones.length > 0 && (acneType === 'inflamed' || acneType === 'blackhead' || acneType === 'whitehead')) result.add('da-nhon-mun-viem');
   if (acneType === 'scar') result.add('da-seo-ro');
   return result.size > 0 ? [...result] : ['da-moi-bat-dau'];
 }
@@ -195,7 +240,7 @@ const SVG_KEYFRAMES = `
 
 const BUBBLE_KEYFRAMES = `
   @keyframes bubArc {
-    0%   { opacity: 0; transform: translate(-50%, -50%) scale(0) translateY(10px); }
+    0%   { opacity: 0; transform: translate(-50%, -50%) translateY(10px); }
     55%  { opacity: 1; transform: translate(-50%, -50%) scale(1.08) translateY(-4px); }
     100% { opacity: 1; transform: translate(-50%, -50%) scale(1)    translateY(0); }
   }
@@ -205,25 +250,45 @@ const BUBBLE_KEYFRAMES = `
     70%  { transform: translate(-50%, -50%) scale(0.88); }
     100% { transform: translate(-50%, -50%) scale(1); }
   }
+  @keyframes bubCondSelect {
+    0%   { transform: translate(-50%, -50%) scale(1); }
+    30%  { transform: translate(-50%, -50%) scale(1.4) rotate(-6deg); }
+    65%  { transform: translate(-50%, -50%) scale(0.85) rotate(4deg); }
+    100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+  }
+  @keyframes bubCondDeselect {
+    0%   { transform: translate(-50%, -50%) scale(1); }
+    50%  { transform: translate(-50%, -50%) scale(0.82) rotate(-4deg); }
+    100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+  }
+  @keyframes bubConfirmIn {
+    from { transform: translateX(-50%) scale(0.7) translateY(8px); opacity: 0; }
+    to   { transform: translateX(-50%) scale(1) translateY(0px); opacity: 1; }
+  }
+  @keyframes bubOverlay {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
 `;
 
 const ARC_CONFIG = [
-  { severity: 'khong' as Severity, label: 'Không\nbị',   angleDeg: 225, bg: 'rgba(50,60,80,0.90)',   border: '#64748b', color: '#cbd5e1' },
-  { severity: 'it'    as Severity, label: 'Ít\nmụn',     angleDeg: 315, bg: 'rgba(155,68,5,0.90)',   border: '#ea8c2a', color: '#fef3c7' },
+  { severity: 'it'    as Severity, label: 'Ít\nmụn',     angleDeg: 225, bg: 'rgba(155,68,5,0.90)',   border: '#ea8c2a', color: '#fef3c7' },
+  { severity: 'vua'   as Severity, label: 'Vừa\nphải',   angleDeg: 315, bg: 'rgba(155,100,5,0.85)',  border: '#f59e0b', color: '#fef9c3' },
   { severity: 'nhieu' as Severity, label: 'Nhiều\nmụn',  angleDeg:  30, bg: 'rgba(180,25,25,0.90)',  border: '#f87171', color: '#ffe4e4' },
 ] as const;
 
 const BUBBLE_R = 60;
+const COND_BUBBLE_R = 110;
 
-function calcBubblePos(cx: number, cy: number, angleDeg: number) {
+function calcBubblePos(cx: number, cy: number, angleDeg: number, radius = BUBBLE_R) {
   const rad = angleDeg * Math.PI / 180;
   return {
-    left: Math.max(37, Math.min(window.innerWidth  - 37, cx + BUBBLE_R * Math.sin(rad))),
-    top:  Math.max(37, Math.min(window.innerHeight - 37, cy - BUBBLE_R * Math.cos(rad))),
+    left: Math.max(37, Math.min(window.innerWidth  - 37, cx + radius * Math.sin(rad))),
+    top:  Math.max(37, Math.min(window.innerHeight - 37, cy - radius * Math.cos(rad))),
   };
 }
 
-function BubbleSeverityPicker({
+export function BubbleSeverityPicker({
   cx,
   cy,
   onSelect,
@@ -247,7 +312,7 @@ function BubbleSeverityPicker({
       {/* Backdrop — tap outside to close */}
       <div
         className="fixed inset-0 z-40"
-        style={{ background: 'rgba(160,205,230,0.18)' }}
+        style={{ background: 'rgba(0,0,0,0.45)', animation: 'bubOverlay 0.2s ease both' }}
         onClick={onClose}
       />
       {/* 3 arc-positioned bubbles */}
@@ -279,6 +344,165 @@ function BubbleSeverityPicker({
         );
       })}
     </>
+  );
+}
+
+// ─── BubbleConditionPicker (Layer 1) ─────────────────────────────────────────
+
+function conditionArcAngles(n: number): number[] {
+  if (n === 0) return [];
+  if (n === 1) return [280];
+  const span = Math.min((n - 1) * 40, 150);
+  const half = span / 2;
+  return Array.from({ length: n }, (_, i) => 280 - half + (i / (n - 1)) * span);
+}
+
+export function BubbleConditionPicker({
+  cx,
+  cy,
+  conditions,
+  onConfirm,
+  onClose,
+}: {
+  cx: number;
+  cy: number;
+  conditions: ConditionOption[];
+  onConfirm: (selectedIds: string[]) => void;
+  onClose: () => void;
+}) {
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [justToggled, setJustToggled] = useState<string | null>(null);
+
+  const angles = conditionArcAngles(conditions.length);
+  const canConfirm = selected.size > 0;
+
+  function toggle(id: string) {
+    const willSelect = !selected.has(id);
+    setJustToggled(id);
+    setTimeout(() => setJustToggled(null), 320);
+    setSelected(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+    void willSelect;
+  }
+
+  return (
+    <>
+      <style>{BUBBLE_KEYFRAMES}</style>
+      <div className="fixed inset-0 z-40" style={{ background: 'rgba(0,0,0,0.45)', animation: 'bubOverlay 0.2s ease both' }} onClick={onClose} />
+      {conditions.map((cond, i) => {
+        const pos = calcBubblePos(cx, cy, angles[i] ?? 280, COND_BUBBLE_R);
+        const isSel = selected.has(cond.id);
+        const isToggling = justToggled === cond.id;
+        return (
+          <button
+            key={cond.id}
+            className="fixed z-50 flex flex-col items-center gap-1"
+            onClick={(e) => { e.stopPropagation(); toggle(cond.id); }}
+            aria-label={cond.label}
+            aria-pressed={isSel}
+            style={{
+              left: pos.left, top: pos.top,
+              transform: 'translate(-50%, -50%)',
+              background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+              animation: isToggling
+                ? (isSel ? 'bubCondDeselect 0.30s ease both' : 'bubCondSelect 0.30s ease both')
+                : `bubArc 0.32s cubic-bezier(0.34,1.56,0.64,1) ${i * 0.08}s both`,
+            }}
+          >
+            <div style={{
+              width: 52, height: 52, borderRadius: '50%', overflow: 'hidden', flexShrink: 0,
+              border: isSel ? `3px solid ${cond.color}` : '2.5px dashed rgba(255,255,255,0.45)',
+              boxShadow: isSel
+                ? `0 0 0 3px rgba(255,255,255,0.9), 0 0 0 5px ${cond.color}`
+                : '0 3px 12px rgba(0,0,0,0.28)',
+              transition: 'border 0.18s ease, box-shadow 0.18s ease',
+            }}>
+              {cond.image ? (
+                <img src={cond.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+              ) : (
+                <div style={{ width: '100%', height: '100%', background: cond.color }} />
+              )}
+            </div>
+            <span style={{
+              fontSize: 10, fontWeight: 700, lineHeight: 1.2, textAlign: 'center',
+              color: isSel ? cond.color : 'rgba(255,255,255,0.85)',
+              textShadow: '0 1px 4px rgba(0,0,0,0.55)',
+              maxWidth: 64, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+            }}>
+              {cond.label}
+            </span>
+          </button>
+        );
+      })}
+      <button
+        className="fixed z-50"
+        onClick={(e) => { e.stopPropagation(); if (canConfirm) onConfirm(Array.from(selected)); }}
+        style={{
+          left: cx, top: cy + COND_BUBBLE_R + 38,
+          transform: 'translateX(-50%)',
+          padding: '10px 22px', borderRadius: 999,
+          fontWeight: 700, fontSize: 13,
+          color: 'white',
+          background: canConfirm ? 'var(--lp-accent)' : 'rgba(100,116,139,0.70)',
+          border: 'none', cursor: canConfirm ? 'pointer' : 'default',
+          boxShadow: canConfirm ? '0 4px 16px color-mix(in srgb, var(--lp-accent) 35%, transparent)' : 'none',
+          transition: 'background 0.2s ease, box-shadow 0.2s ease',
+          animation: 'bubConfirmIn 0.28s cubic-bezier(0.34,1.56,0.64,1) 0.18s both',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {canConfirm ? `Xác nhận (${selected.size})` : 'Chọn ít nhất 1'}
+      </button>
+    </>
+  );
+}
+
+// ─── BubbleTwoLayerPicker (Layer 1 → Layer 2 orchestrator) ───────────────────
+
+export function BubbleTwoLayerPicker({
+  cx,
+  cy,
+  conditions,
+  onComplete,
+  onClose,
+}: {
+  cx: number;
+  cy: number;
+  conditions: ConditionOption[];
+  onComplete: (conditionIds: string[], severity: Severity) => void;
+  onClose: () => void;
+}) {
+  const singleCondition = conditions.length <= 1;
+  const [layer, setLayer] = useState<1 | 2>(singleCondition ? 2 : 1);
+  const [confirmedIds, setConfirmedIds] = useState<string[]>(
+    singleCondition ? conditions.map(c => c.id) : []
+  );
+
+  function handleConditionsConfirmed(ids: string[]) {
+    setConfirmedIds(ids);
+    setLayer(2);
+  }
+
+  if (layer === 1) {
+    return (
+      <BubbleConditionPicker
+        cx={cx} cy={cy}
+        conditions={conditions}
+        onConfirm={handleConditionsConfirmed}
+        onClose={onClose}
+      />
+    );
+  }
+
+  return (
+    <BubbleSeverityPicker
+      cx={cx} cy={cy}
+      onSelect={(severity) => onComplete(confirmedIds, severity)}
+      onClose={onClose}
+    />
   );
 }
 
@@ -323,13 +547,17 @@ export function FaceDiagram({
         <g clipPath="url(#fc-clip)">
           {ZONES_SVG.map(z => {
             const severity = zoneSeverity[z.id];
-            const active   = severity === 'nhieu' || severity === 'it';
+            const active   = severity === 'nhieu' || severity === 'vua' || severity === 'it';
             const isHov    = hovered === z.id && !isScanning;
             const fillColor =
               severity === 'nhieu' ? '#EF4444'
-              : severity === 'it'  ? '#F97316'
+              : severity === 'vua'  ? '#F59E0B'
+              : severity === 'it'   ? '#F97316'
               : 'var(--lp-accent)';
-            const dotColor = severity === 'nhieu' ? '#EF4444' : '#F97316';
+            const dotColor =
+              severity === 'nhieu' ? '#EF4444'
+              : severity === 'vua'  ? '#F59E0B'
+              : '#F97316';
             return (
               <g
                 key={z.id}
@@ -471,6 +699,16 @@ const CARD_ICONS: Record<AcneType, React.ReactNode> = {
       <circle cx="22" cy="32" r="1.5" fill="#374151" opacity="0.5" />
     </svg>
   ),
+  whitehead: (
+    <svg width="44" height="44" viewBox="0 0 44 44" fill="none" aria-hidden="true">
+      <circle cx="22" cy="22" r="4"   fill="#e5e7eb" stroke="#6b7280" strokeWidth="1.5" opacity="0.95" />
+      <circle cx="14" cy="16" r="2.5" fill="#e5e7eb" stroke="#6b7280" strokeWidth="1.2" opacity="0.75" />
+      <circle cx="30" cy="16" r="2.5" fill="#e5e7eb" stroke="#6b7280" strokeWidth="1.2" opacity="0.75" />
+      <circle cx="16" cy="29" r="2"   fill="#e5e7eb" stroke="#6b7280" strokeWidth="1.1" opacity="0.6" />
+      <circle cx="28" cy="27" r="2"   fill="#e5e7eb" stroke="#6b7280" strokeWidth="1.1" opacity="0.6" />
+      <circle cx="22" cy="32" r="1.5" fill="#e5e7eb" stroke="#6b7280" strokeWidth="1"   opacity="0.5" />
+    </svg>
+  ),
   sensitive: (
     <svg width="44" height="44" viewBox="0 0 44 44" fill="none" aria-hidden="true">
       <path d="M8 22 Q14 15 22 22 Q30 29 36 22" stroke="#F472B6" strokeWidth="3"   strokeLinecap="round" fill="none" opacity="0.9" />
@@ -525,26 +763,383 @@ function AcneCard({ type, selected, onSelect }: {
   );
 }
 
-function ConditionSelectStep({
-  selected,
-  onToggle,
-  onNext,
-}: {
+// ─── Condition Select — Variant A (Pill cloud + animated image preview) ──────
+
+const CS_TILE_KEYFRAMES = `
+  @keyframes csTileIn {
+    from { opacity: 0; transform: scale(.82) translateY(6px); }
+    to   { opacity: 1; transform: scale(1)   translateY(0);   }
+  }
+`;
+
+function ConditionSelectVariantA({ selected, onToggle, onNext }: {
   selected: AcneType[];
   onToggle: (t: AcneType) => void;
   onNext: (types: AcneType[]) => void;
 }) {
-  const anySelected = selected.length > 0;
+  const DECK = ACNE_TYPES.filter(t => t.id !== 'none');
+  const noneType = ACNE_TYPES.find(t => t.id === 'none')!;
 
-  function handleSelect(t: AcneType) {
-    if (t === 'none') {
-      // "Da ổn" → skip wizard entirely
-      onNext(['none']);
+  const imgItems = selected
+    .filter(id => !!CONDITION_IMAGES[id])
+    .map(id => ({
+      id,
+      img: CONDITION_IMAGES[id]!,
+      label: ACNE_TYPES.find(t => t.id === id)?.label ?? id,
+    }));
+
+  return (
+    <div className="w-full max-w-sm flex flex-col gap-4 animate-fade-in-up">
+      <style>{CS_TILE_KEYFRAMES}</style>
+      <div className="text-center">
+        <p className="font-extrabold text-xl text-cta">Da bạn đang gặp tình trạng nào?</p>
+        <p className="text-sm text-cta/50 mt-1">Chọn tất cả những gì bạn đang có</p>
+      </div>
+
+      <div className="flex flex-wrap gap-2 justify-center">
+        {DECK.map(t => {
+          const isOn = selected.includes(t.id);
+          return (
+            <button
+              key={t.id}
+              onClick={() => onToggle(t.id)}
+              aria-pressed={isOn}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-sm font-medium border-[1.5px] transition-all duration-150"
+              style={{
+                borderColor: isOn ? t.color : 'var(--lp-border)',
+                background:  isOn ? `color-mix(in srgb, ${t.color} 12%, var(--lp-bg-card))` : 'var(--lp-bg-card)',
+                color:       isOn ? t.color : 'color-mix(in srgb, var(--lp-accent) 55%, transparent)',
+              }}
+            >
+              {isOn && (
+                <svg width="11" height="11" viewBox="0 0 11 11" fill="none" aria-hidden="true">
+                  <path d="M1.5 5.5L4.5 8.5L9.5 2.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              )}
+              {t.label}
+            </button>
+          );
+        })}
+        {/* "Da ổn" — togglable, mutually exclusive with other conditions */}
+        <button
+          onClick={() => onToggle('none')}
+          aria-pressed={selected.includes('none')}
+          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-sm font-medium border-[1.5px] transition-all duration-150"
+          style={{
+            borderColor: noneType.color,
+            borderStyle: selected.includes('none') ? 'solid' : 'dashed',
+            background:  selected.includes('none') ? `color-mix(in srgb, ${noneType.color} 12%, var(--lp-bg-card))` : 'var(--lp-bg-card)',
+            color:       noneType.color,
+          }}
+        >
+          {selected.includes('none') && (
+            <svg width="11" height="11" viewBox="0 0 11 11" fill="none" aria-hidden="true">
+              <path d="M1.5 5.5L4.5 8.5L9.5 2.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          )}
+          {noneType.label}
+        </button>
+      </div>
+
+      {/* Image preview — animates in when chips are selected */}
+      <div
+        style={{
+          maxHeight: imgItems.length > 0 ? '200px' : '0',
+          overflow: 'hidden',
+          transition: 'max-height 0.38s cubic-bezier(.25,.8,.25,1)',
+        }}
+      >
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(68px, 1fr))',
+            gridAutoRows: '68px',
+            gap: '6px',
+            paddingTop: imgItems.length > 0 ? '4px' : '0',
+          }}
+        >
+          {imgItems.map(({ id, img, label }) => (
+            <div
+              key={id}
+              style={{
+                borderRadius: '10px',
+                overflow: 'hidden',
+                position: 'relative',
+                animation: 'csTileIn 0.28s cubic-bezier(.25,.8,.25,1)',
+              }}
+            >
+              <img src={img} alt={label} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+              <div style={{
+                position: 'absolute', bottom: 0, left: 0, right: 0,
+                padding: '12px 3px 3px',
+                background: 'linear-gradient(transparent, rgba(0,0,0,.6))',
+                color: '#fff', fontSize: '8.5px', fontWeight: 600, textAlign: 'center',
+              }}>
+                {label}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <button
+        onClick={() => onNext(selected)}
+        disabled={selected.length === 0}
+        className="w-full bg-cta text-white font-bold py-3.5 rounded-soft text-sm disabled:opacity-40 hover:opacity-90 transition-opacity"
+      >
+        Tiếp theo &rarr;
+      </button>
+    </div>
+  );
+}
+
+// ─── Condition Select — Variant B (Row list + circle thumbnails) ──────────────
+
+function ConditionSelectVariantB({ selected, onToggle, onNext }: {
+  selected: AcneType[];
+  onToggle: (t: AcneType) => void;
+  onNext: (types: AcneType[]) => void;
+}) {
+  const DECK = ACNE_TYPES.filter(t => t.id !== 'none');
+  const noneType = ACNE_TYPES.find(t => t.id === 'none')!;
+
+  return (
+    <div className="w-full max-w-sm flex flex-col gap-3 animate-fade-in-up">
+      <div className="text-center">
+        <p className="font-extrabold text-xl text-cta">Da bạn đang gặp tình trạng nào?</p>
+        <p className="text-sm text-cta/50 mt-1">Chọn tất cả những gì bạn đang có</p>
+      </div>
+
+      <div className="flex flex-col gap-0.5">
+        {DECK.map(t => {
+          const isOn = selected.includes(t.id);
+          const img  = CONDITION_IMAGES[t.id];
+          return (
+            <button
+              key={t.id}
+              onClick={() => onToggle(t.id)}
+              aria-pressed={isOn}
+              className="flex items-center gap-3 px-2 py-2 rounded-xl transition-colors duration-100 w-full text-left"
+              style={{ background: isOn ? `color-mix(in srgb, ${t.color} 8%, var(--lp-bg-card))` : 'transparent' }}
+            >
+              {/* Circle thumbnail */}
+              <div style={{
+                width: 40, height: 40, borderRadius: '50%', overflow: 'hidden', flexShrink: 0,
+                background: `color-mix(in srgb, ${t.color} 15%, var(--lp-bg-card))`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                {img
+                  ? <img src={img} alt={t.label} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                  : CARD_ICONS[t.id]
+                }
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-cta leading-tight">{t.label}</p>
+                <p className="text-xs text-cta/45 mt-0.5 leading-tight">{t.desc}</p>
+              </div>
+              {/* Square checkbox */}
+              <div
+                className="w-5 h-5 flex-shrink-0 flex items-center justify-center"
+                style={{
+                  borderRadius: '4px',
+                  border: `1.5px solid ${isOn ? t.color : 'color-mix(in srgb, var(--lp-accent) 25%, transparent)'}`,
+                  background: isOn ? t.color : 'transparent',
+                  transition: 'all 0.15s',
+                }}
+              >
+                {isOn && (
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                    <path d="M1.5 5L4 7.5L8.5 2" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                )}
+              </div>
+            </button>
+          );
+        })}
+
+        {/* Separator */}
+        <div className="flex items-center gap-2 my-1.5 px-1">
+          <div className="flex-1 h-px" style={{ background: 'color-mix(in srgb, var(--lp-accent) 12%, transparent)' }} />
+          <span className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: 'color-mix(in srgb, var(--lp-accent) 30%, transparent)' }}>hoặc</span>
+          <div className="flex-1 h-px" style={{ background: 'color-mix(in srgb, var(--lp-accent) 12%, transparent)' }} />
+        </div>
+
+        {/* "Da ổn" — toggles like other conditions (mutually exclusive) */}
+        <button
+          onClick={() => onToggle('none')}
+          aria-pressed={selected.includes('none')}
+          className="flex items-center gap-3 px-2 py-2 rounded-xl transition-colors duration-100 w-full text-left"
+          style={{ background: selected.includes('none') ? `color-mix(in srgb, ${noneType.color} 8%, var(--lp-bg-card))` : 'transparent' }}
+        >
+          <div style={{
+            width: 40, height: 40, borderRadius: '50%', flexShrink: 0,
+            background: `color-mix(in srgb, ${noneType.color} 15%, var(--lp-bg-card))`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M4 10l4 4L16 6" stroke={noneType.color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-cta leading-tight">{noneType.label}</p>
+            <p className="text-xs text-cta/45 mt-0.5 leading-tight">{noneType.desc}</p>
+          </div>
+          <div style={{
+            width: 20, height: 20, flexShrink: 0, borderRadius: 4,
+            border: `1.5px solid ${selected.includes('none') ? noneType.color : 'color-mix(in srgb, var(--lp-accent) 25%, transparent)'}`,
+            background: selected.includes('none') ? noneType.color : 'transparent',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            transition: 'all 0.15s',
+          }}>
+            {selected.includes('none') && (
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                <path d="M1.5 5L4 7.5L8.5 2" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            )}
+          </div>
+        </button>
+      </div>
+
+      <button
+        onClick={() => onNext(selected)}
+        disabled={selected.length === 0}
+        className="w-full bg-cta text-white font-bold py-3.5 rounded-soft text-sm disabled:opacity-40 hover:opacity-90 transition-opacity"
+      >
+        Tiếp theo &rarr;
+      </button>
+    </div>
+  );
+}
+
+// ─── Condition Select — Variant C (Card deck, one condition at a time) ────────
+
+function ConditionSelectVariantC({ onNext }: { onNext: (types: AcneType[]) => void }) {
+  const DECK = ACNE_TYPES.filter(t => t.id !== 'none');
+  const [deckIdx, setDeckIdx] = useState(0);
+  const [picked,  setPicked]  = useState<AcneType[]>([]);
+
+  function rate(yes: boolean) {
+    if (deckIdx >= DECK.length) return;
+    const current    = DECK[deckIdx];
+    const nextPicked = yes ? [...picked, current.id] : picked;
+    const nextIdx    = deckIdx + 1;
+
+    if (nextIdx >= DECK.length) {
+      setPicked(nextPicked);
+      setDeckIdx(nextIdx);
+      setTimeout(() => onNext(nextPicked.length > 0 ? nextPicked : ['none']), 200);
       return;
     }
-    onToggle(t);
+    setPicked(nextPicked);
+    setDeckIdx(nextIdx);
   }
 
+  const isDone   = deckIdx >= DECK.length;
+  const current  = DECK[Math.min(deckIdx, DECK.length - 1)];
+  const img      = CONDITION_IMAGES[current.id];
+
+  return (
+    <div className="w-full max-w-sm flex flex-col gap-4 animate-fade-in-up">
+      {/* Progress dots */}
+      <div className="flex gap-1.5">
+        {DECK.map((t, i) => (
+          <div
+            key={t.id}
+            className="flex-1 h-1 rounded-full transition-colors duration-300"
+            style={{
+              background: i < deckIdx
+                ? (picked.includes(DECK[i].id)
+                    ? 'var(--lp-accent)'
+                    : 'color-mix(in srgb, var(--lp-accent) 28%, transparent)')
+                : 'color-mix(in srgb, var(--lp-accent) 10%, transparent)',
+            }}
+          />
+        ))}
+      </div>
+
+      <div className="text-center">
+        <p className="font-extrabold text-xl text-cta">Da bạn có bị vậy không?</p>
+        <p className="text-sm text-cta/50 mt-1">
+          {isDone ? 'Đang tổng hợp kết quả...' : `${deckIdx + 1} / ${DECK.length}`}
+        </p>
+      </div>
+
+      {/* Deck card */}
+      {!isDone && (
+        <div
+          key={deckIdx}
+          className="rounded-2xl overflow-hidden animate-fade-in-up"
+          style={{
+            background: 'var(--lp-bg-card)',
+            border: '1px solid color-mix(in srgb, var(--lp-accent) 12%, transparent)',
+          }}
+        >
+          {img && (
+            <img
+              src={img}
+              alt={current.label}
+              loading="lazy"
+              style={{ width: '100%', height: 140, objectFit: 'cover', display: 'block' }}
+            />
+          )}
+          <div className="flex flex-col items-center gap-2 px-4 py-5 text-center">
+            <p className="font-extrabold text-base text-cta">{current.label}</p>
+            <p className="text-xs text-cta/50 leading-relaxed">{current.desc}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Action buttons */}
+      {!isDone && (
+        <div className="flex gap-2">
+          <button
+            onClick={() => rate(false)}
+            className="flex-1 py-3.5 rounded-soft text-sm font-semibold transition-colors"
+            style={{
+              border: '2px solid color-mix(in srgb, var(--lp-accent) 20%, transparent)',
+              color: 'color-mix(in srgb, var(--lp-accent) 55%, transparent)',
+              background: 'transparent',
+            }}
+          >
+            Không có
+          </button>
+          <button
+            onClick={() => rate(true)}
+            className="flex-1 text-white font-bold py-3.5 rounded-soft text-sm hover:opacity-90 transition-opacity"
+            style={{ background: current.color }}
+          >
+            Tôi bị vậy
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Condition Select (dispatcher) ───────────────────────────────────────────
+
+function ConditionSelectStep({
+  selected,
+  onToggle,
+  onNext,
+  variant = CONDITION_SELECT_VARIANT,
+}: {
+  selected: AcneType[];
+  onToggle: (t: AcneType) => void;
+  onNext: (types: AcneType[]) => void;
+  variant?: 'a' | 'b' | 'c' | 'card';
+}) {
+  if (variant === 'a') {
+    return <ConditionSelectVariantA selected={selected} onToggle={onToggle} onNext={onNext} />;
+  }
+  if (variant === 'b') {
+    return <ConditionSelectVariantB selected={selected} onToggle={onToggle} onNext={onNext} />;
+  }
+  if (variant === 'c') {
+    return <ConditionSelectVariantC onNext={onNext} />;
+  }
+
+  // 'card' — original 2×3 grid (legacy fallback)
   return (
     <div className="w-full max-w-sm flex flex-col gap-4 animate-fade-in-up">
       <div className="text-center">
@@ -557,13 +1152,13 @@ function ConditionSelectStep({
             key={t.id}
             type={t}
             selected={selected.includes(t.id)}
-            onSelect={() => handleSelect(t.id)}
+            onSelect={() => onToggle(t.id)}
           />
         ))}
       </div>
       <button
         onClick={() => onNext(selected)}
-        disabled={!anySelected}
+        disabled={selected.length === 0}
         className="w-full bg-cta text-white font-bold py-3.5 rounded-soft text-sm disabled:opacity-40 hover:opacity-90 transition-opacity"
       >
         Tiếp theo &rarr;
@@ -759,52 +1354,50 @@ export function FaceMapMinigame({ onComplete, copy }: MinigameSlotProps) {
   const [showIntro, setShowIntro]               = useState(hasIntro);
   const [pendingTypes, setPendingTypes]          = useState<AcneType[]>([]);
   const [selectedAcneTypes, setSelectedAcneTypes] = useState<AcneType[]>([]);
-  const [assessments, setAssessments]            = useState<ConditionAssessment[]>([]);
-  const [wizardStep, setWizardStep]              = useState(0);
-  const [activeBubble, setActiveBubble]          = useState<{ zone: Zone; cx: number; cy: number } | null>(null);
+  const [wizardStep, setWizardStep]              = useState(0); // 0=condition select, 1=face-map
+  const [zoneMap, setZoneMap]                    = useState<ZoneMap>({});
+  const [activeBubble, setActiveBubble]          = useState<{
+    zone: Zone; cx: number; cy: number; conditions: ConditionOption[];
+  } | null>(null);
   const [isScanning, setIsScanning]              = useState(false);
 
   function handleConditionsSelected(types: AcneType[]) {
     if (types.includes('none') || types.length === 0) {
-      triggerSubmit([]);
+      triggerSubmit(zoneMapToAssessments({}));
       return;
     }
     const ordered = types.filter(t => t !== 'none');
     setSelectedAcneTypes(ordered);
-    setAssessments(ordered.map(t => ({ acneType: t, zones: {} })));
+    setZoneMap({});
     setWizardStep(1);
   }
 
   function handleZoneTap(zone: Zone, cx: number, cy: number) {
-    setActiveBubble({ zone, cx, cy });
+    const conditionOptions: ConditionOption[] = selectedAcneTypes.map(t => {
+      const def = ACNE_TYPES.find(a => a.id === t)!;
+      return { id: t, label: def.label, image: CONDITION_IMAGES[t], color: def.color };
+    });
+    setActiveBubble({ zone, cx, cy, conditions: conditionOptions });
   }
 
-  function handleSeveritySelect(severity: Severity) {
+  function handleTwoLayerComplete(conditionIds: string[], severity: Severity) {
     if (!activeBubble) return;
-    const idx = wizardStep - 1;
-    setAssessments(prev => prev.map((a, i) =>
-      i !== idx ? a : { ...a, zones: { ...a.zones, [activeBubble.zone]: severity } }
-    ));
+    setZoneMap(prev => ({
+      ...prev,
+      [activeBubble.zone]: { conditions: conditionIds, severity },
+    }));
     setActiveBubble(null);
   }
 
   function handleWizardNext() {
     setActiveBubble(null);
-    if (wizardStep < selectedAcneTypes.length) {
-      setWizardStep(wizardStep + 1);
-    } else {
-      triggerSubmit(assessments);
-    }
+    triggerSubmit(zoneMapToAssessments(zoneMap));
   }
 
   function handleWizardBack() {
     setActiveBubble(null);
-    if (wizardStep <= 1) {
-      setWizardStep(0);
-      setAssessments([]);
-    } else {
-      setWizardStep(wizardStep - 1);
-    }
+    setWizardStep(0);
+    setZoneMap({});
   }
 
   function triggerSubmit(finalAssessments: ConditionAssessment[]) {
@@ -849,53 +1442,92 @@ export function FaceMapMinigame({ onComplete, copy }: MinigameSlotProps) {
     );
   }
 
-  const totalWizardSteps = selectedAcneTypes.length;
-
   function renderContent() {
     if (isScanning) {
-      return <ScanningScreen zoneSeverity={_getCombinedZoneSeverity(assessments)} />;
+      return <ScanningScreen zoneSeverity={_getCombinedZoneSeverity(zoneMapToAssessments(zoneMap))} />;
     }
     if (wizardStep === 0) {
       return (
         <ConditionSelectStep
           selected={pendingTypes}
-          onToggle={(t) => setPendingTypes(prev =>
-            prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t]
-          )}
+          onToggle={(t) => setPendingTypes(prev => {
+            if (prev.includes(t)) return prev.filter(x => x !== t);
+            if (t === 'none') return ['none'];
+            return [...prev.filter(x => x !== 'none'), t];
+          })}
           onNext={handleConditionsSelected}
+          variant={copy?.conditionVariant}
         />
       );
     }
-    const idx = wizardStep - 1;
+    // wizardStep === 1 — single face-map for all conditions
+    const isMultiCondition = selectedAcneTypes.length > 1;
+    const zoneSeverity: Partial<Record<Zone, Severity>> = Object.fromEntries(
+      Object.entries(zoneMap).map(([z, v]) => [z, v!.severity])
+    ) as Partial<Record<Zone, Severity>>;
     return (
-      <ConditionFaceMapStep
-        acneType={selectedAcneTypes[idx]}
-        assessment={assessments[idx]}
-        currentStep={wizardStep}
-        totalSteps={totalWizardSteps}
-        onZoneTap={handleZoneTap}
-        onNext={handleWizardNext}
-        onBack={handleWizardBack}
-        isLast={wizardStep === totalWizardSteps}
-      />
+      <div className="w-full flex flex-col items-center gap-3" style={{ animation: 'fm-fade-in 350ms ease-out both' }}>
+        <style>{`@keyframes fm-fade-in { from { opacity:0; transform:translateY(10px) } to { opacity:1; transform:translateY(0) } }`}</style>
+        <div className="text-center px-4">
+          {isMultiCondition ? (
+            <h2 className="font-extrabold text-lg leading-snug" style={{ color: 'var(--lp-primary)' }}>
+              Da bạn có nhiều tuýp — hãy đánh dấu từng vùng!
+            </h2>
+          ) : (
+            <h2 className="font-extrabold text-lg leading-snug" style={{ color: 'var(--lp-primary)' }}>
+              {ACNE_TYPES.find(a => a.id === selectedAcneTypes[0])?.label ?? ''} xuất hiện ở đâu?
+            </h2>
+          )}
+          <p className="text-base mt-1" style={{ color: 'color-mix(in srgb, var(--lp-primary) 50%, transparent)' }}>
+            Chạm vào vùng da để chọn mức độ
+          </p>
+        </div>
+        <FaceDiagram zoneSeverity={zoneSeverity} onZoneTap={handleZoneTap} isScanning={false} />
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, justifyContent: 'center', minHeight: 28 }}>
+          {Object.entries(zoneMap).length > 0
+            ? (Object.entries(zoneMap) as [Zone, NonNullable<ZoneMap[Zone]>][]).map(([z, data]) => (
+                <div key={z} style={{
+                  padding: '4px 12px', borderRadius: 999, fontSize: 12, fontWeight: 600,
+                  background: data.severity === 'nhieu' ? '#EF444420' : data.severity === 'vua' ? '#F59E0B20' : '#F9731620',
+                  color:      data.severity === 'nhieu' ? '#EF4444'   : data.severity === 'vua' ? '#F59E0B'   : '#F97316',
+                  border: `1px solid ${data.severity === 'nhieu' ? '#EF444440' : data.severity === 'vua' ? '#F59E0B40' : '#F9731640'}`,
+                }}>
+                  {ZONE_LABELS[z]} — {data.severity === 'nhieu' ? 'nhiều' : data.severity === 'vua' ? 'vừa' : 'ít'}
+                </div>
+              ))
+            : <p className="text-sm" style={{ color: 'color-mix(in srgb, var(--lp-primary) 40%, transparent)' }}>Chạm vào vùng da để bắt đầu</p>
+          }
+        </div>
+        <div style={{ position: 'fixed', bottom: 24, left: 0, right: 0, display: 'flex', justifyContent: 'center', gap: 12, padding: '0 20px', zIndex: 30 }}>
+          <button
+            onClick={handleWizardBack}
+            style={{ padding: '14px 24px', borderRadius: 999, fontWeight: 600, fontSize: 14, color: 'color-mix(in srgb, var(--lp-primary) 55%, transparent)', background: 'color-mix(in srgb, var(--lp-primary) 8%, var(--lp-bg-hero))', border: '1.5px solid color-mix(in srgb, var(--lp-primary) 15%, transparent)', cursor: 'pointer' }}
+          >
+            ← Quay lại
+          </button>
+          <button
+            onClick={handleWizardNext}
+            style={{ flex: 1, maxWidth: 240, padding: '14px 32px', borderRadius: 999, fontWeight: 700, fontSize: 16, color: 'white', background: 'var(--lp-accent)', boxShadow: '0 4px 18px color-mix(in srgb, var(--lp-accent) 35%, transparent)', border: 'none', cursor: 'pointer' }}
+          >
+            Xem kết quả
+          </button>
+        </div>
+      </div>
     );
   }
 
   return (
     <div className="h-[100dvh] w-full bg-[var(--lp-bg-minigame)] flex items-center justify-center px-5 overflow-hidden">
       <div className="w-full flex flex-col items-center gap-4">
-        {!isScanning && wizardStep > 0 && (
-          <StepProgress current={wizardStep} total={totalWizardSteps} />
-        )}
         {renderContent()}
       </div>
 
-      {/* Bubble severity picker — rendered at root level for z-index */}
       {activeBubble && (
-        <BubbleSeverityPicker
+        <BubbleTwoLayerPicker
           cx={activeBubble.cx}
           cy={activeBubble.cy}
-          onSelect={handleSeveritySelect}
+          conditions={activeBubble.conditions}
+          onComplete={handleTwoLayerComplete}
           onClose={() => setActiveBubble(null)}
         />
       )}
