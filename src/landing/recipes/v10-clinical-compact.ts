@@ -22,7 +22,7 @@ export const v10ClinicalCompact: Recipe = {
       cta:           'Phân tích ngay',
       hookImage:     '/face-map-v2/face-map-hook-1.svg',
     },
-    minigame: {},
+    minigame: { conditionVariant: 'b' },
     payoff: {
       resultCard: {
         concern:  'Vấn đề đã được xác định rõ.',

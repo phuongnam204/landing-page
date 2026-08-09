@@ -22,6 +22,7 @@ export const v12ClinicalEditorial: Recipe = {
       hookImage:     '/face-map-v2/face-map-hook-1.svg',
     },
     minigame: {
+      conditionVariant: 'c',
       intro: {
         heading: 'Da bạn đang gặp vấn đề gì?',
         subtext:  'Chọn tình trạng để chúng tôi phân tích sâu hơn cho bạn.',

@@ -21,7 +21,7 @@ export const v09ClinicalClassic: Recipe = {
       subtext:       'Không phải thử sản phẩm cho đến khi tìm được — là xác định nguyên nhân ngay từ đầu.',
       cta:           'Bắt đầu chẩn đoán',
     },
-    minigame: {},
+    minigame: { conditionVariant: 'a' },
     payoff: {
       resultCard: {
         concern:  'Chúng tôi đã xác định được tình trạng da của bạn.',

@@ -22,6 +22,7 @@ export const v18BoldStacked: Recipe = {
       cta:           'Tìm hiểu ngay',
     },
     minigame: {
+      conditionVariant: 'b',
       intro: {
         heading: 'Vấn đề da của bạn là gì?',
         subtext:  'Chọn thẳng — chúng tôi sẽ trả lời thẳng.',

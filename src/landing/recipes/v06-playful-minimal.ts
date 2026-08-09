@@ -6,7 +6,7 @@ export const v06PlayfulMinimal: Recipe = {
   theme: 'lilac',
   slots: {
     hook: 'playful-minimal',
-    minigame: 'playful-clay',
+    minigame: 'electric-soft-swipe',
     payoff: 'playful-minimal',
     programs: 'playful-minimal',
     conversion: 'playful-minimal',

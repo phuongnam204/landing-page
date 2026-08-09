@@ -37,6 +37,7 @@ export const programs: Program[] = [
     Khi peel trị mụn với bác sĩ da liễu, bạn sẽ được tư vấn cẩn thận và cá nhân hóa liệu trình peel để đảm bảo an toàn và đạt hiệu quả điều trị mụn tối đa.',
     primaryConditionIds: ['mun-trung-ca', 'da-nhon-mun-viem', 'da-mun-tham-seo'],
     secondaryConditionIds: ['lo-chan-long'],
+    comboWith: 'treatment-tighten-pores',
     benenif: [
       'Liệu trình peel phù hợp với tình trạng mụn',
       'Hỗ trợ điều trị mụn và giảm thâm sẹo hiệu quả',

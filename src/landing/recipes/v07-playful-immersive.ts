@@ -21,7 +21,7 @@ export const v07PlayfulImmersive: Recipe = {
       subtext:       'Mụn, dầu, lỗ chân lông — mỗi dấu hiệu đều có nghĩa. Hãy cùng giải mã.',
       cta:           'Giải mã da ngay',
     },
-    minigame: {},
+    minigame: { conditionVariant: 'c' },
     payoff: {
       resultCard: {
         concern:  'Da bạn đang gửi tín hiệu cần được xử lý.',

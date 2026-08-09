@@ -150,42 +150,67 @@ export function ResultCard({ result, onScrollDown, containerRef, copy }: ResultC
             {copy?.[result.condition.tone] ?? HEADERS[result.condition.tone]}
           </h1>
 
-          {(result.zoneLabel || result.triggerNote || (result.zoneIds && result.zoneIds.length > 0)) && (
+          {(result.condition.body || (result.zoneIds && result.zoneIds.length > 0)) && (
             <div className="mb-4">
               <p className="text-sm md:text-base text-cta/80 mb-2">Sau khi soi da của bạn:</p>
-              {result.zoneLabel && (
-                <div className="flex flex-wrap gap-2 mb-2.5">
-                  <span className="payoff-stat-chip inline-flex items-center gap-1.5 rounded-full bg-cta/5 px-3 py-1.5 text-sm font-semibold text-cta" style={{ animationDelay: '0.5s' }}>
-                    <span className="inline-block w-2.5 h-2.5 rounded-full shrink-0" style={{ background: 'var(--lp-accent)' }} />
-                    <span>da bạn hay bị ở <b>{result.zoneLabel}</b></span>
-                  </span>
+
+              {/* Merged condition box: primary body + secondary conditions */}
+              {result.condition.body && (
+                <div
+                  className="payoff-stat-chip bg-amber-50 border border-amber-200 rounded-lg px-3 py-2.5 leading-relaxed mb-3"
+                  style={{ animationDelay: '0.5s' }}
+                >
+                  <SafeBody html={result.condition.body} className="text-xs md:text-sm text-amber-800" />
+                  {result.conditions.length > 1 && (
+                    <div className="mt-2 pt-2 border-t border-amber-200/60">
+                      <p className="text-xs font-semibold text-amber-700/60 uppercase tracking-wide mb-1.5">Hệ thống cũng ghi nhận</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {result.conditions.slice(1).map((c) => (
+                          <span
+                            key={c.id}
+                            className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/60 bg-white/60 px-2.5 py-0.5 text-xs font-semibold text-amber-800/80"
+                          >
+                            <span className="w-2 h-2 rounded-full shrink-0" style={{ background: c.color }} />
+                            {c.label ?? c.id}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
+
+              {/* Zone insight rows — indented with label */}
               {result.zoneIds && result.zoneIds.length > 0 && (() => {
                 const rows = getZoneInsightRows(result.zoneIds!);
                 return rows.length > 0 ? (
-                  <div className="flex flex-col gap-1.5 mt-2.5">
-                    {rows.map((row, i) => (
-                      <p
-                        key={row.key}
-                        className="payoff-stat-chip text-xs text-cta/80 bg-[var(--lp-bg-minigame)] border border-[var(--lp-border)] rounded-lg px-3 py-2 leading-relaxed"
-                        style={{ animationDelay: `${1.0 + i * 0.12}s` }}
-                      >
-                        <span className="font-semibold text-cta">{row.label}: </span>
-                        {row.text}
-                      </p>
-                    ))}
+                  <div className="pl-3 border-l-2 border-[var(--lp-border)]">
+                    <p className="text-xs font-semibold text-cta/45 mb-1.5">Vị trí ghi nhận:</p>
+                    <div className="flex flex-col gap-1.5">
+                      {rows.map((row, i) => (
+                        <p
+                          key={row.key}
+                          className="payoff-stat-chip text-xs text-cta/80 bg-[var(--lp-bg-minigame)] border border-[var(--lp-border)] rounded-lg px-3 py-2 leading-relaxed"
+                          style={{ animationDelay: `${0.9 + i * 0.12}s` }}
+                        >
+                          <span className="font-semibold text-cta">{row.label}: </span>
+                          {row.text}
+                        </p>
+                      ))}
+                    </div>
                   </div>
                 ) : null;
               })()}
             </div>
           )}
 
-          {result.condition.body && (
-            <SafeBody html={result.condition.body} className="payoff-stat-chip text-xs md:text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 leading-relaxed mb-2" style={{ animationDelay: '0.86s' }} />
-          )}
-          {result.condition.bridge && (
-            <p className="text-sm md:text-base text-cta/70 leading-relaxed mb-5">{result.condition.bridge}</p>
+          {/* Bridge — generic for multi-condition, specific for single */}
+          {(result.condition.bridge || result.conditions.length > 1) && (
+            <p className="text-sm md:text-base text-cta/70 leading-relaxed mb-5">
+              {result.conditions.length > 1
+                ? 'Liệu trình được xây dựng để xử lý lần lượt tất cả các vấn đề da trên — bắt đầu từ vấn đề cần ưu tiên nhất.'
+                : result.condition.bridge}
+            </p>
           )}
 
           <CtaButton fullWidth onClick={onScrollDown} className="md:text-base">

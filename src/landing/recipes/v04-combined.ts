@@ -23,6 +23,7 @@ export const v04Combined: Recipe = {
       hookImage:     '/image-hook/Picture7.jpg',
     },
     minigame: {
+      conditionVariant: 'b',
       faceMap: {
         heading: 'Chọn vùng da đang có vấn đề',
         subtext:  'Có thể chọn nhiều vùng cùng lúc',
