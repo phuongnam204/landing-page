@@ -6,10 +6,9 @@ import { trackEvent } from '../lib/trackEvent';
 import { registry } from './registry';
 import type { MinigameResult } from './slots';
 import type { Recipe } from './validateRecipe';
-import { SuggestedProgramScreen } from './variants/suggestedProgram/SuggestedProgramScreen';
 import { CarouselPrograms } from './variants/programs/CarouselPrograms';
 
-type Step = 'hook' | 'minigame' | 'payoff' | 'expertHandoff' | 'programs' | 'suggested-program' | 'browse-programs' | 'pathChooser' | 'conversion' | 'teaserPayoff' | 'socialProof' | 'done';
+type Step = 'hook' | 'minigame' | 'payoff' | 'expertHandoff' | 'programs' | 'browse-programs' | 'pathChooser' | 'conversion' | 'teaserPayoff' | 'socialProof' | 'done';
 
 const FLOW_SESSION_KEY = 'o2skin_flow';
 
@@ -62,8 +61,7 @@ export default function LandingFlow({ recipe }: { recipe: Recipe }) {
 
   function nextAfterPayoff() {
     if (recipe.slots.expertHandoff) return transitionTo('expertHandoff');
-    if (recipe.slots.programs) return transitionTo('programs');
-    return transitionTo('suggested-program');
+    return transitionTo('programs');
   }
 
   function nextAfterPrograms(programId: ProgramId) {
@@ -147,10 +145,7 @@ export default function LandingFlow({ recipe }: { recipe: Recipe }) {
         <ExpertHandoff
           result={minigameResult}
           programId={selectedProgram}
-          onContinue={() => {
-            if (recipe.slots.programs) return transitionTo('programs');
-            transitionTo('suggested-program');
-          }}
+          onContinue={() => transitionTo('programs')}
         />
       )}
 
@@ -163,14 +158,6 @@ export default function LandingFlow({ recipe }: { recipe: Recipe }) {
           onBrowse={() => transitionTo('browse-programs')} />
       )}
 
-      {step === 'suggested-program' && (
-        <SuggestedProgramScreen
-          suggestedPrograms={suggestedPrograms}
-          onConfirm={() => transitionTo('conversion')}
-          onBrowse={() => transitionTo('browse-programs')}
-        />
-      )}
-
       {step === 'browse-programs' && (
         <CarouselPrograms
           suggestedPrograms={suggestedPrograms}
@@ -179,7 +166,7 @@ export default function LandingFlow({ recipe }: { recipe: Recipe }) {
             setSelectedProgram(programId);
             transitionTo('conversion');
           }}
-          onBack={() => transitionTo(recipe.slots.programs ? 'programs' : 'suggested-program')}
+          onBack={() => transitionTo('programs')}
         />
       )}
 
