@@ -55,31 +55,56 @@ function ConditionEduContent({ conditionId, triggerNote }: {
 
 // ─── WhySectionMulti ─────────────────────────────────────────────────────────
 
+const WHY_ARROW_STYLE: React.CSSProperties = {
+  background: 'color-mix(in srgb, var(--lp-accent) 10%, white 90%)',
+  border: '1px solid color-mix(in srgb, var(--lp-accent) 18%, transparent)',
+  boxShadow: '0 2px 8px rgba(0,0,0,0.10)',
+};
+
 function WhySectionMulti({ conditions, tone, triggerNote, onScrollDown }: {
   conditions: SkinCondition[];
   tone: 'positive' | 'concern';
   triggerNote?: string;
   onScrollDown: () => void;
 }) {
-  const [activeIdx, setActiveIdx] = useState(0);
-  const [showAll, setShowAll]     = useState(false);
-  const dragRef = useRef<{ startX: number; live: boolean }>({ startX: 0, live: false });
+  const [activeIdx, setActiveIdx]   = useState(0);
+  const [showAll, setShowAll]       = useState(false);
+  const [slideDir, setSlideDir]     = useState<'left' | 'right' | null>(null);
+  const [dragX, setDragX]           = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragRef                     = useRef<{ startX: number; live: boolean }>({ startX: 0, live: false });
+  const lastNavWasSwipeRef              = useRef(false);
+  const [cardHasMore, setCardHasMore]   = useState(false);
+  const [cardAtBottom, setCardAtBottom] = useState(true);
+  const cardScrollRef                   = useRef<HTMLDivElement>(null);
 
-  const SHOW_INITIAL = 3;
-  const eduConditions    = conditions.filter(c => CONDITION_EDUCATION[c.id as ConditionId]);
+  const SHOW_INITIAL      = 3;
+  const eduConditions     = conditions.filter(c => CONDITION_EDUCATION[c.id as ConditionId]);
   const visibleConditions = showAll ? eduConditions : eduConditions.slice(0, SHOW_INITIAL);
   const hiddenCount       = !showAll && eduConditions.length > SHOW_INITIAL
     ? eduConditions.length - SHOW_INITIAL : 0;
   const clampedIdx = Math.min(activeIdx, visibleConditions.length - 1);
   const active     = visibleConditions[clampedIdx];
 
+  useEffect(() => {
+    const el = cardScrollRef.current;
+    if (!el) return;
+    const check = () => {
+      setCardHasMore(el.scrollHeight > el.clientHeight + 2);
+      setCardAtBottom(el.scrollTop + el.clientHeight >= el.scrollHeight - 4);
+    };
+    check();
+    el.addEventListener('scroll', check, { passive: true });
+    return () => el.removeEventListener('scroll', check);
+  }, [clampedIdx]);
+
   if (!active) return null;
 
-  // ── Single condition: mirror old layout exactly ───────────────────────────
+  // ── Single condition ──────────────────────────────────────────────────────
   if (eduConditions.length <= 1) {
     const singleEdu = resolveEdu(active.id as ConditionId, triggerNote);
     return (
-      <div className="max-w-lg md:max-w-3xl mx-auto px-5 py-10 flex flex-col gap-6">
+      <div className="max-w-lg md:max-w-3xl mx-auto px-5 py-5 md:py-10 flex flex-col gap-4 md:gap-6 w-full">
         <h2 className="font-extrabold text-xl md:text-2xl text-cta">{singleEdu?.whyTitle}</h2>
         <ConditionEduContent conditionId={active.id as ConditionId} triggerNote={triggerNote} />
         <CtaButton
@@ -90,26 +115,46 @@ function WhySectionMulti({ conditions, tone, triggerNote, onScrollDown }: {
         >
           {tone === 'positive' ? 'Làm sao để duy trì làn da này? ↓' : 'Tôi phải làm sao? ↓'}
         </CtaButton>
-        <div className="h-4" />
       </div>
     );
   }
 
-  // ── Multi condition: swipeable card + arrows + pagination chips ──────────
+  // ── Multi condition ───────────────────────────────────────────────────────
   const activeEdu = resolveEdu(active.id as ConditionId, clampedIdx === 0 ? triggerNote : undefined);
   const isFirst   = clampedIdx === 0;
   const isLast    = clampedIdx === visibleConditions.length - 1;
 
+  function goTo(newIdx: number) {
+    lastNavWasSwipeRef.current = false;
+    setSlideDir(newIdx > clampedIdx ? 'left' : 'right');
+    setActiveIdx(newIdx);
+  }
+
   function onPointerDown(e: React.PointerEvent) {
     dragRef.current = { startX: e.clientX, live: true };
+    setIsDragging(false);
+    setDragX(0);
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+  }
+
+  function onPointerMove(e: React.PointerEvent) {
+    if (!dragRef.current.live) return;
+    const delta = e.clientX - dragRef.current.startX;
+    if (Math.abs(delta) > 6) {
+      setIsDragging(true);
+      setDragX(delta);
+    }
   }
 
   function onPointerUp(e: React.PointerEvent) {
     if (!dragRef.current.live) return;
     const delta = e.clientX - dragRef.current.startX;
     dragRef.current.live = false;
+    setIsDragging(false);
+    setDragX(0);
     if (Math.abs(delta) < 40) return;
+    lastNavWasSwipeRef.current = true;
+    setSlideDir(null);
     setActiveIdx(prev =>
       delta < 0
         ? Math.min(visibleConditions.length - 1, prev + 1)
@@ -117,84 +162,160 @@ function WhySectionMulti({ conditions, tone, triggerNote, onScrollDown }: {
     );
   }
 
-  const arrowStyle: React.CSSProperties = {
-    background: 'color-mix(in srgb, var(--lp-accent) 10%, white 90%)',
-    border: '1px solid color-mix(in srgb, var(--lp-accent) 18%, transparent)',
-  };
+  const cardAnimation = isDragging
+    ? 'none'
+    : lastNavWasSwipeRef.current
+    ? 'none'
+    : slideDir === 'left'
+    ? 'why-slide-from-right 400ms cubic-bezier(0.22,1,0.36,1) both'
+    : slideDir === 'right'
+    ? 'why-slide-from-left 400ms cubic-bezier(0.22,1,0.36,1) both'
+    : 'why-fade-in 320ms ease-in-out both';
 
   return (
-    <div className="max-w-lg md:max-w-3xl mx-auto px-5 py-10 flex flex-col gap-6">
+    <>
+      <style>{`
+        @keyframes why-slide-from-right { from { opacity:0; transform:translateX(22px) } to { opacity:1; transform:translateX(0) } }
+        @keyframes why-slide-from-left  { from { opacity:0; transform:translateX(-22px) } to { opacity:1; transform:translateX(0) } }
+        @keyframes why-fade-in          { from { opacity:0; transform:translateY(4px)  } to { opacity:1; transform:translateY(0) } }
+        .why-card::-webkit-scrollbar        { width: 3px; }
+        .why-card::-webkit-scrollbar-track  { background: transparent; border-radius: 99px; }
+        .why-card::-webkit-scrollbar-thumb  { background: color-mix(in srgb, var(--lp-accent) 40%, transparent); border-radius: 99px; }
+        .why-card::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--lp-accent) 62%, transparent); }
+      `}</style>
+      <div className="max-w-lg md:max-w-3xl mx-auto px-5 py-4 md:py-10 flex flex-col gap-3 md:gap-5 w-full">
 
-      {/* Heading */}
-      <div>
-        <p className="text-xs font-bold text-[var(--lp-accent)] uppercase tracking-widest mb-2">
-          Giải thích từ chuyên gia
-        </p>
-        <h2 className="font-extrabold text-xl md:text-2xl text-cta">
-          {eduConditions.length} tình trạng da đang ảnh hưởng đến bạn
-        </h2>
-      </div>
+        {/* Heading */}
+        <div>
+          <p className="text-xs font-bold text-[var(--lp-accent)] uppercase tracking-widest mb-1.5">
+            Giải thích từ chuyên gia
+          </p>
+          <h2 className="font-extrabold text-lg md:text-2xl text-cta leading-snug">
+            {eduConditions.length} tình trạng da đang ảnh hưởng đến bạn
+          </h2>
+        </div>
 
-      {/* Pagination chips */}
-      <div className="flex flex-wrap gap-2">
-        {visibleConditions.map((c, i) => (
-          <button
-            key={c.id}
-            onClick={() => setActiveIdx(i)}
-            className="px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-150"
-            style={
-              i === clampedIdx
-                ? { background: 'var(--lp-accent)', color: '#fff', boxShadow: '0 1px 4px color-mix(in srgb, var(--lp-accent) 35%, transparent)' }
-                : { background: 'color-mix(in srgb, var(--lp-accent) 10%, white 90%)', color: 'var(--lp-accent)', border: '1px solid color-mix(in srgb, var(--lp-accent) 20%, transparent)' }
-            }
+        {/* Pagination chips */}
+        <div className="flex flex-wrap gap-1.5 md:gap-2">
+          {visibleConditions.map((c, i) => (
+            <button
+              key={c.id}
+              onClick={() => goTo(i)}
+              className="px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-150"
+              style={
+                i === clampedIdx
+                  ? { background: 'var(--lp-accent)', color: '#fff', boxShadow: '0 1px 4px color-mix(in srgb, var(--lp-accent) 35%, transparent)' }
+                  : { background: 'color-mix(in srgb, var(--lp-accent) 10%, white 90%)', color: 'var(--lp-accent)', border: '1px solid color-mix(in srgb, var(--lp-accent) 20%, transparent)' }
+              }
+            >
+              {c.label ?? c.id}
+            </button>
+          ))}
+        </div>
+
+        {/* Card + side arrows */}
+        <div className="relative" style={{ overflow: 'visible' }}>
+
+          {/* Left arrow — vertically centered on card's left edge */}
+          {visibleConditions.length > 1 && (
+            <button
+              onClick={() => !isFirst && goTo(clampedIdx - 1)}
+              disabled={isFirst}
+              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-9 h-9 z-10 rounded-full flex items-center justify-center transition-all duration-200 text-cta disabled:opacity-0 disabled:pointer-events-none"
+              style={WHY_ARROW_STYLE}
+              aria-label="Tình trạng trước"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+            </button>
+          )}
+
+          {/* Animated wrapper — handles slide animation + drag transform */}
+          <div
+            key={`card-${clampedIdx}`}
+            className="relative"
+            style={{
+              animation: cardAnimation,
+              transform: isDragging ? `translateX(${dragX}px)` : undefined,
+              transition: isDragging ? 'none' : undefined,
+            }}
           >
-            {c.label ?? c.id}
-          </button>
-        ))}
-      </div>
+            {/* Scrollable card */}
+            <div
+              ref={cardScrollRef}
+              className="flex flex-col gap-3 md:gap-4 bg-white/70 border border-cta/8 rounded-2xl p-4 md:p-5 cursor-grab active:cursor-grabbing select-none why-card"
+              style={{
+                boxShadow: '0 1px 8px color-mix(in srgb, var(--lp-primary, #1e293b) 5%, transparent)',
+                touchAction: 'pan-y',
+                maxHeight: 'calc(100dvh - 290px)',
+                overflowY: 'auto',
+              }}
+              onPointerDown={onPointerDown}
+              onPointerMove={onPointerMove}
+              onPointerUp={onPointerUp}
+              onPointerCancel={() => { dragRef.current.live = false; setIsDragging(false); setDragX(0); }}
+            >
+              {activeEdu && (
+                <h3 className="font-extrabold text-base md:text-xl text-cta leading-snug pointer-events-none">
+                  {activeEdu.whyTitle}
+                </h3>
+              )}
+              <ConditionEduContent
+                conditionId={active.id as ConditionId}
+                triggerNote={clampedIdx === 0 ? triggerNote : undefined}
+              />
+            </div>
 
-      {/* Swipeable card — full width */}
-      <div
-        key={active.id}
-        className="animate-fade-in-up flex flex-col gap-4 bg-white/70 border border-cta/8 rounded-2xl p-5 cursor-grab active:cursor-grabbing select-none"
-        style={{ boxShadow: '0 1px 8px color-mix(in srgb, var(--lp-primary, #1e293b) 5%, transparent)', touchAction: 'pan-y' }}
-        onPointerDown={onPointerDown}
-        onPointerUp={onPointerUp}
-        onPointerCancel={() => { dragRef.current.live = false; }}
-      >
-        {activeEdu && (
-          <h3 className="font-extrabold text-lg md:text-xl text-cta leading-snug pointer-events-none">
-            {activeEdu.whyTitle}
-          </h3>
-        )}
-        <ConditionEduContent
-          conditionId={active.id as ConditionId}
-          triggerNote={clampedIdx === 0 ? triggerNote : undefined}
-        />
-      </div>
+            {/* Bottom scroll hint — gradient fade + label, hidden once scrolled to bottom */}
+            {cardHasMore && !cardAtBottom && (
+              <div
+                className="absolute bottom-0 left-0 right-0 pointer-events-none rounded-b-2xl flex items-end justify-center"
+                style={{ height: 64, paddingBottom: 8, background: 'linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.95) 55%)' }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: 'var(--lp-accent)', opacity: 0.8 }}>
+                  <span style={{ fontSize: 11, fontWeight: 700 }}>Cuộn để xem thêm</span>
+                  <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                    <path d="M2 4.5L6 8.5L10 4.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+            )}
+          </div>
 
-      {/* Navigation row: arrows flanking dot pagination */}
-      {visibleConditions.length > 1 && (
-        <div className="flex items-center gap-3">
-          {/* Left arrow */}
-          <button
-            onClick={() => setActiveIdx(prev => Math.max(0, prev - 1))}
-            disabled={isFirst}
-            className="w-9 h-9 shrink-0 rounded-full flex items-center justify-center transition-all duration-200 text-cta disabled:opacity-0 disabled:pointer-events-none"
-            style={arrowStyle}
-            aria-label="Tình trạng trước"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-              <polyline points="15 18 9 12 15 6" />
-            </svg>
-          </button>
+          {/* Right arrow OR expand badge — vertically centered on card's right edge */}
+          {visibleConditions.length > 1 && (
+            hiddenCount > 0 && isLast ? (
+              <button
+                onClick={() => { setShowAll(true); goTo(SHOW_INITIAL); }}
+                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-10 px-3 py-2 rounded-full text-xs font-bold transition-all duration-150 hover:brightness-95 whitespace-nowrap"
+                style={{ background: 'color-mix(in srgb, var(--lp-accent) 10%, white 90%)', color: 'var(--lp-accent)', border: '1px solid color-mix(in srgb, var(--lp-accent) 20%, transparent)', boxShadow: '0 2px 8px rgba(0,0,0,0.10)' }}
+              >
+                {`+${hiddenCount} nữa →`}
+              </button>
+            ) : (
+              <button
+                onClick={() => !isLast && goTo(clampedIdx + 1)}
+                disabled={isLast}
+                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-9 h-9 z-10 rounded-full flex items-center justify-center transition-all duration-200 text-cta disabled:opacity-0 disabled:pointer-events-none"
+                style={WHY_ARROW_STYLE}
+                aria-label="Tình trạng tiếp theo"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </button>
+            )
+          )}
+        </div>
 
-          {/* Dots */}
-          <div className="flex-1 flex gap-1.5 items-center justify-center">
+        {/* Dot pagination */}
+        {visibleConditions.length > 1 && (
+          <div className="flex gap-1.5 items-center justify-center">
             {visibleConditions.map((_, i) => (
               <button
                 key={i}
-                onClick={() => setActiveIdx(i)}
+                onClick={() => goTo(i)}
                 aria-label={`Tình trạng ${i + 1}`}
                 style={{
                   borderRadius: 999, width: i === clampedIdx ? 16 : 8, height: 8,
@@ -204,39 +325,14 @@ function WhySectionMulti({ conditions, tone, triggerNote, onScrollDown }: {
               />
             ))}
           </div>
+        )}
 
-          {/* Right arrow OR expand badge at last card */}
-          {hiddenCount > 0 && isLast ? (
-            <button
-              key="expand"
-              onClick={() => { setShowAll(true); setActiveIdx(SHOW_INITIAL); }}
-              className="animate-fade-in-up shrink-0 px-3 py-2 rounded-full text-xs font-bold transition-all duration-150 hover:brightness-95 whitespace-nowrap"
-              style={{ background: 'color-mix(in srgb, var(--lp-accent) 10%, white 90%)', color: 'var(--lp-accent)', border: '1px solid color-mix(in srgb, var(--lp-accent) 20%, transparent)' }}
-            >
-              {`+${hiddenCount} nữa →`}
-            </button>
-          ) : (
-            <button
-              onClick={() => setActiveIdx(prev => Math.min(visibleConditions.length - 1, prev + 1))}
-              disabled={isLast}
-              className="w-9 h-9 shrink-0 rounded-full flex items-center justify-center transition-all duration-200 text-cta disabled:opacity-0 disabled:pointer-events-none"
-              style={arrowStyle}
-              aria-label="Tình trạng tiếp theo"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                <polyline points="9 18 15 12 9 6" />
-              </svg>
-            </button>
-          )}
-        </div>
-      )}
-
-      {/* CTA */}
-      <CtaButton fullWidth onClick={onScrollDown} className="md:text-base" style={{ animation: 'cta-nudge 1.6s ease-in-out 2.5s 3' }}>
-        {tone === 'positive' ? 'Làm sao để duy trì làn da này? ↓' : 'Tôi phải làm sao? ↓'}
-      </CtaButton>
-      <div className="h-4" />
-    </div>
+        {/* CTA */}
+        <CtaButton fullWidth onClick={onScrollDown} className="md:text-base" style={{ animation: 'cta-nudge 1.6s ease-in-out 2.5s 3' }}>
+          {tone === 'positive' ? 'Làm sao để duy trì làn da này? ↓' : 'Tôi phải làm sao? ↓'}
+        </CtaButton>
+      </div>
+    </>
   );
 }
 
@@ -379,7 +475,7 @@ export function ConfettiCardWhyPayoff({
           <button
             onClick={onContinue}
             className="text-white text-sm font-bold py-3 px-5 rounded-soft hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
-            style={{ background: 'var(--lp-accent)', boxShadow: '0 4px 14px color-mix(in srgb, var(--lp-accent) 35%, transparent)' }}
+            style={{ background: 'white', color: 'var(--lp-primary)', boxShadow: '0 4px 20px rgba(0,0,0,0.22)', border: '1.5px solid color-mix(in srgb, var(--lp-primary) 12%, transparent)' }}
           >
             Đặt lịch ngay &#8594;
           </button>

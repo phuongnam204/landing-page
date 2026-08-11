@@ -1,14 +1,16 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import type { ProgramId } from '../content/programs';
-import { recommendPrograms, type ScoredProgram } from '../content/recommend';
+import { recommendPrograms, getAllScoredPrograms, type ScoredProgram } from '../content/recommend';
 import { trackEvent } from '../lib/trackEvent';
 import { registry } from './registry';
 import type { MinigameResult } from './slots';
 import type { Recipe } from './validateRecipe';
 import { CarouselPrograms } from './variants/programs/CarouselPrograms';
+import { BrowseChooser } from './variants/programs/BrowseChooser';
+import { RelevantPrograms } from './variants/programs/RelevantPrograms';
 
-type Step = 'hook' | 'minigame' | 'payoff' | 'expertHandoff' | 'programs' | 'browse-programs' | 'pathChooser' | 'conversion' | 'teaserPayoff' | 'socialProof' | 'done';
+type Step = 'hook' | 'minigame' | 'payoff' | 'expertHandoff' | 'programs' | 'browse-chooser' | 'browse-programs' | 'relevant-programs' | 'pathChooser' | 'conversion' | 'teaserPayoff' | 'socialProof' | 'done';
 
 const FLOW_SESSION_KEY = 'o2skin_flow';
 
@@ -17,6 +19,7 @@ export default function LandingFlow({ recipe }: { recipe: Recipe }) {
   const [transitioning, setTransitioning] = useState(false);
   const [minigameResult, setMinigameResult] = useState<MinigameResult | null>(null);
   const [suggestedPrograms, setSuggestedPrograms] = useState<ScoredProgram[]>([]);
+  const [allScoredPrograms, setAllScoredPrograms] = useState<ScoredProgram[]>([]);
   const [selectedProgram, setSelectedProgram] = useState<ProgramId | null>(null);
   const [isFastTrack, setIsFastTrack] = useState(false);
 
@@ -74,6 +77,9 @@ export default function LandingFlow({ recipe }: { recipe: Recipe }) {
     transitionTo('done');
   }
 
+  const suggestedIds = new Set(suggestedPrograms.map(sp => sp.program.id));
+  const relevant = allScoredPrograms.filter(sp => sp.score > 0 && !suggestedIds.has(sp.program.id));
+
   const themeClass = `theme-${recipe.theme ?? 'blossom'}`;
   const fontScopeId = recipe.font ? `lp-hf-${recipe.id}` : null;
   const containerClass = `transition-opacity duration-300 ${transitioning ? 'opacity-0' : 'opacity-100'}`;
@@ -128,6 +134,7 @@ export default function LandingFlow({ recipe }: { recipe: Recipe }) {
           const conditionIds = result.conditions.map(c => c.id);
           const ranked = recommendPrograms(conditionIds);
           setSuggestedPrograms(ranked);
+          setAllScoredPrograms(getAllScoredPrograms(conditionIds));
           setSelectedProgram(ranked[0]?.program.id ?? null);
           trackEvent('minigame_complete', { resultId: result.condition.id });
           transitionTo('payoff');
@@ -155,18 +162,42 @@ export default function LandingFlow({ recipe }: { recipe: Recipe }) {
             trackEvent('program_selected', { programId });
             nextAfterPrograms(programId);
           }}
-          onBrowse={() => transitionTo('browse-programs')} />
+          onBrowse={() => transitionTo('browse-chooser')} />
+      )}
+
+      {step === 'browse-chooser' && (
+        <BrowseChooser
+          relevant={relevant}
+          onRelevant={() => transitionTo('relevant-programs')}
+          onAll={() => transitionTo('browse-programs')}
+          onBack={() => transitionTo('programs')}
+        />
+      )}
+
+      {step === 'relevant-programs' && (
+        <RelevantPrograms
+          programs={relevant}
+          onContinue={(programId) => {
+            trackEvent('program_selected', { programId });
+            nextAfterPrograms(programId);
+          }}
+          onBack={() => transitionTo('browse-chooser')}
+        />
       )}
 
       {step === 'browse-programs' && (
         <CarouselPrograms
           suggestedPrograms={suggestedPrograms}
+          allScoredPrograms={allScoredPrograms}
           onContinue={(programId) => {
             trackEvent('program_selected', { programId });
             setSelectedProgram(programId);
             transitionTo('conversion');
           }}
-          onBack={() => transitionTo('programs')}
+          onBack={() => {
+            if (!minigameResult) return transitionTo('pathChooser');
+            return relevant.length > 0 ? transitionTo('browse-chooser') : transitionTo('programs');
+          }}
         />
       )}
 

@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Step 1 Design Variants</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #f5f3fa;
+  min-height: 100vh;
+  padding: 24px 16px 40px;
+  color: #1a1a2e;
+}
+
+.page-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b5e9a;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  text-align: center;
+  margin-bottom: 4px;
+}
+.page-sub {
+  font-size: 12px;
+  color: #9b90b8;
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+/* Tab switcher */
+.tabs {
+  display: flex;
+  background: #e8e3f4;
+  border-radius: 12px;
+  padding: 3px;
+  max-width: 400px;
+  margin: 0 auto 18px;
+  gap: 2px;
+}
+.tab {
+  flex: 1;
+  padding: 8px 4px;
+  background: none;
+  border: none;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 9px;
+  color: #9b90b8;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.tab.on {
+  background: #fff;
+  color: #1d2d48;
+  box-shadow: 0 1px 4px rgba(0,0,0,.1);
+}
+
+/* Phone frame */
+.phone {
+  background: #ede8f5;
+  border-radius: 24px;
+  padding: 24px 16px 20px;
+  max-width: 400px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(100,80,160,.12), 0 2px 8px rgba(0,0,0,.08);
+}
+
+.panel { display: none; flex-direction: column; }
+.panel.on { display: flex; }
+
+.ph1 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1d2d48;
+  text-align: center;
+  line-height: 1.35;
+  margin-bottom: 4px;
+  text-wrap: balance;
+}
+.ph2 {
+  font-size: 12px;
+  color: #8878aa;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.btn-cta {
+  width: 100%;
+  padding: 14px;
+  background: #1d2d48;
+  color: #fff;
+  border: none;
+  border-radius: 100px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  opacity: .28;
+  transition: opacity .15s, transform .1s;
+  margin-top: 18px;
+}
+.btn-cta.on { opacity: 1; }
+.btn-cta.on:active { transform: scale(.98); }
+
+/* ─────────────────────────────────────
+   VARIANT A — Pill cloud + image preview
+───────────────────────────────────────*/
+.pill-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  align-content: flex-start;
+}
+.pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border-radius: 100px;
+  border: 1.5px solid rgba(29,45,72,.18);
+  background: rgba(255,255,255,.55);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  color: #5a4f7a;
+  user-select: none;
+  transition: all .15s;
+  white-space: nowrap;
+  backdrop-filter: blur(4px);
+}
+.pill:hover { background: rgba(255,255,255,.78); }
+.pill.on { background: rgba(255,255,255,.95); }
+.pill .ck { display: none; font-size: 10px; }
+.pill.on .ck { display: inline; }
+
+/* Image preview */
+.img-wrap {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .38s cubic-bezier(.25,.8,.25,1), margin-top .3s;
+  margin-top: 0;
+}
+.img-wrap.visible {
+  max-height: 240px;
+  margin-top: 14px;
+}
+.img-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  grid-auto-rows: 72px;
+  gap: 6px;
+}
+.img-tile {
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  animation: tileIn .28s cubic-bezier(.25,.8,.25,1);
+}
+@keyframes tileIn {
+  from { opacity: 0; transform: scale(.82) translateY(6px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.img-tile img, .sum-tile img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.img-tile-label, .sum-tile-label {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 14px 4px 4px;
+  background: linear-gradient(transparent, rgba(0,0,0,.55));
+  color: #fff;
+  font-size: 9px;
+  font-weight: 500;
+  text-align: center;
+}
+
+/* ─────────────────────────────────────
+   VARIANT B — Row list with thumbnails
+───────────────────────────────────────*/
+.row-list { display: flex; flex-direction: column; gap: 2px; }
+
+.row-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 7px;
+  border-radius: 12px;
+  cursor: pointer;
+  user-select: none;
+  transition: background .1s;
+}
+.row-item:hover { background: rgba(29,45,72,.06); }
+.row-item.on { background: rgba(29,45,72,.07); }
+
+.row-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+.row-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.rit { flex: 1; }
+.rin { font-size: 13px; font-weight: 500; color: #1d2d48; line-height: 1.2; }
+.rid { font-size: 11px; color: #8878aa; margin-top: 1px; }
+
+/* Square checkbox = multi-select */
+.rcb {
+  width: 20px; height: 20px;
+  border-radius: 5px;
+  border: 1.5px solid rgba(29,45,72,.22);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: all .15s;
+}
+.row-item.on .rcb { background: #1d2d48; border-color: #1d2d48; }
+.rcbi { display: none; color: #fff; font-size: 11px; }
+.row-item.on .rcbi { display: block; }
+
+/* Separator */
+.row-sep {
+  display: flex; align-items: center; gap: 8px;
+  margin: 8px 2px 6px;
+  font-size: 10px;
+  color: #c4b8e0;
+  font-weight: 600;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+.row-sep::before, .row-sep::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(29,45,72,.1);
+}
+
+/* ─────────────────────────────────────
+   VARIANT C — Card deck (no "Da ổn")
+───────────────────────────────────────*/
+.prog-bar { display: flex; gap: 5px; margin-bottom: 16px; }
+.pd { height: 3px; flex: 1; border-radius: 2px; background: rgba(29,45,72,.12); transition: background .25s; }
+.pd.ok  { background: rgba(29,45,72,.28); }
+.pd.yes { background: #1d2d48; }
+
+.deck-card {
+  background: rgba(255,255,255,.82);
+  border: 0.5px solid rgba(29,45,72,.1);
+  border-radius: 18px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  backdrop-filter: blur(10px);
+}
+.deck-img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  display: block;
+  flex-shrink: 0;
+}
+.deck-body {
+  padding: 18px 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: center;
+}
+.dn { font-size: 16px; font-weight: 600; color: #1d2d48; }
+.dd { font-size: 12px; color: #8878aa; line-height: 1.6; }
+
+.deck-btns { display: flex; gap: 8px; margin-top: 14px; }
+.btn-no {
+  flex: 1; padding: 13px;
+  border: 1.5px solid rgba(29,45,72,.2);
+  border-radius: 100px;
+  background: transparent;
+  font-size: 13px; cursor: pointer; color: #5a4f7a;
+  transition: background .1s;
+}
+.btn-no:hover { background: rgba(29,45,72,.05); }
+.btn-yes {
+  flex: 1; padding: 13px;
+  border: none;
+  border-radius: 100px;
+  background: #1d2d48;
+  color: #fff;
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  transition: opacity .1s;
+}
+.btn-yes:hover { opacity: .85; }
+
+/* Summary */
+.sum-card {
+  background: rgba(255,255,255,.82);
+  border: 0.5px solid rgba(29,45,72,.1);
+  border-radius: 18px;
+  padding: 28px 20px 24px;
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+}
+.sum-h { font-size: 15px; font-weight: 600; color: #1d2d48; }
+.sum-s { font-size: 12px; color: #8878aa; }
+.sum-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  grid-auto-rows: 72px;
+  gap: 6px;
+  width: 100%;
+}
+.sum-tile { border-radius: 10px; overflow: hidden; position: relative; animation: tileIn .28s ease-out; }
+.sum-tile-label {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 14px 4px 4px;
+  background: linear-gradient(transparent, rgba(0,0,0,.55));
+  color: #fff;
+  font-size: 9px; font-weight: 500; text-align: center;
+}
+.sum-clean-icon {
+  width: 64px; height: 64px;
+  border-radius: 16px;
+  background: #d1fae5;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; color: #059669;
+}
+.btn-restart {
+  width: 100%;
+  padding: 13px;
+  border: none;
+  border-radius: 100px;
+  background: #1d2d48;
+  color: #fff;
+  font-size: 13px; font-weight: 500; cursor: pointer;
+}
+
+/* Description box */
+.desc {
+  max-width: 400px;
+  margin: 14px auto 0;
+  padding: 12px 15px;
+  background: rgba(255,255,255,.7);
+  border-radius: 12px;
+  border: 0.5px solid rgba(29,45,72,.1);
+  font-size: 12px;
+  color: #6b5e8a;
+  line-height: 1.7;
+  display: none;
+}
+.desc.on { display: block; }
+.desc strong { color: #1d2d48; }
+</style>
+</head>
+<body>
+
+<p class="page-title">Step 1 — Chọn tình trạng da</p>
+<p class="page-sub">3 variants cho ConditionSelectStep — click để tương tác</p>
+
+<div class="tabs" role="tablist">
+  <button class="tab on" onclick="go('a')" role="tab">A — Pill cloud</button>
+  <button class="tab"    onclick="go('b')" role="tab">B — Row list</button>
+  <button class="tab"    onclick="go('c')" role="tab">C — Card deck</button>
+</div>
+
+<div class="phone">
+
+  <!-- ══ A ══ -->
+  <div class="panel on" id="pA">
+    <p class="ph1">Da bạn đang gặp tình trạng nào?</p>
+    <p class="ph2">Chọn tất cả những gì bạn đang có</p>
+    <div class="pill-cloud" id="pc"></div>
+    <div class="img-wrap" id="imgWrap">
+      <div class="img-grid" id="imgGrid"></div>
+    </div>
+    <button class="btn-cta" id="goA">Tiếp theo &rarr;</button>
+  </div>
+
+  <!-- ══ B ══ -->
+  <div class="panel" id="pB">
+    <p class="ph1">Da bạn đang gặp tình trạng nào?</p>
+    <p class="ph2">Chọn tất cả những gì bạn đang có</p>
+    <div class="row-list" id="rl"></div>
+    <button class="btn-cta" id="goB">Tiếp theo &rarr;</button>
+  </div>
+
+  <!-- ══ C ══ -->
+  <div class="panel" id="pC">
+    <div class="prog-bar" id="pb"></div>
+    <div id="dc"></div>
+    <div class="deck-btns" id="db">
+      <button class="btn-no"  onclick="rate(false)">Không có</button>
+      <button class="btn-yes" onclick="rate(true)">Tôi bị vậy</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="desc on" id="desc-a">
+  <strong>A — Pill cloud:</strong> Khi chip được chọn, ảnh minh họa tương ứng slide in bên dưới theo grid — nhiều chip thì nhiều ảnh, auto-fill. "Da ổn" là chip riêng, tự động clear tất cả chip khác khi chọn.
+</div>
+<div class="desc" id="desc-b">
+  <strong>B — Row list:</strong> Checkbox vuông (convention: vuông = multi-select). Thumbnail ảnh thay icon. "Da ổn" tách bên dưới divider "hoặc" — rõ ràng loại trừ lẫn nhau với các option còn lại.
+</div>
+<div class="desc" id="desc-c">
+  <strong>C — Card deck:</strong> Ảnh minh họa chiếm phần đầu card. "Da ổn" bị loại khỏi deck — nếu qua 6 cards mà không chọn gì, kết quả tự động ra "Da bạn ổn rồi!".
+</div>
+
+<script>
+const C = [
+  { id:'inflamed',  label:'Mụn viêm đỏ',      desc:'Đau, có mủ, vùng da đỏ sưng',       col:'#dc2626', bg:'#fee2e2', ic:'ti-flame',   img:'condition/mun-viem-do.jpg'     },
+  { id:'blackhead', label:'Mụn đầu đen',        desc:'Nốt đen trong lỗ chân lông',         col:'#374151', bg:'#f3f4f6', ic:'ti-circle',  img:'condition/mun-dau-den.png'     },
+  { id:'whitehead', label:'Mụn đầu trắng',      desc:'Nốt trắng nhỏ kín, không viêm',      col:'#6b7280', bg:'#e5e7eb', ic:'ti-circle',  img:'condition/mun-dau-trang.jpg'   },
+  { id:'sensitive', label:'Mẩn đỏ kích ứng',   desc:'Nổi khi đổi thời tiết, khói bụi',    col:'#db2777', bg:'#fce7f3', ic:'ti-heart',   img:'condition/man-do-kich-ung.jpg' },
+  { id:'pore',      label:'Lỗ chân lông to',   desc:'Lỗ chân lông rõ, ít mụn viêm',       col:'#7c3aed', bg:'#ede9fe', ic:'ti-zoom-in', img:'condition/lo-chan-long.jpg'     },
+  { id:'scar',      label:'Sẹo rỗ',            desc:'Lỗ nhỏ lõm trên da sau mụn viêm',    col:'#92400e', bg:'#fef3c7', ic:'ti-waves',   img:'condition/seo-ro.jpg'          },
+];
+const NONE = { id:'none', label:'Da ổn, ít mụn', desc:'Không gặp vấn đề rõ rệt', col:'#059669', bg:'#d1fae5', ic:'ti-check', img:null };
+
+let sA = new Set(), sB = new Set();
+let idx = 0, votes = {};
+
+/* ── VARIANT A ── */
+const pcEl    = document.getElementById('pc');
+const goA     = document.getElementById('goA');
+const imgWrap = document.getElementById('imgWrap');
+const imgGrid = document.getElementById('imgGrid');
+
+[...C, NONE].forEach(c => {
+  const el = document.createElement('button');
+  el.className = 'pill';
+  el.dataset.id = c.id;
+  el.innerHTML = `<i class="ti ${c.ic}"></i>${c.label}<span class="ck"><i class="ti ti-check"></i></span>`;
+  el.onclick = () => {
+    if (c.id === 'none') { sA.clear(); sA.add('none'); }
+    else { sA.delete('none'); sA.has(c.id) ? sA.delete(c.id) : sA.add(c.id); }
+    updatePills();
+    rebuildImgGrid();
+    goA.classList.toggle('on', sA.size > 0);
+  };
+  pcEl.appendChild(el);
+});
+
+function updatePills() {
+  pcEl.querySelectorAll('.pill').forEach(p => {
+    const cx = [...C, NONE].find(x => x.id === p.dataset.id);
+    const on = sA.has(p.dataset.id);
+    p.classList.toggle('on', on);
+    p.style.borderColor = on ? cx.col : '';
+    p.style.color       = on ? cx.col : '';
+    p.style.background  = on ? cx.bg  : '';
+  });
+}
+
+function rebuildImgGrid() {
+  const items = [...sA].map(id => C.find(x => x.id === id)).filter(c => c && c.img);
+  imgGrid.innerHTML = '';
+  if (items.length === 0) { imgWrap.classList.remove('visible'); return; }
+  imgWrap.classList.add('visible');
+  items.forEach(c => {
+    const tile = document.createElement('div');
+    tile.className = 'img-tile';
+    tile.innerHTML = `<img src="${c.img}" alt="${c.label}" loading="lazy"><div class="img-tile-label">${c.label}</div>`;
+    imgGrid.appendChild(tile);
+  });
+}
+
+/* ── VARIANT B ── */
+const rlEl = document.getElementById('rl');
+const goB  = document.getElementById('goB');
+
+C.forEach(c => buildRow(c));
+
+const sep = document.createElement('div');
+sep.className = 'row-sep';
+sep.textContent = 'hoặc';
+rlEl.appendChild(sep);
+
+buildRow(NONE);
+
+function buildRow(c) {
+  const row = document.createElement('div');
+  row.className = 'row-item';
+  row.dataset.id = c.id;
+  const thumbHtml = c.img
+    ? `<div class="row-thumb"><img src="${c.img}" alt="${c.label}" loading="lazy"></div>`
+    : `<div class="row-thumb" style="background:${c.bg}"><i class="ti ${c.ic}" style="color:${c.col}"></i></div>`;
+  row.innerHTML = `${thumbHtml}
+    <div class="rit"><div class="rin">${c.label}</div><div class="rid">${c.desc}</div></div>
+    <div class="rcb"><i class="ti ti-check rcbi"></i></div>`;
+  row.onclick = () => {
+    if (c.id === 'none') { sB.clear(); sB.add('none'); }
+    else { sB.delete('none'); sB.has(c.id) ? sB.delete(c.id) : sB.add(c.id); }
+    rlEl.querySelectorAll('.row-item').forEach(r => r.classList.toggle('on', sB.has(r.dataset.id)));
+    goB.classList.toggle('on', sB.size > 0);
+  };
+  rlEl.appendChild(row);
+}
+
+/* ── VARIANT C ── */
+const pbEl = document.getElementById('pb');
+const dcEl = document.getElementById('dc');
+const dbEl = document.getElementById('db');
+
+C.forEach(() => { const d = document.createElement('div'); d.className = 'pd'; pbEl.appendChild(d); });
+
+function drawDeck() {
+  pbEl.querySelectorAll('.pd').forEach((d, i) => {
+    d.className = 'pd' + (i < idx ? (votes[C[i].id] ? ' yes' : ' ok') : '');
+  });
+
+  if (idx >= C.length) {
+    dbEl.style.display = 'none';
+    const picked = C.filter(c => votes[c.id]);
+    if (picked.length === 0) {
+      dcEl.innerHTML = `<div class="sum-card">
+        <div class="sum-clean-icon"><i class="ti ti-check"></i></div>
+        <div class="sum-h">Da bạn đang ổn rồi!</div>
+        <div class="sum-s">Không phát hiện tình trạng đáng lo ngại.</div>
+        <button class="btn-restart" onclick="resetDeck()">Bắt đầu lại</button>
+      </div>`;
+    } else {
+      dcEl.innerHTML = `<div class="sum-card">
+        <div class="sum-h">Bạn đang gặp ${picked.length} tình trạng</div>
+        <div class="sum-s">Chúng tôi sẽ tư vấn phác đồ phù hợp với da của bạn.</div>
+        <div class="sum-grid">${picked.map(c =>
+          `<div class="sum-tile"><img src="${c.img}" alt="${c.label}" loading="lazy"><div class="sum-tile-label">${c.label}</div></div>`
+        ).join('')}</div>
+        <button class="btn-restart" onclick="resetDeck()">Bắt đầu lại</button>
+      </div>`;
+    }
+    return;
+  }
+
+  const c = C[idx];
+  dbEl.style.display = 'flex';
+  dcEl.innerHTML = `<div class="deck-card">
+    <img class="deck-img" src="${c.img}" alt="${c.label}" loading="lazy">
+    <div class="deck-body"><div class="dn">${c.label}</div><div class="dd">${c.desc}</div></div>
+  </div>`;
+}
+
+function rate(yes) {
+  if (idx >= C.length) return;
+  votes[C[idx].id] = yes;
+  idx++;
+  drawDeck();
+}
+
+function resetDeck() {
+  idx = 0; votes = {};
+  dbEl.style.display = 'flex';
+  drawDeck();
+}
+
+drawDeck();
+
+/* ── Tabs ── */
+function go(v) {
+  ['a','b','c'].forEach(x => {
+    document.getElementById('p'+x.toUpperCase()).classList.toggle('on', x===v);
+    document.getElementById('desc-'+x).classList.toggle('on', x===v);
+  });
+  document.querySelectorAll('.tab').forEach((b,i) => b.classList.toggle('on', ['a','b','c'][i]===v));
+}
+</script>
+</body>
+</html>

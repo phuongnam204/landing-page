@@ -178,7 +178,7 @@ export function mapToConditions(zones: Zone[], acneType: AcneType): ConditionId[
   if (zones.includes('chin-jaw')) result.add('mun-noi-tiet');
   if (acneType === 'sensitive') result.add('da-nhay-cam');
   if (acneType === 'pore') result.add('lo-chan-long');
-  if (zones.includes('nose') && (acneType === 'blackhead' || acneType === 'whitehead')) result.add('lo-chan-long');
+  if (acneType === 'blackhead' || acneType === 'whitehead') result.add('lo-chan-long');
   if (zones.length > 0 && (acneType === 'inflamed' || acneType === 'blackhead' || acneType === 'whitehead')) result.add('da-nhon-mun-viem');
   if (acneType === 'scar') result.add('da-seo-ro');
   return result.size > 0 ? [...result] : ['da-moi-bat-dau'];
@@ -190,7 +190,18 @@ export function assessToConditions(assessments: ConditionAssessment[]): Conditio
     .filter(({ score }) => score >= 1)
     .sort((a, b) => b.score - a.score);
 
-  if (ranked.length === 0) return ['clean-skin'];
+  if (ranked.length === 0) {
+    // Fallback: no zones were selected — map condition types without zone context
+    const noZoneTypes = assessments.filter(a => a.acneType !== 'none' && Object.keys(a.zones).length === 0);
+    if (noZoneTypes.length > 0) {
+      const result = new Set<ConditionId>();
+      for (const a of noZoneTypes) {
+        for (const id of mapToConditions([], a.acneType)) result.add(id);
+      }
+      return result.size > 0 ? [...result] : ['clean-skin'];
+    }
+    return ['clean-skin'];
+  }
 
   const result = new Set<ConditionId>();
   for (const { a } of ranked) {
@@ -278,7 +289,7 @@ const ARC_CONFIG = [
 ] as const;
 
 const BUBBLE_R = 60;
-const COND_BUBBLE_R = 110;
+const COND_BUBBLE_R = 120;
 
 function calcBubblePos(cx: number, cy: number, angleDeg: number, radius = BUBBLE_R) {
   const rad = angleDeg * Math.PI / 180;
@@ -352,7 +363,7 @@ export function BubbleSeverityPicker({
 function conditionArcAngles(n: number): number[] {
   if (n === 0) return [];
   if (n === 1) return [280];
-  const span = Math.min((n - 1) * 40, 150);
+  const span = Math.min((n - 1) * 60, 240);
   const half = span / 2;
   return Array.from({ length: n }, (_, i) => 280 - half + (i / (n - 1)) * span);
 }
@@ -441,7 +452,7 @@ export function BubbleConditionPicker({
         className="fixed z-50"
         onClick={(e) => { e.stopPropagation(); if (canConfirm) onConfirm(Array.from(selected)); }}
         style={{
-          left: cx, top: cy + COND_BUBBLE_R + 38,
+          left: cx, top: Math.min(cy + COND_BUBBLE_R + 38, (typeof window !== 'undefined' ? window.innerHeight : 700) - 130),
           transform: 'translateX(-50%)',
           padding: '10px 22px', borderRadius: 999,
           fontWeight: 700, fontSize: 13,
@@ -1391,7 +1402,11 @@ export function FaceMapMinigame({ onComplete, copy }: MinigameSlotProps) {
 
   function handleWizardNext() {
     setActiveBubble(null);
-    triggerSubmit(zoneMapToAssessments(zoneMap));
+    const zoneAssessments = zoneMapToAssessments(zoneMap);
+    const finalAssessments = zoneAssessments.length > 0
+      ? zoneAssessments
+      : selectedAcneTypes.map(acneType => ({ acneType, zones: {} as Partial<Record<Zone, Severity>> }));
+    triggerSubmit(finalAssessments);
   }
 
   function handleWizardBack() {
@@ -1467,7 +1482,7 @@ export function FaceMapMinigame({ onComplete, copy }: MinigameSlotProps) {
     ) as Partial<Record<Zone, Severity>>;
     return (
       <div className="w-full flex flex-col items-center gap-3" style={{ animation: 'fm-fade-in 350ms ease-out both' }}>
-        <style>{`@keyframes fm-fade-in { from { opacity:0; transform:translateY(10px) } to { opacity:1; transform:translateY(0) } }`}</style>
+        <style>{`@keyframes fm-fade-in { from { opacity:0 } to { opacity:1 } }`}</style>
         <div className="text-center px-4">
           {isMultiCondition ? (
             <h2 className="font-extrabold text-lg leading-snug" style={{ color: 'var(--lp-primary)' }}>

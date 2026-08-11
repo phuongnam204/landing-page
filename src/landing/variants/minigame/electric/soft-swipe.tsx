@@ -83,6 +83,45 @@ const CARDS: SwipeCard[] = [
     ),
   },
   {
+    id: 'blackhead', label: 'Mụn đầu đen', description: 'Nốt đen nhỏ li ti ở mũi, trán — lỗ chân lông bị tắc hở',
+    conditionId: 'lo-chan-long', zones: ['nose', 'forehead'], accent: '#374151',
+    image: '/condition/mun-dau-den.png',
+    icon: (
+      <svg width="44" height="44" viewBox="0 0 52 52" fill="none" aria-hidden="true">
+        <circle cx="26" cy="26" r="20" fill="#374151" opacity="0.06"/>
+        <circle cx="26" cy="26" r="5.5" fill="#374151" opacity="0.90"/>
+        <circle cx="26" cy="26" r="8" stroke="#374151" strokeWidth="1.4" fill="none" opacity="0.20"/>
+        <circle cx="15" cy="19" r="3.8" fill="#374151" opacity="0.72"/>
+        <circle cx="36" cy="20" r="3"   fill="#374151" opacity="0.64"/>
+        <circle cx="18" cy="34" r="3.2" fill="#374151" opacity="0.66"/>
+        <circle cx="35" cy="33" r="2.4" fill="#374151" opacity="0.56"/>
+        <circle cx="30" cy="15" r="2.2" fill="#374151" opacity="0.50"/>
+        <circle cx="13" cy="29" r="1.8" fill="#374151" opacity="0.40"/>
+        <circle cx="38" cy="29" r="1.6" fill="#374151" opacity="0.34"/>
+      </svg>
+    ),
+  },
+  {
+    id: 'whitehead', label: 'Mụn đầu trắng', description: 'Nốt trắng nhỏ, bít kín — không đau, không viêm',
+    conditionId: 'mun-trung-ca', zones: ['forehead', 'nose', 'chin-jaw'], accent: '#9CA3AF',
+    image: '/condition/mun-dau-trang.jpg',
+    icon: (
+      <svg width="44" height="44" viewBox="0 0 52 52" fill="none" aria-hidden="true">
+        <circle cx="26" cy="26" r="20" fill="#9CA3AF" opacity="0.06"/>
+        <circle cx="26" cy="26" r="7.5" fill="white" opacity="0.92" stroke="#9CA3AF" strokeWidth="1.6"/>
+        <circle cx="25" cy="24" r="2.5" fill="#9CA3AF" opacity="0.32"/>
+        <circle cx="15" cy="20" r="5.2" fill="white" opacity="0.88" stroke="#9CA3AF" strokeWidth="1.4"/>
+        <circle cx="14.5" cy="18.5" r="1.7" fill="#9CA3AF" opacity="0.30"/>
+        <circle cx="36" cy="18" r="4.2" fill="white" opacity="0.84" stroke="#9CA3AF" strokeWidth="1.3"/>
+        <circle cx="35.5" cy="16.8" r="1.3" fill="#9CA3AF" opacity="0.28"/>
+        <circle cx="19" cy="34" r="4.8" fill="white" opacity="0.86" stroke="#9CA3AF" strokeWidth="1.4"/>
+        <circle cx="18.5" cy="32.5" r="1.6" fill="#9CA3AF" opacity="0.30"/>
+        <circle cx="35" cy="33" r="3.6" fill="white" opacity="0.80" stroke="#9CA3AF" strokeWidth="1.2"/>
+        <circle cx="34.6" cy="31.8" r="1.1" fill="#9CA3AF" opacity="0.26"/>
+      </svg>
+    ),
+  },
+  {
     id: 'dry-red', label: 'Da khô, đỏ, dễ kích ứng', description: 'Da căng rát sau rửa mặt, dễ bong tróc',
     conditionId: 'da-nhay-cam', zones: ['left-cheek', 'right-cheek', 'forehead'], accent: '#F97316',
     image: '/condition/man-do-kich-ung.jpg',
@@ -118,6 +157,24 @@ const CARDS: SwipeCard[] = [
         <circle cx="13" cy="14" r="0.8" fill="#8B5CF6" opacity="0.75"/>
         <circle cx="39" cy="37" r="4.5" stroke="#8B5CF6" strokeWidth="1.4" opacity="0.32" fill="none"/>
         <circle cx="39" cy="37" r="1.8" stroke="#8B5CF6" strokeWidth="1.8" opacity="0.50" fill="none"/>
+      </svg>
+    ),
+  },
+  {
+    id: 'scar', label: 'Sẹo rỗ, vết lõm sau mụn', description: 'Lỗ nhỏ lõm vào da, còn lại sau đợt mụn viêm',
+    conditionId: 'da-seo-ro', zones: ['left-cheek', 'right-cheek'], accent: '#9C7A5F',
+    image: '/condition/seo-ro.jpg',
+    icon: (
+      <svg width="44" height="44" viewBox="0 0 52 52" fill="none" aria-hidden="true">
+        <circle cx="26" cy="26" r="20" fill="#9C7A5F" opacity="0.07"/>
+        <circle cx="20" cy="22" r="4"   stroke="#9C7A5F" strokeWidth="1.8" fill="none" opacity="0.70"/>
+        <circle cx="20" cy="22" r="1.5" fill="#9C7A5F" opacity="0.55"/>
+        <circle cx="33" cy="18" r="3"   stroke="#9C7A5F" strokeWidth="1.6" fill="none" opacity="0.62"/>
+        <circle cx="33" cy="18" r="1.1" fill="#9C7A5F" opacity="0.46"/>
+        <circle cx="24" cy="33" r="3.5" stroke="#9C7A5F" strokeWidth="1.7" fill="none" opacity="0.65"/>
+        <circle cx="24" cy="33" r="1.3" fill="#9C7A5F" opacity="0.50"/>
+        <circle cx="35" cy="30" r="2.2" stroke="#9C7A5F" strokeWidth="1.4" fill="none" opacity="0.45"/>
+        <circle cx="16" cy="32" r="1.8" stroke="#9C7A5F" strokeWidth="1.3" fill="none" opacity="0.38"/>
       </svg>
     ),
   },
@@ -607,6 +664,17 @@ export function ElectricSoftSwipeMinigame({ onComplete, copy }: MinigameSlotProp
       animateCardToShelf(cardIdx, newIds.length - 1);
       selectedCardIdsRef.current = newIds;
       setSelectedCardIds(newIds);
+
+      // Auto-advance to next unselected card (skip clear)
+      const n = CARDS.length;
+      let nextIdx = -1;
+      for (let offset = 1; offset < n; offset++) {
+        const idx = (cardIdx + offset) % n;
+        if (!newIds.includes(CARDS[idx].id) && CARDS[idx].id !== 'clear') { nextIdx = idx; break; }
+      }
+      if (nextIdx >= 0) {
+        setTimeout(() => { if (!wheelLocked.current) springTo(nextIdx * ARC_STEP); }, 240);
+      }
     }
   }, [springTo, animateCardToShelf, animateCardToArc]);
 
@@ -768,10 +836,15 @@ export function ElectricSoftSwipeMinigame({ onComplete, copy }: MinigameSlotProp
         return;
       }
 
+      const seenConditionIds = new Set<string>();
       const conditions = nonClearIds
         .map(id => CARDS.find(c => c.id === id)!)
         .map(card => skinConditions[card.conditionId])
-        .filter((c): c is NonNullable<typeof c> => c != null);
+        .filter((c): c is NonNullable<typeof c> => {
+          if (!c || seenConditionIds.has(c.id)) return false;
+          seenConditionIds.add(c.id);
+          return true;
+        });
 
       const allActiveZones = Object.keys(zoneMap) as Zone[];
 
@@ -975,11 +1048,12 @@ export function ElectricSoftSwipeMinigame({ onComplete, copy }: MinigameSlotProp
                   } as React.CSSProperties}
                 >
                   <div data-role="icon-wrap" style={{
-                    width: 48, height: 48, borderRadius: '50%',
+                    width: 84, height: 84, borderRadius: '50%',
                     overflow: 'hidden',
                     background: `color-mix(in srgb, ${card.accent} 12%, var(--lp-bg-card, white))`,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     flexShrink: 0,
+                    marginBottom: 4,
                   }}>
                     {card.image ? (
                       <img src={card.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />

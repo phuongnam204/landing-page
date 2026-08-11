@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Card Pull Animation — 3 approaches</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background: #f0ecff;
+  color: #1a0a3d;
+  min-height: 100vh;
+  padding: 28px 20px;
+}
+h1 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+.sub { font-size: 12.5px; color: rgba(26,10,61,0.5); margin-bottom: 28px; }
+
+.grid { display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; }
+.col { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+
+.col-title { font-size: 13.5px; font-weight: 700; color: #1a0a3d; }
+
+/* phone frame */
+.phone {
+  width: 240px; height: 490px;
+  background: #fff;
+  border-radius: 22px;
+  border: 2px solid rgba(26,10,61,0.1);
+  box-shadow: 0 10px 36px rgba(124,58,237,0.13);
+  position: relative;
+  overflow: hidden;
+}
+
+.ph-header {
+  position: absolute; top: 0; left: 0; right: 0; height: 42px;
+  border-bottom: 1px solid rgba(26,10,61,0.07);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11.5px; font-weight: 600; color: rgba(26,10,61,0.55);
+  background: #fff; z-index: 20;
+  transition: color 0.3s;
+}
+.ph-header.selected { color: #7c3aed; }
+
+/* destination zones */
+.zone-shelf {
+  position: absolute; top: 48px; left: 10px; right: 10px; height: 46px;
+  border: 1.5px dashed rgba(26,10,61,0.18);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10.5px; color: rgba(26,10,61,0.38);
+  transition: all 0.35s ease;
+  gap: 6px;
+}
+.zone-hand {
+  position: absolute; bottom: 54px; left: 10px; right: 10px; height: 46px;
+  border: 1.5px dashed rgba(26,10,61,0.18);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10.5px; color: rgba(26,10,61,0.38);
+  transition: all 0.35s ease;
+  gap: 6px;
+}
+.zone-chip {
+  position: absolute; bottom: 54px; left: 10px; right: 10px; height: 34px;
+  border: 1.5px dashed rgba(26,10,61,0.18);
+  border-radius: 20px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10.5px; color: rgba(26,10,61,0.38);
+  transition: all 0.35s ease;
+  gap: 6px;
+}
+.zone-shelf.active, .zone-hand.active, .zone-chip.active {
+  border-color: #7c3aed;
+  border-style: solid;
+  background: rgba(124,58,237,0.06);
+  color: #7c3aed;
+  font-weight: 600;
+}
+
+/* arc side cards (static) */
+.side-card {
+  position: absolute;
+  border-radius: 8px;
+  border: 1.5px solid rgba(26,10,61,0.1);
+  background: #fff;
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 3px;
+  font-size: 8.5px; font-weight: 500; color: rgba(26,10,61,0.5);
+  text-align: center; pointer-events: none;
+}
+
+/* ghost card */
+.ghost {
+  position: absolute;
+  border-radius: 10px;
+  border: 1.5px dashed rgba(124,58,237,0.35);
+  background: rgba(124,58,237,0.04);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s ease 0.18s;
+}
+.ghost.on { opacity: 1; }
+
+/* center moveable card */
+.center-card {
+  position: absolute;
+  top: 110px; left: 90px;
+  width: 60px; height: 76px;
+  border-radius: 10px;
+  border: 1.5px solid #7c3aed;
+  background: rgba(124,58,237,0.07);
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 4px;
+  font-size: 9px; font-weight: 700; color: #7c3aed;
+  text-align: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: top 0.46s cubic-bezier(0.34,1.56,0.64,1),
+              left 0.46s cubic-bezier(0.34,1.56,0.64,1),
+              width 0.34s ease,
+              height 0.34s ease,
+              border-radius 0.34s ease;
+}
+.center-card:hover { filter: brightness(0.96); }
+.center-card:active { transform: scale(0.96); }
+
+.card-icon {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: rgba(124,58,237,0.12);
+  display: flex; align-items: center; justify-content: center;
+}
+.card-icon svg { width: 14px; height: 14px; }
+
+/* hint text */
+.hint {
+  position: absolute; left: 0; right: 0;
+  text-align: center; font-size: 10px;
+  color: rgba(26,10,61,0.35);
+  transition: opacity 0.3s;
+}
+
+/* CTA */
+.ph-cta {
+  position: absolute; bottom: 10px; left: 10px; right: 10px;
+  height: 36px; background: #7c3aed; border-radius: 20px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 11.5px; font-weight: 600;
+  opacity: 0.35; transition: opacity 0.4s;
+}
+.ph-cta.on { opacity: 1; }
+
+.col-desc {
+  font-size: 12px; color: rgba(26,10,61,0.55);
+  line-height: 1.55; text-align: center; max-width: 220px;
+}
+
+/* navigation dots */
+.dots {
+  position: absolute; bottom: 54px; left: 0; right: 0;
+  display: flex; justify-content: center; gap: 4px;
+}
+.dot {
+  height: 5px; border-radius: 3px;
+  background: rgba(124,58,237,0.2);
+  transition: all 0.3s;
+}
+.dot.on { background: #7c3aed; width: 16px; }
+.dot.off { width: 5px; }
+</style>
+</head>
+<body>
+
+<h1>Card pull — so sánh 3 animation</h1>
+<p class="sub">Tap vào thẻ tím ở trung tâm để kích hoạt animation. Tap lại để thu hồi.</p>
+
+<div class="grid">
+
+  <!-- ── A: SHELF ───────────────────────────────── -->
+  <div class="col">
+    <div class="col-title">A — Bay lên shelf</div>
+    <div class="phone">
+      <div class="ph-header" id="hdA">Da của bạn thế nào?</div>
+
+      <div class="zone-shelf" id="zoneA">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none" style="opacity:.7">
+          <rect x="1" y="1" width="11" height="8" rx="1.5" stroke="#7c3aed" stroke-width="1.3"/>
+          <path d="M4 12H9" stroke="#7c3aed" stroke-width="1.3" stroke-linecap="round"/>
+          <path d="M6.5 9V12" stroke="#7c3aed" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
+        Shelf thẻ đã chọn
+      </div>
+
+      <!-- Far left -->
+      <div class="side-card" style="top:220px;left:5px;width:34px;height:44px;opacity:0.3;">
+        <div style="width:14px;height:14px;border-radius:50%;background:rgba(26,10,61,0.08);"></div>
+        <span>Da<br>khỏe</span>
+      </div>
+      <!-- Left -->
+      <div class="side-card" style="top:160px;left:38px;width:48px;height:62px;opacity:0.6;">
+        <div style="width:20px;height:20px;border-radius:50%;background:rgba(245,158,11,0.12);"></div>
+        <span>Da<br>nhờn</span>
+      </div>
+      <!-- Ghost -->
+      <div class="ghost" id="ghostA" style="top:110px;left:90px;width:60px;height:76px;"></div>
+      <!-- Center -->
+      <div class="center-card" id="cardA" onclick="toggleA()">
+        <div class="card-icon">
+          <svg viewBox="0 0 16 16" fill="none" stroke="#7c3aed" stroke-width="1.5">
+            <path d="M8 2C5 6 3 9 3 11.5A5 5 0 0013 11.5C13 9 11 6 8 2z"/>
+          </svg>
+        </div>
+        <span>Da khô<br>đỏ</span>
+      </div>
+      <!-- Right -->
+      <div class="side-card" style="top:160px;left:154px;width:48px;height:62px;opacity:0.6;">
+        <div style="width:20px;height:20px;border-radius:50%;background:rgba(139,92,246,0.12);"></div>
+        <span>Lỗ chân<br>lông</span>
+      </div>
+      <!-- Far right -->
+      <div class="side-card" style="top:220px;left:201px;width:34px;height:44px;opacity:0.3;">
+        <div style="width:14px;height:14px;border-radius:50%;background:rgba(26,10,61,0.08);"></div>
+        <span>Mụn<br>viêm</span>
+      </div>
+
+      <!-- Dots + hint (hidden when selected) -->
+      <div class="dots" id="dotsA" style="bottom:57px;">
+        <div class="dot off"></div><div class="dot off"></div>
+        <div class="dot on"></div>
+        <div class="dot off"></div><div class="dot off"></div>
+      </div>
+      <div class="hint" id="hintA" style="bottom:43px;">tap thẻ tím để thử</div>
+
+      <div class="ph-cta" id="ctaA">Tiếp theo →</div>
+    </div>
+    <div class="col-desc">Thẻ bật lên thanh shelf phía trên. Arc còn lại vẫn cuộn được. Thu hồi bằng cách tap lại lên thẻ.</div>
+  </div>
+
+  <!-- ── B: HAND DEALT ──────────────────────────── -->
+  <div class="col">
+    <div class="col-title">B — Chia bài xuống tay</div>
+    <div class="phone">
+      <div class="ph-header" id="hdB">Da của bạn thế nào?</div>
+
+      <!-- Far left -->
+      <div class="side-card" style="top:220px;left:5px;width:34px;height:44px;opacity:0.3;">
+        <div style="width:14px;height:14px;border-radius:50%;background:rgba(26,10,61,0.08);"></div>
+        <span>Da<br>khỏe</span>
+      </div>
+      <!-- Left -->
+      <div class="side-card" style="top:160px;left:38px;width:48px;height:62px;opacity:0.6;">
+        <div style="width:20px;height:20px;border-radius:50%;background:rgba(245,158,11,0.12);"></div>
+        <span>Da<br>nhờn</span>
+      </div>
+      <!-- Ghost -->
+      <div class="ghost" id="ghostB" style="top:110px;left:90px;width:60px;height:76px;"></div>
+      <!-- Center -->
+      <div class="center-card" id="cardB" onclick="toggleB()">
+        <div class="card-icon">
+          <svg viewBox="0 0 16 16" fill="none" stroke="#7c3aed" stroke-width="1.5">
+            <path d="M8 2C5 6 3 9 3 11.5A5 5 0 0013 11.5C13 9 11 6 8 2z"/>
+          </svg>
+        </div>
+        <span>Da khô<br>đỏ</span>
+      </div>
+      <!-- Right -->
+      <div class="side-card" style="top:160px;left:154px;width:48px;height:62px;opacity:0.6;">
+        <div style="width:20px;height:20px;border-radius:50%;background:rgba(139,92,246,0.12);"></div>
+        <span>Lỗ chân<br>lông</span>
+      </div>
+      <!-- Far right -->
+      <div class="side-card" style="top:220px;left:201px;width:34px;height:44px;opacity:0.3;">
+        <div style="width:14px;height:14px;border-radius:50%;background:rgba(26,10,61,0.08);"></div>
+        <span>Mụn<br>viêm</span>
+      </div>
+
+      <div class="zone-hand" id="zoneB">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none" style="opacity:.7">
+          <path d="M2 9.5L4 7L6.5 9.5L9 5L11 7.5" stroke="#7c3aed" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Tay bài
+      </div>
+
+      <div class="hint" id="hintB" style="bottom:106px;">tap thẻ tím để thử</div>
+      <div class="ph-cta" id="ctaB">Tiếp theo →</div>
+    </div>
+    <div class="col-desc">Thẻ "được chia" xuống hàng tay bài ở dưới, co nhỏ lại. Chọn nhiều thẻ sẽ xếp thành hàng ngang.</div>
+  </div>
+
+  <!-- ── C: CHIP ────────────────────────────────── -->
+  <div class="col">
+    <div class="col-title">C — Co thành chip</div>
+    <div class="phone">
+      <div class="ph-header" id="hdC">Da của bạn thế nào?</div>
+
+      <!-- Far left -->
+      <div class="side-card" style="top:220px;left:5px;width:34px;height:44px;opacity:0.3;">
+        <div style="width:14px;height:14px;border-radius:50%;background:rgba(26,10,61,0.08);"></div>
+        <span>Da<br>khỏe</span>
+      </div>
+      <!-- Left -->
+      <div class="side-card" style="top:160px;left:38px;width:48px;height:62px;opacity:0.6;">
+        <div style="width:20px;height:20px;border-radius:50%;background:rgba(245,158,11,0.12);"></div>
+        <span>Da<br>nhờn</span>
+      </div>
+      <!-- Ghost -->
+      <div class="ghost" id="ghostC" style="top:110px;left:90px;width:60px;height:76px;"></div>
+      <!-- Center -->
+      <div class="center-card" id="cardC" onclick="toggleC()">
+        <div class="card-icon">
+          <svg viewBox="0 0 16 16" fill="none" stroke="#7c3aed" stroke-width="1.5">
+            <path d="M8 2C5 6 3 9 3 11.5A5 5 0 0013 11.5C13 9 11 6 8 2z"/>
+          </svg>
+        </div>
+        <span>Da khô<br>đỏ</span>
+      </div>
+      <!-- Right -->
+      <div class="side-card" style="top:160px;left:154px;width:48px;height:62px;opacity:0.6;">
+        <div style="width:20px;height:20px;border-radius:50%;background:rgba(139,92,246,0.12);"></div>
+        <span>Lỗ chân<br>lông</span>
+      </div>
+      <!-- Far right -->
+      <div class="side-card" style="top:220px;left:201px;width:34px;height:44px;opacity:0.3;">
+        <div style="width:14px;height:14px;border-radius:50%;background:rgba(26,10,61,0.08);"></div>
+        <span>Mụn<br>viêm</span>
+      </div>
+
+      <div class="zone-chip" id="zoneC">
+        <svg width="11" height="11" viewBox="0 0 11 11" fill="none" style="opacity:.7">
+          <circle cx="5.5" cy="5.5" r="4.5" stroke="#7c3aed" stroke-width="1.2"/>
+          <path d="M3.5 5.5L5 7L7.5 4" stroke="#7c3aed" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Chip đã chọn
+      </div>
+
+      <div class="hint" id="hintC" style="bottom:96px;">tap thẻ tím để thử</div>
+      <div class="ph-cta" id="ctaC">Tiếp theo →</div>
+    </div>
+    <div class="col-desc">Thẻ thu nhỏ thành pill chip ngay tại chỗ. Ít dramatic nhất, dễ implement nhất, nhưng ít thú vị hơn.</div>
+  </div>
+
+</div>
+
+<script>
+var sA=false, sB=false, sC=false;
+
+function toggleA() {
+  sA = !sA;
+  var card = document.getElementById('cardA');
+  var zone = document.getElementById('zoneA');
+  var ghost = document.getElementById('ghostA');
+  var hint = document.getElementById('hintA');
+  var cta = document.getElementById('ctaA');
+  var hd = document.getElementById('hdA');
+  var dots = document.getElementById('dotsA');
+
+  if (sA) {
+    card.style.top = '53px';
+    card.style.left = '90px';
+    card.style.width = '60px';
+    card.style.height = '38px';
+    card.style.borderRadius = '6px';
+    zone.classList.add('active');
+    zone.innerHTML = '<svg width="11" height="11" viewBox="0 0 13 13" fill="none"><rect x="1" y="1" width="11" height="8" rx="1.5" stroke="#7c3aed" stroke-width="1.3"/><path d="M4 12H9" stroke="#7c3aed" stroke-width="1.3" stroke-linecap="round"/><path d="M6.5 9V12" stroke="#7c3aed" stroke-width="1.3" stroke-linecap="round"/></svg> Da khô đỏ';
+    ghost.classList.add('on');
+    hint.style.opacity = '0';
+    cta.classList.add('on');
+    hd.textContent = 'Da của bạn thế nào?';
+    hd.classList.add('selected');
+    dots.style.opacity = '0.4';
+  } else {
+    card.style.top = '110px';
+    card.style.left = '90px';
+    card.style.width = '60px';
+    card.style.height = '76px';
+    card.style.borderRadius = '10px';
+    zone.classList.remove('active');
+    zone.innerHTML = '<svg width="13" height="13" viewBox="0 0 13 13" fill="none" style="opacity:.7"><rect x="1" y="1" width="11" height="8" rx="1.5" stroke="#7c3aed" stroke-width="1.3"/><path d="M4 12H9" stroke="#7c3aed" stroke-width="1.3" stroke-linecap="round"/><path d="M6.5 9V12" stroke="#7c3aed" stroke-width="1.3" stroke-linecap="round"/></svg> Shelf thẻ đã chọn';
+    ghost.classList.remove('on');
+    hint.style.opacity = '1';
+    cta.classList.remove('on');
+    hd.textContent = 'Da của bạn thế nào?';
+    hd.classList.remove('selected');
+    dots.style.opacity = '1';
+  }
+}
+
+function toggleB() {
+  sB = !sB;
+  var card = document.getElementById('cardB');
+  var zone = document.getElementById('zoneB');
+  var ghost = document.getElementById('ghostB');
+  var hint = document.getElementById('hintB');
+  var cta = document.getElementById('ctaB');
+  var hd = document.getElementById('hdB');
+
+  if (sB) {
+    card.style.top = '392px';
+    card.style.left = '90px';
+    card.style.width = '60px';
+    card.style.height = '40px';
+    card.style.borderRadius = '8px';
+    zone.classList.add('active');
+    zone.innerHTML = '<svg width="11" height="11" viewBox="0 0 13 13" fill="none"><path d="M2 9.5L4 7L6.5 9.5L9 5L11 7.5" stroke="#7c3aed" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Da khô đỏ';
+    ghost.classList.add('on');
+    hint.style.opacity = '0';
+    cta.classList.add('on');
+    hd.classList.add('selected');
+  } else {
+    card.style.top = '110px';
+    card.style.left = '90px';
+    card.style.width = '60px';
+    card.style.height = '76px';
+    card.style.borderRadius = '10px';
+    zone.classList.remove('active');
+    zone.innerHTML = '<svg width="13" height="13" viewBox="0 0 13 13" fill="none" style="opacity:.7"><path d="M2 9.5L4 7L6.5 9.5L9 5L11 7.5" stroke="#7c3aed" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Tay bài';
+    ghost.classList.remove('on');
+    hint.style.opacity = '1';
+    cta.classList.remove('on');
+    hd.classList.remove('selected');
+  }
+}
+
+function toggleC() {
+  sC = !sC;
+  var card = document.getElementById('cardC');
+  var zone = document.getElementById('zoneC');
+  var ghost = document.getElementById('ghostC');
+  var hint = document.getElementById('hintC');
+  var cta = document.getElementById('ctaC');
+  var hd = document.getElementById('hdC');
+
+  if (sC) {
+    card.style.top = '398px';
+    card.style.left = '12px';
+    card.style.width = '120px';
+    card.style.height = '30px';
+    card.style.borderRadius = '16px';
+    zone.style.opacity = '0';
+    ghost.classList.add('on');
+    hint.style.opacity = '0';
+    cta.classList.add('on');
+    hd.classList.add('selected');
+  } else {
+    card.style.top = '110px';
+    card.style.left = '90px';
+    card.style.width = '60px';
+    card.style.height = '76px';
+    card.style.borderRadius = '10px';
+    zone.style.opacity = '1';
+    ghost.classList.remove('on');
+    hint.style.opacity = '1';
+    cta.classList.remove('on');
+    hd.classList.remove('selected');
+  }
+}
+</script>
+</body>
+</html>

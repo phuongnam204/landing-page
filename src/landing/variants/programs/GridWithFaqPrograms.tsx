@@ -108,9 +108,6 @@ function ProgramDetailDrawer({ program, tint, open, onClose, onBook, ctaVariant 
 }) {
   const primarySet   = new Set(scoredProgram?.matchedPrimary ?? []);
   const secondarySet = new Set(scoredProgram?.matchedSecondary ?? []);
-  const unmatchedIds = scoredProgram
-    ? getAllConditionIds(program).filter(id => !primarySet.has(id) && !secondarySet.has(id))
-    : [];
 
   const drawerRef = useRef<HTMLDivElement>(null);
 
@@ -217,9 +214,6 @@ function ProgramDetailDrawer({ program, tint, open, onClose, onBook, ctaVariant 
                     ))}
                     {scoredProgram.matchedSecondary.map(id => (
                       <ConditionMatchRow key={id} conditionId={id as ConditionId} variant="secondary" />
-                    ))}
-                    {unmatchedIds.map(id => (
-                      <ConditionMatchRow key={id} conditionId={id as ConditionId} variant="unmatched" />
                     ))}
                   </div>
                 ) : (

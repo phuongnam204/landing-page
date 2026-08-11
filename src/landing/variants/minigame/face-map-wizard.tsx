@@ -161,7 +161,7 @@ function mapToConditions(zones: Zone[], acneType: AcneType): ConditionId[] {
   if (zones.includes('chin-jaw')) result.add('mun-noi-tiet');
   if (acneType === 'sensitive') result.add('da-nhay-cam');
   if (acneType === 'pore') result.add('lo-chan-long');
-  if (zones.includes('nose') && acneType === 'blackhead') result.add('lo-chan-long');
+  if (acneType === 'blackhead') result.add('lo-chan-long');
   if (zones.length > 0 && (acneType === 'inflamed' || acneType === 'blackhead')) result.add('da-nhon-mun-viem');
   if (acneType === 'scar') result.add('da-seo-ro');
   return result.size > 0 ? [...result] : ['da-moi-bat-dau'];
