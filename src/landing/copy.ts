@@ -8,6 +8,7 @@ export type HookCopy = {
 };
 
 export type MinigameCopy = {
+  skipIntro?:         boolean;
   intro?:             { heading?: string; subtext?: string; cta?: string };
   scratch?:           { hint?: string };
   analyzing?:         { label?: string };

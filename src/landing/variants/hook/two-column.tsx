@@ -2,7 +2,7 @@
 import type { HookSlotProps } from '../../slots';
 import { CtaButton } from '../../../components/atoms/CtaButton';
 
-export function TwoColumnHook({ onStart }: HookSlotProps) {
+export function TwoColumnHook({ onStart, copy }: HookSlotProps) {
   return (
     <div className="h-[100dvh] w-full bg-gradient-to-br from-[var(--lp-bg-hero)] via-[var(--lp-bg-minigame)] to-[var(--lp-bg-payoff)] relative flex items-center overflow-hidden transition-colors duration-500">
       <div
@@ -19,19 +19,21 @@ export function TwoColumnHook({ onStart }: HookSlotProps) {
         </div>
         <div className="text-center md:text-left animate-fade-in-up">
           <h1 className="font-extrabold text-4xl md:text-6xl text-cta leading-snug md:leading-snug [text-wrap:balance]">
-            Da bạn đang{' '}
-            <span className="bg-gradient-to-r from-violet-500 to-pink-500 bg-clip-text text-transparent">giấu</span>{' '}
-            điều gì?
+            {copy?.heading ?? 'Da bạn đang'}{' '}
+            {copy?.headingAccent && (
+              <span className="bg-gradient-to-r from-violet-500 to-pink-500 bg-clip-text text-transparent">
+                {copy.headingAccent}
+              </span>
+            )}
           </h1>
           <p className="text-base md:text-lg text-cta/70 mt-5">
-            Có những "bạn nhỏ" đang ẩn náu trên làn da của bạn. Tìm chúng — và khám phá điều da bạn thực sự cần.
+            {copy?.subtext ?? 'Có những "bạn nhỏ" đang ẩn náu trên làn da của bạn. Tìm chúng — và khám phá điều da bạn thực sự cần.'}
           </p>
           <div className="flex justify-center md:justify-start mt-7">
             <CtaButton onClick={onStart} size="lg">
-              Soi da ngay →
+              {copy?.cta ?? 'Soi da ngay →'}
             </CtaButton>
           </div>
-          <p className="text-sm md:text-base text-cta/50 mt-4">Cùng thực hiện một cuộc khám phá làn da nhé!</p>
         </div>
       </div>
     </div>

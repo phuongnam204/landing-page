@@ -47,7 +47,7 @@ export const skinConditions: Partial<Record<ConditionId, SkinCondition>> = {
     id: 'da-nhon-mun-viem',
     label: 'Da nhờn + mụn viêm',
     tone: 'concern',
-    color: '#FFCD78',
+    color: '#D97706',
     body: 'Da bạn <b>nhờn + mụn viêm</b> — tuyến bã nhờn hoạt động mạnh, lỗ chân lông dễ tắc, mụn viêm liên tục đặc biệt vùng chữ T.',
     bridge: 'Tình trạng như của bạn không hiếm — và có cách xử lý đúng hướng từ gốc rễ.',
     o2skinRef: 'o2skin AcneType (đối chiếu tên thật)',

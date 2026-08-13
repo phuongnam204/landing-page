@@ -198,6 +198,7 @@ const CARDS: SwipeCard[] = [
 ];
 
 const DEFAULT_COPY: Required<MinigameCopy> = {
+  skipIntro:        false,
   intro:            { heading: 'Chọn tình trạng da của bạn', subtext: 'Xoay bánh xe để duyệt qua các tình trạng, chạm vào thẻ để chọn — có thể chọn nhiều.', cta: 'Bắt đầu →' },
   scratch:          { hint: 'Quét ngón tay trên các vùng để khám phá' },
   analyzing:        { label: 'Đang phân tích...' },
@@ -278,7 +279,7 @@ function getShelfLeft(containerWidth: number, sw: number, gap: number, numCards:
 
 export function ElectricSoftSwipeMinigame({ onComplete, copy }: MinigameSlotProps) {
   // ─── State ──────────────────────────────────────────────────────────────────
-  const [phase, setPhase] = useState<Phase>('intro');
+  const [phase, setPhase] = useState<Phase>(copy?.skipIntro ? 'wheel' : 'intro');
   const [introFading, setIntroFading] = useState(false);
   const [selectedCardIds, setSelectedCardIds] = useState<string[]>([]);
   const [zoneMap, setZoneMap] = useState<ZoneMap>({});

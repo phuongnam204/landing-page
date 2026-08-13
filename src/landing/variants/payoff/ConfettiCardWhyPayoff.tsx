@@ -72,7 +72,10 @@ function WhySectionMulti({ conditions, tone, triggerNote, onScrollDown }: {
   const [slideDir, setSlideDir]     = useState<'left' | 'right' | null>(null);
   const [dragX, setDragX]           = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [isSpringBack, setIsSpringBack] = useState(false);
   const dragRef                     = useRef<{ startX: number; live: boolean }>({ startX: 0, live: false });
+  const lastMoveRef                 = useRef<{ x: number; t: number }>({ x: 0, t: 0 });
+  const velocityRef                 = useRef(0);
   const lastNavWasSwipeRef              = useRef(false);
   const [cardHasMore, setCardHasMore]   = useState(false);
   const [cardAtBottom, setCardAtBottom] = useState(true);
@@ -132,6 +135,9 @@ function WhySectionMulti({ conditions, tone, triggerNote, onScrollDown }: {
 
   function onPointerDown(e: React.PointerEvent) {
     dragRef.current = { startX: e.clientX, live: true };
+    lastMoveRef.current = { x: e.clientX, t: Date.now() };
+    velocityRef.current = 0;
+    setIsSpringBack(false);
     setIsDragging(false);
     setDragX(0);
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
@@ -140,6 +146,10 @@ function WhySectionMulti({ conditions, tone, triggerNote, onScrollDown }: {
   function onPointerMove(e: React.PointerEvent) {
     if (!dragRef.current.live) return;
     const delta = e.clientX - dragRef.current.startX;
+    const now = Date.now();
+    const dt = now - lastMoveRef.current.t;
+    if (dt > 0) velocityRef.current = (e.clientX - lastMoveRef.current.x) / dt;
+    lastMoveRef.current = { x: e.clientX, t: now };
     if (Math.abs(delta) > 6) {
       setIsDragging(true);
       setDragX(delta);
@@ -149,10 +159,22 @@ function WhySectionMulti({ conditions, tone, triggerNote, onScrollDown }: {
   function onPointerUp(e: React.PointerEvent) {
     if (!dragRef.current.live) return;
     const delta = e.clientX - dragRef.current.startX;
+    const velocity = velocityRef.current; // px/ms
     dragRef.current.live = false;
     setIsDragging(false);
+
+    const DIST_THRESHOLD = 72;
+    const VEL_THRESHOLD  = 0.38; // px/ms — fast flick dismisses early
+    const shouldDismiss  = Math.abs(delta) >= DIST_THRESHOLD || (Math.abs(delta) > 20 && Math.abs(velocity) >= VEL_THRESHOLD);
+
+    if (!shouldDismiss) {
+      setIsSpringBack(true);
+      setDragX(0);
+      setTimeout(() => setIsSpringBack(false), 380);
+      return;
+    }
+
     setDragX(0);
-    if (Math.abs(delta) < 40) return;
     lastNavWasSwipeRef.current = true;
     setSlideDir(null);
     setActiveIdx(prev =>
@@ -237,8 +259,13 @@ function WhySectionMulti({ conditions, tone, triggerNote, onScrollDown }: {
             className="relative"
             style={{
               animation: cardAnimation,
-              transform: isDragging ? `translateX(${dragX}px)` : undefined,
-              transition: isDragging ? 'none' : undefined,
+              transform: isDragging
+                ? `translateX(${dragX}px) rotate(${(dragX / 420) * 7}deg)`
+                : undefined,
+              opacity: isDragging ? Math.max(0.45, 1 - Math.abs(dragX) / 380) : 1,
+              transition: isSpringBack
+                ? 'transform 0.38s cubic-bezier(0.34,1.56,0.64,1), opacity 0.28s ease'
+                : isDragging ? 'none' : undefined,
             }}
           >
             {/* Scrollable card */}

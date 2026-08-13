@@ -11,7 +11,7 @@ export const SPOT_POOL: { x: number; y: number }[] = [
 
 export const ZONE_META: Record<SkinZone, { label: string; conditionId: ConditionId; color: string }> = {
   'cam-quai-ham': { label: 'cằm & quai hàm', conditionId: 'mun-noi-tiet', color: '#FF5C9E' },
-  'chu-t':        { label: 'vùng chữ T', conditionId: 'da-nhon-mun-viem', color: '#FFCD78' },
+  'chu-t':        { label: 'vùng chữ T', conditionId: 'da-nhon-mun-viem', color: '#D97706' },
   'hai-ma':       { label: 'hai má', conditionId: 'da-nhay-cam', color: '#7DD9C0' },
   'khong-bi':     { label: 'gần như không bị', conditionId: 'clean-skin', color: '#B39DFF' },
 };

@@ -317,6 +317,8 @@ export function BubbleSeverityPicker({
     setTimeout(() => { onSelect(s); }, 280);
   }
 
+  const hintTop = Math.max(16, cy - BUBBLE_R - 68);
+
   return (
     <>
       <style>{BUBBLE_KEYFRAMES}</style>
@@ -326,6 +328,26 @@ export function BubbleSeverityPicker({
         style={{ background: 'rgba(0,0,0,0.45)', animation: 'bubOverlay 0.2s ease both' }}
         onClick={onClose}
       />
+      {/* Hint label */}
+      <div
+        className="fixed z-50 pointer-events-none"
+        style={{
+          left: cx, top: hintTop,
+          transform: 'translateX(-50%)',
+          background: 'rgba(255,255,255,0.12)',
+          backdropFilter: 'blur(6px)',
+          border: '1px solid rgba(255,255,255,0.22)',
+          borderRadius: 999,
+          padding: '5px 14px',
+          fontSize: 12, fontWeight: 700,
+          color: 'rgba(255,255,255,0.92)',
+          textShadow: '0 1px 6px rgba(0,0,0,0.55)',
+          whiteSpace: 'nowrap',
+          animation: 'bubOverlay 0.25s ease both',
+        }}
+      >
+        Mức độ như thế nào?
+      </div>
       {/* 3 arc-positioned bubbles */}
       {ARC_CONFIG.map((cfg, i) => {
         const pos = calcBubblePos(cx, cy, cfg.angleDeg);
@@ -399,10 +421,32 @@ export function BubbleConditionPicker({
     void willSelect;
   }
 
+  const hintTop = Math.max(16, cy - COND_BUBBLE_R - 72);
+
   return (
     <>
       <style>{BUBBLE_KEYFRAMES}</style>
       <div className="fixed inset-0 z-40" style={{ background: 'rgba(0,0,0,0.45)', animation: 'bubOverlay 0.2s ease both' }} onClick={onClose} />
+      {/* Hint label */}
+      <div
+        className="fixed z-50 pointer-events-none"
+        style={{
+          left: cx, top: hintTop,
+          transform: 'translateX(-50%)',
+          background: 'rgba(255,255,255,0.12)',
+          backdropFilter: 'blur(6px)',
+          border: '1px solid rgba(255,255,255,0.22)',
+          borderRadius: 999,
+          padding: '5px 14px',
+          fontSize: 12, fontWeight: 700,
+          color: 'rgba(255,255,255,0.92)',
+          textShadow: '0 1px 6px rgba(0,0,0,0.55)',
+          whiteSpace: 'nowrap',
+          animation: 'bubOverlay 0.25s ease both',
+        }}
+      >
+        Vùng da này bị tình trạng nào?
+      </div>
       {conditions.map((cond, i) => {
         const pos = calcBubblePos(cx, cy, angles[i] ?? 280, COND_BUBBLE_R);
         const isSel = selected.has(cond.id);
@@ -690,7 +734,39 @@ export function SelectedZoneTags({ selectedZones }: { selectedZones: Zone[] }) {
   );
 }
 
-const CARD_ICONS: Record<AcneType, React.ReactNode> = {
+const SEVERITY_TAG_COLORS: Record<Severity, { bg: string; fg: string; label: string }> = {
+  nhieu: { bg: '#EF444420', fg: '#EF4444', label: 'nhiều' },
+  vua:   { bg: '#F59E0B20', fg: '#F59E0B', label: 'vừa'   },
+  it:    { bg: '#F9731620', fg: '#F97316', label: 'ít'    },
+  khong: { bg: '#94A3B820', fg: '#94A3B8', label: 'không' },
+};
+
+/** Per-zone severity chips — the readout for a zoneMap built by BubbleTwoLayerPicker. */
+export function ZoneSeverityTags({ zoneMap, emptyHint }: { zoneMap: ZoneMap; emptyHint?: string }) {
+  const entries = Object.entries(zoneMap) as [Zone, NonNullable<ZoneMap[Zone]>][];
+  return (
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, justifyContent: 'center', minHeight: 28 }}>
+      {entries.length > 0
+        ? entries.map(([z, data]) => {
+            const tone = SEVERITY_TAG_COLORS[data.severity];
+            return (
+              <div key={z} style={{
+                padding: '4px 12px', borderRadius: 999, fontSize: 12, fontWeight: 600,
+                background: tone.bg, color: tone.fg, border: `1px solid ${tone.fg}40`,
+              }}>
+                {ZONE_LABELS[z]} — {tone.label}
+              </div>
+            );
+          })
+        : emptyHint
+          ? <p className="text-sm" style={{ color: 'color-mix(in srgb, var(--lp-primary) 45%, transparent)' }}>{emptyHint}</p>
+          : null
+      }
+    </div>
+  );
+}
+
+export const CARD_ICONS: Record<AcneType, React.ReactNode> = {
   inflamed: (
     <svg width="44" height="44" viewBox="0 0 44 44" fill="none" aria-hidden="true">
       <circle cx="22" cy="22" r="13" fill="#EF4444" opacity="0.12" />
@@ -781,45 +857,123 @@ const CS_TILE_KEYFRAMES = `
     from { opacity: 0; transform: scale(.82) translateY(6px); }
     to   { opacity: 1; transform: scale(1)   translateY(0);   }
   }
+  @keyframes csAlertPulse {
+    0%, 100% { transform: scale(1);    }
+    50%      { transform: scale(1.035); }
+  }
+  .cs-alert:hover  { filter: brightness(1.06); }
+  .cs-alert:active { transform: scale(0.97); }
+  .cs-alert-idle   { animation: csAlertPulse 2.2s ease-in-out infinite; }
+  @media (prefers-reduced-motion: reduce) {
+    .cs-alert-idle { animation: none; }
+    .cs-alert:hover { filter: none; }
+  }
 `;
 
-function ConditionSelectVariantA({ selected, onToggle, onNext }: {
-  selected: AcneType[];
-  onToggle: (t: AcneType) => void;
-  onNext: (types: AcneType[]) => void;
-}) {
-  const DECK = ACNE_TYPES.filter(t => t.id !== 'none');
-  const noneType = ACNE_TYPES.find(t => t.id === 'none')!;
+/**
+ * One pill in the condition cloud. `exclusive` marks an answer that cannot be
+ * combined with the others (e.g. "Da ổn", "Tôi không rõ") — picking it clears
+ * every other selection, and picking anything else clears it.
+ */
+export type PillOption = {
+  id: string;
+  label: string;
+  color: string;
+  image?: string;
+  exclusive?: boolean;
+  /**
+   * 'alert' renders the pill as a warning tier — solid danger fill, alert mark and a
+   * pulsing ring — for conditions the user must not skim past.
+   */
+  tier?: 'alert';
+  /** Deeper shade used for an alert pill once it is selected. */
+  deepColor?: string;
+};
 
+/** Selection reducer shared by every screen that uses ConditionPillCloud. */
+export function togglePillSelection(prev: string[], id: string, options: PillOption[]): string[] {
+  if (prev.includes(id)) return prev.filter(x => x !== id);
+  const opt = options.find(o => o.id === id);
+  if (opt?.exclusive) return [id];
+  const isExclusive = (x: string) => options.find(o => o.id === x)?.exclusive;
+  return [...prev.filter(x => !isExclusive(x)), id];
+}
+
+/** Pill cloud + animated image preview + CTA. Reused across minigame variants. */
+export function ConditionPillCloud({
+  options, selected, onToggle, onNext,
+  heading, subtext, ctaLabel = 'Tiếp theo →',
+}: {
+  options: PillOption[];
+  selected: string[];
+  onToggle: (id: string) => void;
+  onNext: () => void;
+  heading: string;
+  subtext?: string;
+  ctaLabel?: string;
+}) {
   const imgItems = selected
-    .filter(id => !!CONDITION_IMAGES[id])
-    .map(id => ({
-      id,
-      img: CONDITION_IMAGES[id]!,
-      label: ACNE_TYPES.find(t => t.id === id)?.label ?? id,
-    }));
+    .map(id => options.find(o => o.id === id))
+    .filter((o): o is PillOption => !!o?.image);
 
   return (
     <div className="w-full max-w-sm flex flex-col gap-4 animate-fade-in-up">
       <style>{CS_TILE_KEYFRAMES}</style>
       <div className="text-center">
-        <p className="font-extrabold text-xl text-cta">Da bạn đang gặp tình trạng nào?</p>
-        <p className="text-sm text-cta/50 mt-1">Chọn tất cả những gì bạn đang có</p>
+        <p className="font-extrabold text-xl text-cta">{heading}</p>
+        {subtext && <p className="text-sm text-cta/50 mt-1">{subtext}</p>}
       </div>
 
       <div className="flex flex-wrap gap-2 justify-center">
-        {DECK.map(t => {
-          const isOn = selected.includes(t.id);
+        {options.map(o => {
+          const isOn = selected.includes(o.id);
+
+          // Alert tier — solid danger fill so it never reads as one more option in the row
+          if (o.tier === 'alert') {
+            const deep = o.deepColor ?? o.color;
+            return (
+              <button
+                key={o.id}
+                onClick={() => onToggle(o.id)}
+                aria-pressed={isOn}
+                className={`cs-alert inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-extrabold text-white transition-all duration-150${isOn ? '' : ' cs-alert-idle'}`}
+                style={{
+                  background: isOn
+                    ? `linear-gradient(135deg, ${deep}, ${o.color})`
+                    : `linear-gradient(135deg, ${o.color}, ${deep})`,
+                  border: `2px solid ${isOn ? '#ffffff' : deep}`,
+                  boxShadow: isOn
+                    ? `0 0 0 3px ${o.color}, 0 8px 22px color-mix(in srgb, ${o.color} 55%, transparent)`
+                    : `0 4px 14px color-mix(in srgb, ${o.color} 45%, transparent)`,
+                }}
+              >
+                {/* lucide triangle-alert — the danger mark stays visible in every state */}
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M10.3 3.6 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.6a2 2 0 0 0-3.4 0z" />
+                  <path d="M12 9v4" /><path d="M12 17h.01" />
+                </svg>
+                {o.label}
+                {isOn && (
+                  <svg width="13" height="13" viewBox="0 0 11 11" fill="none" aria-hidden="true">
+                    <path d="M1.5 5.5L4.5 8.5L9.5 2.5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                )}
+              </button>
+            );
+          }
+
           return (
             <button
-              key={t.id}
-              onClick={() => onToggle(t.id)}
+              key={o.id}
+              onClick={() => onToggle(o.id)}
               aria-pressed={isOn}
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-sm font-medium border-[1.5px] transition-all duration-150"
               style={{
-                borderColor: isOn ? t.color : 'var(--lp-border)',
-                background:  isOn ? `color-mix(in srgb, ${t.color} 12%, var(--lp-bg-card))` : 'var(--lp-bg-card)',
-                color:       isOn ? t.color : 'color-mix(in srgb, var(--lp-accent) 55%, transparent)',
+                borderColor: o.exclusive ? o.color : (isOn ? o.color : 'var(--lp-border)'),
+                borderStyle: o.exclusive && !isOn ? 'dashed' : 'solid',
+                background:  isOn ? `color-mix(in srgb, ${o.color} 12%, var(--lp-bg-card))` : 'var(--lp-bg-card)',
+                color:       o.exclusive ? o.color : (isOn ? o.color : 'color-mix(in srgb, var(--lp-accent) 55%, transparent)'),
               }}
             >
               {isOn && (
@@ -827,29 +981,10 @@ function ConditionSelectVariantA({ selected, onToggle, onNext }: {
                   <path d="M1.5 5.5L4.5 8.5L9.5 2.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               )}
-              {t.label}
+              {o.label}
             </button>
           );
         })}
-        {/* "Da ổn" — togglable, mutually exclusive with other conditions */}
-        <button
-          onClick={() => onToggle('none')}
-          aria-pressed={selected.includes('none')}
-          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-sm font-medium border-[1.5px] transition-all duration-150"
-          style={{
-            borderColor: noneType.color,
-            borderStyle: selected.includes('none') ? 'solid' : 'dashed',
-            background:  selected.includes('none') ? `color-mix(in srgb, ${noneType.color} 12%, var(--lp-bg-card))` : 'var(--lp-bg-card)',
-            color:       noneType.color,
-          }}
-        >
-          {selected.includes('none') && (
-            <svg width="11" height="11" viewBox="0 0 11 11" fill="none" aria-hidden="true">
-              <path d="M1.5 5.5L4.5 8.5L9.5 2.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          )}
-          {noneType.label}
-        </button>
       </div>
 
       {/* Image preview — animates in when chips are selected */}
@@ -869,9 +1004,9 @@ function ConditionSelectVariantA({ selected, onToggle, onNext }: {
             paddingTop: imgItems.length > 0 ? '4px' : '0',
           }}
         >
-          {imgItems.map(({ id, img, label }) => (
+          {imgItems.map(o => (
             <div
-              key={id}
+              key={o.id}
               style={{
                 borderRadius: '10px',
                 overflow: 'hidden',
@@ -879,14 +1014,14 @@ function ConditionSelectVariantA({ selected, onToggle, onNext }: {
                 animation: 'csTileIn 0.28s cubic-bezier(.25,.8,.25,1)',
               }}
             >
-              <img src={img} alt={label} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+              <img src={o.image} alt={o.label} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
               <div style={{
                 position: 'absolute', bottom: 0, left: 0, right: 0,
                 padding: '12px 3px 3px',
                 background: 'linear-gradient(transparent, rgba(0,0,0,.6))',
                 color: '#fff', fontSize: '8.5px', fontWeight: 600, textAlign: 'center',
               }}>
-                {label}
+                {o.label}
               </div>
             </div>
           ))}
@@ -894,13 +1029,39 @@ function ConditionSelectVariantA({ selected, onToggle, onNext }: {
       </div>
 
       <button
-        onClick={() => onNext(selected)}
+        onClick={onNext}
         disabled={selected.length === 0}
         className="w-full bg-cta text-white font-bold py-3.5 rounded-soft text-sm disabled:opacity-40 hover:opacity-90 transition-opacity"
       >
-        Tiếp theo &rarr;
+        {ctaLabel}
       </button>
     </div>
+  );
+}
+
+/** ACNE_TYPES rendered as pills — "Da ổn" is the exclusive answer. */
+export const ACNE_PILL_OPTIONS: PillOption[] = ACNE_TYPES.map(t => ({
+  id: t.id,
+  label: t.label,
+  color: t.color,
+  image: CONDITION_IMAGES[t.id],
+  exclusive: t.id === 'none',
+}));
+
+function ConditionSelectVariantA({ selected, onToggle, onNext }: {
+  selected: AcneType[];
+  onToggle: (t: AcneType) => void;
+  onNext: (types: AcneType[]) => void;
+}) {
+  return (
+    <ConditionPillCloud
+      options={ACNE_PILL_OPTIONS}
+      selected={selected}
+      onToggle={(id) => onToggle(id as AcneType)}
+      onNext={() => onNext(selected)}
+      heading="Da bạn đang gặp tình trạng nào?"
+      subtext="Chọn tất cả những gì bạn đang có"
+    />
   );
 }
 
@@ -1486,7 +1647,7 @@ export function FaceMapMinigame({ onComplete, copy }: MinigameSlotProps) {
         <div className="text-center px-4">
           {isMultiCondition ? (
             <h2 className="font-extrabold text-lg leading-snug" style={{ color: 'var(--lp-primary)' }}>
-              Da bạn có nhiều tuýp — hãy đánh dấu từng vùng!
+              Da bạn có nhiều tuýp quá ! Giờ hãy làm rõ từng vùng
             </h2>
           ) : (
             <h2 className="font-extrabold text-lg leading-snug" style={{ color: 'var(--lp-primary)' }}>
@@ -1498,21 +1659,7 @@ export function FaceMapMinigame({ onComplete, copy }: MinigameSlotProps) {
           </p>
         </div>
         <FaceDiagram zoneSeverity={zoneSeverity} onZoneTap={handleZoneTap} isScanning={false} />
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, justifyContent: 'center', minHeight: 28 }}>
-          {Object.entries(zoneMap).length > 0
-            ? (Object.entries(zoneMap) as [Zone, NonNullable<ZoneMap[Zone]>][]).map(([z, data]) => (
-                <div key={z} style={{
-                  padding: '4px 12px', borderRadius: 999, fontSize: 12, fontWeight: 600,
-                  background: data.severity === 'nhieu' ? '#EF444420' : data.severity === 'vua' ? '#F59E0B20' : '#F9731620',
-                  color:      data.severity === 'nhieu' ? '#EF4444'   : data.severity === 'vua' ? '#F59E0B'   : '#F97316',
-                  border: `1px solid ${data.severity === 'nhieu' ? '#EF444440' : data.severity === 'vua' ? '#F59E0B40' : '#F9731640'}`,
-                }}>
-                  {ZONE_LABELS[z]} — {data.severity === 'nhieu' ? 'nhiều' : data.severity === 'vua' ? 'vừa' : 'ít'}
-                </div>
-              ))
-            : <p className="text-sm" style={{ color: 'color-mix(in srgb, var(--lp-primary) 40%, transparent)' }}>Chạm vào vùng da để bắt đầu</p>
-          }
-        </div>
+        <ZoneSeverityTags zoneMap={zoneMap} />
         <div style={{ position: 'fixed', bottom: 24, left: 0, right: 0, display: 'flex', justifyContent: 'center', gap: 12, padding: '0 20px', zIndex: 30 }}>
           <button
             onClick={handleWizardBack}

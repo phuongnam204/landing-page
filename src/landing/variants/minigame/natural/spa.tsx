@@ -68,16 +68,16 @@ export function NaturalSpaMinigame({ onComplete }: MinigameSlotProps) {
       {/* ── Mobile: 2×2 grid ── */}
       <div className="md:hidden flex-1 flex flex-col px-4 pt-5 pb-4 min-h-0">
         <p
-          className="text-xs font-bold mb-1 uppercase tracking-widest shrink-0"
-          style={{ color: 'var(--lp-accent)', letterSpacing: '0.1em' }}
-        >
-          Da nhạy cảm
-        </p>
-        <p
           className="text-sm font-extrabold mb-4 leading-snug shrink-0"
           style={{ color: 'var(--lp-primary)' }}
         >
-          Bạn thường gặp triệu chứng nào nhất?
+          Da bạn bạn nhạy cảm ? Triệu chứng thường gặp là gì ?
+        </p>
+        <p
+          className="text-xs font-bold mb-1 uppercase tracking-widest shrink-0"
+          style={{ color: 'var(--lp-accent)', letterSpacing: '0.1em' }}
+        >
+          Da nhạy cảm không nên xem thường - đó có thể là báo động lớn !
         </p>
         <div className="grid grid-cols-2 gap-3 flex-1 min-h-0">
           {SENSITIVE_SYMPTOMS.map((s, i) => (
@@ -114,16 +114,17 @@ export function NaturalSpaMinigame({ onComplete }: MinigameSlotProps) {
       {/* ── Desktop: 4-column grid ── */}
       <div className="hidden md:flex flex-1 flex-col justify-center px-10 py-10 overflow-y-auto">
         <p
-          className="text-xs font-bold mb-2 uppercase tracking-widest"
-          style={{ color: 'var(--lp-accent)', letterSpacing: '0.12em' }}
-        >
-          Da nhạy cảm
-        </p>
-        <p
           className="font-black mb-8 leading-snug"
           style={{ fontSize: 'clamp(20px, 2.2vw, 28px)', color: 'var(--lp-primary)' }}
         >
-          Bạn thường gặp triệu chứng nào nhất?
+           Da bạn bạn nhạy cảm ? Triệu chứng thường gặp là gì ?
+        </p>
+        <p
+          className="text-xs font-bold mb-2 uppercase tracking-widest"
+          style={{ color: 'var(--lp-accent)', letterSpacing: '0.12em' }}
+        >
+          Da nhạy cảm không nên xem thường - đó có thể là báo động lớn !
+          
         </p>
         <div className="grid grid-cols-4 gap-5">
           {SENSITIVE_SYMPTOMS.map((s, i) => (

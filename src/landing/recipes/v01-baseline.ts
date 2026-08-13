@@ -22,13 +22,9 @@ export const v01Baseline: Recipe = {
       cta:           'Phân tích da ngay',
     },
     minigame: {
-      intro: {
-        heading: 'Da bạn đang gặp vấn đề gì?',
-        subtext:  'Vuốt qua các thẻ để tìm tình trạng gần nhất với bạn.',
-        cta:      'Bắt đầu',
-      },
+      skipIntro: true,
       wheel: {
-        heading: 'Vuốt để duyệt, nhấn để chọn',
+        heading: 'Da bạn hiện tại bị tình trạng nào?',
       },
     },
     payoff: {

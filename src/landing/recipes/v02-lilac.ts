@@ -28,7 +28,7 @@ export const vPreviewWizard: Recipe = {
         cta:      'Khám phá ngay',
       },
       wheel: {
-        heading: 'Vuốt để duyệt, nhấn để chọn',
+        heading: 'Da bạn hiện tại bị tình trạng nào ?',
       },
     },
     payoff: {

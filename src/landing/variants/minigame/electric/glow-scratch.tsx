@@ -3,8 +3,14 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import type { MinigameSlotProps, MinigameResult } from '../../../slots';
 import { skinConditions } from '../../../../content/quiz';
 import type { ConditionId } from '../../../../content/quiz';
-import { FaceDiagram, SelectedZoneTags, ZONES_SVG } from '../face-map';
-import type { Zone, Severity } from '../face-map';
+import {
+  FaceDiagram, ZONES_SVG, ZONE_LABELS,
+  ACNE_TYPES, CONDITION_IMAGES,
+  ConditionPillCloud, togglePillSelection,
+  BubbleTwoLayerPicker, ZoneSeverityTags,
+  zoneMapToAssessments, assessToConditions,
+} from '../face-map';
+import type { Zone, Severity, AcneType, ZoneMap, ConditionOption, PillOption } from '../face-map';
 
 // ─── Constants (face image layout mirrors face-map.tsx) ────────────────────────
 const FACE_SCALE = 2;
@@ -47,9 +53,6 @@ const CONDITION_ZONE_WEIGHTS: Record<string, Record<ZoneGroup, number>> = {
 const SCRATCH_STROKE_WIDTH = 16;
 const COMPLETION_DELAY_MS  = 500;
 
-// Conditions that skip zone-selection and go directly to payoff
-const DIRECT_PAYOFF: Set<ConditionId> = new Set(['clean-skin', 'da-moi-bat-dau']);
-
 // Only these 4 appear in the scratch random draw; da-nhay-cam routes to its own quiz screen
 const SCRATCH_CONDITIONS: ConditionId[] = ['da-nhon-mun-viem', 'lo-chan-long', 'mun-trung-ca', 'mun-noi-tiet'];
 
@@ -60,23 +63,24 @@ const SENSITIVE_SYMPTOMS = [
   { id: 'dry',      label: 'Bong tróc và khô da',               desc: 'Hàng rào bảo vệ da suy yếu, dễ mất nước',                 img: '/vectors/Dry.jpg'      },
 ] as const;
 
-const ALTERNATIVE_CONDITIONS: { id: ConditionId; label: string; color: string }[] = [
-  { id: 'da-nhon-mun-viem', label: 'Da nhờn + mụn viêm',   color: '#FFCD78' },
-  { id: 'da-nhay-cam',      label: 'Da nhạy cảm',           color: '#7DD9C0' },
-  { id: 'lo-chan-long',     label: 'Lỗ chân lông to',       color: '#8B6BFF' },
-  { id: 'mun-trung-ca',    label: 'Mụn trứng cá',          color: '#FF6B35' },
-  { id: 'da-seo-ro',       label: 'Sẹo rỗ',                color: '#9C7A5F' },
-  { id: 'clean-skin',      label: 'Da ổn định, ít vấn đề', color: '#B39DFF' },
-  { id: 'da-moi-bat-dau',  label: 'Tôi cũng không rõ',     color: '#A0AEC0' },
+// Screen 2b pills — the ACNE_TYPES deck plus the three answers that end the flow early.
+// 'sensitive' stays combinable: alone it routes to the sensitive-skin quiz, combined with
+// other types it is carried into the face-map step like any other condition.
+// Sensitive skin is the alert tier — one danger accent used everywhere it appears
+const SENSITIVE_ALERT = '#DC2626';
+const SENSITIVE_DEEP  = '#991B1B';
+
+const ALT_PILL_OPTIONS: PillOption[] = [
+  ...ACNE_TYPES
+    .filter(t => t.id !== 'none' && t.id !== 'sensitive')
+    .map(t => ({ id: t.id, label: t.label, color: t.color, image: CONDITION_IMAGES[t.id] })),
+  { id: 'sensitive', label: 'Da nhạy cảm',  color: SENSITIVE_ALERT, image: CONDITION_IMAGES.sensitive, tier: 'alert', deepColor: SENSITIVE_DEEP },
+  { id: 'none',      label: 'Da ổn',        color: '#10B981', exclusive: true },
+  { id: 'unsure',    label: 'Tôi không rõ', color: '#A0AEC0', exclusive: true },
 ];
 
-// Mirrors face-map.tsx ZONE_LABELS (not exported from that file)
-const FACE_ZONE_LABELS: Record<Zone, string> = {
-  forehead:      'vùng trán',
-  nose:          'vùng mũi / chữ T',
-  'left-cheek':  'má trái',
-  'right-cheek': 'má phải',
-  'chin-jaw':    'cằm & quai hàm',
+const SEVERITY_WORD: Record<Severity, string> = {
+  nhieu: 'nhiều', vua: 'vừa', it: 'ít', khong: 'không',
 };
 
 const MIN_DRAG_UNITS = 8; // viewBox units of movement required before zone detection
@@ -124,7 +128,7 @@ function ConfirmFaceMini({ zones, color }: { zones: RevealZone[]; color: string 
 
 // ─── Main component ────────────────────────────────────────────────────────────
 export function ElectricGlowScratchMinigame({ onComplete, copy }: MinigameSlotProps) {
-  type Phase = 'intro' | 'scratch' | 'confirm' | 'relocate' | 'alternative' | 'sensitive-quiz' | 'done';
+  type Phase = 'intro' | 'scratch' | 'confirm' | 'relocate' | 'alternative' | 'alt-zones' | 'sensitive-quiz' | 'done';
   const [phase, setPhase] = useState<Phase>('intro');
 
   // Condition-first zone selection
@@ -153,7 +157,15 @@ export function ElectricGlowScratchMinigame({ onComplete, copy }: MinigameSlotPr
   // Post-scratch flow
   const [scratchedZoneId, setScratchedZoneId] = useState<string>('nose');
   const [relocatingConditionId, setRelocatingConditionId] = useState<ConditionId>('da-nhon-mun-viem');
-  const [selectedZones, setSelectedZones] = useState<Zone[]>([]);
+  // Screen 2b selection (pill ids: AcneType | 'unsure')
+  const [altTypes, setAltTypes] = useState<string[]>([]);
+  // Per-zone detail shared by the relocate and alt-zones face maps
+  const [detailZoneMap, setDetailZoneMap] = useState<ZoneMap>({});
+  const [activeBubble, setActiveBubble] = useState<{
+    zone: Zone; cx: number; cy: number; conditions: ConditionOption[];
+  } | null>(null);
+  // Symptom picked on the sensitive-skin screen — it becomes the 'sensitive' bubble
+  const [sensitiveSymptom, setSensitiveSymptom] = useState<{ label: string; img: string } | null>(null);
 
   // Derived
   const scratchedZone = REVEAL_ZONES.find(z => z.id === scratchedZoneId) ?? REVEAL_ZONES[1];
@@ -325,58 +337,122 @@ export function ElectricGlowScratchMinigame({ onComplete, copy }: MinigameSlotPr
   const handleConfirmRelocate = useCallback(() => {
     if (!activeConditionId) return;
     setRelocatingConditionId(activeConditionId);
-    setSelectedZones(REVEAL_ZONES.filter(z => activeZoneIds.includes(z.id)).map(z => z.faceZone));
+    setDetailZoneMap({});
     setPhase('relocate');
-  }, [activeConditionId, activeZoneIds]);
+  }, [activeConditionId]);
+
+  // ─── Final emit ─────────────────────────────────────────────────────────────
+  const finishWith = useCallback((
+    ids: ConditionId[], zoneLabel: string, zoneIds: Zone[], triggerNote: string,
+  ) => {
+    const conditions = ids
+      .map(id => skinConditions[id])
+      .filter((c): c is NonNullable<typeof c> => c != null);
+    const condition = conditions[0];
+    if (!condition) return;
+    setPhase('done');
+    setTimeout(() => onComplete({
+      conditions, condition, zoneLabel, zoneIds, triggerNote,
+    } as MinigameResult), 400);
+  }, [onComplete]);
+
+  // ─── Per-zone detail picker — shared by relocate and alt-zones ──────────────
+  // Relocate already knows the condition, so the bubble opens straight on severity.
+  // alt-zones passes every selected type, so each zone gets its own condition set.
+  const bubbleConditions = useMemo<ConditionOption[]>(() => {
+    if (phase === 'relocate') {
+      return [{
+        id: relocatingConditionId,
+        label: relocatingCondition.label ?? 'Tình trạng này',
+        color: relocatingCondition.color,
+      }];
+    }
+    return altTypes
+      .filter(t => t !== 'unsure' && t !== 'none')
+      .map(t => ACNE_TYPES.find(a => a.id === t))
+      .filter((def): def is typeof ACNE_TYPES[number] => def != null)
+      .map(def => def.id === 'sensitive' && sensitiveSymptom
+        // The symptom the user picked replaces the generic "Mẩn đỏ kích ứng" bubble
+        ? { id: def.id, label: sensitiveSymptom.label, image: sensitiveSymptom.img, color: def.color }
+        : { id: def.id, label: def.label, image: CONDITION_IMAGES[def.id], color: def.color });
+  }, [phase, relocatingConditionId, relocatingCondition, altTypes, sensitiveSymptom]);
+
+  const handleDetailZoneTap = useCallback((zone: Zone, cx: number, cy: number) => {
+    setActiveBubble({ zone, cx, cy, conditions: bubbleConditions });
+  }, [bubbleConditions]);
+
+  const handleBubbleComplete = useCallback((conditionIds: string[], severity: Severity) => {
+    if (!activeBubble) return;
+    setDetailZoneMap(prev => ({ ...prev, [activeBubble.zone]: { conditions: conditionIds, severity } }));
+    setActiveBubble(null);
+  }, [activeBubble]);
+
+  const detailZoneSeverity = useMemo(
+    () => Object.fromEntries(
+      (Object.entries(detailZoneMap) as [Zone, NonNullable<ZoneMap[Zone]>][]).map(([z, d]) => [z, d.severity]),
+    ) as Partial<Record<Zone, Severity>>,
+    [detailZoneMap],
+  );
 
   // ─── Relocate confirm ───────────────────────────────────────────────────────
   const handleRelocateConfirm = useCallback(() => {
-    if (selectedZones.length === 0) return;
-    const condition = skinConditions[relocatingConditionId]!;
-    const zoneLabel = selectedZones.map(z => FACE_ZONE_LABELS[z]).join(', ');
-    setPhase('done');
-    setTimeout(() => onComplete({
-      conditions: [condition],
-      condition,
-      zoneLabel,
-      zoneIds: [...selectedZones],
-      triggerNote: zoneLabel,
-    } as MinigameResult), 400);
-  }, [selectedZones, relocatingConditionId, onComplete]);
+    const entries = Object.entries(detailZoneMap) as [Zone, NonNullable<ZoneMap[Zone]>][];
+    if (entries.length === 0) return;
+    finishWith(
+      [relocatingConditionId],
+      entries.map(([z]) => ZONE_LABELS[z]).join(', '),
+      entries.map(([z]) => z),
+      entries.map(([z, d]) => `${ZONE_LABELS[z]} (${SEVERITY_WORD[d.severity]})`).join(', '),
+    );
+  }, [detailZoneMap, relocatingConditionId, finishWith]);
 
-  // ─── Alternative condition select ──────────────────────────────────────────
-  const handleAlternativeSelect = useCallback((condId: ConditionId) => {
-    if (DIRECT_PAYOFF.has(condId)) {
-      const condition = skinConditions[condId]!;
-      setPhase('done');
-      setTimeout(() => onComplete({
-        conditions: [condition],
-        condition,
-        zoneLabel: '',
-        zoneIds: [],
-        triggerNote: '',
-      } as MinigameResult), 400);
-    } else if (condId === 'da-nhay-cam') {
-      setPhase('sensitive-quiz');
-    } else {
-      setRelocatingConditionId(condId);
-      setSelectedZones([]);
-      setPhase('relocate');
-    }
-  }, [onComplete]);
+  // ─── Screen 2b: pill cloud ──────────────────────────────────────────────────
+  const toggleAltType = useCallback((id: string) => {
+    setAltTypes(prev => togglePillSelection(prev, id, ALT_PILL_OPTIONS));
+  }, []);
+
+  const handleAltTypesNext = useCallback(() => {
+    if (altTypes.length === 0) return;
+    if (altTypes.includes('none'))   { finishWith(['clean-skin'],     '', [], 'Da ổn');            return; }
+    if (altTypes.includes('unsure')) { finishWith(['da-moi-bat-dau'], '', [], 'Chưa xác định rõ'); return; }
+    setDetailZoneMap({});
+    // Sensitive skin always gets its symptom screen first, alone or combined
+    if (altTypes.includes('sensitive')) { setSensitiveSymptom(null); setPhase('sensitive-quiz'); return; }
+    setPhase('alt-zones');
+  }, [altTypes, finishWith]);
+
+  const handleAltZonesNext = useCallback(() => {
+    const picked = altTypes.filter(t => t !== 'unsure' && t !== 'none') as AcneType[];
+    const zoneAssessments = zoneMapToAssessments(detailZoneMap);
+    const assessments = zoneAssessments.length > 0
+      ? zoneAssessments
+      : picked.map(acneType => ({ acneType, zones: {} as Partial<Record<Zone, Severity>> }));
+    const activeZones = [...new Set(
+      assessments.flatMap(a => (Object.entries(a.zones) as [Zone, Severity][])
+        .filter(([, s]) => s !== 'khong')
+        .map(([z]) => z)),
+    )];
+    finishWith(
+      assessToConditions(assessments),
+      activeZones.map(z => ZONE_LABELS[z]).join(', '),
+      activeZones,
+      picked
+        .map(t => t === 'sensitive'
+          ? (sensitiveSymptom?.label ?? ACNE_TYPES.find(a => a.id === t)?.label)
+          : ACNE_TYPES.find(a => a.id === t)?.label)
+        .filter(Boolean).join(', '),
+    );
+  }, [altTypes, detailZoneMap, sensitiveSymptom, finishWith]);
 
   // ─── Sensitive-skin symptom select ─────────────────────────────────────────
-  const handleSensitiveSymptomSelect = useCallback((triggerNote: string) => {
-    const condition = skinConditions['da-nhay-cam']!;
-    setPhase('done');
-    setTimeout(() => onComplete({
-      conditions: [condition],
-      condition,
-      zoneLabel: '',
-      zoneIds: [],
-      triggerNote,
-    } as MinigameResult), 400);
-  }, [onComplete]);
+  // The symptom is carried into the face map, where it stands in for the
+  // "Mẩn đỏ kích ứng" bubble. Picked alone, the face map has a single condition
+  // so BubbleTwoLayerPicker opens straight on the severity layer.
+  const handleSensitiveSymptomSelect = useCallback((symptom: { label: string; img: string }) => {
+    setSensitiveSymptom(symptom);
+    setDetailZoneMap({});
+    setPhase('alt-zones');
+  }, []);
 
   // ─── Reset to intro ─────────────────────────────────────────────────────────
   const resetScratch = useCallback(() => {
@@ -397,15 +473,14 @@ export function ElectricGlowScratchMinigame({ onComplete, copy }: MinigameSlotPr
     setActiveZoneIds([]);
     setScratchedDots(new Set());
     setToastZoneId(null);
+    setAltTypes([]);
+    setDetailZoneMap({});
+    setActiveBubble(null);
+    setSensitiveSymptom(null);
     firstRevealedZone.current = null;
     pathPointCount.current = 0;
     dragStartPos.current = null;
     if (maskPathRef.current) maskPathRef.current.setAttribute('d', '');
-  }, []);
-
-  // ─── Zone toggle for Screen 2a ──────────────────────────────────────────────
-  const toggleZone = useCallback((z: Zone) => {
-    setSelectedZones(prev => prev.includes(z) ? prev.filter(p => p !== z) : [...prev, z]);
   }, []);
 
   // ─── Header subtitle ────────────────────────────────────────────────────────
@@ -415,6 +490,7 @@ export function ElectricGlowScratchMinigame({ onComplete, copy }: MinigameSlotPr
     phase === 'confirm'         ? 'Xác nhận tình trạng' :
     phase === 'relocate'        ? 'Chọn vùng chính xác' :
     phase === 'alternative'     ? 'Tình trạng da thực tế' :
+    phase === 'alt-zones'       ? 'Vùng da & mức độ' :
     phase === 'sensitive-quiz'  ? 'Da nhạy cảm' :
     'Đang phân tích...';
 
@@ -453,8 +529,8 @@ export function ElectricGlowScratchMinigame({ onComplete, copy }: MinigameSlotPr
           transition: border-color 0.14s, box-shadow 0.14s, transform 0.12s;
         }
         .symptom-card:hover {
-          border-color: #7DD9C0 !important;
-          box-shadow: 0 6px 20px rgba(125,217,192,0.28) !important;
+          border-color: ${SENSITIVE_ALERT} !important;
+          box-shadow: 0 6px 20px color-mix(in srgb, ${SENSITIVE_ALERT} 30%, transparent) !important;
           transform: translateY(-3px);
         }
         .symptom-card:active { transform: scale(0.96); }
@@ -493,11 +569,13 @@ export function ElectricGlowScratchMinigame({ onComplete, copy }: MinigameSlotPr
             Làm lại
           </button>
         )}
-        {(phase === 'relocate' || phase === 'sensitive-quiz') && (
+        {(phase === 'relocate' || phase === 'sensitive-quiz' || phase === 'alt-zones') && (
           <button
             onClick={() => setPhase(
               phase === 'sensitive-quiz' ? 'alternative' :
-              relocatingConditionId !== activeConditionId ? 'alternative' : 'confirm'
+              // alt-zones came through the symptom screen whenever sensitive is in play
+              phase === 'alt-zones'      ? (altTypes.includes('sensitive') ? 'sensitive-quiz' : 'alternative') :
+              'confirm'
             )}
             className="flex-shrink-0 text-xs px-2 py-1 rounded-md transition-opacity hover:opacity-80"
             style={{ color: 'color-mix(in srgb, var(--lp-primary) 55%, transparent)', border: '1px solid color-mix(in srgb, var(--lp-primary) 18%, transparent)' }}>
@@ -875,9 +953,12 @@ export function ElectricGlowScratchMinigame({ onComplete, copy }: MinigameSlotPr
             <h2 className="text-base font-bold text-center" style={{ color: 'var(--lp-primary)' }}>
               {relocatingCondition.label} nằm ở vùng nào?
             </h2>
-            <FaceDiagram zoneSeverity={Object.fromEntries(selectedZones.map(z => [z, 'nhieu' as Severity])) as Partial<Record<Zone, Severity>>} onZoneTap={(z) => toggleZone(z)} isScanning={false} />
-            <SelectedZoneTags selectedZones={selectedZones} />
-            {selectedZones.length > 0 && (
+            <p className="text-xs -mt-2 text-center" style={{ color: 'color-mix(in srgb, var(--lp-primary) 50%, transparent)' }}>
+              Chạm vào vùng da để chọn mức độ
+            </p>
+            <FaceDiagram zoneSeverity={detailZoneSeverity} onZoneTap={handleDetailZoneTap} isScanning={false} />
+            <ZoneSeverityTags zoneMap={detailZoneMap} emptyHint="Chạm vào vùng da để chọn mức độ" />
+            {Object.keys(detailZoneMap).length > 0 && (
               <button onClick={handleRelocateConfirm}
                 className="w-full max-w-xs py-3.5 rounded-full font-bold text-sm text-white transition-all active:scale-[0.97]"
                 style={{ background: 'var(--lp-accent)', boxShadow: '0 4px 14px color-mix(in srgb, var(--lp-accent) 30%, transparent)' }}>
@@ -892,11 +973,14 @@ export function ElectricGlowScratchMinigame({ onComplete, copy }: MinigameSlotPr
             {/* Left — face diagram on tinted bg */}
             <div className="flex-1 flex flex-col items-center justify-center p-8"
               style={{ background: `color-mix(in srgb, ${relocatingCondition.color} 6%, var(--lp-bg-hero))` }}>
-              <h2 className="text-lg font-bold mb-5 text-center" style={{ color: 'var(--lp-primary)' }}>
+              <h2 className="text-lg font-bold mb-1 text-center" style={{ color: 'var(--lp-primary)' }}>
                 {relocatingCondition.label} nằm ở vùng nào?
               </h2>
+              <p className="text-sm mb-4 text-center" style={{ color: 'color-mix(in srgb, var(--lp-primary) 50%, transparent)' }}>
+                Chạm vào vùng da để chọn mức độ
+              </p>
               <div className="md:max-w-[400px]">
-                <FaceDiagram zoneSeverity={Object.fromEntries(selectedZones.map(z => [z, 'nhieu' as Severity])) as Partial<Record<Zone, Severity>>} onZoneTap={(z) => toggleZone(z)} isScanning={false} />
+                <FaceDiagram zoneSeverity={detailZoneSeverity} onZoneTap={handleDetailZoneTap} isScanning={false} />
               </div>
             </div>
 
@@ -911,13 +995,8 @@ export function ElectricGlowScratchMinigame({ onComplete, copy }: MinigameSlotPr
                   {relocatingCondition.label}
                 </span>
               </div>
-              <SelectedZoneTags selectedZones={selectedZones} />
-              {selectedZones.length === 0 && (
-                <p className="text-sm" style={{ color: 'color-mix(in srgb, var(--lp-primary) 50%, transparent)' }}>
-                  Chạm vào vùng da bên trái để chọn vị trí
-                </p>
-              )}
-              {selectedZones.length > 0 && (
+              <ZoneSeverityTags zoneMap={detailZoneMap} emptyHint="Chạm vào vùng da bên trái để chọn vị trí và mức độ" />
+              {Object.keys(detailZoneMap).length > 0 && (
                 <button onClick={handleRelocateConfirm}
                   className="w-full py-3.5 rounded-full font-bold text-sm text-white transition-all active:scale-[0.97]"
                   style={{ background: 'var(--lp-accent)', boxShadow: '0 4px 14px color-mix(in srgb, var(--lp-accent) 30%, transparent)' }}>
@@ -929,54 +1008,84 @@ export function ElectricGlowScratchMinigame({ onComplete, copy }: MinigameSlotPr
         </>
       )}
 
-      {/* ── Screen 2b: Alternative condition ────────────────────────────────── */}
+      {/* ── Screen 2b: Alternative condition — pill cloud (shared with face-map) ── */}
       {phase === 'alternative' && (
-        <>
-          {/* Mobile */}
-          <div className="md:hidden flex-1 flex flex-col px-5 py-6 gap-4 overflow-y-auto"
-            style={{ animation: 'fade-in 300ms ease-out both' }}>
-            <p className="text-sm font-semibold text-center" style={{ color: 'var(--lp-primary)' }}>
-              Chọn tình trạng gần nhất với da bạn:
-            </p>
-            <div className="flex flex-col gap-2">
-              {ALTERNATIVE_CONDITIONS.filter(c => c.id !== activeConditionId).map(cond => (
-                <button key={cond.id} onClick={() => handleAlternativeSelect(cond.id)}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all active:scale-[0.98]"
-                  style={{
-                    background: `color-mix(in srgb, ${cond.color} 7%, white)`,
-                    border: `1px solid color-mix(in srgb, ${cond.color} 25%, transparent)`,
-                  }}>
-                  <div className="w-4 h-4 rounded-full flex-shrink-0" style={{ background: cond.color }} />
-                  <span className="text-sm font-semibold" style={{ color: 'var(--lp-primary)' }}>{cond.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
+        <div className="flex-1 flex items-start md:items-center justify-center px-5 py-6 overflow-y-auto"
+          style={{ animation: 'fade-in 300ms ease-out both' }}>
+          <ConditionPillCloud
+            options={ALT_PILL_OPTIONS}
+            selected={altTypes}
+            onToggle={toggleAltType}
+            onNext={handleAltTypesNext}
+            heading="Vậy da bạn đang gặp tình trạng nào?"
+            subtext="Chọn tất cả những gì bạn đang có"
+            ctaLabel={
+              altTypes.includes('none') || altTypes.includes('unsure')
+                ? 'Xem kết quả'
+                : 'Tiếp theo →'
+            }
+          />
+        </div>
+      )}
 
-          {/* Desktop — single column centered list */}
-          <div className="hidden md:flex flex-1 items-center justify-center p-8 overflow-y-auto"
-            style={{ animation: 'fade-in 300ms ease-out both' }}>
-            <div className="flex flex-col items-center gap-5" style={{ maxWidth: '420px' }}>
-              <p className="text-base font-bold text-center" style={{ color: 'var(--lp-primary)' }}>
-                Chọn tình trạng gần nhất với da bạn:
-              </p>
-              <div className="flex flex-col gap-2 w-full">
-                {ALTERNATIVE_CONDITIONS.filter(c => c.id !== activeConditionId).map(cond => (
-                  <button key={cond.id} onClick={() => handleAlternativeSelect(cond.id)}
-                    className="w-full flex items-center gap-3 px-5 py-3.5 rounded-xl text-left transition-all active:scale-[0.98]"
-                    style={{
-                      background: `color-mix(in srgb, ${cond.color} 7%, white)`,
-                      border: `1px solid color-mix(in srgb, ${cond.color} 25%, transparent)`,
-                    }}>
-                    <div className="w-4 h-4 rounded-full flex-shrink-0" style={{ background: cond.color }} />
-                    <span className="text-sm font-semibold" style={{ color: 'var(--lp-primary)' }}>{cond.label}</span>
+      {/* ── alt-zones: per-zone condition + severity (BubbleTwoLayerPicker) ──── */}
+      {phase === 'alt-zones' && (() => {
+        const isMulti = bubbleConditions.length > 1;
+        const heading = isMulti
+          ? 'Da bạn có nhiều tuýp — hãy làm rõ từng vùng'
+          : `${bubbleConditions[0]?.label ?? 'Tình trạng này'} xuất hiện ở đâu?`;
+        return (
+          <>
+            {/* Mobile */}
+            <div className="md:hidden flex-1 flex flex-col items-center px-5 py-6 gap-4 overflow-y-auto"
+              style={{ animation: 'fade-in 300ms ease-out both' }}>
+              <div className="text-center">
+                <p className="text-base font-extrabold leading-snug" style={{ color: 'var(--lp-primary)' }}>
+                  {heading}
+                </p>
+                <p className="text-xs mt-1" style={{ color: 'color-mix(in srgb, var(--lp-primary) 50%, transparent)' }}>
+                  Chạm vào vùng da để chọn tình trạng và mức độ
+                </p>
+              </div>
+              <FaceDiagram zoneSeverity={detailZoneSeverity} onZoneTap={handleDetailZoneTap} isScanning={false} />
+              <ZoneSeverityTags zoneMap={detailZoneMap} emptyHint="Chạm vào vùng da để chọn mức độ" />
+              {Object.keys(detailZoneMap).length > 0 && (
+                <button onClick={handleAltZonesNext}
+                  className="w-full max-w-xs py-3.5 rounded-full font-bold text-sm text-white transition-all active:scale-[0.97]"
+                  style={{ background: 'var(--lp-accent)', boxShadow: '0 4px 14px color-mix(in srgb, var(--lp-accent) 30%, transparent)' }}>
+                  Xem kết quả
+                </button>
+              )}
+            </div>
+
+            {/* Desktop */}
+            <div className="hidden md:flex flex-1 overflow-hidden" style={{ animation: 'fade-in 300ms ease-out both' }}>
+              <div className="flex-1 flex flex-col items-center justify-center p-8">
+                <p className="text-lg font-extrabold mb-1 text-center" style={{ color: 'var(--lp-primary)' }}>
+                  {heading}
+                </p>
+                <p className="text-sm mb-5 text-center" style={{ color: 'color-mix(in srgb, var(--lp-primary) 50%, transparent)' }}>
+                  Chạm vào vùng da để chọn tình trạng và mức độ
+                </p>
+                <div className="md:max-w-[400px]">
+                  <FaceDiagram zoneSeverity={detailZoneSeverity} onZoneTap={handleDetailZoneTap} isScanning={false} />
+                </div>
+              </div>
+              <div className="self-stretch w-px bg-cta/10 flex-shrink-0" />
+              <div className="flex-1 flex flex-col justify-center gap-4 p-8">
+                <ZoneSeverityTags zoneMap={detailZoneMap} emptyHint="Chạm vào vùng da bên trái để chọn tình trạng và mức độ" />
+                {Object.keys(detailZoneMap).length > 0 && (
+                  <button onClick={handleAltZonesNext}
+                    className="w-full py-3.5 rounded-full font-bold text-sm text-white transition-all active:scale-[0.97]"
+                    style={{ background: 'var(--lp-accent)', boxShadow: '0 4px 14px color-mix(in srgb, var(--lp-accent) 30%, transparent)' }}>
+                    Xem kết quả
                   </button>
-                ))}
+                )}
               </div>
             </div>
-          </div>
-        </>
-      )}
+          </>
+        );
+      })()}
 
       {/* ── Screen: Sensitive-skin symptom quiz ────────────────────────────── */}
       {phase === 'sensitive-quiz' && (
@@ -984,11 +1093,19 @@ export function ElectricGlowScratchMinigame({ onComplete, copy }: MinigameSlotPr
           {/* Mobile — 2×2 grid */}
           <div className="md:hidden flex-1 flex flex-col px-4 py-5 overflow-y-auto"
             style={{ animation: 'fade-in 300ms ease-out both' }}>
-            <p className="text-xs font-bold mb-1" style={{ color: '#7DD9C0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-              Da nhạy cảm
-            </p>
-            <p className="text-sm font-extrabold mb-4 leading-snug" style={{ color: 'var(--lp-primary)' }}>
-              Bạn thường gặp triệu chứng nào nhất?
+            <h2 className="font-extrabold leading-tight"
+              style={{ fontSize: 'clamp(20px, 5.8vw, 26px)', color: 'var(--lp-primary)' }}>
+              Da bạn nhạy cảm ? triệu chứng thường gặp là gì?
+            </h2>
+            <p className="mt-2 mb-4 flex items-start gap-1.5 font-bold leading-snug"
+              style={{ fontSize: '12.5px', color: SENSITIVE_DEEP }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
+                style={{ flexShrink: 0, marginTop: 1 }}>
+                <path d="M10.3 3.6 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.6a2 2 0 0 0-3.4 0z" />
+                <path d="M12 9v4" /><path d="M12 17h.01" />
+              </svg>
+              Da nhạy cảm không nên xem thường — đó có thể là báo động lớn!
             </p>
             <div className="grid grid-cols-2 gap-3">
               {SENSITIVE_SYMPTOMS.map((s, i) => (
@@ -1000,7 +1117,7 @@ export function ElectricGlowScratchMinigame({ onComplete, copy }: MinigameSlotPr
                     boxShadow: '0 1px 4px rgba(0,0,0,0.07)',
                     animation: `card-enter 280ms ease-out ${i * 55}ms both`,
                   }}
-                  onClick={() => handleSensitiveSymptomSelect(s.label)}>
+                  onClick={() => handleSensitiveSymptomSelect({ label: s.label, img: s.img })}>
                   <img src={s.img} alt="" aria-hidden="true"
                     className="w-full object-cover"
                     style={{ aspectRatio: '4/3', display: 'block' }} />
@@ -1016,11 +1133,18 @@ export function ElectricGlowScratchMinigame({ onComplete, copy }: MinigameSlotPr
           {/* Desktop — full-width 4-column grid */}
           <div className="hidden md:flex flex-1 flex-col justify-center px-10 py-8 overflow-y-auto"
             style={{ animation: 'fade-in 300ms ease-out both' }}>
-            <p className="text-xs font-bold mb-2" style={{ color: '#7DD9C0', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-              Da nhạy cảm
-            </p>
-            <p className="text-2xl font-black mb-8" style={{ color: 'var(--lp-primary)' }}>
-              Bạn thường gặp triệu chứng nào nhất?
+            
+            <h2 className="text-3xl font-black mb-2" style={{ color: 'var(--lp-primary)' }}>
+              Da bạn bạn nhạy cảm ? Triệu chứng thường gặp là gì ?
+            </h2>
+            <p className="flex items-center gap-2 text-sm font-bold mb-7" style={{ color: SENSITIVE_DEEP }}>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
+                style={{ flexShrink: 0 }}>
+                <path d="M10.3 3.6 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.6a2 2 0 0 0-3.4 0z" />
+                <path d="M12 9v4" /><path d="M12 17h.01" />
+              </svg>
+              Da nhạy cảm không nên xem thường — đó có thể là báo động lớn!
             </p>
             <div className="grid grid-cols-4 gap-5">
               {SENSITIVE_SYMPTOMS.map((s, i) => (
@@ -1032,7 +1156,7 @@ export function ElectricGlowScratchMinigame({ onComplete, copy }: MinigameSlotPr
                     boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
                     animation: `card-enter 300ms ease-out ${i * 60}ms both`,
                   }}
-                  onClick={() => handleSensitiveSymptomSelect(s.label)}>
+                  onClick={() => handleSensitiveSymptomSelect({ label: s.label, img: s.img })}>
                   <img src={s.img} alt="" aria-hidden="true"
                     className="w-full object-cover"
                     style={{ aspectRatio: '4/3', display: 'block' }} />
@@ -1061,6 +1185,17 @@ export function ElectricGlowScratchMinigame({ onComplete, copy }: MinigameSlotPr
             {copy?.analyzing?.label ?? 'Đang phân tích...'}
           </p>
         </div>
+      )}
+
+      {/* ── Per-zone picker overlay (condition → severity) ───────────────────── */}
+      {activeBubble && (
+        <BubbleTwoLayerPicker
+          cx={activeBubble.cx}
+          cy={activeBubble.cy}
+          conditions={activeBubble.conditions}
+          onComplete={handleBubbleComplete}
+          onClose={() => setActiveBubble(null)}
+        />
       )}
     </div>
   );
