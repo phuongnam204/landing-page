@@ -52,7 +52,7 @@ describe('getSuggestedProgram', () => {
   it('returns the first program treating the condition', () => {
     const suggested = getSuggestedProgram('mun-noi-tiet');
     expect(suggested).toBeDefined();
-    expect(suggested!.primaryConditionIds[0]).toBe('mun-noi-tiet');
+    expect(suggested!.primaryConditionIds).toContain('mun-noi-tiet');
   });
 
   it('falls back to the first program for unknown conditions', () => {

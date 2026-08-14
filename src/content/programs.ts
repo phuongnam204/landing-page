@@ -65,8 +65,8 @@ export const programs: Program[] = [
       "Cải thiện các dấu hiệu lão hóa sớm như nếp nhăn, sạm da…",
       "Tăng độ đàn hồi tự nhiên, giúp da săn chắc."
     ],
-    primaryConditionIds: ['da-nhon-mun-viem', 'da-tham-do'],
-    secondaryConditionIds: ['da-nep-nhan', 'tan-nhang'],
+    primaryConditionIds: ['mun-trung-ca', 'da-nhon-mun-viem', 'da-mun-tham-seo'],
+    secondaryConditionIds: ['da-tham-do', 'da-nep-nhan', 'tan-nhang'],
     benenif: [
       'Điều trị mụn viêm, mụn ẩn từ nhẹ đến trung bình',
       'Điều trị da dày sừng và da mụn tổn thương do ánh nắng',
@@ -148,8 +148,9 @@ export const programs: Program[] = [
       "Ngừa mụn mới hình thành, hiệu quả lâu dài",
       "Rút ngắn thời gian và tiết kiệm chi phí"
     ],
-    primaryConditionIds: ['mun-noi-tiet', 'da-nhay-cam'],
-    secondaryConditionIds: ['da-nhon-mun-viem'],
+    // Extraction applies to acne of every kind, not one specific type.
+    primaryConditionIds: ['mun-trung-ca', 'mun-noi-tiet', 'da-nhon-mun-viem'],
+    secondaryConditionIds: ['da-nhay-cam'],
     comboWith: 'maintenance-skin-health',
     sessions: 8,
     o2skinComboRef: '',
@@ -175,7 +176,7 @@ export const programs: Program[] = [
       'Không xâm lấn và an toàn cho làn da',
       'Thực hiện nhanh, không đau, không cần nghỉ dưỡng'
     ],
-    primaryConditionIds: ['clean-skin', 'da-moi-bat-dau', 'da-nhay-cam'],
+    primaryConditionIds: ['clean-skin', 'da-moi-bat-dau', 'da-nhay-cam', 'da-mun-tham-seo'],
     secondaryConditionIds: ['sau-dieu-tri'],
     sessions: 9,
     images:['/programs/hinh-gioi-thieu-cham-soc-da-trang-sang-chuyen-sau.png','/programs/hinh-gioi-thieu-cham-soc-da-trang-sang-chuyen-sau-3.jpg'],
@@ -206,7 +207,7 @@ export const programs: Program[] = [
       'Làm chậm quá trình lão hóa da, hạn chế các nếp nhăn',
       'Dưỡng da hồng hào, khỏe mạnh, tràn đầy sức sống'
     ],
-    primaryConditionIds: ['lo-chan-long', 'da-tham-mun'],
+    primaryConditionIds: ['lo-chan-long', 'da-tham-mun', 'da-nep-nhan'],
     secondaryConditionIds: ['lan-da-xin-mau'],
     sessions: 10,
     images:['/programs/hinh-anh-gioi-thieu-tre-hoa-da-mat-va-ho-tro-thu-nho-lo-chan-long-3.jpg', '/programs/hinh-anh-gioi-thieu-tre-hoa-da-mat-va-ho-tro-thu-nho-lo-chan-long-2.jpg'],

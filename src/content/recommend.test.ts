@@ -7,24 +7,26 @@ describe('recommendPrograms', () => {
   });
 
   it('ranks primary match higher than secondary match for same condition', () => {
-    // da-nep-nhan: primary of microneedling-repair (+2), secondary of ipl-oil-control (+1)
+    // da-nep-nhan: primary of microneedling-repair (+2), secondary of ipl-oil-control (+1).
+    // Asserted by score rather than position — other programs also treat this
+    // condition, so the ranking has ties either side.
     const results = recommendPrograms(['da-nep-nhan']);
-    expect(results.length).toBeGreaterThanOrEqual(2);
-    expect(results[0].program.id).toBe('microneedling-repair');
-    expect(results[0].score).toBe(2);
-    expect(results[1].program.id).toBe('ipl-oil-control');
-    expect(results[1].score).toBe(1);
+    const primaryMatch   = results.find(r => r.program.id === 'microneedling-repair')!;
+    const secondaryMatch = results.find(r => r.program.id === 'ipl-oil-control')!;
+    expect(primaryMatch.score).toBe(2);
+    expect(secondaryMatch.score).toBe(1);
+    expect(primaryMatch.score).toBeGreaterThan(secondaryMatch.score);
   });
 
   it('accumulates score across multiple conditions', () => {
     // mun-noi-tiet + da-nhon-mun-viem:
-    //   hormonal-acne-plan: primary mun-noi-tiet (+2) + secondary da-nhon-mun-viem (+1) = 3
+    //   hormonal-acne-plan treats both as primary (+2 each) = 4
     //   peel-acne: primary da-nhon-mun-viem (+2) = 2
     const results = recommendPrograms(['mun-noi-tiet', 'da-nhon-mun-viem']);
     expect(results[0].program.id).toBe('hormonal-acne-plan');
-    expect(results[0].score).toBe(3);
+    expect(results[0].score).toBe(4);
     expect(results[0].matchedPrimary).toContain('mun-noi-tiet');
-    expect(results[0].matchedSecondary).toContain('da-nhon-mun-viem');
+    expect(results[0].matchedPrimary).toContain('da-nhon-mun-viem');
   });
 
   it('respects the topN cap', () => {
