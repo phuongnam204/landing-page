@@ -1,10 +1,11 @@
 'use client';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type { ProgramId } from '../../../content/programs';
 import type { ScoredProgram } from '../../../content/recommend';
 import type { ConditionId } from '../../../content/quiz';
 import { getPrograms, getConditionById } from '../../../content/catalog';
 import { GridWithFaqPrograms } from './GridWithFaqPrograms';
+import { SwipeSheet, SHEET_LEAVE_MS } from './SwipeSheet';
 
 const PALETTE = [
   '#E11D48', '#9333EA', '#2563EB', '#0891B2',
@@ -165,30 +166,24 @@ export function RelevantPrograms({ programs, onContinue, onBack }: {
     return found ? [found] : [{ program: detailProg, score: 0, matchedPrimary: [], matchedSecondary: [] }];
   })();
 
-  const sheetOpen = !!detailId && !detailLeaving;
+  const stageRef = useRef<HTMLDivElement>(null);
 
   function openDetail(id: ProgramId) { setDetailId(id); setDetailLeaving(false); }
   function closeDetail() {
     setDetailLeaving(true);
-    setTimeout(() => { setDetailId(null); setDetailLeaving(false); }, 320);
+    setTimeout(() => { setDetailId(null); setDetailLeaving(false); }, SHEET_LEAVE_MS);
   }
 
   return (
     <div style={{ position: 'relative', minHeight: '100dvh', overflow: 'hidden' }}>
-      <style>{`
-        @keyframes sheet-in { from { transform: translateY(100%); border-radius: 24px 24px 0 0; } to { transform: translateY(0); border-radius: 0; } }
-        @keyframes sheet-out { from { transform: translateY(0); border-radius: 0; } to { transform: translateY(105%); border-radius: 24px 24px 0 0; } }
-      `}</style>
-
       <div
+        ref={stageRef}
         style={{
           minHeight: '100dvh',
           overflowY: 'auto',
           background: 'var(--lp-bg-programs)',
-          transition: 'transform 420ms cubic-bezier(0.32, 0.72, 0, 1), opacity 380ms ease',
-          transform: sheetOpen ? 'scale(0.91) translateY(-18px)' : 'scale(1) translateY(0)',
-          opacity: sheetOpen ? 0.42 : 1,
           transformOrigin: 'top center',
+          willChange: 'transform',
           pointerEvents: detailId ? 'none' : 'auto',
         }}
       >
@@ -222,20 +217,9 @@ export function RelevantPrograms({ programs, onContinue, onBack }: {
       </div>
 
       {detailId && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 40,
-            animation: detailLeaving
-              ? 'sheet-out 340ms cubic-bezier(0.4, 0, 1, 1) forwards'
-              : 'sheet-in  430ms cubic-bezier(0.32, 0.72, 0, 1) forwards',
-            overflow: 'hidden',
-            boxShadow: '0 -12px 48px rgba(0,0,0,0.20)',
-          }}
-        >
+        <SwipeSheet open={!detailLeaving} onClose={closeDetail} underlayRef={stageRef}>
           <GridWithFaqPrograms suggestedPrograms={detailSP} onContinue={onContinue} onBrowse={closeDetail} />
-        </div>
+        </SwipeSheet>
       )}
     </div>
   );

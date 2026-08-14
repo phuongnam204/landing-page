@@ -6,6 +6,8 @@ import type { ScoredProgram } from '../../../content/recommend';
 import type { ConditionId } from '../../../content/quiz';
 import { getPrograms } from '../../../content/catalog';
 import { GridWithFaqPrograms } from './GridWithFaqPrograms';
+import { SwipeSheet, SHEET_LEAVE_MS, type SwipeSheetHandle } from './SwipeSheet';
+import { useVerticalDrag } from './useVerticalDrag';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -53,8 +55,14 @@ export function CarouselPrograms({ suggestedPrograms, onContinue, onBack }: Prog
   const [detailId,        setDetailId]        = useState<ProgramId | null>(null);
   const [detailLeaving,   setDetailLeaving]   = useState(false);
 
+  const [pulling,         setPulling]         = useState(false);
+
   // ── Gesture refs (no React re-render during drag) ──
   const containerRef    = useRef<HTMLDivElement>(null);
+  const stageRef        = useRef<HTMLDivElement>(null);
+  const sheetHandle     = useRef<SwipeSheetHandle>(null);
+  const detailIdRef     = useRef<ProgramId | null>(null);
+  detailIdRef.current   = detailId;
   const cardRefs        = useRef<(HTMLDivElement | null)[]>([]);
   const activeIdxRef    = useRef(startIdx);
   const dragX           = useRef(0);
@@ -156,18 +164,31 @@ export function CarouselPrograms({ suggestedPrograms, onContinue, onBack }: Prog
     const container = containerRef.current;
     if (!container) return;
     let touchStartX = 0;
+    let touchStartY = 0;
     let touchStartDX = 0;
+    let axis: 'none' | 'horizontal' = 'none';
 
     function onTouchStart(e: TouchEvent) {
       if (animFrameRef.current) { cancelAnimationFrame(animFrameRef.current); animFrameRef.current = null; }
       isDragging.current  = true;
+      axis         = 'none';
       touchStartX  = e.touches[0].clientX;
+      touchStartY  = e.touches[0].clientY;
       touchStartDX = dragX.current;
     }
     function onTouchMove(e: TouchEvent) {
       if (!isDragging.current) return;
-      e.preventDefault();
       const delta = e.touches[0].clientX - touchStartX;
+      const deltaY = e.touches[0].clientY - touchStartY;
+
+      if (axis === 'none') {
+        if (Math.abs(delta) < 8 && Math.abs(deltaY) < 8) return;
+        // A mostly-vertical move is the pull-up-to-open gesture, not a card swipe.
+        if (Math.abs(deltaY) > Math.abs(delta)) { isDragging.current = false; return; }
+        axis = 'horizontal';
+      }
+
+      e.preventDefault();
       const raw   = touchStartDX + delta;
       const atStart = activeIdxRef.current === 0 && raw > 0;
       const atEnd   = activeIdxRef.current === allPrograms.length - 1 && raw < 0;
@@ -209,8 +230,31 @@ export function CarouselPrograms({ suggestedPrograms, onContinue, onBack }: Prog
   }
   function closeDetail() {
     setDetailLeaving(true);
-    setTimeout(() => { setDetailId(null); setDetailLeaving(false); }, 320);
+    setTimeout(() => { setDetailId(null); setDetailLeaving(false); }, SHEET_LEAVE_MS);
   }
+
+  // ── Pull up anywhere on the carousel to drag the active card's detail open ──
+  useVerticalDrag({
+    targetRef: stageRef,
+    direction: 'up',
+    distance: () => window.innerHeight,
+    canStart: () => detailIdRef.current === null,
+    onStart: () => {
+      const prog = allPrograms[activeIdxRef.current];
+      if (!prog) return;
+      setPulling(true);
+      setDetailId(prog.id as ProgramId);
+      setDetailLeaving(false);
+    },
+    onMove: (travel) => {
+      sheetHandle.current?.setTravel(Math.max(0, window.innerHeight - travel));
+    },
+    onEnd: (commit) => {
+      setPulling(false);
+      sheetHandle.current?.settle(commit);
+      if (!commit) setTimeout(() => setDetailId(null), SHEET_LEAVE_MS);
+    },
+  });
 
   // ── Detail data (computed regardless of whether overlay is visible) ──
   const detailProg = detailId ? allPrograms.find(p => p.id === detailId) : null;
@@ -218,21 +262,10 @@ export function CarouselPrograms({ suggestedPrograms, onContinue, onBack }: Prog
     ? [{ program: detailProg, score: 1, matchedPrimary: detailProg.primaryConditionIds as ConditionId[], matchedSecondary: [] }]
     : suggestedPrograms;
 
-  // ── Sheet-open state (true while overlay is entering OR present, false while leaving) ──
-  const sheetOpen = !!detailId && !detailLeaving;
-
   // ─── Combined view (carousel + optional overlay) ───────────────────────────
   return (
     <div style={{ position: 'relative', height: '100dvh', overflow: 'hidden' }}>
       <style>{`
-        @keyframes sheet-in {
-          from { transform: translateY(100%); border-radius: 24px 24px 0 0; }
-          to   { transform: translateY(0);    border-radius: 0 0 0 0; }
-        }
-        @keyframes sheet-out {
-          from { transform: translateY(0);    border-radius: 0 0 0 0; }
-          to   { transform: translateY(105%); border-radius: 24px 24px 0 0; }
-        }
         @media (hover: hover) {
           .carousel-card {
             border-bottom: 3px solid transparent;
@@ -247,15 +280,15 @@ export function CarouselPrograms({ suggestedPrograms, onContinue, onBack }: Prog
 
       {/* ── Carousel (scales back when sheet opens — iOS modal push) ── */}
       <div
+        ref={stageRef}
         className="h-[100dvh] w-full flex flex-col items-center justify-center gap-5 select-none"
         style={{
           background: 'var(--lp-bg-programs)',
           cursor: 'grab',
-          transition: 'transform 420ms cubic-bezier(0.32, 0.72, 0, 1), opacity 380ms ease',
-          transform: sheetOpen ? 'scale(0.91) translateY(-18px)' : 'scale(1) translateY(0)',
-          opacity: sheetOpen ? 0.42 : 1,
           transformOrigin: 'top center',
-          pointerEvents: detailId ? 'none' : 'auto',
+          willChange: 'transform',
+          // Stay interactive while a pull is in flight so the gesture can finish.
+          pointerEvents: detailId && !pulling ? 'none' : 'auto',
         }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
@@ -268,7 +301,7 @@ export function CarouselPrograms({ suggestedPrograms, onContinue, onBack }: Prog
           Tất cả liệu trình
         </p>
         <h2 className="font-extrabold text-2xl text-cta leading-snug">Chọn liệu trình phù hợp</h2>
-        <p className="text-sm text-cta/45 mt-1">Vuốt hoặc kéo để xem thêm</p>
+        <p className="text-sm text-cta/45 mt-1">Vuốt ngang để xem thêm, vuốt lên để mở chi tiết</p>
       </div>
 
       {/* Card stage */}
@@ -487,20 +520,17 @@ export function CarouselPrograms({ suggestedPrograms, onContinue, onBack }: Prog
       )}
       </div>
 
-      {/* ── Detail sheet overlay ── */}
+      {/* ── Detail sheet overlay — drag it down to return to the carousel ── */}
       {detailId && (
-        <div
-          style={{
-            position: 'fixed', inset: 0, zIndex: 40,
-            animation: detailLeaving
-              ? 'sheet-out 340ms cubic-bezier(0.4, 0, 1, 1) forwards'
-              : 'sheet-in  430ms cubic-bezier(0.32, 0.72, 0, 1) forwards',
-            overflow: 'hidden',
-            boxShadow: '0 -12px 48px rgba(0,0,0,0.20)',
-          }}
+        <SwipeSheet
+          open={!detailLeaving}
+          onClose={closeDetail}
+          underlayRef={stageRef}
+          pulling={pulling}
+          handleRef={sheetHandle}
         >
           <GridWithFaqPrograms suggestedPrograms={detailSP} onContinue={onContinue} onBrowse={closeDetail} />
-        </div>
+        </SwipeSheet>
       )}
     </div>
   );

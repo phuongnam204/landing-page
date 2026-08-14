@@ -8,8 +8,17 @@ import { getPrograms, getConditionById, getAllConditionIds } from '../../../cont
 import { trackEvent } from '../../../lib/trackEvent';
 import { CtaButton } from '../../../components/atoms/CtaButton';
 import { FAQ_BY_CONDITION } from './const/FAQCondition';
+import { useVerticalDrag, touchIsAtScrollTop } from './useVerticalDrag';
 
 const OCEAN_TINT = 'var(--lp-accent)';
+
+// Sheet motion. The entrance decelerates into place instead of overshooting —
+// a full-height travel that bounces reads as a flash rather than a surface
+// arriving. Content then rises in behind it so the sheet has depth.
+const DRAWER_IN     = 'transform 480ms cubic-bezier(0.32, 0.72, 0, 1)';
+const DRAWER_OUT    = 'transform 300ms cubic-bezier(0.4, 0, 1, 1)';
+const DRAWER_SNAP   = 'transform 380ms cubic-bezier(0.32, 0.72, 0, 1)';
+const BACKDROP_FADE = 'opacity 420ms ease';
 
 type FaqItem = { q: string; a: string };
 
@@ -109,7 +118,57 @@ function ProgramDetailDrawer({ program, tint, open, onClose, onBook, ctaVariant 
   const primarySet   = new Set(scoredProgram?.matchedPrimary ?? []);
   const secondarySet = new Set(scoredProgram?.matchedSecondary ?? []);
 
-  const drawerRef = useRef<HTMLDivElement>(null);
+  const drawerRef   = useRef<HTMLDivElement>(null);
+  const backdropRef = useRef<HTMLDivElement>(null);
+  const openRef     = useRef(open);
+  openRef.current   = open;
+
+  const drawerHeight = () => drawerRef.current?.offsetHeight || window.innerHeight * 0.85;
+
+  // Drag painting. `travel` is px below the resting (open) position.
+  function paintDrawer(travel: number) {
+    const progress = Math.max(0, Math.min(1, travel / Math.max(1, drawerHeight())));
+    if (drawerRef.current) drawerRef.current.style.transform = `translateY(${travel}px)`;
+    if (backdropRef.current) backdropRef.current.style.opacity = `${1 - progress}`;
+  }
+
+  function setDrawerTransition(value: string) {
+    if (drawerRef.current) drawerRef.current.style.transition = value;
+    if (backdropRef.current) backdropRef.current.style.transition = value === 'none' ? 'none' : BACKDROP_FADE;
+  }
+
+  // Resting positions. Driven imperatively so a released drag animates from
+  // wherever the finger left it rather than snapping to a React-rendered value.
+  useEffect(() => {
+    const el = drawerRef.current;
+    const backdrop = backdropRef.current;
+    if (!el) return;
+    el.style.transition = open ? DRAWER_IN : DRAWER_OUT;
+    el.style.transform = open ? 'translateY(0)' : 'translateY(100%)';
+    if (backdrop) {
+      backdrop.style.transition    = BACKDROP_FADE;
+      backdrop.style.opacity       = open ? '1' : '0';
+      backdrop.style.pointerEvents = open ? 'auto' : 'none';
+    }
+  }, [open]);
+
+  useVerticalDrag({
+    targetRef: drawerRef,
+    direction: 'down',
+    distance: drawerHeight,
+    canStart: (e) => openRef.current && touchIsAtScrollTop(e, drawerRef.current),
+    onStart: () => setDrawerTransition('none'),
+    onMove: paintDrawer,
+    onEnd: (commit) => {
+      if (commit) {
+        // The `open` effect animates the remaining distance from here.
+        onClose();
+      } else {
+        setDrawerTransition(DRAWER_SNAP);
+        paintDrawer(0);
+      }
+    },
+  });
 
   useEffect(() => {
     if (!open) return;
@@ -137,31 +196,38 @@ function ProgramDetailDrawer({ program, tint, open, onClose, onBook, ctaVariant 
   return (
     <>
       <div
-        className="fixed inset-0 z-40 bg-black/40 transition-opacity duration-300"
-        style={{ opacity: open ? 1 : 0, pointerEvents: open ? 'auto' : 'none' }}
+        ref={backdropRef}
+        data-sheet-no-drag
+        className="fixed inset-0 z-40 bg-black/40"
+        style={{ opacity: 0, pointerEvents: 'none', transition: 'opacity 300ms ease' }}
         onClick={onClose}
         aria-hidden="true"
       />
       <style>{`
+        @keyframes pd-rise {
+          from { opacity: 0; transform: translateY(14px); }
+          to   { opacity: 1; transform: none; }
+        }
+        .program-detail-drawer[data-open="true"] .pd-rise {
+          animation: pd-rise 420ms cubic-bezier(0.32, 0.72, 0, 1) backwards;
+        }
         @media (prefers-reduced-motion: reduce) {
           .program-detail-drawer { transition: none !important; }
+          .program-detail-drawer .pd-rise { animation: none !important; }
         }
       `}</style>
       <div
         ref={drawerRef}
+        data-sheet-no-drag
+        data-open={open}
         role="dialog"
         aria-modal="true"
         aria-label={`Chi tiết: ${program.name}`}
         className="program-detail-drawer fixed bottom-0 left-0 right-0 z-50 flex flex-col bg-[var(--lp-bg-card)] rounded-t-2xl shadow-2xl shadow-cta/20 max-h-[85dvh]"
-        style={{
-          transform: open ? 'translateY(0)' : 'translateY(100%)',
-          transition: open
-            ? 'transform 420ms cubic-bezier(0.34, 1.28, 0.64, 1)'
-            : 'transform 220ms cubic-bezier(0.4, 0, 1, 1)',
-        }}
+        style={{ transform: 'translateY(100%)', willChange: 'transform' }}
       >
-        <div className="flex justify-center pt-3 pb-1 shrink-0">
-          <div className="w-10 h-1 rounded-full bg-cta/20" />
+        <div className="flex justify-center pt-3 pb-2 shrink-0">
+          <div className="w-10 h-1 rounded-full bg-cta/25" />
         </div>
         <div className="flex items-center justify-between px-5 pt-2 pb-4 border-b border-[var(--lp-border)] shrink-0">
           <div>
@@ -183,12 +249,13 @@ function ProgramDetailDrawer({ program, tint, open, onClose, onBook, ctaVariant 
           <div className="flex flex-col gap-5 md:grid md:grid-cols-[55%_1fr] md:gap-6 md:items-start">
             {/* Left column */}
             <div className="flex flex-col gap-5">
-              <div>
+              <div className="pd-rise" style={{ animationDelay: '150ms' }}>
                 <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: tint }}>Về liệu trình</p>
                 <p className="text-sm text-cta/75 leading-relaxed">{program.description}</p>
               </div>
               {program.benenif && program.benenif.length > 0 && (
-                <div className="rounded-soft p-4 border border-[var(--lp-border)]" style={{ background: `${tint}14` }}>
+                <div className="rounded-soft p-4 border border-[var(--lp-border)] pd-rise"
+                  style={{ background: `${tint}14`, animationDelay: '210ms' }}>
                   <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: tint }}>Lợi ích nổi bật</p>
                   <ul className="flex flex-col gap-2">
                     {program.benenif.map((b, i) => (
@@ -203,7 +270,7 @@ function ProgramDetailDrawer({ program, tint, open, onClose, onBook, ctaVariant 
                   </ul>
                 </div>
               )}
-              <div>
+              <div className="pd-rise" style={{ animationDelay: '270ms' }}>
                 <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: tint }}>
                   {scoredProgram ? 'Phù hợp với tình trạng của bạn' : 'Phù hợp với'}
                 </p>
@@ -240,7 +307,7 @@ function ProgramDetailDrawer({ program, tint, open, onClose, onBook, ctaVariant 
               )}
             </div>
             {/* Right column: images or tint placeholder */}
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 pd-rise" style={{ animationDelay: '240ms' }}>
               {program.images && program.images.length > 0 ? (
                 (() => {
                   const imgs = program.images!.slice(0, 3);
@@ -282,7 +349,7 @@ function ProgramDetailDrawer({ program, tint, open, onClose, onBook, ctaVariant 
           </div>
           <div className="h-2" />
         </div>
-        <div className="px-5 py-4 border-t border-[var(--lp-border)] shrink-0">
+        <div className="px-5 py-4 border-t border-[var(--lp-border)] shrink-0 pd-rise" style={{ animationDelay: '330ms' }}>
           <CtaButton variant={ctaVariant} fullWidth onClick={onBook}>
             Đặt lịch với liệu trình này
           </CtaButton>
